@@ -1,0 +1,9 @@
+.vs/
+
+# Build directories
+build/
+build.vscode/
+build.rel/
+
+# Submission archives
+dist/
