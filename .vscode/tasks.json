@@ -1,58 +1,13 @@
 {
   "version": "2.0.0",
   "tasks": [
-    // Assignment 1
     {
       "type": "cmake",
-      "label": "Build Assignment1",
+      "label": "Build",
       "command": "build",
-      "targets": ["assignment1"],
+      "targets": ["game"],
       "group": "build",
       "problemMatcher": []
     },
-
-    // Assignment 2
-    {
-      "type": "cmake",
-      "label": "Build Assignment2",
-      "command": "build",
-      "targets": ["assignment2"],
-      "group": "build",
-      "problemMatcher": [],
-      "dependsOn": []
-    },
-
-    // Assignment 3
-    {
-      "type": "cmake",
-      "label": "Build Assignment3",
-      "command": "build",
-      "targets": ["assignment3"],
-      "group": "build",
-      "problemMatcher": [],
-      "dependsOn": []
-    },
-
-    // Assignment 4
-    {
-      "type": "cmake",
-      "label": "Build Assignment4",
-      "command": "build",
-      "targets": ["assignment4"],
-      "group": "build",
-      "problemMatcher": [],
-      "dependsOn": []
-    },
-
-    // Assignment 5
-    {
-      "type": "cmake",
-      "label": "Build Assignment5",
-      "command": "build",
-      "targets": ["assignment5"],
-      "group": "build",
-      "problemMatcher": [],
-      "dependsOn": []
-    }
   ]
 }

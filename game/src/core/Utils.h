@@ -18,12 +18,6 @@
 namespace utils
 {
 
-constexpr float kPi = 3.14159265358979f;
-constexpr float kHalfPi = kPi / 2.0f;
-constexpr float kTwoPi = kPi * 2.0f;
-constexpr float kTau = kTwoPi;
-constexpr float kSin60 = 0.86602540378f;
-
 constexpr glm::mat4 kIdentityMatrix(1.0f);
 
 extern float kTimeScale;

@@ -16,8 +16,6 @@
 #include "core/gfx/ShaderProgram.h"
 #include "core/gfx/Texture.h"
 #include "core/gfx/Window.h"
-#include "core/scene/SceneManager.h"
-#include "scenes/SolarSystemScene.h"
 
 using std::make_shared;
 using std::make_unique;
@@ -36,7 +34,7 @@ int main()
     }
 
     // Window creation and scene init
-    Window window(1280, 720, "CPSC 453 - Assignment 4");
+    Window window(1280, 720, "CPSC 585 Game");
     GLDebug::enable();
 
     // Shader init
@@ -44,7 +42,7 @@ int main()
 
     // Scene init
     auto scene_manager = make_shared<SceneManager>();
-    window.setCallbacks(scene_manager);
+    window.SetCallbacks(scene_manager);
 
     scene_manager->RegisterScene("Solar System",
                                  make_unique<SolarSystemScene>());
@@ -56,11 +54,11 @@ int main()
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(window.getGlfwWindowHandle(), true);
+    ImGui_ImplGlfw_InitForOpenGL(window.GetWindowHandle(), true);
     ImGui_ImplOpenGL3_Init(kGlslVersion);
 
     // RENDER LOOP
-    while (!window.shouldClose())
+    while (!window.ShouldClose())
     {
         glfwPollEvents();
 
@@ -84,7 +82,7 @@ int main()
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        window.swapBuffers();
+        window.SwapBuffers();
     }
 
     ShaderManager::Destroy();

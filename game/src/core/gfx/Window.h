@@ -1,10 +1,5 @@
 #pragma once
 
-//------------------------------------------------------------------------------
-// This file contains classes that provide a simpler and safer interface for
-// interacting with a GLFW window following RAII principles
-//------------------------------------------------------------------------------
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -62,46 +57,23 @@ class Window
     Window(int width, int height, const char* title,
            GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL);
 
-    glm::ivec2 getPos() const;
-    glm::ivec2 getSize() const;
+    bool ShouldClose();
+    void MakeContextCurrent();
+    void SwapBuffers();
 
-    void setCallbacks(std::shared_ptr<IWindowEventListener> callbacks);
-    bool shouldClose();
-    void makeContextCurrent();
-    void swapBuffers();
+    void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks_);
 
-    int getX() const
-    {
-        return getPos().x;
-    }
-
-    int getY() const
-    {
-        return getPos().y;
-    }
-
-    int getWidth() const
-    {
-        return getSize().x;
-    }
-
-    int getHeight() const
-    {
-        return getSize().y;
-    }
-
-    GLFWwindow* getGlfwWindowHandle() const
-    {
-        return window.get();
-    }
+    glm::ivec2 GetPos() const;
+    glm::ivec2 GetSize() const;
+    GLFWwindow* GetWindowHandle() const;
 
   private:
     // owning ptr (from GLFW)
-    std::unique_ptr<GLFWwindow, WindowDeleter> window;
+    std::unique_ptr<GLFWwindow, WindowDeleter> handle_;
     // optional shared owning ptr (user provided)
-    std::shared_ptr<IWindowEventListener> callbacks;
+    std::shared_ptr<IWindowEventListener> callbacks_;
 
-    void connectCallbacks();
+    void ConnectCallbacks();
 
     static void defaultWindowSizeCallback(GLFWwindow* window, int width,
                                           int height)

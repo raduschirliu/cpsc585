@@ -70,8 +70,8 @@ void Window::windowSizeMetaCallback(GLFWwindow* window, int width, int height)
 Window::Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
                int height, const char* title, GLFWmonitor* monitor,
                GLFWwindow* share)
-    : window(nullptr),
-      callbacks(callbacks)
+    : handle_(nullptr),
+      callbacks_(callbacks)
 {
     // specify OpenGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -81,25 +81,25 @@ Window::Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     // create window
-    window = std::unique_ptr<GLFWwindow, WindowDeleter>(
+    handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(
         glfwCreateWindow(width, height, title, monitor, share));
-    if (!window)
+    if (!handle_)
     {
         Log::error("WINDOW failed to create GLFW window");
         throw std::runtime_error("Failed to create GLFW window.");
     }
-    glfwMakeContextCurrent(window.get());
+    glfwMakeContextCurrent(handle_.get());
 
     // initialize OpenGL extensions for the current context (this window)
     GLenum err = glewInit();
     if (err != GLEW_OK)
     {
-        Log::error("WINDOW glewInit error:{}", glewGetErrorString(err));
+        Log::error("Window glewInit error: {}", glewGetErrorString(err));
         throw std::runtime_error("Failed to initialize GLEW");
     }
 
-    glfwSetWindowSizeCallback(window.get(), defaultWindowSizeCallback);
-    connectCallbacks();
+    glfwSetWindowSizeCallback(handle_.get(), defaultWindowSizeCallback);
+    ConnectCallbacks();
 }
 
 Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
@@ -108,49 +108,54 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
 {
 }
 
-void Window::connectCallbacks()
+void Window::ConnectCallbacks()
 {
     // bind meta callbacks to actual callbacks
-    glfwSetKeyCallback(window.get(), keyMetaCallback);
-    glfwSetMouseButtonCallback(window.get(), mouseButtonMetaCallback);
-    glfwSetCursorPosCallback(window.get(), cursorPosMetaCallback);
-    glfwSetScrollCallback(window.get(), scrollMetaCallback);
-    glfwSetWindowSizeCallback(window.get(), windowSizeMetaCallback);
+    glfwSetKeyCallback(handle_.get(), keyMetaCallback);
+    glfwSetMouseButtonCallback(handle_.get(), mouseButtonMetaCallback);
+    glfwSetCursorPosCallback(handle_.get(), cursorPosMetaCallback);
+    glfwSetScrollCallback(handle_.get(), scrollMetaCallback);
+    glfwSetWindowSizeCallback(handle_.get(), windowSizeMetaCallback);
 }
 
-void Window::setCallbacks(std::shared_ptr<IWindowEventListener> callbacks_)
+void Window::SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks_)
 {
     // set userdata of window to point to the object that carries out the
     // callbacks
-    callbacks = callbacks_;
-    glfwSetWindowUserPointer(window.get(), callbacks.get());
+    callbacks_ = callbacks_;
+    glfwSetWindowUserPointer(handle_.get(), callbacks_.get());
 }
 
-glm::ivec2 Window::getPos() const
+glm::ivec2 Window::GetPos() const
 {
     int x, y;
-    glfwGetWindowPos(window.get(), &x, &y);
+    glfwGetWindowPos(handle_.get(), &x, &y);
     return glm::ivec2(x, y);
 }
 
-glm::ivec2 Window::getSize() const
+glm::ivec2 Window::GetSize() const
 {
     int w, h;
-    glfwGetWindowSize(window.get(), &w, &h);
+    glfwGetWindowSize(handle_.get(), &w, &h);
     return glm::ivec2(w, h);
 }
 
-bool Window::shouldClose()
+bool Window::ShouldClose()
 {
-    return glfwWindowShouldClose(window.get()) != 0;
+    return glfwWindowShouldClose(handle_.get()) != 0;
 }
 
-void Window::makeContextCurrent()
+void Window::MakeContextCurrent()
 {
-    glfwMakeContextCurrent(window.get());
+    glfwMakeContextCurrent(handle_.get());
 }
 
-void Window::swapBuffers()
+void Window::SwapBuffers()
 {
-    glfwSwapBuffers(window.get());
+    glfwSwapBuffers(handle_.get());
+}
+
+GLFWwindow* Window::GetWindowHandle() const
+{
+    return handle_.get();
 }

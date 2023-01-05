@@ -1,4 +1,4 @@
-set(PROJECT_NAME "cpsc585")
+set(PROJECT_NAME "game")
 
 file(GLOB_RECURSE SOURCES
     src/*
