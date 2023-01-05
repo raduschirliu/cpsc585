@@ -1,10 +1,13 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
   "cmake.buildDirectory": "${workspaceFolder}/build.vscode",
+  "C_Cpp.files.exclude": {
+    "**/.vscode": true,
+    "**/.vs": true,
+    "/thirdparty": true
+  },
   "search.exclude": {
-    "**/assignment1": true,
-    "**/assignment2": true,
-    "**/assignment3": true
+    "/thirdparty": true
   },
   "[cpp]": {
     "editor.tabSize": 4,
@@ -92,6 +95,7 @@
     "typeindex": "cpp",
     "execution": "cpp",
     "numeric": "cpp",
-    "queue": "cpp"
+    "queue": "cpp",
+    "*.rh": "cpp"
   }
 }

@@ -1,4 +1,4 @@
-set(PROJECT_NAME "cpsc585")
+set(PROJECT_NAME "game")
 
 file(GLOB_RECURSE SOURCES
     src/*
@@ -17,18 +17,10 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEFINITIONS})
 target_compile_options(${PROJECT_NAME} PRIVATE ${_453_CMAKE_CXX_FLAGS})
 set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./" BUILD_RPATH "./")
 
-# Copy shaders but without using globs
+# Copy all resources
 add_custom_command(
 	TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-			${CMAKE_CURRENT_SOURCE_DIR}/shaders
-			$<TARGET_FILE_DIR:${PROJECT_NAME}>/shaders
-)
-
-# Copy textures
-add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-			${CMAKE_CURRENT_SOURCE_DIR}/textures
-			$<TARGET_FILE_DIR:${PROJECT_NAME}>/textures
+			${CMAKE_CURRENT_SOURCE_DIR}/resources
+			$<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
 )
