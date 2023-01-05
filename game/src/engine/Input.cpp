@@ -1,11 +1,11 @@
-#include "core/Input.h"
+#include "engine/Input.h"
 
 #include <GLFW/glfw3.h>
 
 #include <array>
 #include <vector>
 
-#include "core/Utils.h"
+#include "engine/Utils.h"
 
 using glm::vec2;
 using std::array;

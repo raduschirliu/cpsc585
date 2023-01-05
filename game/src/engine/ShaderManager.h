@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "core/gfx/ShaderProgram.h"
+#include "engine/gfx/ShaderProgram.h"
 
 class ShaderManager
 {

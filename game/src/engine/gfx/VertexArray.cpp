@@ -1,4 +1,4 @@
-#include "core/gfx/VertexArray.h"
+#include "engine/gfx/VertexArray.h"
 
 #include <utility>
 

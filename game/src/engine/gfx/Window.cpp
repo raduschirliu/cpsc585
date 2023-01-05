@@ -1,8 +1,8 @@
-#include "core/gfx/Window.h"
+#include "engine/gfx/Window.h"
 
 #include <iostream>
 
-#include "core/gfx/Log.h"
+#include "engine/gfx/Log.h"
 
 // ---------------------------
 // static function definitions

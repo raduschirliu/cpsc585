@@ -1,11 +1,11 @@
-#include "core/scene/SceneManager.h"
+#include "engine/scene/SceneManager.h"
 
 #include <fmt/format.h>
 #include <imgui.h>
 
 #include <cassert>
 
-#include "core/Input.h"
+#include "engine/Input.h"
 
 using glm::ivec2;
 using std::make_pair;

@@ -1,4 +1,4 @@
-#include "core/gfx/VertexBuffer.h"
+#include "engine/gfx/VertexBuffer.h"
 
 #include <utility>
 

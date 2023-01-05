@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/common.hpp>
 
-#include "core/gfx/Geometry.h"
+#include "engine/gfx/Geometry.h"
 
 #define UNUSED(x) (void)(x)
 

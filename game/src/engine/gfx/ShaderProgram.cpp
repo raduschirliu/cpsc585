@@ -1,12 +1,12 @@
-#include "core/gfx/ShaderProgram.h"
+#include "engine/gfx/ShaderProgram.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <vector>
 
-#include "core/Utils.h"
-#include "core/gfx/Log.h"
+#include "engine/Utils.h"
+#include "engine/gfx/Log.h"
 
 using glm::vec3;
 using glm::mat4;

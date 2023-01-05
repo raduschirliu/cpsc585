@@ -6,10 +6,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "core/gfx/ElementBuffer.h"
-#include "core/gfx/Vertex.h"
-#include "core/gfx/VertexArray.h"
-#include "core/gfx/VertexBuffer.h"
+#include "engine/gfx/ElementBuffer.h"
+#include "engine/gfx/Vertex.h"
+#include "engine/gfx/VertexArray.h"
+#include "engine/gfx/VertexBuffer.h"
 
 // VAO and two VBOs for storing vertices and colours, respectively
 class Geometry

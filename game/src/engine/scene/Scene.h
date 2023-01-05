@@ -4,11 +4,11 @@
 #include <memory>
 #include <type_traits>
 
-#include "core/ShaderManager.h"
-#include "core/Utils.h"
-#include "core/entity/Camera.h"
-#include "core/entity/GameObject.h"
-#include "core/scene/Listeners.h"
+#include "engine/ShaderManager.h"
+#include "engine/Utils.h"
+#include "engine/entity/Camera.h"
+#include "engine/entity/GameObject.h"
+#include "engine/scene/Listeners.h"
 
 class Scene : public IKeyListener,
               public IMouseListener,

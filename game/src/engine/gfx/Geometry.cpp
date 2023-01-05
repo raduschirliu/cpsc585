@@ -1,10 +1,10 @@
-#include "core/gfx/Geometry.h"
+#include "engine/gfx/Geometry.h"
 
 #include <glm/gtx/hash.hpp>
 #include <utility>
 
-#include "core/Utils.h"
-#include "core/gfx/Log.h"
+#include "engine/Utils.h"
+#include "engine/gfx/Log.h"
 
 using glm::vec2;
 using glm::vec3;

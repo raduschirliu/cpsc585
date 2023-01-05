@@ -8,14 +8,14 @@
 #include <memory>
 #include <string>
 
-#include "core/ShaderManager.h"
-#include "core/gfx/GLDebug.h"
-#include "core/gfx/Geometry.h"
-#include "core/gfx/Log.h"
-#include "core/gfx/Shader.h"
-#include "core/gfx/ShaderProgram.h"
-#include "core/gfx/Texture.h"
-#include "core/gfx/Window.h"
+#include "engine/ShaderManager.h"
+#include "engine/gfx/GLDebug.h"
+#include "engine/gfx/Geometry.h"
+#include "engine/gfx/Log.h"
+#include "engine/gfx/Shader.h"
+#include "engine/gfx/ShaderProgram.h"
+#include "engine/gfx/Texture.h"
+#include "engine/gfx/Window.h"
 
 using std::make_shared;
 using std::make_unique;

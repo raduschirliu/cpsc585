@@ -5,24 +5,18 @@
 root = true
 
 # Configuration for all files
-# Use clang-format instead...
-# [*]
-# # Enforce Unix style line endings (\n only)
-# end_of_line = lf
-# # Always end files with a blank line
-# insert_final_newline = true
-# # Force tab for indentation
-# indent_style = tab
-# # Remove whitespace characters at the end of line
-# trim_trailing_whitespace = true
-# # force utf-8
-# charset = utf-8
-
-[*.py]
-# Force four spaces for python
+[*]
+# Enforce Unix style line endings (\n only)
+end_of_line = lf
+# Always end files with a blank line
+insert_final_newline = true
+# Force tab for indentation
 indent_style = space
-indent_size = 4
 # Remove whitespace characters at the end of line
 trim_trailing_whitespace = true
 # force utf-8
 charset = utf-8
+
+[*.py]
+indent_style = space
+indent_size = 4

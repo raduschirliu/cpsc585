@@ -1,6 +1,6 @@
-#include "core/ShaderManager.h"
+#include "engine/ShaderManager.h"
 
-#include "core/Utils.h"
+#include "engine/Utils.h"
 
 using std::make_unique;
 using std::unique_ptr;

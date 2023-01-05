@@ -8,8 +8,8 @@
 #include <vector>
 
 #include "Scene.h"
-#include "core/ShaderManager.h"
-#include "core/gfx/Window.h"
+#include "engine/ShaderManager.h"
+#include "engine/gfx/Window.h"
 
 class SceneManager : public IWindowEventListener
 {

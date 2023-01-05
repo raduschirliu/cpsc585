@@ -1,4 +1,4 @@
-#include "core/gfx/Shader.h"
+#include "engine/gfx/Shader.h"
 
 #include <string.h>
 
@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "core/Utils.h"
-#include "core/gfx/Log.h"
+#include "engine/Utils.h"
+#include "engine/gfx/Log.h"
 
 // Of course GCC and MSVC don't both have the same safe strerror func... :(
 #if defined(_WIN32) || defined(_WIN64)

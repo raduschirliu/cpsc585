@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "core/gfx/Window.h"
+#include "engine/gfx/Window.h"
 
 class App : public std::enable_shared_from_this<App>,
             public IWindowEventListener

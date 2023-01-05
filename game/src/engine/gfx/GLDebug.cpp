@@ -1,8 +1,8 @@
-#include "core/gfx/GLDebug.h"
+#include "engine/gfx/GLDebug.h"
 
 #include <regex>
 
-#include "core/gfx/Log.h"
+#include "engine/gfx/Log.h"
 
 void GLDebug::debugOutputHandler(GLenum source, GLenum type, GLuint id,
                                  GLenum severity, GLsizei,
