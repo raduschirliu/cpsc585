@@ -5,7 +5,7 @@
 #include <array>
 #include <vector>
 
-#include "engine/Utils.h"
+#include "engine/core/debug/Assert.h"
 
 using glm::vec2;
 using std::array;

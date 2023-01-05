@@ -9,8 +9,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "engine/Utils.h"
-#include "engine/gfx/Log.h"
+#include "engine/core/debug/Assert.h"
+#include "engine/core/debug/Log.h"
 
 // Of course GCC and MSVC don't both have the same safe strerror func... :(
 #if defined(_WIN32) || defined(_WIN64)

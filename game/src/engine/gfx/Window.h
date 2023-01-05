@@ -13,25 +13,11 @@
 class IWindowEventListener
 {
   public:
-    virtual void OnKeyEvent(int key, int scancode, int action, int mods)
-    {
-    }
-
-    virtual void OnMouseButtonEvent(int button, int action, int mods)
-    {
-    }
-
-    virtual void OnCursorMove(double xpos, double ypos)
-    {
-    }
-
-    virtual void OnScroll(double xoffset, double yoffset)
-    {
-    }
-
-    virtual void OnWindowSizeChanged(int width, int height)
-    {
-    }
+    virtual void OnKeyEvent(int key, int scancode, int action, int mods) = 0;
+    virtual void OnMouseButtonEvent(int button, int action, int mods) = 0;
+    virtual void OnCursorMove(double xpos, double ypos) = 0;
+    virtual void OnScroll(double xoffset, double yoffset) = 0;
+    virtual void OnWindowSizeChanged(int width, int height) = 0;
 };
 
 // Functor for deleting a GLFW window.
@@ -51,17 +37,15 @@ struct WindowDeleter
 class Window
 {
   public:
-    Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
-           int height, const char* title, GLFWmonitor* monitor = NULL,
-           GLFWwindow* share = NULL);
     Window(int width, int height, const char* title,
            GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL);
 
     bool ShouldClose();
     void MakeContextCurrent();
     void SwapBuffers();
+    void PollEvents();
 
-    void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks_);
+    void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks);
 
     glm::ivec2 GetPos() const;
     glm::ivec2 GetSize() const;
@@ -70,27 +54,20 @@ class Window
   private:
     // owning ptr (from GLFW)
     std::unique_ptr<GLFWwindow, WindowDeleter> handle_;
-    // optional shared owning ptr (user provided)
     std::shared_ptr<IWindowEventListener> callbacks_;
 
     void ConnectCallbacks();
 
-    static void defaultWindowSizeCallback(GLFWwindow* window, int width,
-                                          int height)
-    {
-        glViewport(0, 0, width, height);
-    }
-
     // Meta callback functions. These bind to the actual glfw callback,
     // get the actual callback method from user data, and then call that.
-    static void keyMetaCallback(GLFWwindow* window, int key, int scancode,
+    static void KeyMetaCallback(GLFWwindow* window, int key, int scancode,
                                 int action, int mods);
-    static void mouseButtonMetaCallback(GLFWwindow* window, int button,
+    static void MouseButtonMetaCallback(GLFWwindow* window, int button,
                                         int action, int mods);
-    static void cursorPosMetaCallback(GLFWwindow* window, double xpos,
+    static void CursorPosMetaCallback(GLFWwindow* window, double xpos,
                                       double ypos);
-    static void scrollMetaCallback(GLFWwindow* window, double xoffset,
+    static void ScrollMetaCallback(GLFWwindow* window, double xoffset,
                                    double yoffset);
-    static void windowSizeMetaCallback(GLFWwindow* window, int width,
+    static void WindowSizeMetaCallback(GLFWwindow* window, int width,
                                        int height);
 };

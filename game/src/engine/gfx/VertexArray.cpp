@@ -2,7 +2,12 @@
 
 #include <utility>
 
-VertexArray::VertexArray() : arrayID{}
+VertexArray::VertexArray() : handle_{}
 {
     Bind();
+}
+
+void VertexArray::Bind() const
+{
+    glBindVertexArray(handle_);
 }

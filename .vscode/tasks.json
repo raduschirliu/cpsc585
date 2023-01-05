@@ -3,7 +3,7 @@
   "tasks": [
     {
       "type": "cmake",
-      "label": "Build",
+      "label": "Build Debug",
       "command": "build",
       "targets": ["game"],
       "group": "build",

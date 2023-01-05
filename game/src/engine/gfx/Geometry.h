@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "engine/gfx/ElementBuffer.h"
+#include "engine/gfx/Buffer.h"
 #include "engine/gfx/Vertex.h"
 #include "engine/gfx/VertexArray.h"
 #include "engine/gfx/VertexBuffer.h"
@@ -49,7 +49,7 @@ class Geometry
     VertexBuffer normal_buffer_;
     VertexBuffer color_buffer_;
     VertexBuffer uv_buffer_;
-    ElementBuffer index_buffer_;
+    ElementArrayBuffer index_buffer_;
 
     bool active_;
     bool dirty_;

@@ -27,13 +27,6 @@ class Texture
 
     Texture(std::string path, InterpolationMode interpolation_mode);
 
-    // Because we're using the TextureHandle to do RAII for the texture for us
-    // and our other types are trivial or provide their own RAII
-    // we don't have to provide any specialized functions here. Rule of zero
-    //
-    // https://en.cppreference.com/w/cpp/language/rule_of_three
-    // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rc-zero
-
     // Although uint (i.e. uvec2) might make more sense here, went with int
     // (i.e. ivec2) under the assumption that most students will want to work
     // with ints, not uints, in main.cpp

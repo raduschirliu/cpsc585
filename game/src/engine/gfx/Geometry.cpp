@@ -3,8 +3,8 @@
 #include <glm/gtx/hash.hpp>
 #include <utility>
 
-#include "engine/Utils.h"
-#include "engine/gfx/Log.h"
+#include "engine/core/debug/Assert.h"
+#include "engine/core/debug/Log.h"
 
 using glm::vec2;
 using glm::vec3;
@@ -16,10 +16,10 @@ using std::vector;
 
 Geometry::Geometry(Geometry::Type type)
     : vertex_array_(),
-      vertex_buffer_(0, 3, GL_FLOAT),
-      normal_buffer_(1, 3, GL_FLOAT),
-      color_buffer_(2, 3, GL_FLOAT),
-      uv_buffer_(3, 2, GL_FLOAT),
+      vertex_buffer_(),
+      normal_buffer_(),
+      color_buffer_(),
+      uv_buffer_(),
       index_buffer_(),
       active_(true),
       dirty_(false),
@@ -29,6 +29,10 @@ Geometry::Geometry(Geometry::Type type)
       vertex_data_{},
       index_data_{}
 {
+    vertex_buffer_.ConfigureAttribute(0, 3, GL_FLOAT);
+    normal_buffer_.ConfigureAttribute(1, 3, GL_FLOAT);
+    color_buffer_.ConfigureAttribute(2, 3, GL_FLOAT);
+    uv_buffer_.ConfigureAttribute(3, 2, GL_FLOAT);
 }
 
 void Geometry::Draw() const

@@ -2,13 +2,15 @@
 
 #include <iostream>
 
-#include "engine/gfx/Log.h"
+#include "engine/core/debug/Log.h"
+
+using std::shared_ptr;
 
 // ---------------------------
 // static function definitions
 // ---------------------------
 
-void Window::keyMetaCallback(GLFWwindow* window, int key, int scancode,
+void Window::KeyMetaCallback(GLFWwindow* window, int key, int scancode,
                              int action, int mods)
 {
     IWindowEventListener* callbacks =
@@ -19,7 +21,7 @@ void Window::keyMetaCallback(GLFWwindow* window, int key, int scancode,
     }
 }
 
-void Window::mouseButtonMetaCallback(GLFWwindow* window, int button, int action,
+void Window::MouseButtonMetaCallback(GLFWwindow* window, int button, int action,
                                      int mods)
 {
     IWindowEventListener* callbacks =
@@ -30,7 +32,7 @@ void Window::mouseButtonMetaCallback(GLFWwindow* window, int button, int action,
     }
 }
 
-void Window::cursorPosMetaCallback(GLFWwindow* window, double xpos, double ypos)
+void Window::CursorPosMetaCallback(GLFWwindow* window, double xpos, double ypos)
 {
     IWindowEventListener* callbacks =
         static_cast<IWindowEventListener*>(glfwGetWindowUserPointer(window));
@@ -40,7 +42,7 @@ void Window::cursorPosMetaCallback(GLFWwindow* window, double xpos, double ypos)
     }
 }
 
-void Window::scrollMetaCallback(GLFWwindow* window, double xoffset,
+void Window::ScrollMetaCallback(GLFWwindow* window, double xoffset,
                                 double yoffset)
 {
     IWindowEventListener* callbacks =
@@ -51,9 +53,9 @@ void Window::scrollMetaCallback(GLFWwindow* window, double xoffset,
     }
 }
 
-void Window::windowSizeMetaCallback(GLFWwindow* window, int width, int height)
+void Window::WindowSizeMetaCallback(GLFWwindow* window, int width, int height)
 {
-    defaultWindowSizeCallback(window, width, height);
+    glViewport(0, 0, width, height);
 
     IWindowEventListener* callbacks =
         static_cast<IWindowEventListener*>(glfwGetWindowUserPointer(window));
@@ -67,11 +69,9 @@ void Window::windowSizeMetaCallback(GLFWwindow* window, int width, int height)
 // non-static definitions
 // ----------------------
 
-Window::Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
-               int height, const char* title, GLFWmonitor* monitor,
+Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
                GLFWwindow* share)
-    : handle_(nullptr),
-      callbacks_(callbacks)
+    : handle_(nullptr)
 {
     // specify OpenGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -85,10 +85,9 @@ Window::Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
         glfwCreateWindow(width, height, title, monitor, share));
     if (!handle_)
     {
-        Log::error("WINDOW failed to create GLFW window");
         throw std::runtime_error("Failed to create GLFW window.");
     }
-    glfwMakeContextCurrent(handle_.get());
+    MakeContextCurrent();
 
     // initialize OpenGL extensions for the current context (this window)
     GLenum err = glewInit();
@@ -98,32 +97,31 @@ Window::Window(std::shared_ptr<IWindowEventListener> callbacks, int width,
         throw std::runtime_error("Failed to initialize GLEW");
     }
 
-    glfwSetWindowSizeCallback(handle_.get(), defaultWindowSizeCallback);
     ConnectCallbacks();
-}
-
-Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
-               GLFWwindow* share)
-    : Window(nullptr, width, height, title, monitor, share)
-{
+    Log::info("Window created successfully");
 }
 
 void Window::ConnectCallbacks()
 {
     // bind meta callbacks to actual callbacks
-    glfwSetKeyCallback(handle_.get(), keyMetaCallback);
-    glfwSetMouseButtonCallback(handle_.get(), mouseButtonMetaCallback);
-    glfwSetCursorPosCallback(handle_.get(), cursorPosMetaCallback);
-    glfwSetScrollCallback(handle_.get(), scrollMetaCallback);
-    glfwSetWindowSizeCallback(handle_.get(), windowSizeMetaCallback);
+    glfwSetKeyCallback(handle_.get(), KeyMetaCallback);
+    glfwSetMouseButtonCallback(handle_.get(), MouseButtonMetaCallback);
+    glfwSetCursorPosCallback(handle_.get(), CursorPosMetaCallback);
+    glfwSetScrollCallback(handle_.get(), ScrollMetaCallback);
+    glfwSetWindowSizeCallback(handle_.get(), WindowSizeMetaCallback);
 }
 
-void Window::SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks_)
+void Window::SetCallbacks(shared_ptr<IWindowEventListener> callbacks)
 {
     // set userdata of window to point to the object that carries out the
     // callbacks
-    callbacks_ = callbacks_;
+    callbacks_ = callbacks;
     glfwSetWindowUserPointer(handle_.get(), callbacks_.get());
+}
+
+void Window::PollEvents()
+{
+    glfwPollEvents();
 }
 
 glm::ivec2 Window::GetPos() const

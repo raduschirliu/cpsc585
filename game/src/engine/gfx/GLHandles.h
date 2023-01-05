@@ -52,7 +52,7 @@ class ShaderHandle
     // Allow casting from this type into a GLuint
     // This allows usage in situations where a function expects a GLuint
     operator GLuint() const;
-    GLuint value() const;
+    GLuint Value() const;
 
   private:
     GLuint shaderID;
@@ -85,7 +85,7 @@ class ShaderProgramHandle
     // Allow casting from this type into a GLuint
     // This allows usage in situations where a function expects a GLuint
     operator GLuint() const;
-    GLuint value() const;
+    GLuint Value() const;
 
   private:
     GLuint programID;
@@ -111,62 +111,60 @@ class VertexArrayHandle
     // Allow casting from this type into a GLuint
     // This allows usage in situations where a function expects a GLuint
     operator GLuint() const;
-    GLuint value() const;
+    GLuint Value() const;
 
   private:
     GLuint vaoID;
 };
 
 // An RAII class for managing a VertexBuffer GLuint for OpenGL.
-class VertexBufferHandle
+class BufferHandle
 {
   public:
-    VertexBufferHandle();
+    BufferHandle();
 
     // Disallow copying
-    VertexBufferHandle(const VertexBufferHandle&) = delete;
-    VertexBufferHandle operator=(const VertexBufferHandle&) = delete;
+    BufferHandle(const BufferHandle&) = delete;
+    BufferHandle operator=(const BufferHandle&) = delete;
 
     // Allow moving
-    VertexBufferHandle(VertexBufferHandle&& other) noexcept;
-    VertexBufferHandle& operator=(VertexBufferHandle&& other) noexcept;
+    BufferHandle(BufferHandle&& other) noexcept;
+    BufferHandle& operator=(BufferHandle&& other) noexcept;
 
     // Clean up after ourselves.
-    ~VertexBufferHandle();
+    ~BufferHandle();
 
     // Allow casting from this type into a GLuint
     // This allows usage in situations where a function expects a GLuint
     operator GLuint() const;
-    GLuint value() const;
+    GLuint Value() const;
 
   private:
     GLuint vboID;
 };
 
 // An RAII class for managing a VertexBuffer GLuint for OpenGL.
-class TextureHandle {
+class TextureHandle
+{
+  public:
+    TextureHandle();
 
-public:
-	TextureHandle();
+    // Disallow copying
+    TextureHandle(const TextureHandle&) = delete;
+    TextureHandle operator=(const TextureHandle&) = delete;
 
+    // Allow moving
+    TextureHandle(TextureHandle&& other) noexcept;
+    TextureHandle& operator=(TextureHandle&& other) noexcept;
 
-	// Disallow copying
-	TextureHandle(const TextureHandle&) = delete;
-	TextureHandle operator=(const TextureHandle&) = delete;
+    // Clean up after ourselves.
+    ~TextureHandle();
 
-	// Allow moving
-	TextureHandle(TextureHandle&& other) noexcept;
-	TextureHandle& operator=(TextureHandle&& other) noexcept;
+    // Allow casting from this type into a GLuint
+    // This allows usage in situations where a function expects a GLuint
+    operator GLuint() const;
+    GLuint Value() const;
 
-	// Clean up after ourselves.
-	~TextureHandle();
-
-	// Allow casting from this type into a GLuint
-	// This allows usage in situations where a function expects a GLuint
-	operator GLuint() const;
-	GLuint value() const;
-
-private:
-	GLuint textureID;
-
+  private:
+    GLuint textureID;
 };

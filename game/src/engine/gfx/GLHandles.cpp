@@ -29,7 +29,7 @@ ShaderHandle::operator GLuint() const
     return shaderID;
 }
 
-GLuint ShaderHandle::value() const
+GLuint ShaderHandle::Value() const
 {
     return shaderID;
 }
@@ -63,7 +63,7 @@ ShaderProgramHandle::operator GLuint() const
     return programID;
 }
 
-GLuint ShaderProgramHandle::value() const
+GLuint ShaderProgramHandle::Value() const
 {
     return programID;
 }
@@ -100,44 +100,44 @@ VertexArrayHandle::operator GLuint() const
     return vaoID;
 }
 
-GLuint VertexArrayHandle::value() const
+GLuint VertexArrayHandle::Value() const
 {
     return vaoID;
 }
 
 //------------------------------------------------------------------------------
 
-VertexBufferHandle::VertexBufferHandle()
+BufferHandle::BufferHandle()
     : vboID(0)  // Due to OpenGL syntax, we can't initial directly here, like we
                 // want.
 {
     glGenBuffers(1, &vboID);
 }
 
-VertexBufferHandle::VertexBufferHandle(VertexBufferHandle&& other) noexcept
+BufferHandle::BufferHandle(BufferHandle&& other) noexcept
     : vboID(std::move(other.vboID))
 {
     other.vboID = 0;
 }
 
-VertexBufferHandle& VertexBufferHandle::operator=(
-    VertexBufferHandle&& other) noexcept
+BufferHandle& BufferHandle::operator=(
+    BufferHandle&& other) noexcept
 {
     std::swap(vboID, other.vboID);
     return *this;
 }
 
-VertexBufferHandle::~VertexBufferHandle()
+BufferHandle::~BufferHandle()
 {
     glDeleteBuffers(1, &vboID);
 }
 
-VertexBufferHandle::operator GLuint() const
+BufferHandle::operator GLuint() const
 {
     return vboID;
 }
 
-GLuint VertexBufferHandle::value() const
+GLuint BufferHandle::Value() const
 {
     return vboID;
 }
@@ -173,7 +173,7 @@ TextureHandle::operator GLuint() const
     return textureID;
 }
 
-GLuint TextureHandle::value() const
+GLuint TextureHandle::Value() const
 {
     return textureID;
 }

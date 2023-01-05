@@ -5,8 +5,8 @@
 #include <stdexcept>
 #include <vector>
 
-#include "engine/Utils.h"
-#include "engine/gfx/Log.h"
+#include "engine/core/debug/Assert.h"
+#include "engine/core/debug/Log.h"
 
 using glm::vec3;
 using glm::mat4;
