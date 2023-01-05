@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 
 using std::shared_ptr;
@@ -69,10 +70,14 @@ void Window::WindowSizeMetaCallback(GLFWwindow* window, int width, int height)
 // non-static definitions
 // ----------------------
 
-Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
-               GLFWwindow* share)
-    : handle_(nullptr)
+Window::Window() : handle_(nullptr), callbacks_(nullptr)
 {
+}
+
+void Window::Create(int width, int height, const char* title)
+{
+    ASSERT_MSG(!handle_, "Window has already been created");
+
     // specify OpenGL version
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -82,10 +87,10 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor,
 
     // create window
     handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(
-        glfwCreateWindow(width, height, title, monitor, share));
+        glfwCreateWindow(width, height, title, nullptr, nullptr));
     if (!handle_)
     {
-        throw std::runtime_error("Failed to create GLFW window.");
+        throw std::runtime_error("Failed to create GLFW window");
     }
     MakeContextCurrent();
 
@@ -117,6 +122,12 @@ void Window::SetCallbacks(shared_ptr<IWindowEventListener> callbacks)
     // callbacks
     callbacks_ = callbacks;
     glfwSetWindowUserPointer(handle_.get(), callbacks_.get());
+}
+
+void Window::SetSize(const glm::ivec2& size)
+{
+    ASSERT_MSG(handle_, "Window must exist");
+    glfwSetWindowSize(handle_.get(), size.x, size.y);
 }
 
 void Window::PollEvents()

@@ -1,33 +1,36 @@
 #include "engine/App.h"
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
-const char* kGlslVersion = "#version 330 core";
-
-App::App() : running_(false), window_(100, 100, "title")
+App::App() : running_(false), window_(), renderer_(GetWindow())
 {
 }
 
 void App::Start()
 {
+    window_.Create(100, 100, "app");
     window_.SetCallbacks(shared_from_this());
 
-    // Setup ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForOpenGL(window_.GetWindowHandle(), true);
-    ImGui_ImplOpenGL3_Init(kGlslVersion);
+    renderer_.Init();
+    Init();
 
     Run();
 
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    Cleanup();
+    renderer_.Cleanup();
+}
+
+void App::Init()
+{
+    // To be overridden if needed
+}
+
+void App::Cleanup()
+{
+    // To be overridden if needed
+}
+
+Window& App::GetWindow()
+{
+    return window_;
 }
 
 void App::Run()
@@ -38,26 +41,11 @@ void App::Run()
     {
         window_.PollEvents();
 
+        // TODO: Use fixed timestep
         // TODO: Update physics
 
-        // Render
-        glEnable(GL_FRAMEBUFFER_SRGB);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // TODO: Render
-
-        // Render ImGui frame
-        glDisable(GL_FRAMEBUFFER_SRGB);
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // TODO: Render GUI
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // TODO: Prepare objects to be rendered
+        renderer_.RenderFrame();
 
         window_.SwapBuffers();
     }

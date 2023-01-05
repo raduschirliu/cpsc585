@@ -37,15 +37,16 @@ struct WindowDeleter
 class Window
 {
   public:
-    Window(int width, int height, const char* title,
-           GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL);
+    Window();
 
+    void Create(int width, int height, const char* title);
     bool ShouldClose();
     void MakeContextCurrent();
     void SwapBuffers();
     void PollEvents();
 
     void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks);
+    void SetSize(const glm::ivec2& size);
 
     glm::ivec2 GetPos() const;
     glm::ivec2 GetSize() const;
