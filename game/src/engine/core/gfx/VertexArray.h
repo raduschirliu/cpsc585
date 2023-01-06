@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-#include "engine/gfx/GLHandles.h"
+#include "engine/core/gfx/GLHandles.h"
 
 class VertexArray
 {

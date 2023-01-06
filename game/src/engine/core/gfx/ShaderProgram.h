@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "engine/gfx/GLHandles.h"
-#include "engine/gfx/Shader.h"
+#include "engine/core/gfx/GLHandles.h"
+#include "engine/core/gfx/Shader.h"
 
 class ShaderProgram
 {

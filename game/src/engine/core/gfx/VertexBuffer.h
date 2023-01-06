@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/gfx/Buffer.h"
+#include "engine/core/gfx/Buffer.h"
 
 class VertexBuffer final : public Buffer<BufferType::kVertexArray>
 {

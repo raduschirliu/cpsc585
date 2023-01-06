@@ -3,7 +3,7 @@
 #include <memory>
 #include <string_view>
 
-#include "engine/gfx/Window.h"
+#include "engine/core/gfx/Window.h"
 #include "engine/render/Renderer.h"
 #include "engine/scene/Scene.h"
 

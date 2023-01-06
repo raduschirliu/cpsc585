@@ -1,4 +1,4 @@
-#include "engine/gfx/Geometry.h"
+#include "engine/core/gfx/Geometry.h"
 
 #include <glm/gtx/hash.hpp>
 #include <utility>
