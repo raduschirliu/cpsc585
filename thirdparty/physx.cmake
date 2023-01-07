@@ -1,36 +1,44 @@
-# PhysX-specific CMake project setup
-set(NV_USE_DEBUG_WINCRT ON CACHE BOOL "Use the debug version of the CRT")
-set(PHYSX_ROOT_DIR ${CMAKE_SOURCE_DIR}/thirdparty/physx/physx)
+set(PHYSX_CONFIG debug)
 
-message(STATUS "physx root: ${PHYSX_ROOT_DIR}")
+set(PHYSX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/physx/physx)
+set(PHYSX_INSTALL_ROOT ${PHYSX_ROOT}/install/vc16win64/PhysX)
+set(PHYSX_INSTALL_BIN ${PHYSX_INSTALL_ROOT}/bin/win.x86_64.vc142.md/${PHYSX_CONFIG})
 
-set(PX_OUTPUT_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR}/thirdparty/physx)
-set(PX_OUTPUT_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/thirdparty/physx)
+# TODO(radu): Copy over the required DLLs automatically 
 
-# Call into PhysX's CMake scripts
-add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public)
+add_library(PhysX::PhysX64 SHARED IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysX64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysX_64.dll
+        IMPORTED_IMPLIB   ${PHYSX_INSTALL_BIN}/PhysX_64.lib
+)
 
-# set(PHYSX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/physx/physx)
+add_library(PhysX::PhysXCommon64 SHARED IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXCommon64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXCommon_64.dll
+        IMPORTED_IMPLIB   ${PHYSX_INSTALL_BIN}/PhysXCommon_64.lib
+)
 
-# add_library(physx SHARED IMPORTED)
-# set_target_properties(physx
-#     PROPERTIES IMPORTED_LOCATION
-#         ${PHYSX_ROOT}/bin/win.x86_64.vc142.mt/debug/PhysX_64.dll
-# )
+add_library(PhysX::PhysXFoundation64 SHARED IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXFoundation64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXFoundation_64.dll
+        IMPORTED_IMPLIB   ${PHYSX_INSTALL_BIN}/PhysXFoundation_64.lib
+)
 
-# target_link_directories(physx
-#     INTERFACE
-#         ${PHYSX_ROOT}/bin/win.x86_64.vc142.mt/debug
-# )
+add_library(PhysX::PhysXExtensions64 STATIC IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXExtensions64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXExtensions_static_64.lib
+)
 
-# target_link_libraries(physx
-#     INTERFACE
-#         PhysX_64
-#         PhysXCommon_64
-#         PhysXFoundation_64
-# )
-
-# target_include_directories(physx
-#     INTERFACE
-#         ${PHYSX_ROOT}/include
-# )
+add_library(PhysX::PhysX INTERFACE IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysX
+    PROPERTIES
+        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64"
+)
+target_include_directories(PhysX::PhysX
+    INTERFACE
+        ${PHYSX_INSTALL_ROOT}/include
+)

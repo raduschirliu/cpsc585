@@ -4,3 +4,4 @@
 [submodule "thirdparty/physx"]
 	path = thirdparty/physx
 	url = git@github.com:NVIDIA-Omniverse/PhysX.git
+	ignore = untracked

@@ -7,7 +7,7 @@
     "/thirdparty": true
   },
   "search.exclude": {
-    "/thirdparty": true
+    // "/thirdparty": true
   },
   "[cpp]": {
     "editor.tabSize": 4,

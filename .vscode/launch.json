@@ -6,7 +6,7 @@
       "type": "cppvsdbg",
       "request": "launch",
       "preLaunchTask": "Build Debug",
-      "cwd": "${workspaceRoot}/build.vscode/bin/Debug/",
+      "cwd": "${workspaceRoot}/build/bin/Debug/",
       "program": "game.exe",
       "args": [],
       "stopAtEntry": false,
