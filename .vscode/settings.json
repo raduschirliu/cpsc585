@@ -1,6 +1,5 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "cmake.buildDirectory": "${workspaceFolder}/build",
   "C_Cpp.files.exclude": {
     "**/.vscode": true,
     "**/.vs": true,

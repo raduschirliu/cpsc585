@@ -1,3 +1,4 @@
+: Set up and build PhysX
 cd thirdparty\physx\physx
 call generate_projects.bat vc16win64
 
@@ -5,4 +6,4 @@ call generate_projects.bat vc16win64
 cmake -B compiler/vc16win64 -S compiler/public -DNV_USE_STATIC_WINCRT=False
 
 cmake --build compiler/vc16win64 --config=debug
-cmake --install compiler/vc16win64 --config=debug
+cmake --install compiler/vc16win64 --config=debug --prefix="%~dp0/thirdparty/physx-build"

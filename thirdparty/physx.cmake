@@ -1,10 +1,11 @@
 set(PHYSX_CONFIG debug)
 
-set(PHYSX_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/physx/physx)
-set(PHYSX_INSTALL_ROOT ${PHYSX_ROOT}/install/vc16win64/PhysX)
+set(PHYSX_INSTALL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/physx-build)
 set(PHYSX_INSTALL_BIN ${PHYSX_INSTALL_ROOT}/bin/win.x86_64.vc142.md/${PHYSX_CONFIG})
 
-# TODO(radu): Copy over the required DLLs automatically 
+# ---------------------------
+# Individual PhysX components
+# ---------------------------
 
 add_library(PhysX::PhysX64 SHARED IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysX64
@@ -32,6 +33,10 @@ set_target_properties(PhysX::PhysXExtensions64
     PROPERTIES
         IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXExtensions_static_64.lib
 )
+
+# ---------------------------
+# Full PhysX wrapper
+# ---------------------------
 
 add_library(PhysX::PhysX INTERFACE IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysX

@@ -1,0 +1,25 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "buildPresets": [
+    {
+      "name": "Debug",
+      "configuration": "Debug",
+      "configurePreset": "VS2019 Debug",
+      "targets": ["game"]
+    }
+  ],
+  "configurePresets": [
+    {
+      "name": "VS2019 Debug",
+      "generator": "Visual Studio 16 2019",
+      "architecture": "x64",
+      "binaryDir": "build",
+      "toolset": "host=x64"
+    }
+  ]
+}
