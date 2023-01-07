@@ -45,6 +45,44 @@ endif(UNIX)
 if (WIN32)
 endif()
 
+# -------------------------
+# Assimp
+# -------------------------
+
+FetchContent_Declare(
+	assimp
+	GIT_REPOSITORY https://github.com/assimp/assimp.git
+	GIT_TAG 9ace81a3d22fbb25039983eae27a818f09ef18a9 # Master as of 01/07/2023
+)
+
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_UBSAN ON CACHE BOOL "" FORCE)
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(assimp)
+set(LIBRARIES ${LIBRARIES} assimp)
+
+# -------------------------
+# yaml-cpp
+# -------------------------
+
+FetchContent_Declare(
+	yamlcpp
+	GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+	GIT_TAG 1b50109f7bea60bd382d8ea7befce3d2bd67da5f # Master as of 01/07/2023
+)
+FetchContent_MakeAvailable(yamlcpp)
+# set(INCLUDES ${INCLUDES} fetched/yamlcpp-src/include)
+# set(LIBRARIES ${LIBRARIES} yamlcpp)
+set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
+
+# -------------------------
+# Thirdparty combination library
+# -------------------------
+
 add_library(thirdparty STATIC)
 target_sources(thirdparty PUBLIC ${SOURCES})
 target_link_libraries(thirdparty PUBLIC ${LIBRARIES})

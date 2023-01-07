@@ -1,1 +1,5 @@
+# Dependencies fetched with CMake FetchContent
+/fetched
+
+# PhysX build artifacts
 /physx-build

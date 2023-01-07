@@ -7,8 +7,8 @@
 #include <memory>
 #include <string>
 
-#include "engine/core/debug/Log.h"
 #include "engine/core/debug/Assert.h"
+#include "engine/core/debug/Log.h"
 #include "game/GameApp.h"
 
 using std::make_shared;
