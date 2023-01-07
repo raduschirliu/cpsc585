@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/gfx/Window.h"
+#include "engine/core/gfx/Window.h"
 
 class Renderer
 {

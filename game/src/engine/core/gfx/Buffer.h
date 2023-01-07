@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "engine/gfx/GLHandles.h"
+#include "engine/core/gfx/GLHandles.h"
 
 enum class BufferType : GLenum
 {

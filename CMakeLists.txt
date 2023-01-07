@@ -1,6 +1,9 @@
-cmake_minimum_required(VERSION 3.19.0)
+cmake_minimum_required(VERSION 3.21.0)
 project(cpsc585)
 
+include(FetchContent)
+
+set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fetched CACHE PATH "Missing description." FORCE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #-------------------------------------------------------------------------------
@@ -13,6 +16,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(OpenGL_GL_PREFERENCE GLVND)
+
+# Need to define these at least once.
+SET(CMAKE_EXE_LINKER_FLAGS_CHECKED "")
+SET(CMAKE_EXE_LINKER_FLAGS_PROFILE "")
+SET(CMAKE_SHARED_LINKER_FLAGS_CHECKED "")
+SET(CMAKE_SHARED_LINKER_FLAGS_PROFILE "")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	list(APPEND _453_CMAKE_CXX_FLAGS ${_453_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
@@ -39,7 +48,4 @@ endif()
 #-------------------------------------------------------------------------------
 
 add_subdirectory(thirdparty)
-
-if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/game)
-	add_subdirectory(game)
-endif()
+add_subdirectory(game)

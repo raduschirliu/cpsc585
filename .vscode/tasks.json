@@ -3,8 +3,9 @@
   "tasks": [
     {
       "type": "cmake",
-      "label": "Build Debug",
+      "label": "Build Game",
       "command": "build",
+      "preset": "${command:cmake.activeBuildPresetName}",
       "targets": ["game"],
       "group": "build",
       "problemMatcher": []

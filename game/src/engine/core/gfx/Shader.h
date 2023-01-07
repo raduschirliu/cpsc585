@@ -4,7 +4,7 @@
 
 #include <string>
 
-#include "engine/gfx/GLHandles.h"
+#include "engine/core/gfx/GLHandles.h"
 
 class ShaderProgram;
 

@@ -1,4 +1,4 @@
-#include "engine/gfx/GLDebug.h"
+#include "engine/core/gfx/GLDebug.h"
 
 #include <regex>
 

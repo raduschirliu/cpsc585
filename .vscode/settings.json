@@ -1,13 +1,12 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "cmake.buildDirectory": "${workspaceFolder}/build.vscode",
   "C_Cpp.files.exclude": {
     "**/.vscode": true,
     "**/.vs": true,
     "/thirdparty": true
   },
   "search.exclude": {
-    "/thirdparty": true
+    // "/thirdparty": true
   },
   "[cpp]": {
     "editor.tabSize": 4,

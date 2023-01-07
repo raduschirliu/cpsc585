@@ -1,4 +1,4 @@
-#include "engine/gfx/Shader.h"
+#include "engine/core/gfx/Shader.h"
 
 #include <string.h>
 
