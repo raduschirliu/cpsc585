@@ -52,3 +52,4 @@ target_include_directories(thirdparty PUBLIC ${INCLUDES})
 target_compile_definitions(thirdparty PUBLIC ${DEFINITIONS})
 
 include(imgui.cmake)
+include(physx.cmake)

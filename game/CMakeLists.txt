@@ -12,9 +12,13 @@ get_target_property(THIRDPARTY_LINK_DEPS thirdparty INTERFACE_LINK_LIBRARIES)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
-target_link_libraries(${PROJECT_NAME} PUBLIC thirdparty ${THIRDPARTY_LINK_DEPS})
+target_link_libraries(${PROJECT_NAME} PUBLIC
+	thirdparty
+	${THIRDPARTY_LINK_DEPS}
+)
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${DEFINITIONS})
 target_compile_options(${PROJECT_NAME} PRIVATE ${_453_CMAKE_CXX_FLAGS})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES INSTALL_RPATH "./" BUILD_RPATH "./")
 
 # Copy all resources

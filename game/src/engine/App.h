@@ -32,7 +32,7 @@ class App : public std::enable_shared_from_this<App>,
     bool running_;
     Window window_;
     Renderer renderer_;
-    std::vector<Scene> scenes_;
+    std::vector<std::unique_ptr<Scene>> scenes_;
 
     void Run();
 };

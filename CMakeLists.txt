@@ -14,6 +14,12 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(OpenGL_GL_PREFERENCE GLVND)
 
+# Need to define these at least once.
+SET(CMAKE_EXE_LINKER_FLAGS_CHECKED "")
+SET(CMAKE_EXE_LINKER_FLAGS_PROFILE "")
+SET(CMAKE_SHARED_LINKER_FLAGS_CHECKED "")
+SET(CMAKE_SHARED_LINKER_FLAGS_PROFILE "")
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	list(APPEND _453_CMAKE_CXX_FLAGS ${_453_CMAKE_CXX_FLAGS} "-Wall" "-pedantic")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -39,7 +45,4 @@ endif()
 #-------------------------------------------------------------------------------
 
 add_subdirectory(thirdparty)
-
-if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/game)
-	add_subdirectory(game)
-endif()
+add_subdirectory(game)
