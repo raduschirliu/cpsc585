@@ -95,6 +95,16 @@
     "execution": "cpp",
     "numeric": "cpp",
     "queue": "cpp",
-    "*.rh": "cpp"
+    "*.rh": "cpp",
+    "any": "cpp",
+    "bitset": "cpp",
+    "cinttypes": "cpp",
+    "codecvt": "cpp",
+    "condition_variable": "cpp",
+    "future": "cpp",
+    "random": "cpp",
+    "stack": "cpp",
+    "unordered_set": "cpp",
+    "valarray": "cpp"
   }
 }

@@ -7,6 +7,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "game/TestComponent.h"
 
 using glm::ivec2;
 using std::string;

@@ -6,6 +6,7 @@
 #include "engine/core/gfx/Window.h"
 #include "engine/render/Renderer.h"
 #include "engine/scene/Scene.h"
+#include "engine/service/ServiceProvider.h"
 
 class App : public std::enable_shared_from_this<App>,
             public IWindowEventListener
@@ -26,6 +27,7 @@ class App : public std::enable_shared_from_this<App>,
     virtual void Init();
     virtual void Cleanup();
 
+    Scene& AddScene();
     Window& GetWindow();
 
   private:
