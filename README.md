@@ -2,13 +2,10 @@
 
 ## Requirements
 - CMake v3.21.0+
-- Some editor/IDE (either VSCode or VisualStudio 2019+)
+- Visual Studio Community Edition 2019 + "Desktop C++ Development" package/workflow
+    - This must be the latest version (16.11.23 as of writing this)
 
-### Windows
-- Visual Studio 2019 with its C++ compiler
-
-### Mac/Linux
-- Some C++ compiler but no idea which version/flavor :D
+**Note:** The build process in theory _should_ also work for MacOS/Unix, but some more work will be required to build PhysX and ensure it links properly.
 
 ## Setup
 1. Pull and init Git submodules
@@ -44,7 +41,7 @@ cmake --preset "VS2019 Debug"
     - Project can be built & started from the 'Debug' panel
 
 3c. For Visual Studio:
-    - TODO: No idea, haven't tried this yet but _should_ work
+    - Open the solution file for this project under `build/cpsc585.sln`
 
 ## Building
 From the command line, the CMake project can be built using:
