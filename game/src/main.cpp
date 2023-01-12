@@ -33,11 +33,6 @@ int main()
     initPhysX();
 
 
-    // Create and start app
-    Log::debug("Starting app");
-    auto game = make_shared<GameApp>();
-    game->Start();
-
 
     // making a simple plane using physx.
     physx::PxPlane plane = physx::PxPlane(0.f,1.f,0.f,0.f);        // n.x + d
@@ -56,6 +51,12 @@ int main()
         kScene->simulate(3.f / 60.0f);
         kScene->fetchResults(true);
     }
+
+
+    // Create and start app
+    Log::debug("Starting app");
+    auto game = make_shared<GameApp>();
+    game->Start();
 
     // GLFW cleanup
     Log::debug("Cleaning up");
