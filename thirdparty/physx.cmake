@@ -28,11 +28,19 @@ set_target_properties(PhysX::PhysXFoundation64
         IMPORTED_IMPLIB   ${PHYSX_INSTALL_BIN}/PhysXFoundation_64.lib
 )
 
+add_library(PhysX::PhysXPvdSDKStatic64 STATIC IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXPvdSDKStatic64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXPvdSDK_static_64.lib
+)
+
 add_library(PhysX::PhysXExtensions64 STATIC IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysXExtensions64
     PROPERTIES
         IMPORTED_LOCATION ${PHYSX_INSTALL_BIN}/PhysXExtensions_static_64.lib
 )
+
+
 
 # ---------------------------
 # Full PhysX wrapper
@@ -41,7 +49,7 @@ set_target_properties(PhysX::PhysXExtensions64
 add_library(PhysX::PhysX INTERFACE IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysX
     PROPERTIES
-        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64"
+        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64;PhysX::PhysXPvdSDKStatic64"
 )
 target_include_directories(PhysX::PhysX
     INTERFACE
