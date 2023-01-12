@@ -4,16 +4,6 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/ComponentBuilder.h"
 
-class TestComponent final : public IComponent
-{
-  public:
-    TestComponent();
-
-    // From IComponent
-    void Init() override;
-    std::string_view GetName() const override;
-};
-
 class ComplexComponent final : public IComponent
 {
   public:

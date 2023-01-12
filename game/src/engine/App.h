@@ -28,9 +28,11 @@ class App : public std::enable_shared_from_this<App>,
     virtual void Cleanup();
 
     template <class ServiceType>
+        requires std::derived_from<ServiceType, IService>
     void AddService()
     {
         auto service = std::make_unique<ServiceType>();
+        service->Init();
         service_provider_.AddService(std::move(service));
     }
 

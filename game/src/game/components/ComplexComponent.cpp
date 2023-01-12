@@ -1,23 +1,8 @@
-#include "game/TestComponent.h"
+#include "game/components/ComplexComponent.h"
 
 #include "engine/core/debug/Log.h"
 
 using std::string_view;
-
-TestComponent::TestComponent()
-{
-    Log::info("TestComponent - ctor");
-}
-
-void TestComponent::Init()
-{
-    Log::info("TestComponent - Init");
-}
-
-string_view TestComponent::GetName() const
-{
-    return "TestComponent";
-}
 
 ComplexComponent::ComplexComponent(RenderService& render_service)
 {
@@ -32,6 +17,5 @@ void ComplexComponent::Init()
 
 string_view ComplexComponent::GetName() const
 {
-    return "TestComponent";
+    return "ComplexComponent";
 }
-

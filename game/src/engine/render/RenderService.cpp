@@ -9,10 +9,20 @@ void RenderService::SayHi()
 
 void RenderService::Init()
 {
+    Log::info("RenderService - Initializing");
+}
+
+void RenderService::Start()
+{
+}
+
+void RenderService::Update()
+{
 }
 
 void RenderService::Cleanup()
 {
+    Log::info("RenderService - Cleaning up");
 }
 
 std::string_view RenderService::GetName() const

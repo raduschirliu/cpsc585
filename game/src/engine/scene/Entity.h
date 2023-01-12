@@ -9,8 +9,6 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/ComponentBuilder.h"
 
-// TODO(radu): This has a circular dependency with Scene.... fix
-
 class Scene;
 
 class Entity

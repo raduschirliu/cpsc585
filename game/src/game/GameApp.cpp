@@ -7,9 +7,11 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Scene.h"
-#include "game/TestComponent.h"
+#include "game/components/BasicComponent.h"
+#include "game/components/ComplexComponent.h"
 
 using glm::ivec2;
 using std::string;
@@ -22,11 +24,12 @@ void GameApp::Init()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
+    AddService<PhysicsService>();
     AddService<RenderService>();
 
     Scene& scene = AddScene("TestScene");
-    Entity& entity = scene.AddEntity(); 
-    entity.AddComponent<TestComponent>();
+    Entity& entity = scene.AddEntity();
+    entity.AddComponent<BasicComponent>();
     entity.AddComponent<ComplexComponent>();
 
     // Model importing test
