@@ -29,24 +29,33 @@ int main()
 {
     initGFLW();
 
+    static const physx::PxU32 frameCount = 100;
     initPhysX();
-
-    // making a simple plane using physx.
-    physx::PxPlane plane = physx::PxPlane(0.f,1.f,0.f,0.f);        // n.x + d
-    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*kPhysics, plane, *kMaterial); // now we have the plane actor.
-    kScene->addActor(*groundPlane);
-
-    glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0); glVertex3f(-0.6, -0.75, 0.5);
-    glColor3f(0, 1, 0); glVertex3f(0.6, -0.75, 0);
-    glColor3f(0, 0, 1); glVertex3f(0, 0.75, 0);
-    glEnd();
 
 
     // Create and start app
     Log::debug("Starting app");
     auto game = make_shared<GameApp>();
     game->Start();
+
+
+    // making a simple plane using physx.
+    physx::PxPlane plane = physx::PxPlane(0.f,1.f,0.f,0.f);        // n.x + d
+    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*kPhysics, plane, *kMaterial); // now we have the plane actor.
+    kScene->addActor(*groundPlane);
+
+    auto sphere = physx::PxSphereGeometry(3.f);
+    physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics, physx::PxTransform(0.f, 0.f, 10.f), sphere, *kMaterial, 10.0f);
+    dynamic->setGlobalPose(physx::PxTransform(0.f, 109.f, 0.f));
+    dynamic->setAngularDamping(0.5f);
+    dynamic->setLinearVelocity(physx::PxVec3(0));
+    kScene->addActor(*dynamic);
+
+    for (physx::PxU32 i = 0; i < frameCount * 5; i++)
+    {
+        kScene->simulate(3.f / 60.0f);
+        kScene->fetchResults(true);
+    }
 
     // GLFW cleanup
     Log::debug("Cleaning up");
