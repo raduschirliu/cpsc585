@@ -1,6 +1,4 @@
 #include "Texture.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
 
 #include <iostream>
 
@@ -9,15 +7,7 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
       path_(path),
       interpolation_(interpolation_mode)
 {
-    int num_components;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data =
-        stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
-
-    if (!data)
-    {
-        throw std::runtime_error("Failed to read texture data from file!");
-    }
+    int num_components = 0;
 
     // Set alignment to be 1
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -45,8 +35,8 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
             break;
     };
     // Loads texture data into bound texture
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
-                 GL_UNSIGNED_BYTE, data);
+    // glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
+    //              GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -58,7 +48,6 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
     // Clean up
     Unbind();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);  // Return to default alignment
-    stbi_image_free(data);
 }
 
 glm::ivec2 Texture::GetDimensions() const

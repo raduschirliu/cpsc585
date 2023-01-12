@@ -10,7 +10,7 @@ class ComponentBuilder
     ComponentBuilder(ServiceProvider& service_provider);
 
     template <class Component>
-    std::unique_ptr<Component> Build()
+    std::unique_ptr<Component> Build() const
     {
         // Default implementation for components that don't require
         // any services to be injected

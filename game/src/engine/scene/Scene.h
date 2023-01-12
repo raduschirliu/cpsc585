@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "engine/scene/ComponentBuilder.h"
@@ -12,11 +14,15 @@ class Scene
   public:
     Scene(std::string_view name, ServiceProvider& service_provider);
 
-    const ComponentBuilder& GetComponentBuilder() const;
+    Entity& AddEntity();
+
+    const ComponentBuilder* GetComponentBuilder() const;
 
   private:
     std::string name_;
-    std::vector<Entity> entities_;
+    // TODO: Since entities are stored in a vector, there is the potential of
+    // having pointers to them that are incorrect if the vector resizes...
+    std::vector<std::unique_ptr<Entity>> entities_;
     ServiceProvider& service_provider_;
     ComponentBuilder component_builder_;
 };

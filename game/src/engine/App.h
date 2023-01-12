@@ -27,7 +27,14 @@ class App : public std::enable_shared_from_this<App>,
     virtual void Init();
     virtual void Cleanup();
 
-    Scene& AddScene();
+    template <class ServiceType>
+    void AddService()
+    {
+        auto service = std::make_unique<ServiceType>();
+        service_provider_.AddService(std::move(service));
+    }
+
+    Scene& AddScene(std::string_view name);
     Window& GetWindow();
 
   private:
@@ -35,6 +42,7 @@ class App : public std::enable_shared_from_this<App>,
     Window window_;
     Renderer renderer_;
     std::vector<std::unique_ptr<Scene>> scenes_;
+    ServiceProvider service_provider_;
 
     void Run();
 };

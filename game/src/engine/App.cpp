@@ -1,6 +1,14 @@
 #include "engine/App.h"
 
-App::App() : running_(false), window_(), renderer_(GetWindow())
+using std::make_unique;
+using std::string_view;
+
+App::App()
+    : running_(false),
+      window_(),
+      renderer_(GetWindow()),
+      scenes_{},
+      service_provider_()
 {
 }
 
@@ -26,6 +34,14 @@ void App::Init()
 void App::Cleanup()
 {
     // To be overridden if needed
+}
+
+Scene& App::AddScene(string_view name)
+{
+    auto scene = make_unique<Scene>(name, service_provider_);
+    scenes_.push_back(std::move(scene));
+
+    return *scenes_.back();
 }
 
 Window& App::GetWindow()

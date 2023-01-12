@@ -7,6 +7,8 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/render/RenderService.h"
+#include "engine/scene/Scene.h"
 #include "game/TestComponent.h"
 
 using glm::ivec2;
@@ -19,6 +21,13 @@ GameApp::GameApp()
 void GameApp::Init()
 {
     GetWindow().SetSize(ivec2(1280, 720));
+
+    AddService<RenderService>();
+
+    Scene& scene = AddScene("TestScene");
+    Entity& entity = scene.AddEntity(); 
+    entity.AddComponent<TestComponent>();
+    entity.AddComponent<ComplexComponent>();
 
     // Model importing test
     Assimp::Importer importer;
