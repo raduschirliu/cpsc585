@@ -13,6 +13,4 @@ class Renderer
 
   private:
     const Window& window_;
-
-    void RenderGui();
 };

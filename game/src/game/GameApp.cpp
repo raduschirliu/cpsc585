@@ -7,6 +7,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/gui/GuiService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Scene.h"
@@ -14,6 +15,7 @@
 #include "game/components/ComplexComponent.h"
 
 using glm::ivec2;
+using std::make_unique;
 using std::string;
 
 GameApp::GameApp()
@@ -24,8 +26,9 @@ void GameApp::Init()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
-    AddService<PhysicsService>();
-    AddService<RenderService>();
+    AddService(make_unique<PhysicsService>());
+    AddService(make_unique<RenderService>(GetWindow()));
+    AddService(make_unique<GuiService>(GetWindow()));
 
     Scene& scene = AddScene("TestScene");
     Entity& entity = scene.AddEntity();

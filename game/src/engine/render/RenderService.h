@@ -2,11 +2,14 @@
 
 #include <concepts>
 
+#include "engine/render/Renderer.h"
 #include "engine/service/Service.h"
 
 class RenderService final : public IService
 {
   public:
+    RenderService(Window& window);
+
     void SayHi();
 
     // From IService
@@ -15,4 +18,7 @@ class RenderService final : public IService
     void Update() override;
     void Cleanup() override;
     std::string_view GetName() const override;
+
+  private:
+    Renderer renderer_;
 };

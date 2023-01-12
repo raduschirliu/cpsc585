@@ -35,6 +35,9 @@ class ServiceProvider
         return static_cast<ServiceType&>(*entry_pair.second);
     }
 
+    void OnUpdate();
+    void OnCleanup();
+
   private:
     std::unordered_map<std::type_index, std::unique_ptr<IService>> services_;
 };

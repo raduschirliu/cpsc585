@@ -3,12 +3,7 @@
 using std::make_unique;
 using std::string_view;
 
-App::App()
-    : running_(false),
-      window_(),
-      renderer_(GetWindow()),
-      scenes_{},
-      service_provider_()
+App::App() : running_(false), window_(), scenes_{}, service_provider_()
 {
 }
 
@@ -17,13 +12,13 @@ void App::Start()
     window_.Create(100, 100, "app");
     window_.SetCallbacks(shared_from_this());
 
-    renderer_.Init();
+    // TODO(radu): Potentially initialize services in a "pre-init" phase?
     Init();
 
     Run();
 
     Cleanup();
-    renderer_.Cleanup();
+    service_provider_.OnCleanup();
 }
 
 void App::Init()
@@ -57,11 +52,9 @@ void App::Run()
     {
         window_.PollEvents();
 
-        // TODO: Use fixed timestep
-        // TODO: Update physics
+        // TODO: Use fixed timestep for physics?
 
-        // TODO: Prepare objects to be rendered
-        renderer_.RenderFrame();
+        service_provider_.OnUpdate();
 
         window_.SwapBuffers();
     }

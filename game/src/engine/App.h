@@ -29,9 +29,8 @@ class App : public std::enable_shared_from_this<App>,
 
     template <class ServiceType>
         requires std::derived_from<ServiceType, IService>
-    void AddService()
+    void AddService(std::unique_ptr<ServiceType> service)
     {
-        auto service = std::make_unique<ServiceType>();
         service->Init();
         service_provider_.AddService(std::move(service));
     }
@@ -42,7 +41,6 @@ class App : public std::enable_shared_from_this<App>,
   private:
     bool running_;
     Window window_;
-    Renderer renderer_;
     std::vector<std::unique_ptr<Scene>> scenes_;
     ServiceProvider service_provider_;
 

@@ -20,8 +20,6 @@ class Scene
 
   private:
     std::string name_;
-    // TODO: Since entities are stored in a vector, there is the potential of
-    // having pointers to them that are incorrect if the vector resizes...
     std::vector<std::unique_ptr<Entity>> entities_;
     ServiceProvider& service_provider_;
     ComponentBuilder component_builder_;

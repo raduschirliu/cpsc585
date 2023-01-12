@@ -2,6 +2,10 @@
 
 #include "engine/core/debug/Log.h"
 
+RenderService::RenderService(Window& window) : renderer_(window)
+{
+}
+
 void RenderService::SayHi()
 {
     Log::info("RenderService: Hiii");
