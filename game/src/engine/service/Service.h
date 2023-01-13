@@ -7,10 +7,10 @@
 class IService
 {
   public:
-    virtual void Init() = 0;
-    virtual void Start() = 0;
-    virtual void Update() = 0;
-    virtual void Cleanup() = 0;
+    virtual void OnInit() = 0;
+    virtual void OnStart() = 0;
+    virtual void OnUpdate() = 0;
+    virtual void OnCleanup() = 0;
 
     virtual std::string_view GetName() const = 0;
 };

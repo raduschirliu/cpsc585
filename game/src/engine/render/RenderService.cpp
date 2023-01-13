@@ -11,22 +11,25 @@ void RenderService::SayHi()
     Log::info("RenderService: Hiii");
 }
 
-void RenderService::Init()
+void RenderService::OnInit()
 {
     Log::info("RenderService - Initializing");
+    renderer_.Init();
 }
 
-void RenderService::Start()
+void RenderService::OnStart()
 {
 }
 
-void RenderService::Update()
+void RenderService::OnUpdate()
 {
+    renderer_.RenderFrame();
 }
 
-void RenderService::Cleanup()
+void RenderService::OnCleanup()
 {
     Log::info("RenderService - Cleaning up");
+    renderer_.Cleanup();
 }
 
 std::string_view RenderService::GetName() const

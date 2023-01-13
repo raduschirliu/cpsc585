@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/debug/Assert.h"
+#include "engine/core/event/EventSource.h"
 #include "engine/core/gfx/Window.h"
 #include "engine/service/Service.h"
 
@@ -10,20 +11,20 @@ class GuiService final : public IService
     GuiService(Window& window);
 
     // From IService
-    void Init() override;
-    void Start() override;
-    void Update() override;
-    void Cleanup() override;
+    void OnInit() override;
+    void OnStart() override;
+    void OnUpdate() override;
+    void OnCleanup() override;
     std::string_view GetName() const override;
 
   private:
     Window& window_;
 };
 
-class OnGuiEventSubscriber
+class IOnGuiEventSubscriber
 {
   public:
     virtual void OnGui() = 0;
 };
 
-STATIC_ASSERT_INTERFACE(OnGuiEventSubscriber);
+STATIC_ASSERT_INTERFACE(IOnGuiEventSubscriber);

@@ -13,10 +13,10 @@ class RenderService final : public IService
     void SayHi();
 
     // From IService
-    void Init() override;
-    void Start() override;
-    void Update() override;
-    void Cleanup() override;
+    void OnInit() override;
+    void OnStart() override;
+    void OnUpdate() override;
+    void OnCleanup() override;
     std::string_view GetName() const override;
 
   private:

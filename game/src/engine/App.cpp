@@ -7,26 +7,37 @@ App::App() : running_(false), window_(), scenes_{}, service_provider_()
 {
 }
 
-void App::Start()
+void App::Run()
 {
+    // Setup phase
     window_.Create(100, 100, "app");
     window_.SetCallbacks(shared_from_this());
 
-    // TODO(radu): Potentially initialize services in a "pre-init" phase?
-    Init();
+    // Init phase
+    OnInit();
+    service_provider_.DispatchInit();
 
-    Run();
+    // Run phase
+    service_provider_.DispatchStart();
+    OnStart();
+    PerformGameLoop();
 
-    Cleanup();
-    service_provider_.OnCleanup();
+    // Cleanup phase
+    OnCleanup();
+    service_provider_.DispatchCleanup();
 }
 
-void App::Init()
+void App::OnInit()
 {
     // To be overridden if needed
 }
 
-void App::Cleanup()
+void App::OnStart()
+{
+    // To be overridden if needed
+}
+
+void App::OnCleanup()
 {
     // To be overridden if needed
 }
@@ -44,7 +55,7 @@ Window& App::GetWindow()
     return window_;
 }
 
-void App::Run()
+void App::PerformGameLoop()
 {
     running_ = true;
 
@@ -53,8 +64,7 @@ void App::Run()
         window_.PollEvents();
 
         // TODO: Use fixed timestep for physics?
-
-        service_provider_.OnUpdate();
+        service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();
     }

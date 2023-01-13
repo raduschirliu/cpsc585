@@ -4,22 +4,20 @@
 
 using std::string_view;
 
-void PhysicsService::Init()
-{
-    Log::info("PhysicsService - Initializing");
-}
-
-void PhysicsService::Start()
+void PhysicsService::OnInit()
 {
 }
 
-void PhysicsService::Update()
+void PhysicsService::OnStart()
 {
 }
 
-void PhysicsService::Cleanup()
+void PhysicsService::OnUpdate()
 {
-    Log::info("PhysicsService - Cleaning up");
+}
+
+void PhysicsService::OnCleanup()
+{
 }
 
 string_view PhysicsService::GetName() const

@@ -14,7 +14,7 @@ class App : public std::enable_shared_from_this<App>,
   public:
     App();
 
-    void Start();
+    void Run();
 
     // From IWindowEventListener
     void OnKeyEvent(int key, int scancode, int action, int mods) override;
@@ -24,14 +24,14 @@ class App : public std::enable_shared_from_this<App>,
     void OnWindowSizeChanged(int width, int height) override;
 
   protected:
-    virtual void Init();
-    virtual void Cleanup();
+    virtual void OnInit();
+    virtual void OnStart();
+    virtual void OnCleanup();
 
     template <class ServiceType>
         requires std::derived_from<ServiceType, IService>
     void AddService(std::unique_ptr<ServiceType> service)
     {
-        service->Init();
         service_provider_.AddService(std::move(service));
     }
 
@@ -44,5 +44,5 @@ class App : public std::enable_shared_from_this<App>,
     std::vector<std::unique_ptr<Scene>> scenes_;
     ServiceProvider service_provider_;
 
-    void Run();
+    void PerformGameLoop();
 };

@@ -4,14 +4,18 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include "engine/core/debug/Log.h"
+
 const char* kGlslVersion = "#version 330 core";
 
 GuiService::GuiService(Window& window) : window_(window)
 {
 }
 
-void GuiService::Init()
+void GuiService::OnInit()
 {
+    Log::info("[GuiService] Initializing");
+
     // Setup ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,11 +25,11 @@ void GuiService::Init()
     ImGui_ImplOpenGL3_Init(kGlslVersion);
 }
 
-void GuiService::Start()
+void GuiService::OnStart()
 {
 }
 
-void GuiService::Update()
+void GuiService::OnUpdate()
 {
     // Render ImGui frame
     glDisable(GL_FRAMEBUFFER_SRGB);
@@ -40,7 +44,7 @@ void GuiService::Update()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void GuiService::Cleanup()
+void GuiService::OnCleanup()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
