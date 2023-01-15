@@ -3,6 +3,9 @@
 #include <yaml-cpp/yaml.h>
 
 #include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <string>
 
 #include "engine/core/debug/Assert.h"
@@ -35,6 +38,7 @@ void GameApp::OnInit()
     AddService<PhysicsService>();
     AddService<RenderService>();
     AddService<GuiService>();
+    AddService<AssetService>();
 
     // Model importing test
     Assimp::Importer importer;
