@@ -40,6 +40,8 @@ void GuiService::OnUpdate()
     // TODO: Render GUI
     ImGui::ShowDemoWindow(nullptr);
 
+    on_gui_event_.Emit();
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

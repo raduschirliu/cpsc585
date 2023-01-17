@@ -17,6 +17,8 @@ class GuiService final : public IService
     void OnCleanup() override;
     std::string_view GetName() const override;
 
+    EventSource<void> on_gui_event_;
+
   private:
     Window& window_;
 };
