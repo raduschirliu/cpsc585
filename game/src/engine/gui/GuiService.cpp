@@ -8,7 +8,9 @@
 
 const char* kGlslVersion = "#version 330 core";
 
-GuiService::GuiService(Window& window) : window_(window)
+GuiService::GuiService(Window& window, GlobalEventDispatcher& event_dispatcher)
+    : window_(window),
+      event_dispatcher_(event_dispatcher)
 {
 }
 

@@ -34,6 +34,7 @@ class EventSource
     {
         subscribers_.push_back(
             Subscriber{.id = next_subscriber_id_, .callback = handler});
+        next_subscriber_id_ += 1;
     }
 
     void Unsubscribe(EventSubscriberId id)

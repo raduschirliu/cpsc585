@@ -43,6 +43,7 @@ class App : public std::enable_shared_from_this<App>,
     Window window_;
     std::vector<std::unique_ptr<Scene>> scenes_;
     ServiceProvider service_provider_;
+    GlobalEventDispatcher event_dispatcher_;
 
     void PerformGameLoop();
 };

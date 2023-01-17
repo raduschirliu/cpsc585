@@ -2,13 +2,14 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventSource.h"
+#include "engine/core/event/GlobalEventDispatcher.h"
 #include "engine/core/gfx/Window.h"
 #include "engine/service/Service.h"
 
 class GuiService final : public IService
 {
   public:
-    GuiService(Window& window);
+    GuiService(Window& window, GlobalEventDispatcher& event_dispatcher);
 
     // From IService
     void OnInit() override;
@@ -21,12 +22,5 @@ class GuiService final : public IService
 
   private:
     Window& window_;
+    GlobalEventDispatcher& event_dispatcher_;
 };
-
-class IOnGuiEventSubscriber
-{
-  public:
-    virtual void OnGui() = 0;
-};
-
-STATIC_ASSERT_INTERFACE(IOnGuiEventSubscriber);

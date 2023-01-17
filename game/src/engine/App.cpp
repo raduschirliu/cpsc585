@@ -3,7 +3,12 @@
 using std::make_unique;
 using std::string_view;
 
-App::App() : running_(false), window_(), scenes_{}, service_provider_()
+App::App()
+    : running_(false),
+      window_(),
+      scenes_{},
+      service_provider_(),
+      event_dispatcher_()
 {
 }
 
