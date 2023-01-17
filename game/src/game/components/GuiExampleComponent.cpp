@@ -9,8 +9,6 @@ using std::string_view;
 GuiExampleComponent::GuiExampleComponent(GuiService& gui_service)
 {
     Log::info("GuiExampleComponent - ctor");
-    events_.Subscribe(gui_service.on_gui_event_,
-                      std::bind(&GuiExampleComponent::OnGui, this));
 }
 
 void GuiExampleComponent::Init()

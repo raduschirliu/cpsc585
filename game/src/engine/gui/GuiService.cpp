@@ -4,6 +4,7 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include "engine/gui/OnGuiEvent.h"
 #include "engine/core/debug/Log.h"
 
 const char* kGlslVersion = "#version 330 core";
@@ -41,8 +42,7 @@ void GuiService::OnUpdate()
 
     // TODO: Render GUI
     ImGui::ShowDemoWindow(nullptr);
-
-    on_gui_event_.Emit();
+    event_dispatcher_.Publish<OnGuiEvent>();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

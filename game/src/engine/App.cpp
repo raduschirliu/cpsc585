@@ -49,7 +49,7 @@ void App::OnCleanup()
 
 Scene& App::AddScene(string_view name)
 {
-    auto scene = make_unique<Scene>(name, service_provider_);
+    auto scene = make_unique<Scene>(name, service_provider_, event_dispatcher_);
     scenes_.push_back(std::move(scene));
 
     return *scenes_.back();
@@ -58,6 +58,11 @@ Scene& App::AddScene(string_view name)
 Window& App::GetWindow()
 {
     return window_;
+}
+
+GlobalEventDispatcher& App::GetEventDispatcher()
+{
+    return event_dispatcher_;
 }
 
 void App::PerformGameLoop()

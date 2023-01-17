@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/GlobalEvent.h"
+#include "engine/gui/OnGuiEvent.h"
 #include "engine/gui/GuiService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Component.h"

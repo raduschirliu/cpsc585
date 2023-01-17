@@ -13,6 +13,7 @@
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/ComplexComponent.h"
+#include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
 using std::make_unique;
@@ -25,16 +26,16 @@ GameApp::GameApp()
 /**
  * Runs once the windowing system has been initialized and the window
  * is created. Services should be added here.
- * 
+ *
  * THIS IS CALLED BEFORE SERVICES ARE INITIALIZED
-*/
+ */
 void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService(make_unique<PhysicsService>());
     AddService(make_unique<RenderService>(GetWindow()));
-    AddService(make_unique<GuiService>(GetWindow()));
+    AddService(make_unique<GuiService>(GetWindow(), GetEventDispatcher()));
 
     // Model importing test
     Assimp::Importer importer;
@@ -49,13 +50,14 @@ void GameApp::OnInit()
 }
 
 /**
- * Runs after all services have been initialized - it's safe to interact with them
- * here if needed
-*/
+ * Runs after all services have been initialized - it's safe to interact with
+ * them here if needed
+ */
 void GameApp::OnStart()
 {
     Scene& scene = AddScene("TestScene");
     Entity& entity = scene.AddEntity();
     entity.AddComponent<BasicComponent>();
     entity.AddComponent<ComplexComponent>();
+    entity.AddComponent<GuiExampleComponent>();
 }

@@ -12,7 +12,8 @@
 class Scene
 {
   public:
-    Scene(std::string_view name, ServiceProvider& service_provider);
+    Scene(std::string_view name, ServiceProvider& service_provider,
+          GlobalEventDispatcher& event_dispatcher);
 
     Entity& AddEntity();
 

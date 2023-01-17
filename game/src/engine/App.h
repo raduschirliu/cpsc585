@@ -37,6 +37,7 @@ class App : public std::enable_shared_from_this<App>,
 
     Scene& AddScene(std::string_view name);
     Window& GetWindow();
+    GlobalEventDispatcher& GetEventDispatcher();
 
   private:
     bool running_;
