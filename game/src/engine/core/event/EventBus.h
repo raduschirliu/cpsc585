@@ -6,9 +6,10 @@
 #include <unordered_map>
 #include <vector>
 
-#include "engine/core/event/EventSubscriber.h"
+#include "engine/core/event/Event.h"
+#include "engine/core/event/EventHandler.h"
 
-class GlobalEventDispatcher
+class EventBus
 {
   public:
     template <class EventType>
@@ -29,7 +30,7 @@ class GlobalEventDispatcher
     }
 
     template <class EventType>
-    void Subscribe(EventType::ISubscriber* instance)
+    void Subscribe(IEventSubscriber<EventType>* instance)
     {
         std::type_index key = typeid(EventType);
 
@@ -40,6 +41,6 @@ class GlobalEventDispatcher
 
   private:
     std::unordered_map<std::type_index,
-                       std::vector<std::unique_ptr<EventSubscriber>>>
+                       std::vector<std::unique_ptr<EventHandler>>>
         subscribers_;
 };

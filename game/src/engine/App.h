@@ -37,14 +37,14 @@ class App : public std::enable_shared_from_this<App>,
 
     Scene& AddScene(std::string_view name);
     Window& GetWindow();
-    GlobalEventDispatcher& GetEventDispatcher();
+    EventBus& GetEventBus();
 
   private:
     bool running_;
     Window window_;
     std::vector<std::unique_ptr<Scene>> scenes_;
     ServiceProvider service_provider_;
-    GlobalEventDispatcher event_dispatcher_;
+    EventBus event_bus_;
 
     void PerformGameLoop();
 };

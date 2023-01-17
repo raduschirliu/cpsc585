@@ -2,14 +2,14 @@
 
 #include <memory>
 
-#include "engine/core/event/GlobalEventDispatcher.h"
+#include "engine/core/event/EventBus.h"
 #include "engine/service/ServiceProvider.h"
 
 class ComponentBuilder
 {
   public:
     ComponentBuilder(ServiceProvider& service_provider,
-                     GlobalEventDispatcher& event_dispatcher);
+                     EventBus& event_bus);
 
     template <class Component>
     std::unique_ptr<Component> Build() const
@@ -22,5 +22,5 @@ class ComponentBuilder
 
   private:
     ServiceProvider& service_provider_;
-    GlobalEventDispatcher& event_dispatcher_;
+    EventBus& event_bus_;
 };

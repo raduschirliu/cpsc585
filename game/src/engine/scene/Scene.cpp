@@ -6,11 +6,11 @@ using std::make_unique;
 using std::string_view;
 
 Scene::Scene(string_view name, ServiceProvider& service_provider,
-             GlobalEventDispatcher& event_dispatcher)
+             EventBus& event_bus)
     : name_(name),
       entities_{},
       service_provider_(service_provider),
-      component_builder_(service_provider, event_dispatcher)
+      component_builder_(service_provider, event_bus)
 {
 }
 

@@ -9,9 +9,9 @@
 
 const char* kGlslVersion = "#version 330 core";
 
-GuiService::GuiService(Window& window, GlobalEventDispatcher& event_dispatcher)
+GuiService::GuiService(Window& window, EventBus& event_bus)
     : window_(window),
-      event_dispatcher_(event_dispatcher)
+      event_bus_(event_bus)
 {
 }
 
@@ -42,7 +42,7 @@ void GuiService::OnUpdate()
 
     // TODO: Render GUI
     ImGui::ShowDemoWindow(nullptr);
-    event_dispatcher_.Publish<OnGuiEvent>();
+    event_bus_.Publish<OnGuiEvent>();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

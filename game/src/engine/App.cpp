@@ -8,7 +8,7 @@ App::App()
       window_(),
       scenes_{},
       service_provider_(),
-      event_dispatcher_()
+      event_bus_()
 {
 }
 
@@ -49,7 +49,7 @@ void App::OnCleanup()
 
 Scene& App::AddScene(string_view name)
 {
-    auto scene = make_unique<Scene>(name, service_provider_, event_dispatcher_);
+    auto scene = make_unique<Scene>(name, service_provider_, event_bus_);
     scenes_.push_back(std::move(scene));
 
     return *scenes_.back();
@@ -60,9 +60,9 @@ Window& App::GetWindow()
     return window_;
 }
 
-GlobalEventDispatcher& App::GetEventDispatcher()
+EventBus& App::GetEventBus()
 {
-    return event_dispatcher_;
+    return event_bus_;
 }
 
 void App::PerformGameLoop()

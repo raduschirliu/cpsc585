@@ -35,7 +35,7 @@ void GameApp::OnInit()
 
     AddService(make_unique<PhysicsService>());
     AddService(make_unique<RenderService>(GetWindow()));
-    AddService(make_unique<GuiService>(GetWindow(), GetEventDispatcher()));
+    AddService(make_unique<GuiService>(GetWindow(), GetEventBus()));
 
     // Model importing test
     Assimp::Importer importer;

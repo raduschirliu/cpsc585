@@ -1,14 +1,14 @@
 #pragma once
 
 #include "engine/core/debug/Assert.h"
-#include "engine/core/event/GlobalEventDispatcher.h"
+#include "engine/core/event/EventBus.h"
 #include "engine/core/gfx/Window.h"
 #include "engine/service/Service.h"
 
 class GuiService final : public IService
 {
   public:
-    GuiService(Window& window, GlobalEventDispatcher& event_dispatcher);
+    GuiService(Window& window, EventBus& event_bus);
 
     // From IService
     void OnInit() override;
@@ -19,5 +19,5 @@ class GuiService final : public IService
 
   private:
     Window& window_;
-    GlobalEventDispatcher& event_dispatcher_;
+    EventBus& event_bus_;
 };

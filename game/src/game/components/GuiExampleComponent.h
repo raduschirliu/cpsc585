@@ -7,7 +7,7 @@
 #include "engine/scene/ComponentBuilder.h"
 
 class GuiExampleComponent final : public IComponent,
-                                  public OnGuiEvent::ISubscriber
+                                  public IEventSubscriber<OnGuiEvent>
 {
   public:
     GuiExampleComponent(GuiService& gui_service);
@@ -26,7 +26,7 @@ inline std::unique_ptr<GuiExampleComponent> ComponentBuilder::Build() const
     auto component = std::make_unique<GuiExampleComponent>(
         service_provider_.GetService<GuiService>());
 
-    event_dispatcher_.Subscribe<OnGuiEvent>(component.get());
+    event_bus_.Subscribe<OnGuiEvent>(component.get());
 
     return std::move(component);
 }
