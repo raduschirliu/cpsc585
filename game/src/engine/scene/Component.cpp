@@ -2,7 +2,7 @@
 
 #include "engine/scene/Entity.h"
 
-Component::Component() : event_bus_(nullptr)
+Component::Component() : entity_(nullptr), event_bus_(nullptr)
 {
 }
 

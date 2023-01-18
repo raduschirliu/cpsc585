@@ -1,5 +1,6 @@
 #pragma once
 
+#include <object_ptr.hpp>
 #include <string_view>
 
 #include "engine/core/debug/Assert.h"
@@ -10,9 +11,9 @@ class Window;
 
 struct ServiceInitializer
 {
-  Window& window;
-  EventBus& event_bus;
-  ServiceProvider& service_provider;
+    Window& window;
+    EventBus& event_bus;
+    ServiceProvider& service_provider;
 };
 
 class Service
@@ -26,12 +27,12 @@ class Service
     virtual void OnCleanup();
 
     virtual std::string_view GetName() const = 0;
-  
+
   protected:
     Window& GetWindow();
     EventBus& GetEventBus();
 
   private:
-    Window* window_;
-    EventBus* event_bus_;
+    jss::object_ptr<Window> window_;
+    jss::object_ptr<EventBus> event_bus_;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-class IEvent
+struct IEvent
 {
 };
 

@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <memory>
+#include <object_ptr.hpp>
 #include <string>
 #include <vector>
 
@@ -27,7 +28,7 @@ class Entity
         components_.push_back(std::move(component));
     }
 
-    void SetScene(Scene* scene);
+    void SetScene(jss::object_ptr<Scene> scene);
 
   protected:
     void InitComponent(Component& component);
@@ -35,6 +36,6 @@ class Entity
   private:
     uint32_t id_;
     std::string name_;
-    Scene* scene_;
+    jss::object_ptr<Scene> scene_;
     std::vector<std::unique_ptr<Component>> components_;
 };

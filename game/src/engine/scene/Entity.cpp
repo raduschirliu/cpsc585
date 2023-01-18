@@ -3,6 +3,7 @@
 #include "engine/scene/Scene.h"
 
 using std::unique_ptr;
+using jss::object_ptr;
 
 static uint32_t kNextEntityId = 0;
 
@@ -15,7 +16,7 @@ Entity::Entity()
     kNextEntityId += 1;
 }
 
-void Entity::SetScene(Scene* scene)
+void Entity::SetScene(object_ptr<Scene> scene)
 {
     scene_ = scene;
 }

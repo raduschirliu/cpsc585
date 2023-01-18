@@ -1,5 +1,6 @@
 #pragma once
 
+#include <object_ptr.hpp>
 #include <string_view>
 
 #include "engine/core/debug/Assert.h"
@@ -28,11 +29,11 @@ class Component
     virtual void OnUpdate() = 0;
     virtual void OnCleanup();
     virtual std::string_view GetName() const = 0;
-  
+
   protected:
     EventBus& GetEventBus();
 
   private:
-    Entity* entity_;
-    EventBus* event_bus_;
+    jss::object_ptr<Entity> entity_;
+    jss::object_ptr<EventBus> event_bus_;
 };
