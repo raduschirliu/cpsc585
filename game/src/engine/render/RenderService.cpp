@@ -2,7 +2,7 @@
 
 #include "engine/core/debug/Log.h"
 
-RenderService::RenderService(Window& window) : renderer_(window)
+RenderService::RenderService() : renderer_()
 {
 }
 
@@ -17,7 +17,7 @@ void RenderService::OnInit()
     renderer_.Init();
 }
 
-void RenderService::OnStart()
+void RenderService::OnStart(ServiceProvider& service_provider)
 {
 }
 

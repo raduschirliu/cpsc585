@@ -29,6 +29,8 @@ string_view GuiExampleComponent::GetName() const
 
 void GuiExampleComponent::OnGui()
 {
+    ImGui::ShowDemoWindow(nullptr);
+
     if (ImGui::Begin("GuiExampleComponent"))
     {
         ImGui::Text("hello world");

@@ -3,16 +3,35 @@
 #include <string_view>
 
 #include "engine/core/debug/Assert.h"
+#include "engine/core/event/EventBus.h"
 
-class IService
+class ServiceProvider;
+class Window;
+
+struct ServiceInitializer
 {
-  public:
-    virtual void OnInit() = 0;
-    virtual void OnStart() = 0;
-    virtual void OnUpdate() = 0;
-    virtual void OnCleanup() = 0;
-
-    virtual std::string_view GetName() const = 0;
+  Window& window;
+  EventBus& event_bus;
+  ServiceProvider& service_provider;
 };
 
-STATIC_ASSERT_INTERFACE(IService);
+class Service
+{
+  public:
+    void Init(ServiceInitializer& initializer);
+
+    virtual void OnInit();
+    virtual void OnStart(ServiceProvider& service_provider);
+    virtual void OnUpdate() = 0;
+    virtual void OnCleanup();
+
+    virtual std::string_view GetName() const = 0;
+  
+  protected:
+    Window& GetWindow();
+    EventBus& GetEventBus();
+
+  private:
+    Window* window_;
+    EventBus* event_bus_;
+};

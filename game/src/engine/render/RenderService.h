@@ -5,16 +5,16 @@
 #include "engine/render/Renderer.h"
 #include "engine/service/Service.h"
 
-class RenderService final : public IService
+class RenderService final : public Service
 {
   public:
-    RenderService(Window& window);
+    RenderService();
 
     void SayHi();
 
-    // From IService
+    // From Service
     void OnInit() override;
-    void OnStart() override;
+    void OnStart(ServiceProvider& service_provider) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;

@@ -32,9 +32,9 @@ void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
-    AddService(make_unique<PhysicsService>());
-    AddService(make_unique<RenderService>(GetWindow()));
-    AddService(make_unique<GuiService>(GetWindow(), GetEventBus()));
+    AddService<PhysicsService>();
+    AddService<RenderService>();
+    AddService<GuiService>();
 
     // Model importing test
     Assimp::Importer importer;

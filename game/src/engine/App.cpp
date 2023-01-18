@@ -20,7 +20,7 @@ void App::Run()
 
     // Init phase
     OnInit();
-    service_provider_.DispatchInit();
+    service_provider_.DispatchInit(window_, event_bus_);
 
     // Run phase
     service_provider_.DispatchStart();
@@ -74,6 +74,7 @@ void App::PerformGameLoop()
         window_.PollEvents();
 
         // TODO: Use fixed timestep for physics?
+        // TODO: Send update event to components in the active scene
         service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();

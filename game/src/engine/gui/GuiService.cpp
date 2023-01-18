@@ -9,12 +9,6 @@
 
 const char* kGlslVersion = "#version 330 core";
 
-GuiService::GuiService(Window& window, EventBus& event_bus)
-    : window_(window),
-      event_bus_(event_bus)
-{
-}
-
 void GuiService::OnInit()
 {
     Log::info("[GuiService] Initializing");
@@ -24,11 +18,11 @@ void GuiService::OnInit()
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(window_.GetWindowHandle(), true);
+    ImGui_ImplGlfw_InitForOpenGL(GetWindow().GetWindowHandle(), true);
     ImGui_ImplOpenGL3_Init(kGlslVersion);
 }
 
-void GuiService::OnStart()
+void GuiService::OnStart(ServiceProvider& service_provider)
 {
 }
 
@@ -40,9 +34,7 @@ void GuiService::OnUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // TODO: Render GUI
-    ImGui::ShowDemoWindow(nullptr);
-    event_bus_.Publish<OnGuiEvent>();
+    GetEventBus().Publish<OnGuiEvent>();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

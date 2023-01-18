@@ -1,12 +1,7 @@
 #include "engine/render/Renderer.h"
 
-Renderer::Renderer(const Window& window) : window_(window)
-{
-}
-
 void Renderer::Init()
 {
-
 }
 
 void Renderer::RenderFrame()
@@ -22,5 +17,4 @@ void Renderer::RenderFrame()
 
 void Renderer::Cleanup()
 {
-    
 }

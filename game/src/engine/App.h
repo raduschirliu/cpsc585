@@ -29,10 +29,10 @@ class App : public std::enable_shared_from_this<App>,
     virtual void OnCleanup();
 
     template <class ServiceType>
-        requires std::derived_from<ServiceType, IService>
-    void AddService(std::unique_ptr<ServiceType> service)
+        requires std::derived_from<ServiceType, Service>
+    void AddService()
     {
-        service_provider_.AddService(std::move(service));
+        service_provider_.AddService(std::make_unique<ServiceType>());
     }
 
     Scene& AddScene(std::string_view name);
