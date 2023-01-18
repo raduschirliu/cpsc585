@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "name": "Default",
+      "intelliSenseMode": "windows-msvc-x64",
+      "cppStandard": "c++20",
+      "configurationProvider": "ms-vscode.cmake-tools"
+    }
+  ],
+  "version": 4
+}

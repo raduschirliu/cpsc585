@@ -1,31 +1,58 @@
 #include "engine/App.h"
 
-App::App() : running_(false), window_(), renderer_(GetWindow())
+using std::make_unique;
+using std::string_view;
+
+App::App()
+    : running_(false),
+      window_(),
+      scenes_{},
+      service_provider_(),
+      event_bus_()
 {
 }
 
-void App::Start()
+void App::Run()
 {
+    // Setup phase
     window_.Create(100, 100, "app");
     window_.SetCallbacks(shared_from_this());
 
-    renderer_.Init();
-    Init();
+    // Init phase
+    OnInit();
+    service_provider_.DispatchInit(window_, event_bus_);
 
-    Run();
+    // Run phase
+    service_provider_.DispatchStart();
+    OnStart();
+    PerformGameLoop();
 
-    Cleanup();
-    renderer_.Cleanup();
+    // Cleanup phase
+    OnCleanup();
+    service_provider_.DispatchCleanup();
 }
 
-void App::Init()
+void App::OnInit()
 {
     // To be overridden if needed
 }
 
-void App::Cleanup()
+void App::OnStart()
 {
     // To be overridden if needed
+}
+
+void App::OnCleanup()
+{
+    // To be overridden if needed
+}
+
+Scene& App::AddScene(string_view name)
+{
+    auto scene = make_unique<Scene>(name, service_provider_, event_bus_);
+    scenes_.push_back(std::move(scene));
+
+    return *scenes_.back();
 }
 
 Window& App::GetWindow()
@@ -33,7 +60,12 @@ Window& App::GetWindow()
     return window_;
 }
 
-void App::Run()
+EventBus& App::GetEventBus()
+{
+    return event_bus_;
+}
+
+void App::PerformGameLoop()
 {
     running_ = true;
 
@@ -41,11 +73,9 @@ void App::Run()
     {
         window_.PollEvents();
 
-        // TODO: Use fixed timestep
-        // TODO: Update physics
-
-        // TODO: Prepare objects to be rendered
-        renderer_.RenderFrame();
+        // TODO: Use fixed timestep for physics?
+        // TODO: Send update event to components in the active scene
+        service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();
     }
