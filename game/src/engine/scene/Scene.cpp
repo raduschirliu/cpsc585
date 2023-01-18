@@ -26,5 +26,6 @@ Entity& Scene::AddEntity()
 ComponentInitializer Scene::CreateComponentInitializer(Entity& entity) const
 {
     return ComponentInitializer{.service_provider = service_provider_,
-                                .event_bus = event_bus_};
+                                .event_bus = event_bus_,
+                                .entity = entity};
 }

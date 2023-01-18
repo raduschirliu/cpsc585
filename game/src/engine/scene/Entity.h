@@ -20,13 +20,17 @@ class Entity
     void AddComponent()
     {
         ASSERT_MSG(scene_, "Entity must belong to a scene to add a component");
-        AddAndInitComponent(std::make_unique<ComponentType>());
+
+        auto component = std::make_unique<ComponentType>();
+        InitComponent(*component);
+
+        components_.push_back(std::move(component));
     }
 
     void SetScene(Scene* scene);
 
   protected:
-    void AddAndInitComponent(std::unique_ptr<Component> component);
+    void InitComponent(Component& component);
 
   private:
     uint32_t id_;

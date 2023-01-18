@@ -11,11 +11,15 @@ GuiExampleComponent::GuiExampleComponent()
     Log::info("GuiExampleComponent - ctor");
 }
 
-void GuiExampleComponent::Init(ComponentInitializer& initializer)
+void GuiExampleComponent::Init(const ServiceProvider& service_provider)
 {
     Log::info("GuiExampleComponent - Init");
 
-    initializer.event_bus.Subscribe<OnGuiEvent>(this);
+    RenderService& render_service =
+        service_provider.GetService<RenderService>();
+    render_service.SayHi();
+
+    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 string_view GuiExampleComponent::GetName() const

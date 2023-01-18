@@ -20,11 +20,10 @@ void Entity::SetScene(Scene* scene)
     scene_ = scene;
 }
 
-void Entity::AddAndInitComponent(unique_ptr<Component> component)
+void Entity::InitComponent(Component& component)
 {
     ComponentInitializer initializer =
         scene_->CreateComponentInitializer(*this);
-    component->Init(initializer);
 
-    components_.push_back(std::move(component));
+    component.DispatchInit(initializer);
 }

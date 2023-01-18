@@ -12,7 +12,7 @@ class GuiExampleComponent final : public Component,
     GuiExampleComponent();
 
     // From Component
-    void Init(ComponentInitializer& initializer) override;
+    void Init(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
 
     // From OnGuiEvent

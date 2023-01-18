@@ -12,7 +12,6 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
-#include "game/components/ComplexComponent.h"
 #include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
@@ -56,8 +55,10 @@ void GameApp::OnInit()
 void GameApp::OnStart()
 {
     Scene& scene = AddScene("TestScene");
-    Entity& entity = scene.AddEntity();
-    entity.AddComponent<BasicComponent>();
-    entity.AddComponent<ComplexComponent>();
-    entity.AddComponent<GuiExampleComponent>();
+
+    Entity& entity1 = scene.AddEntity();
+    entity1.AddComponent<BasicComponent>();
+
+    Entity& entity2 = scene.AddEntity();
+    entity2.AddComponent<GuiExampleComponent>();
 }

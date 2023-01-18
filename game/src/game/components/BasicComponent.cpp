@@ -4,12 +4,7 @@
 
 using std::string_view;
 
-BasicComponent::BasicComponent()
-{
-    Log::info("BasicComponent - ctor");
-}
-
-void BasicComponent::Init(ComponentInitializer& initializer)
+void BasicComponent::Init(const ServiceProvider& service_provider)
 {
     Log::info("BasicComponent - Init");
 }

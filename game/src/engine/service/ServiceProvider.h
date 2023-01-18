@@ -26,7 +26,7 @@ class ServiceProvider
 
     template <class ServiceType>
         requires std::derived_from<ServiceType, IService>
-    ServiceType& GetService()
+    ServiceType& GetService() const
     {
         auto iterator = services_.find(std::type_index(typeid(ServiceType)));
         ASSERT_MSG(iterator != services_.end(), "Service must exist");
