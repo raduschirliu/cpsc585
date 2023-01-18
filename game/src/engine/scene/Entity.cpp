@@ -2,8 +2,29 @@
 
 #include "engine/scene/Scene.h"
 
+using std::unique_ptr;
+
+static uint32_t kNextEntityId = 0;
+
+Entity::Entity()
+    : id_(kNextEntityId),
+      name_("Entity"),
+      scene_(nullptr),
+      components_{}
+{
+    kNextEntityId += 1;
+}
+
 void Entity::SetScene(Scene* scene)
 {
     scene_ = scene;
-    component_builder_ = scene_->GetComponentBuilder();
+}
+
+void Entity::AddAndInitComponent(unique_ptr<Component> component)
+{
+    ComponentInitializer initializer =
+        scene_->CreateComponentInitializer(*this);
+    component->Init(initializer);
+
+    components_.push_back(std::move(component));
 }

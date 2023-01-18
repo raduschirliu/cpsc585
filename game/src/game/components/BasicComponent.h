@@ -2,14 +2,13 @@
 
 #include "engine/render/RenderService.h"
 #include "engine/scene/Component.h"
-#include "engine/scene/ComponentBuilder.h"
 
-class BasicComponent final : public IComponent
+class BasicComponent final : public Component
 {
   public:
     BasicComponent();
 
-    // From IComponent
-    void Init() override;
+    // From Component
+    void Init(ComponentInitializer& initializer) override;
     std::string_view GetName() const override;
 };

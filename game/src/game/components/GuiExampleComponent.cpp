@@ -6,14 +6,16 @@
 
 using std::string_view;
 
-GuiExampleComponent::GuiExampleComponent(GuiService& gui_service)
+GuiExampleComponent::GuiExampleComponent()
 {
     Log::info("GuiExampleComponent - ctor");
 }
 
-void GuiExampleComponent::Init()
+void GuiExampleComponent::Init(ComponentInitializer& initializer)
 {
     Log::info("GuiExampleComponent - Init");
+
+    initializer.event_bus.Subscribe<OnGuiEvent>(this);
 }
 
 string_view GuiExampleComponent::GetName() const

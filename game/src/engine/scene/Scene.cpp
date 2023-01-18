@@ -10,7 +10,7 @@ Scene::Scene(string_view name, ServiceProvider& service_provider,
     : name_(name),
       entities_{},
       service_provider_(service_provider),
-      component_builder_(service_provider, event_bus)
+      event_bus_(event_bus)
 {
 }
 
@@ -23,7 +23,8 @@ Entity& Scene::AddEntity()
     return *entities_.back();
 }
 
-const ComponentBuilder* Scene::GetComponentBuilder() const
+ComponentInitializer Scene::CreateComponentInitializer(Entity& entity) const
 {
-    return &component_builder_;
+    return ComponentInitializer{.service_provider = service_provider_,
+                                .event_bus = event_bus_};
 }

@@ -9,7 +9,7 @@ BasicComponent::BasicComponent()
     Log::info("BasicComponent - ctor");
 }
 
-void BasicComponent::Init()
+void BasicComponent::Init(ComponentInitializer& initializer)
 {
     Log::info("BasicComponent - Init");
 }

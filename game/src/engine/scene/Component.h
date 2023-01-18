@@ -3,12 +3,27 @@
 #include <string_view>
 
 #include "engine/core/debug/Assert.h"
+#include "engine/core/event/EventBus.h"
+#include "engine/service/ServiceProvider.h"
 
-class IComponent
+struct ComponentInitializer
 {
-  public:
-    virtual void Init() = 0;
-    virtual std::string_view GetName() const = 0;
+    ServiceProvider& service_provider;
+    EventBus& event_bus;
 };
 
-STATIC_ASSERT_INTERFACE(IComponent);
+class Component
+{
+  public:
+    Component();
+
+    virtual void Init(ComponentInitializer& initializer) = 0;
+    // virtual void Start() = 0;
+    virtual std::string_view GetName() const = 0;
+  
+  protected:
+    EventBus& GetEventBus();
+
+  private:
+    EventBus* event_bus_;
+};

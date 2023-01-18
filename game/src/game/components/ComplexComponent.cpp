@@ -4,15 +4,18 @@
 
 using std::string_view;
 
-ComplexComponent::ComplexComponent(RenderService& render_service)
+ComplexComponent::ComplexComponent()
 {
     Log::info("ComplexComponent - ctor");
-    render_service.SayHi();
 }
 
-void ComplexComponent::Init()
+void ComplexComponent::Init(ComponentInitializer& initializer)
 {
     Log::info("ComplexComponent - Init");
+
+    RenderService& render_service =
+        initializer.service_provider.GetService<RenderService>();
+    render_service.SayHi();
 }
 
 string_view ComplexComponent::GetName() const

@@ -5,7 +5,6 @@
 #include <string_view>
 #include <vector>
 
-#include "engine/scene/ComponentBuilder.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
@@ -17,11 +16,11 @@ class Scene
 
     Entity& AddEntity();
 
-    const ComponentBuilder* GetComponentBuilder() const;
+    ComponentInitializer CreateComponentInitializer(Entity& entity) const;
 
   private:
     std::string name_;
     std::vector<std::unique_ptr<Entity>> entities_;
     ServiceProvider& service_provider_;
-    ComponentBuilder component_builder_;
+    EventBus& event_bus_;
 };
