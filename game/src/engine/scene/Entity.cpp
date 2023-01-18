@@ -25,5 +25,5 @@ void Entity::InitComponent(Component& component)
     ComponentInitializer initializer =
         scene_->CreateComponentInitializer(*this);
 
-    component.DispatchInit(initializer);
+    component.Init(initializer);
 }

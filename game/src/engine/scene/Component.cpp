@@ -6,12 +6,12 @@ Component::Component() : event_bus_(nullptr)
 {
 }
 
-void Component::DispatchInit(ComponentInitializer& initializer)
+void Component::Init(ComponentInitializer& initializer)
 {
     event_bus_ = &initializer.event_bus;
     entity_ = &initializer.entity;
 
-    Init(initializer.service_provider);
+    OnInit(initializer.service_provider);
 }
 
 Entity& Component::GetEntity() const
@@ -20,11 +20,11 @@ Entity& Component::GetEntity() const
     return *entity_;
 }
 
-void Component::Start()
+void Component::OnStart()
 {
 }
 
-void Component::Cleanup()
+void Component::OnCleanup()
 {
 }
 

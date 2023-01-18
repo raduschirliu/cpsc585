@@ -4,9 +4,13 @@
 
 using std::string_view;
 
-void BasicComponent::Init(const ServiceProvider& service_provider)
+void BasicComponent::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("BasicComponent - Init");
+}
+
+void BasicComponent::OnUpdate()
+{
 }
 
 string_view BasicComponent::GetName() const

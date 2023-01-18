@@ -9,12 +9,11 @@ class GuiExampleComponent final : public Component,
                                   public IEventSubscriber<OnGuiEvent>
 {
   public:
-    GuiExampleComponent();
-
     // From Component
-    void Init(const ServiceProvider& service_provider) override;
+    void OnInit(const ServiceProvider& service_provider) override;
+    void OnUpdate() override;
     std::string_view GetName() const override;
 
-    // From OnGuiEvent
+    // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 };
