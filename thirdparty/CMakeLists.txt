@@ -62,6 +62,14 @@ set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 set(ASSIMP_UBSAN ON CACHE BOOL "" FORCE)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 
+# Disable all importers except for the ones manually enabled below
+# Assimp importer names can be found by searching for uses of the `ADD_ASSIMP_IMPORTER` macro in assimp code
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_COLLADA_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_BLEND_IMPORTER ON CACHE BOOL "" FORCE)
+
 FetchContent_MakeAvailable(assimp)
 set(LIBRARIES ${LIBRARIES} assimp)
 
@@ -78,6 +86,11 @@ FetchContent_MakeAvailable(yamlcpp)
 # set(INCLUDES ${INCLUDES} fetched/yamlcpp-src/include)
 # set(LIBRARIES ${LIBRARIES} yamlcpp)
 set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
+
+# -------------------------
+# object_ptr - https://github.com/anthonywilliams/object_ptr
+# -------------------------
+set(INCLUDES ${INCLUDES} object_ptr/)
 
 # -------------------------
 # Thirdparty combination library
