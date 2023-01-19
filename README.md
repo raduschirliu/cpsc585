@@ -4,6 +4,7 @@
 - CMake v3.21.0+
 - Visual Studio Community Edition 2019 + "Desktop C++ Development" package/workflow
     - This must be the latest version (16.11.23 as of writing this)
+- The path in which this repo is cloned **must not have any spaces at all**. PhysX's build system will break in weird ways if it does
 
 **Note:** The build process in theory _should_ also work for MacOS/Unix, but some more work will be required to build PhysX and ensure it links properly.
 

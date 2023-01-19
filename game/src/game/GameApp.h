@@ -9,5 +9,6 @@ class GameApp : public App
 
   protected:
     // From App
-    void Init() override;
+    void OnInit() override;
+    void OnStart() override;
 };

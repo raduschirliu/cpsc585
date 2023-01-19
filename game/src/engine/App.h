@@ -6,6 +6,7 @@
 #include "engine/core/gfx/Window.h"
 #include "engine/render/Renderer.h"
 #include "engine/scene/Scene.h"
+#include "engine/service/ServiceProvider.h"
 
 class App : public std::enable_shared_from_this<App>,
             public IWindowEventListener
@@ -13,7 +14,7 @@ class App : public std::enable_shared_from_this<App>,
   public:
     App();
 
-    void Start();
+    void Run();
 
     // From IWindowEventListener
     void OnKeyEvent(int key, int scancode, int action, int mods) override;
@@ -23,16 +24,27 @@ class App : public std::enable_shared_from_this<App>,
     void OnWindowSizeChanged(int width, int height) override;
 
   protected:
-    virtual void Init();
-    virtual void Cleanup();
+    virtual void OnInit();
+    virtual void OnStart();
+    virtual void OnCleanup();
 
+    template <class ServiceType>
+        requires std::derived_from<ServiceType, Service>
+    void AddService()
+    {
+        service_provider_.AddService(std::make_unique<ServiceType>());
+    }
+
+    Scene& AddScene(std::string_view name);
     Window& GetWindow();
+    EventBus& GetEventBus();
 
   private:
     bool running_;
     Window window_;
-    Renderer renderer_;
     std::vector<std::unique_ptr<Scene>> scenes_;
+    ServiceProvider service_provider_;
+    EventBus event_bus_;
 
-    void Run();
+    void PerformGameLoop();
 };

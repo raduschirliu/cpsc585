@@ -5,35 +5,34 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
-#include "engine/service/ServiceProvider.h"
 
-class Entity;
+class ServiceProvider;
+class Window;
 
-struct ComponentInitializer
+struct ServiceInitializer
 {
-    ServiceProvider& service_provider;
+    Window& window;
     EventBus& event_bus;
-    Entity& entity;
+    ServiceProvider& service_provider;
 };
 
-class Component
+class Service
 {
   public:
-    Component();
+    void Init(ServiceInitializer& initializer);
 
-    void Init(ComponentInitializer& initializer);
-    Entity& GetEntity() const;
-
-    virtual void OnInit(const ServiceProvider& service_provider) = 0;
-    virtual void OnStart();
+    virtual void OnInit();
+    virtual void OnStart(ServiceProvider& service_provider);
     virtual void OnUpdate() = 0;
     virtual void OnCleanup();
+
     virtual std::string_view GetName() const = 0;
 
   protected:
+    Window& GetWindow();
     EventBus& GetEventBus();
 
   private:
-    jss::object_ptr<Entity> entity_;
+    jss::object_ptr<Window> window_;
     jss::object_ptr<EventBus> event_bus_;
 };

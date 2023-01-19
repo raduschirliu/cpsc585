@@ -56,7 +56,7 @@ int main()
     // Create and start app
     Log::debug("Starting app");
     auto game = make_shared<GameApp>();
-    game->Start();
+    game->Run();
 
     // GLFW cleanup
     Log::debug("Cleaning up");

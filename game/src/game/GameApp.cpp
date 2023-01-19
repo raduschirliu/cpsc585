@@ -7,17 +7,34 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/gui/GuiService.h"
+#include "engine/physics/PhysicsService.h"
+#include "engine/render/RenderService.h"
+#include "engine/scene/Scene.h"
+#include "game/components/BasicComponent.h"
+#include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
+using std::make_unique;
 using std::string;
 
 GameApp::GameApp()
 {
 }
 
-void GameApp::Init()
+/**
+ * Runs once the windowing system has been initialized and the window
+ * is created. Services should be added here.
+ *
+ * THIS IS CALLED BEFORE SERVICES ARE INITIALIZED
+ */
+void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
+
+    AddService<PhysicsService>();
+    AddService<RenderService>();
+    AddService<GuiService>();
 
     // Model importing test
     Assimp::Importer importer;
@@ -29,4 +46,19 @@ void GameApp::Init()
     YAML::Node root = YAML::LoadFile("resources/scenes/test.yaml");
     Log::debug("someRootNode.someChildNode = {}",
                root["someRootNode"]["someChildNode"].as<string>());
+}
+
+/**
+ * Runs after all services have been initialized - it's safe to interact with
+ * them here if needed
+ */
+void GameApp::OnStart()
+{
+    Scene& scene = AddScene("TestScene");
+
+    Entity& entity1 = scene.AddEntity();
+    entity1.AddComponent<BasicComponent>();
+
+    Entity& entity2 = scene.AddEntity();
+    entity2.AddComponent<GuiExampleComponent>();
 }
