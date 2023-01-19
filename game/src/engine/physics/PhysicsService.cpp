@@ -6,6 +6,7 @@
 #define PVD_HOST "127.0.0.1"
 
 using std::string_view;
+using namespace physx;
 
 void PhysicsService::OnInit()
 {
@@ -41,7 +42,7 @@ void PhysicsService::initPhysX()
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);              // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
@@ -50,10 +51,24 @@ void PhysicsService::initPhysX()
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
 {
+    physx::PxPlane plane = physx::PxPlane(0.f,1.f,0.f,0.f);        // n.x + d
+    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*kPhysics_, plane, *kMaterial_); // now we have the plane actor.
+    kScene_->addActor(*groundPlane);
+
+    auto sphere = physx::PxSphereGeometry(3.f);
+    physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics_, physx::PxTransform(0.f, 100.f, 0.f), sphere, *kMaterial_, 10.0f);
+    //dynamic->setGlobalPose(physx::PxTransform(0.f, 109.f, 0.f));
+    dynamic->setAngularDamping(0.5f);
+    dynamic->setLinearVelocity(physx::PxVec3(0));
+    kScene_->addActor(*dynamic);   
 }
 
 void PhysicsService::OnUpdate()
 {
+   // Log::debug("OnUpdate() Physics, simulating at 60 fps");
+    // simulate the physics 
+    kScene_->simulate(1.f / 60.0f);
+    kScene_->fetchResults(true);
 }
 
 void PhysicsService::OnCleanup()

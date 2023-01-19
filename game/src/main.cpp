@@ -44,7 +44,7 @@ int main()
     //dynamic->setGlobalPose(physx::PxTransform(0.f, 109.f, 0.f));
     //dynamic->setAngularDamping(0.5f);
     //dynamic->setLinearVelocity(physx::PxVec3(0));
-    //kScene->addActor(*dynamic);
+    //kScene->addActor(*dynamic);   
 
     //for (physx::PxU32 i = 0; i < frameCount * 5; i++)
     //{
