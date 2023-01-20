@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/GuiExampleComponent.h"
@@ -33,6 +34,7 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService<PhysicsService>();
+    AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
 
