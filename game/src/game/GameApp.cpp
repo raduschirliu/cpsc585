@@ -3,9 +3,6 @@
 #include <yaml-cpp/yaml.h>
 
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include <string>
 
 #include "engine/core/debug/Assert.h"
@@ -21,17 +18,13 @@ using glm::ivec2;
 using std::make_unique;
 using std::string;
 
+using namespace std;
+
 GameApp::GameApp()
 {
 }
 
-/**
- * Runs once the windowing system has been initialized and the window
- * is created. Services should be added here.
- *
- * THIS IS CALLED BEFORE SERVICES ARE INITIALIZED
- */
-void GameApp::OnInit()
+void GameApp::Init()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
