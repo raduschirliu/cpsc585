@@ -38,11 +38,19 @@ public:
     * @param velocity : PxVec3
     * @param OPTIONAL angularDamping : PxReal
     */
-    void CreateSphere(physx::PxReal radius, physx::PxTransform transform_location, physx::PxReal density, physx::PxVec3 velocity, physx::PxReal angularDamping = 0.5f);
+    physx::PxRigidDynamic* CreateSphereRigidBody(physx::PxReal radius, physx::PxTransform transform_location, physx::PxReal density, physx::PxVec3 velocity, physx::PxReal angularDamping = 0.5f);
+
+    /*
+    * Function to update the location of the sphere.
+    * @param dynamic object : PxRigidDynamic ptr (PxRigidDynamic*)
+    * @param new location transform : PxTransform
+    */
+    void UpdateSphereLocation(physx::PxRigidDynamic* dynamic, physx::PxTransform location_transform);
 
     /*
     * Function to make a plane based on
     * @param dimension : PxPlane
     */
-    void CreatePlane(physx::PxPlane plane_dimensions);
+    void CreatePlaneRigidBody(physx::PxPlane plane_dimensions);
+
 };

@@ -19,20 +19,41 @@ void PhysicsService::OnInit()
 }
 
 
-void PhysicsService::CreatePlane(PxPlane plane)
+void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
 {
     physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*kPhysics_, plane, *kMaterial_); // now we have the plane actor.
     kScene_->addActor(*groundPlane);
 }
 
 
-void PhysicsService::CreateSphere(PxReal radius, PxTransform transform_location, PxReal density, PxVec3 velocity, PxReal angularDamping)
+PxRigidDynamic* PhysicsService::CreateSphereRigidBody(PxReal radius, PxTransform transform_location, PxReal density, PxVec3 velocity, PxReal angularDamping)
 {
     physx::PxSphereGeometry sphere = physx::PxSphereGeometry(radius);
     physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics_, transform_location, sphere, *kMaterial_, density);
-    dynamic->setAngularDamping(angularDamping);
-    dynamic->setLinearVelocity(velocity);
-    kScene_->addActor(*dynamic);   
+    if (dynamic) {
+        dynamic->setAngularDamping(angularDamping);
+        dynamic->setLinearVelocity(velocity);
+        kScene_->addActor(*dynamic);
+    }
+    else
+    {
+        Log::error("Error occured while creating the sphere.");
+    }
+    
+    return dynamic;
+}
+
+void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic, physx::PxTransform location_transform)
+{
+    // so that we do not use a nullptr and break the game.
+    if (dynamic)
+    {
+        dynamic->setGlobalPose(location_transform);
+    }
+    else
+    {
+        Log::error("The dynamic pointer passed does not exist, cannot change location.");
+    }
 }
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
