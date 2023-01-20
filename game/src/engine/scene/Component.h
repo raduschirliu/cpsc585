@@ -26,7 +26,6 @@ class Component
 
     virtual void OnInit(const ServiceProvider& service_provider) = 0;
     virtual void OnStart();
-    virtual void OnUpdate() = 0;
     virtual void OnCleanup();
     virtual std::string_view GetName() const = 0;
 
