@@ -12,7 +12,7 @@ void ServiceProvider::DispatchInit(Window& window, EventBus& event_bus)
 
     for (auto& pair : services_)
     {
-        pair.second->Init(initializer);
+        pair.service->Init(initializer);
     }
 }
 
@@ -22,7 +22,7 @@ void ServiceProvider::DispatchStart()
 
     for (auto& pair : services_)
     {
-        pair.second->OnStart(*this);
+        pair.service->OnStart(*this);
     }
 }
 
@@ -30,7 +30,7 @@ void ServiceProvider::DispatchUpdate()
 {
     for (auto& pair : services_)
     {
-        pair.second->OnUpdate();
+        pair.service->OnUpdate();
     }
 }
 
@@ -40,6 +40,6 @@ void ServiceProvider::DispatchCleanup()
 
     for (auto& pair : services_)
     {
-        pair.second->OnCleanup();
+        pair.service->OnCleanup();
     }
 }

@@ -1,5 +1,7 @@
 #include "engine/App.h"
 
+#include "engine/input/InputService.h"
+
 using std::make_unique;
 using std::string_view;
 
@@ -83,14 +85,17 @@ void App::PerformGameLoop()
 
 void App::OnKeyEvent(int key, int scancode, int action, int mods)
 {
+    InputService::OnKeyEvent(key, scancode, action, mods);
 }
 
 void App::OnMouseButtonEvent(int button, int action, int mods)
 {
+    InputService::OnMouseButtonEvent(button, action, mods);
 }
 
 void App::OnCursorMove(double xpos, double ypos)
 {
+    InputService::OnCursorMove(xpos, ypos);
 }
 
 void App::OnScroll(double xoffset, double yoffset)

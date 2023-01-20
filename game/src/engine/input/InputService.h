@@ -4,40 +4,45 @@
 
 #include <glm/glm.hpp>
 
-class Input
+#include "engine/core/debug/Assert.h"
+#include "engine/core/event/EventBus.h"
+#include "engine/core/gfx/Window.h"
+#include "engine/service/Service.h"
+
+class InputService final : public Service
 {
   public:
     /**
      * Return if the key was just pressed this frame
      */
-    static bool IsKeyPressed(int key);
+    bool IsKeyPressed(int key);
 
     /**
      * Return if the key is being held (was pressed the previous frame and not
      * yet released)
      */
-    static bool IsKeyDown(int key);
+    bool IsKeyDown(int key);
 
     /**
      * Return the mouse's current position
      */
-    static glm::vec2 GetMousePos();
+    glm::vec2 GetMousePos();
 
     /**
      * Return if the mouse button was just pressed this frame
      */
-    static bool IsMouseButtonPressed(int button);
+    bool IsMouseButtonPressed(int button);
 
     /**
      * Return if the mouse button was just released this frame
      */
-    static bool IsMouseButtonReleased(int button);
+    bool IsMouseButtonReleased(int button);
 
     /**
      * Return if the mouse button is being held (was pressed the previous frame
      * and not yet released)
      */
-    static bool IsMouseButtonDown(int button);
+    bool IsMouseButtonDown(int button);
 
     /**
      * Callback from GLFW to track key events
@@ -54,8 +59,9 @@ class Input
      */
     static void OnMouseButtonEvent(int button, int action, int mods);
 
-    /**
-     * Callback at the start of every frame
-     */
-    static void Update();
+    // From Service
+    void OnInit() override;
+    void OnUpdate() override;
+    void OnCleanup() override;
+    std::string_view GetName() const override;
 };
