@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
+#include "engine/asset/AssetService.h"
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/GuiExampleComponent.h"
