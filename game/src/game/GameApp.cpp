@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/ComponentUpdateService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
@@ -21,6 +22,12 @@ using std::string;
 
 using namespace std;
 
+/**
+ * Runs once the windowing system has been initialized and the window
+ * is created. Services should be added here.
+ *
+ * THIS IS CALLED BEFORE SERVICES ARE INITIALIZED
+ */
 GameApp::GameApp()
 {
 }
@@ -30,6 +37,7 @@ void GameApp::Init()
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService<PhysicsService>();
+    AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
     AddService<AssetService>();
