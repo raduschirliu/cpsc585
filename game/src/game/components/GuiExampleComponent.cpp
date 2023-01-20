@@ -15,10 +15,12 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
     render_service.SayHi();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void GuiExampleComponent::OnUpdate()
 {
+    // Log::info("GuiExampleComponent - update");
 }
 
 string_view GuiExampleComponent::GetName() const
