@@ -9,10 +9,6 @@ void BasicComponent::OnInit(const ServiceProvider& service_provider)
     Log::info("BasicComponent - Init");
 }
 
-void BasicComponent::OnUpdate()
-{
-}
-
 string_view BasicComponent::GetName() const
 {
     return "BasicComponent";
