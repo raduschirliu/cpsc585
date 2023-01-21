@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
@@ -68,4 +69,7 @@ void GameApp::OnStart()
     Transform& entity2_transform = entity2.AddComponent<Transform>();
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
+
+    Entity& entity3 = scene.AddEntity();
+    entity3.AddComponent<MeshRenderer>();
 }

@@ -1,11 +1,12 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "engine/core/Colors.h"
 
 struct Vertex
 {
     // Off white
-    static constexpr glm::vec3 kDefaultColor = glm::vec3(0.9f, 0.9f, 0.9f);
+    static constexpr glm::vec3 kDefaultColor = colors::kOffWhite;
 
     glm::vec3 position;
     glm::vec3 normal;
