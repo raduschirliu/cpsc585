@@ -11,6 +11,7 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/GuiExampleComponent.h"
@@ -35,6 +36,7 @@ void GameApp::OnInit()
 
     AddService<InputService>();
     AddService<PhysicsService>();
+    AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
 

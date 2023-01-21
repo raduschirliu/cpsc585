@@ -17,10 +17,20 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void GuiExampleComponent::OnUpdate()
 {
+    if (input_service_->IsKeyPressed(GLFW_KEY_F))
+    {
+        Log::info("repsects = paid.");
+    }
+
+    if (input_service_->IsKeyDown(GLFW_KEY_X))
+    {
+        Log::info("shaaaaaaauun");
+    }
 }
 
 string_view GuiExampleComponent::GetName() const
@@ -31,16 +41,6 @@ string_view GuiExampleComponent::GetName() const
 void GuiExampleComponent::OnGui()
 {
     ImGui::ShowDemoWindow(nullptr);
-
-    if (input_service_->IsKeyPressed(GLFW_KEY_F))
-    {
-        Log::info("repsects = paid.");
-    }
-
-    if (input_service_->IsKeyDown(GLFW_KEY_X))
-    {
-        Log::info("shaaaaaaauun");
-    }
 
     if (ImGui::Begin("GuiExampleComponent"))
     {
