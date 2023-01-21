@@ -46,6 +46,10 @@ void GuiExampleComponent::OnGui()
     {
         ImGui::Text("hello world");
         ImGui::Button("useless button");
+
+        glm::ivec2 mouse_pos = input_service_->GetMousePos();
+        ImGui::Text("Mouse pos: %d %d", mouse_pos.x, mouse_pos.y);
+
         ImGui::End();
     }
 }

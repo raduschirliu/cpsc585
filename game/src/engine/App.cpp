@@ -1,5 +1,6 @@
 #include "engine/App.h"
 
+#include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 
 using std::make_unique;
@@ -93,9 +94,9 @@ void App::OnMouseButtonEvent(int button, int action, int mods)
     InputService::OnMouseButtonEvent(button, action, mods);
 }
 
-void App::OnCursorMove(double xpos, double ypos)
+void App::OnCursorMove(double x_pos, double y_pos)
 {
-    InputService::OnCursorMove(xpos, ypos);
+    InputService::OnCursorMove(x_pos, y_pos);
 }
 
 void App::OnScroll(double xoffset, double yoffset)

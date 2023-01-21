@@ -26,7 +26,7 @@ class InputService final : public Service
     /**
      * Return the mouse's current position
      */
-    glm::vec2 GetMousePos();
+    glm::ivec2 GetMousePos();
 
     /**
      * Return if the mouse button was just pressed this frame
@@ -52,7 +52,7 @@ class InputService final : public Service
     /**
      * Callback from GLFW to track mouse position
      */
-    static void OnCursorMove(float x_pos, float y_pos);
+    static void OnCursorMove(double x_pos, double y_pos);
 
     /**
      * Callback from GLFW to track mouse button events

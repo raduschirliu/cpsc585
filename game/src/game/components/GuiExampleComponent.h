@@ -1,5 +1,7 @@
 #pragma once
 
+#include <object_ptr.hpp>
+
 #include "engine/gui/GuiService.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
@@ -23,5 +25,5 @@ class GuiExampleComponent final : public Component,
     void OnGui() override;
 
   private:
-    InputService* input_service_;
+    jss::object_ptr<InputService> input_service_;
 };
