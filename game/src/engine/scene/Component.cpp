@@ -14,7 +14,7 @@ void Component::Init(ComponentInitializer& initializer)
     OnInit(initializer.service_provider);
 }
 
-Entity& Component::GetEntity() const
+Entity& Component::GetEntity()
 {
     ASSERT_MSG(entity_, "Component Entity reference must be valid");
     return *entity_;

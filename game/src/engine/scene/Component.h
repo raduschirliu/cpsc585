@@ -22,7 +22,7 @@ class Component
     Component();
 
     void Init(ComponentInitializer& initializer);
-    Entity& GetEntity() const;
+    Entity& GetEntity();
 
     virtual void OnInit(const ServiceProvider& service_provider) = 0;
     virtual void OnStart();

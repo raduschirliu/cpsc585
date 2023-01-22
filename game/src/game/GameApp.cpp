@@ -13,6 +13,7 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
+#include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/GuiExampleComponent.h"
 
@@ -64,5 +65,6 @@ void GameApp::OnStart()
     entity1.AddComponent<BasicComponent>();
 
     Entity& entity2 = scene.AddEntity();
+    entity2.AddComponent<Transform>();
     entity2.AddComponent<GuiExampleComponent>();
 }
