@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "engine/input/InputService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -9,6 +11,8 @@ class DebugCameraController final : public Component,
                                     public IEventSubscriber<OnUpdateEvent>
 {
   public:
+    DebugCameraController();
+
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
@@ -19,4 +23,7 @@ class DebugCameraController final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
+    std::optional<glm::vec2> last_mouse_pos_;
+
+    glm::vec3 GetMovementDir();
 };

@@ -78,6 +78,8 @@ void GameApp::OnStart()
     camera.AddComponent<DebugCameraController>();
 
     Entity& cube = scene.AddEntity();
-    cube.AddComponent<Transform>();
+    Transform& cube_transform = cube.AddComponent<Transform>();
+    cube_transform.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
+    cube_transform.RotateEulerDegrees(glm::vec3(45.0f, 0.0f, 0.0f));
     cube.AddComponent<MeshRenderer>();
 }

@@ -2,6 +2,7 @@
 
 #include <glm/gtx/transform.hpp>
 
+#include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
@@ -9,6 +10,8 @@
 
 using glm::mat4;
 using glm::vec3;
+
+static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
 
 Camera::Camera()
     : fov_degrees_(90.0f),
@@ -64,9 +67,7 @@ void Camera::OnUpdate()
 void Camera::UpdateViewMatrix()
 {
     const vec3& position = transform_->GetPosition();
-    const vec3& forward = transform_->GetForwardDir();
+    const vec3& forward = transform_->GetForwardDirection();
 
-    // TODO(radu): Add func for getting up from transform
-    view_matrix_ =
-        glm::lookAt(position, position + forward, vec3(0.0f, 1.0f, 0.0f));
+    view_matrix_ = glm::lookAt(position, position + forward, kUpDirection);
 }

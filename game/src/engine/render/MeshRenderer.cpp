@@ -8,6 +8,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/Entity.h"
 
 using glm::mat4;
 
@@ -16,14 +17,9 @@ const Mesh& MeshRenderer::GetMesh() const
     return mesh_;
 }
 
-const mat4 MeshRenderer::GetModelMatrix() const
+const mat4& MeshRenderer::GetModelMatrix() const
 {
-    // TODO(radu): Don't hardcode this...
-    mat4 model_matrix = glm::translate(mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
-    model_matrix = glm::rotate(model_matrix, glm::radians(45.0f),
-                               glm::vec3(1.0f, 0.0f, 0.0f));
-
-    return model_matrix;
+    return transform_->GetModelMatrix();
 }
 
 void MeshRenderer::OnInit(const ServiceProvider& service_provider)
@@ -60,8 +56,11 @@ void MeshRenderer::OnInit(const ServiceProvider& service_provider)
     Log::info("Loaded mesh with {} indices and {} faces", mesh_.indices.size(),
               mesh_.vertices.size());
 
+    // Get dependencies
     render_service_ = &service_provider.GetService<RenderService>();
     render_service_->RegisterRenderable(*this);
+
+    transform_ = &GetEntity().GetComponent<Transform>();
 }
 
 std::string_view MeshRenderer::GetName() const
