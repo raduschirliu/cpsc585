@@ -5,6 +5,7 @@
 
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "engine/scene/Transform.h"
 
 class RenderService;
 class InputService;
@@ -36,9 +37,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<InputService> input_service_;
-
-    // Temp
-    glm::vec3 position_;
+    jss::object_ptr<Transform> transform_;
 
     void UpdateViewMatrix();
 };

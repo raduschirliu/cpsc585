@@ -4,13 +4,11 @@
 
 #include "engine/input/InputService.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
 using glm::mat4;
 using glm::vec3;
-
-// TEMP: to remove after we have Transforms
-static float kMoveSpeed = 0.25f;
 
 Camera::Camera()
     : fov_degrees_(90.0f),
@@ -20,18 +18,18 @@ Camera::Camera()
       projection_matrix_(1.0f),
       view_matrix_(1.0f),
       render_service_(nullptr),
-      input_service_(nullptr),
-      position_(0.0f, 0.0f, -5.0f)
+      input_service_(nullptr)
 {
 }
 
 void Camera::OnInit(const ServiceProvider& service_provider)
 {
     // Get services
+    input_service_ = &service_provider.GetService<InputService>();
     render_service_ = &service_provider.GetService<RenderService>();
     render_service_->RegisterCamera(*this);
 
-    input_service_ = &service_provider.GetService<InputService>();
+    transform_ = &GetEntity().GetComponent<Transform>();
 
     // Event subscriptions
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -60,31 +58,15 @@ const mat4& Camera::GetViewMatrix() const
 
 void Camera::OnUpdate()
 {
-    // TODO(radu): This should be moved to its own component once we have a
-    // Transform component
-    if (input_service_->IsKeyDown(GLFW_KEY_A))
-    {
-        position_.x += kMoveSpeed;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_D))
-    {
-        position_.x -= kMoveSpeed;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_W))
-    {
-        position_.z += kMoveSpeed;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_S))
-    {
-        position_.z -= kMoveSpeed;
-    }
-
     UpdateViewMatrix();
 }
 
 void Camera::UpdateViewMatrix()
 {
-    // TODO(radu): Don't hardcode these, get them from Transform component
-    view_matrix_ = glm::lookAt(position_, position_ + vec3(0.0f, 0.0f, 1.0f),
-                               vec3(0.0f, 1.0f, 0.0f));
+    const vec3& position = transform_->GetPosition();
+    const vec3& forward = transform_->GetForwardDir();
+
+    // TODO(radu): Add func for getting up from transform
+    view_matrix_ =
+        glm::lookAt(position, position + forward, vec3(0.0f, 1.0f, 0.0f));
 }

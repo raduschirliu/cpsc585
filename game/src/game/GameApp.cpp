@@ -17,6 +17,7 @@
 #include "engine/scene/Scene.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
+#include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
@@ -72,8 +73,11 @@ void GameApp::OnStart()
     entity2.AddComponent<GuiExampleComponent>();
 
     Entity& camera = scene.AddEntity();
+    camera.AddComponent<Transform>();
     camera.AddComponent<Camera>();
+    camera.AddComponent<DebugCameraController>();
 
     Entity& cube = scene.AddEntity();
+    cube.AddComponent<Transform>();
     cube.AddComponent<MeshRenderer>();
 }
