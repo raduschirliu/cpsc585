@@ -1,6 +1,10 @@
 // GLEW must be included before GLFW
+
+// clang-format off
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+// clang-format on
+
 #include <PxPhysicsAPI.h>
 
 #include <iostream>
@@ -9,6 +13,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/gfx/GLDebug.h"
 #include "game/GameApp.h"
 #include "main.h"
 
@@ -19,6 +24,7 @@ using std::make_shared;
 int main()
 {
     initGFLW();
+
 
     // Create and start app
     Log::debug("Starting app");

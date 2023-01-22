@@ -13,8 +13,12 @@ class Transform final : public Component
 
     void Translate(const glm::vec3& delta);
     void SetPosition(const glm::vec3& position);
+    void Rotate(const glm::quat& delta);
+    void RotateEulerDegrees(const glm::vec3& delta_euler_degrees);
     const glm::vec3& GetPosition() const;
-    const glm::vec3& GetForwardDir() const;
+    const glm::vec3& GetForwardDirection() const;
+    const glm::vec3& GetUpDirection() const;
+    const glm::vec3& GetRightDirection() const;
     const glm::mat4& GetModelMatrix() const;
 
     // From Component
@@ -24,8 +28,10 @@ class Transform final : public Component
   private:
     glm::vec3 position_;
     glm::quat orientation_;
-    glm::vec3 forward_dir_;
     glm::vec3 scale_;
+    glm::vec3 forward_dir_;
+    glm::vec3 up_dir_;
+    glm::vec3 right_dir_;
 
     glm::mat4 translation_matrix_;
     glm::mat4 rotation_matrix_;
