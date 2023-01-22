@@ -7,6 +7,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/config/ConfigService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
@@ -33,6 +34,7 @@ void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
+    AddService<ConfigService>();
     AddService<PhysicsService>();
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
@@ -43,11 +45,6 @@ void GameApp::OnInit()
     const aiScene* cube_scene =
         importer.ReadFile("resources/models/cube.obj", 0);
     ASSERT_MSG(cube_scene, "Import must be succesful");
-
-    // Yaml parsing test
-    YAML::Node root = YAML::LoadFile("resources/scenes/test.yaml");
-    Log::debug("someRootNode.someChildNode = {}",
-               root["someRootNode"]["someChildNode"].as<string>());
 }
 
 /**
