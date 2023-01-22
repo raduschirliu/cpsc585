@@ -9,6 +9,7 @@
 *.tif binary
 
 # Ignore thirdparty files except for cmake files (treat as binary)
+thirdparty/**/* binary
 thirdparty/CMakeLists.txt text=auto
 thirdparty/imgui.cmake text=auto
-thirdparty/**/* binary
+thirdparty/physx.cmake text=auto
