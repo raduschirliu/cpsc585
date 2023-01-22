@@ -19,13 +19,16 @@ const Mesh& MeshRenderer::GetMesh() const
 const mat4 MeshRenderer::GetModelMatrix() const
 {
     // TODO(radu): Don't hardcode this...
-    return glm::translate(mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
+    mat4 model_matrix = glm::translate(mat4(1.0f), glm::vec3(0.0f, 0.0f, 5.0f));
+    model_matrix = glm::rotate(model_matrix, glm::radians(45.0f),
+                               glm::vec3(1.0f, 0.0f, 0.0f));
+
+    return model_matrix;
 }
 
 void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 {
     // TEMP: Load mesh using assimp
-
     Assimp::Importer importer;
     const aiScene* cube_scene = importer.ReadFile(
         "resources/models/cube.obj",

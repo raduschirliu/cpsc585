@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
@@ -70,6 +71,9 @@ void GameApp::OnStart()
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
 
-    Entity& entity3 = scene.AddEntity();
-    entity3.AddComponent<MeshRenderer>();
+    Entity& camera = scene.AddEntity();
+    camera.AddComponent<Camera>();
+
+    Entity& cube = scene.AddEntity();
+    cube.AddComponent<MeshRenderer>();
 }

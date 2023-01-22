@@ -4,7 +4,10 @@
 #include <GLFW/glfw3.h>
 
 #include "engine/core/debug/Log.h"
+#include "engine/render/Camera.h"
 
+using glm::mat4;
+using glm::vec3;
 using std::make_unique;
 
 RenderService::RenderService()
@@ -15,15 +18,18 @@ RenderService::RenderService()
 
 void RenderService::RegisterRenderable(const RenderableComponent& renderable)
 {
+    // TODO(radu): This shouldn't need to be done here...
     auto data = make_unique<RenderData>(RenderData{
         .renderable = &renderable,
         .vertex_array = VertexArray(),
         .vertex_buffer = VertexBuffer(),
+        .element_buffer = ElementArrayBuffer(),
     });
 
     // Configure vertex array/buffer and upload data
     data->vertex_array.Bind();
     data->vertex_buffer.Bind();
+    data->element_buffer.Bind();
 
     data->vertex_buffer.ConfigureAttribute(0, 3, GL_FLOAT, sizeof(Vertex),
                                            offsetof(Vertex, position));
@@ -35,11 +41,17 @@ void RenderService::RegisterRenderable(const RenderableComponent& renderable)
                                            offsetof(Vertex, uv));
 
     data->vertex_buffer.Upload(renderable.GetMesh().vertices, GL_STATIC_DRAW);
+    data->element_buffer.Upload(renderable.GetMesh().indices, GL_STATIC_DRAW);
 
-    // TODO(radu): Test and see if this event works :0
+    // TODO(radu): Unbind vertex array?
 
     // Add to render list
     render_list_.push_back(std::move(data));
+}
+
+void RenderService::RegisterCamera(const Camera& camera)
+{
+    cameras_.push_back(&camera);
 }
 
 void RenderService::OnInit()
@@ -60,26 +72,9 @@ void RenderService::OnUpdate()
     glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const glm::mat4 view_matrix(1.0f);
-    const glm::mat4 projection_matrix(1.0f);
-
-    // Render each object
-    for (const auto& obj : render_list_)
+    for (auto& camera : cameras_)
     {
-        glm::mat4 mvp_matrix =
-            projection_matrix * view_matrix * obj->renderable->GetModelMatrix();
-
-        shader_.Use();
-        shader_.SetUniform("uModelMatrix", mvp_matrix);
-        shader_.SetUniform("uViewMatrix", glm::mat4(1.0f));
-        shader_.SetUniform("uProjectionMatrix", glm::mat4(1.0f));
-
-        obj->vertex_array.Bind();
-        auto& indices = obj->renderable->GetMesh().indices;
-
-        // TODO(radu): Need to use an actual EBO instead of passing indices this way,
-        // it seems to be interpreting them as the wrong type like this
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_STATIC_DRAW, &indices);
+        RenderCameraView(*camera);
     }
 }
 
@@ -95,4 +90,29 @@ std::string_view RenderService::GetName() const
 
 void RenderService::RenderPrepare()
 {
+}
+
+void RenderService::RenderCameraView(const Camera& camera)
+{
+    const mat4& view_matrix = camera.GetViewMatrix();
+    const mat4& projection_matrix = camera.GetProjectionMatrix();
+
+    // Render each object
+    for (const auto& obj : render_list_)
+    {
+        mat4 mvp_matrix =
+            projection_matrix * view_matrix * obj->renderable->GetModelMatrix();
+
+        shader_.Use();
+        shader_.SetUniform("uModelMatrix", mvp_matrix);
+        shader_.SetUniform("uViewMatrix", mat4(1.0f));
+        shader_.SetUniform("uProjectionMatrix", mat4(1.0f));
+
+        obj->vertex_array.Bind();
+
+        GLsizei index_count =
+            static_cast<GLsizei>(obj->renderable->GetMesh().indices.size());
+
+        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+    }
 }
