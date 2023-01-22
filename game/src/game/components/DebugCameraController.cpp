@@ -10,7 +10,7 @@ using std::string_view;
 
 static constexpr float kMoveSpeed = 0.25f;
 static constexpr float kFastMoveSpeedMultiplier = 2.0f;
-static constexpr float kPitchSensitivity = 10.0f;
+static constexpr float kPitchSensitivity = 5.0f;
 static constexpr float kYawSensitivity = 2.5f;
 
 // TODO: Don't hardcode this...
@@ -79,9 +79,9 @@ void DebugCameraController::OnUpdate()
 
                 // Pitch rotates around horizontal axis
                 transform_->Rotate(glm::angleAxis(
-                    glm::radians(-pitch_delta * kPitchSensitivity),
+                    glm::radians(pitch_delta * kPitchSensitivity),
                     transform_->GetRightDirection()));
-                
+
                 // Yaw rotates around vertical axis
                 transform_->Rotate(
                     glm::angleAxis(glm::radians(-yaw_delta * kYawSensitivity),
