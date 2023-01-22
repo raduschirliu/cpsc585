@@ -85,6 +85,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yamlcpp)
 # set(INCLUDES ${INCLUDES} fetched/yamlcpp-src/include)
 # set(LIBRARIES ${LIBRARIES} yamlcpp)
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
 
 # -------------------------
