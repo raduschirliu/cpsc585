@@ -62,8 +62,10 @@ void GameApp::OnStart()
     Scene& scene = AddScene("TestScene");
 
     Entity& entity1 = scene.AddEntity();
+    Transform& entity1_transform = entity1.AddComponent<Transform>();
+    entity1_transform.SetPosition(glm::vec3(0.f, 100.f, 0.f));      // setting the transformation of the entity to this, and connecting physics in BasicComponent.cpp
     entity1.AddComponent<BasicComponent>();
-
+    
     Entity& entity2 = scene.AddEntity();
     Transform& entity2_transform = entity2.AddComponent<Transform>();
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
