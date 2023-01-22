@@ -65,6 +65,7 @@ void GameApp::OnStart()
     entity1.AddComponent<BasicComponent>();
 
     Entity& entity2 = scene.AddEntity();
-    entity2.AddComponent<Transform>();
+    Transform& entity2_transform = entity2.AddComponent<Transform>();
+    entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
 }
