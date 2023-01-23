@@ -9,13 +9,19 @@
     {
       "name": "Debug",
       "configuration": "Debug",
-      "configurePreset": "VS2019 Debug",
+      "configurePreset": "VS2019",
+      "targets": ["game"]
+    },
+    {
+      "name": "Release",
+      "configuration": "Release",
+      "configurePreset": "VS2019",
       "targets": ["game"]
     }
   ],
   "configurePresets": [
     {
-      "name": "VS2019 Debug",
+      "name": "VS2019",
       "generator": "Visual Studio 16 2019",
       "architecture": "x64",
       "binaryDir": "build",
