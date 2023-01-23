@@ -102,7 +102,7 @@ void PhysicsService::initPhysX()
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity = physx::PxVec3(0.0f, 1.f, 0.0f);              // change the gravity here.
+    sceneDesc.gravity = physx::PxVec3(0.0f, -5.0f, 0.0f);              // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
