@@ -66,13 +66,16 @@ void GameApp::OnStart()
 
     Entity& entity1 = scene.AddEntity();
     Transform& entity1_transform = entity1.AddComponent<Transform>();
-    entity1_transform.SetPosition(glm::vec3(0.f, 100.f, 0.f));      // setting the transformation of the entity to this, and connecting physics in BasicComponent.cpp
+    entity1_transform.SetPosition(glm::vec3(0.f, 0.f, -5.f));      // setting the transformation of the entity to this, and connecting physics in BasicComponent.cpp
+    entity1_transform.RotateEulerDegrees(glm::vec3(45.0f, 0.0f, 0.0f));
     entity1.AddComponent<BasicComponent>();
-    
+    entity1.AddComponent<MeshRenderer>();
+
     Entity& entity2 = scene.AddEntity();
     Transform& entity2_transform = entity2.AddComponent<Transform>();
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
+    
 
     Entity& camera = scene.AddEntity();
     camera.AddComponent<Transform>();
@@ -83,5 +86,5 @@ void GameApp::OnStart()
     Transform& cube_transform = cube.AddComponent<Transform>();
     cube_transform.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
     cube_transform.RotateEulerDegrees(glm::vec3(45.0f, 0.0f, 0.0f));
-    cube.AddComponent<MeshRenderer>();
+    //cube.AddComponent<MeshRenderer>();
 }

@@ -20,7 +20,7 @@ void BasicComponent::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     // creating a plane.
-    physicsService_->CreatePlaneRigidBody(PxPlane(0.f, 1.f, 0.f, 0.f));
+    // physicsService_->CreatePlaneRigidBody(PxPlane(0.f, 1.f, 0.f, 0.f));
 
     physx::PxVec3 conversion_transform = physx::PxVec3(transform_->GetPosition().x, transform_->GetPosition().y, transform_->GetPosition().z);
     // creating a sphere and getting its dynamic which will be later used to change the location of sphere.
