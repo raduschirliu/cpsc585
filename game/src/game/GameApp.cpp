@@ -10,6 +10,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/physics/SphereRigidbody.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
@@ -68,8 +69,8 @@ void GameApp::OnStart()
     Transform& entity1_transform = entity1.AddComponent<Transform>();
     // setting the transformation of the entity to this, and connecting physics
     // in BasicComponent.cpp
-    entity1_transform.SetPosition(glm::vec3(0.0f, 50.0f, 0.0f));
-    entity1.AddComponent<BasicComponent>();
+    entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    entity1.AddComponent<SphereRigidbody>();
     entity1.AddComponent<MeshRenderer>();
 
     Entity& entity2 = scene.AddEntity();
@@ -85,6 +86,8 @@ void GameApp::OnStart()
 
     Entity& cube = scene.AddEntity();
     Transform& cube_transform = cube.AddComponent<Transform>();
-    cube_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    cube_transform.SetPosition(glm::vec3(0.0f, 120.0f, 0.0f));
+    auto& cube_sphere = cube.AddComponent<SphereRigidbody>();
+    cube_sphere.SetRadius(100.0f);
     cube.AddComponent<MeshRenderer>();
 }

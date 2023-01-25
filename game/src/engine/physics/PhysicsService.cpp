@@ -1,14 +1,13 @@
 #include "engine/physics/PhysicsService.h"
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Physx.h"
 #include "engine/service/ServiceProvider.h"
-
 
 #define PVD_HOST "127.0.0.1"
 
 using std::string_view;
 using namespace physx;
-
 
 void PhysicsService::OnInit()
 {
@@ -18,19 +17,26 @@ void PhysicsService::OnInit()
     initPhysX();
 }
 
-
 void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
 {
-    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(*kPhysics_, plane, *kMaterial_); // now we have the plane actor.
+    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(
+        *kPhysics_, plane, *kMaterial_);  // now we have the plane actor.
     kScene_->addActor(*groundPlane);
 }
 
-
-PxRigidDynamic* PhysicsService::CreateSphereRigidBody(PxReal radius, PxTransform transform_location, PxReal density, PxVec3 velocity, PxReal angularDamping)
+PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
+    PxReal radius, PxTransform transform_location, PxReal density,
+    PxVec3 velocity, PxReal angularDamping)
 {
     physx::PxSphereGeometry sphere = physx::PxSphereGeometry(radius);
-    physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics_, transform_location, sphere, *kMaterial_, density);
-    if (dynamic) {
+    PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform_location);
+    PxShape* shape = kPhysics_->createShape(sphere, *kMaterial_);
+    dynamic->attachShape(*shape);
+
+    // physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics_,
+    // transform_location, sphere, *kMaterial_, density);
+    if (dynamic)
+    {
         dynamic->setAngularDamping(angularDamping);
         dynamic->setLinearVelocity(velocity);
         kScene_->addActor(*dynamic);
@@ -39,11 +45,17 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(PxReal radius, PxTransform
     {
         Log::error("Error occured while creating the sphere.");
     }
-    
+
+    PxSphereGeometry bigger_sphere(10.0f);
+    PxShape* bigger_shape = kPhysics_->createShape(bigger_sphere, *kMaterial_);
+    dynamic->detachShape(*shape);
+    dynamic->attachShape(*bigger_shape);
+
     return dynamic;
 }
 
-void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic, physx::PxTransform location_transform)
+void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
+                                          physx::PxTransform location_transform)
 {
     // so that we do not use a nullptr and break the game.
     if (dynamic)
@@ -52,8 +64,25 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic, physx:
     }
     else
     {
-        Log::error("The dynamic pointer passed does not exist, cannot change location.");
+        Log::error(
+            "The dynamic pointer passed does not exist, cannot change "
+            "location.");
     }
+}
+
+physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
+    const glm::vec3& position, const glm::quat& orientation)
+{
+    physx::PxTransform transform = CreateTransform(position, orientation);
+    physx::PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform);
+    kScene_->addActor(*dynamic);
+
+    return dynamic;
+}
+
+physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
+{
+    return kPhysics_->createShape(geometry, *kMaterial_);
 }
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
@@ -62,8 +91,8 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
 
 void PhysicsService::OnUpdate()
 {
-   // Log::debug("OnUpdate() Physics, simulating at 60 fps");
-    // simulate the physics 
+    // Log::debug("OnUpdate() Physics, simulating at 60 fps");
+    // simulate the physics
     kScene_->simulate(1.f / 60.0f);
     kScene_->fetchResults(true);
 }
@@ -80,29 +109,34 @@ string_view PhysicsService::GetName() const
 void PhysicsService::initPhysX()
 {
     // PhysX init
-    //Log::debug("Initializing PhysX object kFoundation");
+    // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
-        kDefaultErrorCallback_);
+                                      kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
 
-    //// For debugging purposes, initializing the physx visual debugger (download: https://developer.nvidia.com/gameworksdownload#)
-    kPvd_ = PxCreatePvd(*kFoundation_);       // create the instance of pvd
+    //// For debugging purposes, initializing the physx visual debugger
+    ///(download: https://developer.nvidia.com/gameworksdownload#)
+    kPvd_ = PxCreatePvd(*kFoundation_);  // create the instance of pvd
     ASSERT_MSG(kPvd_, "Error initializing PhysX Visual Debugger");
 
-    physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    physx::PxPvdTransport* transport =
+        physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
     ASSERT_MSG(transport, "Error connecting to PhysX Visual Debugger");
 
     kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
 
     // Physics initlaization
     bool recordMemoryAllocations = true;
-    kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_, physx::PxTolerancesScale(), recordMemoryAllocations, kPvd_);
+    kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
+                                physx::PxTolerancesScale(),
+                                recordMemoryAllocations, kPvd_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity = physx::PxVec3(0.0f, -5.0f, 0.0f);              // change the gravity here.
+    sceneDesc.gravity =
+        physx::PxVec3(0.0f, -5.0f, 0.0f);  // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
