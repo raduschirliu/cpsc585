@@ -2,11 +2,6 @@
 #include "engine/asset/AssetService.h"
 #include "engine/scene/Entity.h"
 
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h>       // Output data structure
-
-#include <assimp/Importer.hpp>  // C++ importer interface
-
 using namespace std;
 
 void AssetService::LoadModel(const string &path, const string &name)
@@ -378,7 +373,7 @@ void AssetService::OnInit()
     // A mash must be generated and stored in meshes_ after the model is loaded successfully
     LoadModel("resources/models/cube.obj", "cube");
 
-    Log::info("Loaded mesh with {} indices and {} faces", meshes_["cube"].indices.size(),
+    Log::info("AssetService: Loaded mesh with {} indices and {} faces", meshes_["cube"].indices.size(),
               meshes_["cube"].vertices.size());
 }
 

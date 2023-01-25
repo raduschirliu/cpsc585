@@ -7,6 +7,11 @@
 #include "engine/render/Mesh.h"
 #include "engine/service/Service.h"
 
+#include <assimp/postprocess.h> // Post processing flags
+#include <assimp/scene.h>       // Output data structure
+
+#include <assimp/Importer.hpp>  // C++ importer interface
+
 class AssetService final : public Service
 {
   public:
