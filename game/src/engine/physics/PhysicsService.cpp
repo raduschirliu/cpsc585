@@ -55,7 +55,7 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
 }
 
 void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-                                          physx::PxTransform location_transform)
+    physx::PxTransform location_transform)
 {
     // so that we do not use a nullptr and break the game.
     if (dynamic)
@@ -71,10 +71,16 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
 }
 
 physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
-    const glm::vec3& position, const glm::quat& orientation)
+    const glm::vec3& position, const glm::quat& orientation, PxShape* shape)
 {
+    Log::debug("I was called here");
     physx::PxTransform transform = CreateTransform(position, orientation);
     physx::PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform);
+    if (shape)
+    {
+        dynamic->attachShape(*shape);
+        PxRigidBodyExt::updateMassAndInertia(*dynamic, 10.f);
+    }
     kScene_->addActor(*dynamic);
 
     return dynamic;
@@ -83,6 +89,11 @@ physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
 physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
 {
     return kPhysics_->createShape(geometry, *kMaterial_);
+}
+
+physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y, float half_z)
+{
+    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z), *kMaterial_);
 }
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
@@ -111,7 +122,7 @@ void PhysicsService::initPhysX()
     // PhysX init
     // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
-                                      kDefaultErrorCallback_);
+        kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
 
     //// For debugging purposes, initializing the physx visual debugger
@@ -128,8 +139,8 @@ void PhysicsService::initPhysX()
     // Physics initlaization
     bool recordMemoryAllocations = true;
     kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
-                                physx::PxTolerancesScale(),
-                                recordMemoryAllocations, kPvd_);
+        physx::PxTolerancesScale(),
+        recordMemoryAllocations, kPvd_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);

@@ -19,9 +19,6 @@ void BasicComponent::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    // creating a plane (along XZ, with normal pointing towards +Y)
-    physicsService_->CreatePlaneRigidBody(PxPlane(0.0f, 1.0f, 0.0f, 0.0f));
-
     physx::PxVec3 conversion_transform =
         physx::PxVec3(transform_->GetPosition().x, transform_->GetPosition().y,
                       transform_->GetPosition().z);
@@ -33,6 +30,7 @@ void BasicComponent::OnInit(const ServiceProvider& service_provider)
 
 void BasicComponent::OnUpdate()
 {
+   
     // While the sphere is getting updated, update the transform location.
     if (Sphere)
     {

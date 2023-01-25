@@ -9,10 +9,10 @@
 
 class PhysicsService final : public Service
 {
-  private:
+private:
     void initPhysX();
 
-  public:
+public:
     // From Service
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
@@ -20,7 +20,7 @@ class PhysicsService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
 
-  private:
+private:
     physx::PxDefaultAllocator kDefaultAllocator_;
     physx::PxDefaultErrorCallback kDefaultErrorCallback_;
     physx::PxFoundation* kFoundation_ = nullptr;
@@ -30,7 +30,7 @@ class PhysicsService final : public Service
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
 
-  public:
+public:
     // all the functions which will be shared
 
     /*
@@ -52,7 +52,7 @@ class PhysicsService final : public Service
      * @param new location transform : PxTransform
      */
     void UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-                              physx::PxTransform location_transform);
+        physx::PxTransform location_transform);
 
     /*
      * Function to make a plane based on
@@ -61,6 +61,10 @@ class PhysicsService final : public Service
     void CreatePlaneRigidBody(physx::PxPlane plane_dimensions);
 
     physx::PxRigidDynamic* CreateRigidDynamic(const glm::vec3& position,
-                                              const glm::quat& orientation);
+        const glm::quat& orientation, physx::PxShape* shape = nullptr);
+
     physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
+
+    physx::PxShape* CreateShapeCube(float half_x, float half_y, float half_z);
+
 };

@@ -18,9 +18,6 @@ void SphereRigidbody::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    // creating a sphere and getting its dynamic which will be later used to
-    // change the location of sphere.
-
     glm::vec3 starting_pos = transform_->GetPosition();
 
     dynamic_ = physicsService_->CreateRigidDynamic(
