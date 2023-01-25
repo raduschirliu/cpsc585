@@ -1,19 +1,18 @@
 #pragma once
 
-#include <object_ptr.hpp>
+#include <optional>
 
-#include "engine/gui/GuiService.h"
-#include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class GuiExampleComponent final : public Component,
-                                  public IEventSubscriber<OnGuiEvent>,
-                                  public IEventSubscriber<OnUpdateEvent>
+class DebugCameraController final : public Component,
+                                    public IEventSubscriber<OnUpdateEvent>
 {
   public:
+    DebugCameraController();
+
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
@@ -21,10 +20,10 @@ class GuiExampleComponent final : public Component,
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate() override;
 
-    // From IEventSubscriber<OnGuiEvent>
-    void OnGui() override;
-
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
+    std::optional<glm::vec2> last_mouse_pos_;
+
+    glm::vec3 GetMovementDir();
 };

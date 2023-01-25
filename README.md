@@ -29,10 +29,10 @@ start setup_physx.bat
 3. Setup CMake
 
 3a. Command line
-Either open the root repo folder in VSCode and select the "VS2019 Debug" preset, or run
+Either open the root repo folder in VSCode and select the "VS2019" preset, or run
 ```
 # Run in the repo root
-cmake --preset "VS2019 Debug"
+cmake --preset "VS2019"
 ```
 
 3b. VSCode
