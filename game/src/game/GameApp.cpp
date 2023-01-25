@@ -37,7 +37,7 @@ GameApp::GameApp()
 {
 }
 
-void GameApp::Init()
+void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
 
