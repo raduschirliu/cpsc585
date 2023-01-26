@@ -10,6 +10,9 @@
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/physics/SphereRigidbody.h"
+#include "engine/physics/PlaneRigidbody.h"
+#include "engine/physics/CubeRigidbody.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
@@ -53,7 +56,7 @@ void GameApp::OnInit()
     // Yaml parsing test
     YAML::Node root = YAML::LoadFile("resources/scenes/test.yaml");
     Log::debug("someRootNode.someChildNode = {}",
-               root["someRootNode"]["someChildNode"].as<string>());
+        root["someRootNode"]["someChildNode"].as<string>());
 }
 
 /**
@@ -64,8 +67,14 @@ void GameApp::OnStart()
 {
     Scene& scene = AddScene("TestScene");
 
-    Entity& entity1 = scene.AddEntity();
-    entity1.AddComponent<BasicComponent>();
+    //Entity& entity1 = scene.AddEntity();
+    //Transform& entity1_transform = entity1.AddComponent<Transform>();
+    //// setting the transformation of the entity to this, and connecting physics
+    //// in BasicComponent.cpp
+    //entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    //entity1.AddComponent<SphereRigidbody>();
+    //entity1.AddComponent<MeshRenderer>();
+
 
     Entity& entity2 = scene.AddEntity();
     Transform& entity2_transform = entity2.AddComponent<Transform>();
@@ -73,13 +82,29 @@ void GameApp::OnStart()
     entity2.AddComponent<GuiExampleComponent>();
 
     Entity& camera = scene.AddEntity();
-    camera.AddComponent<Transform>();
+    Transform& camera_transform = camera.AddComponent<Transform>();
+    camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
     camera.AddComponent<Camera>();
     camera.AddComponent<DebugCameraController>();
 
-    Entity& cube = scene.AddEntity();
+    /*Entity& cube = scene.AddEntity();
     Transform& cube_transform = cube.AddComponent<Transform>();
-    cube_transform.SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
-    cube_transform.RotateEulerDegrees(glm::vec3(45.0f, 0.0f, 0.0f));
-    cube.AddComponent<MeshRenderer>();
+    cube_transform.SetPosition(glm::vec3(0.0f, 50.0f, 0.0f));
+    auto& cube_sphere = cube.AddComponent<SphereRigidbody>();
+    cube_sphere.SetRadius(3.f);
+    cube.AddComponent<MeshRenderer>();*/
+
+    Entity& floor = scene.AddEntity();
+    Transform& t = floor.AddComponent<Transform>();
+    t.SetPosition(glm::vec3(0, 0, 0));
+    floor.AddComponent<PlaneRigidbody>();
+    floor.AddComponent<MeshRenderer>();
+
+    Entity& cubeRigidBody = scene.AddEntity();
+    Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
+    temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
+    auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
+    rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
+    rigidBody_ref.SetCanControl(true);
+    cubeRigidBody.AddComponent<MeshRenderer>();
 }

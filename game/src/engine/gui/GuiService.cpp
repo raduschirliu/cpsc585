@@ -39,6 +39,8 @@ void GuiService::OnUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    //Log::debug("OnUpdate() from GUI service.");
+
     GetEventBus().Publish<OnGuiEvent>();
 
     // TODO: This should be moved somewhere else...
