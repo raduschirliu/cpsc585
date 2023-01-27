@@ -30,16 +30,16 @@ using std::string;
 
 using namespace std;
 
+GameApp::GameApp()
+{
+}
+
 /**
  * Runs once the windowing system has been initialized and the window
  * is created. Services should be added here.
  *
  * THIS IS CALLED BEFORE SERVICES ARE INITIALIZED
  */
-GameApp::GameApp()
-{
-}
-
 void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1280, 720));
