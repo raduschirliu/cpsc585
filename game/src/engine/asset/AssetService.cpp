@@ -18,10 +18,6 @@ void AssetService::LoadModel(const string &path, const string &name)
                                                 // imported meshes
            aiProcess_CalcTangentSpace |         // Calculate the tangents and
                                                 // bitangents for the imported meshes
-           aiProcess_GenNormals |               // Create normal vectors for each vertex if
-                                                // the model doesn't contain normal vectors
-           aiProcess_MakeLeftHanded |           // Convert all the imported data to a
-                                                // left-handed coordinate space
            aiProcess_FlipWindingOrder;          // Adjust the output face winding order
                                                 // to be clockwise
 
