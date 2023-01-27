@@ -9,12 +9,13 @@
 #include "engine/core/gfx/VertexBuffer.h"
 #include "engine/render/Renderable.h"
 #include "engine/service/Service.h"
+#include "engine/scene/Entity.h"
 
 class Camera;
 
 struct RenderData
 {
-    jss::object_ptr<const RenderableComponent> renderable;
+    jss::object_ptr<const Entity> entity;
     VertexArray vertex_array;
     VertexBuffer vertex_buffer;
     ElementArrayBuffer element_buffer;
@@ -25,7 +26,8 @@ class RenderService final : public Service
   public:
     RenderService();
 
-    void RegisterRenderable(const RenderableComponent& renderable);
+    void RegisterRenderable(const Entity& entity);
+    void UnregisterRenderable(const Entity& entity);
     void RegisterCamera(const Camera& camera);
 
     // From Service

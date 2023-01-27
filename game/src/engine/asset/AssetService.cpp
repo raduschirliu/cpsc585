@@ -1,5 +1,6 @@
-#include "engine/core/debug/Log.h"
 #include "engine/asset/AssetService.h"
+
+#include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
 using namespace std;
@@ -11,15 +12,15 @@ void AssetService::LoadModel(const string &path, const string &name)
 
     // Process the desired calculation for the model
     unsigned int flag;
-    flag = aiProcess_Triangulate |              // Transform all the model's primitive
-                                                // shapes to triangles
-           aiProcess_JoinIdenticalVertices |    // Identifies and joins identical
-                                                // vertex data sets within all
-                                                // imported meshes
-           aiProcess_CalcTangentSpace |         // Calculate the tangents and
-                                                // bitangents for the imported meshes
-           aiProcess_FlipWindingOrder;          // Adjust the output face winding order
-                                                // to be clockwise
+    flag = aiProcess_Triangulate |  // Transform all the model's primitive
+                                    // shapes to triangles
+           aiProcess_JoinIdenticalVertices |  // Identifies and joins identical
+                                              // vertex data sets within all
+                                              // imported meshes
+           aiProcess_CalcTangentSpace |       // Calculate the tangents and
+                                         // bitangents for the imported meshes
+           aiProcess_FlipWindingOrder;  // Adjust the output face winding order
+                                        // to be clockwise
 
     const aiScene *scene = importer.ReadFile(path, flag);
 
@@ -30,6 +31,11 @@ void AssetService::LoadModel(const string &path, const string &name)
     }
 
     ProcessNode(path, name, scene->mRootNode, scene);
+}
+
+const Mesh &AssetService::GetMesh(const std::string &name)
+{
+    return meshes_[name];
 }
 
 /*
@@ -76,10 +82,13 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
         vertex.position = vector;
 
         // Normal
-        vector.x = mesh->mNormals[i].x;
-        vector.y = mesh->mNormals[i].y;
-        vector.z = mesh->mNormals[i].z;
-        vertex.normal = vector;
+        if (mesh->HasNormals())
+        {
+            vector.x = mesh->mNormals[i].x;
+            vector.y = mesh->mNormals[i].y;
+            vector.z = mesh->mNormals[i].z;
+            vertex.normal = vector;
+        }
 
         // TextureCoord: Maximum 8 texture
         if (mesh->mTextureCoords[0])
@@ -88,19 +97,19 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
             vertex.uv = vec;
-
-            // // Tangent
-            // vector.x = mesh->mTangents[i].x;
-            // vector.y = mesh->mTangents[i].y;
-            // vector.z = mesh->mTangents[i].z;
-            // vertex.tangent = vector;
-
-            // // BiTangent
-            // vector.x = mesh->mBitangents[i].x;
-            // vector.y = mesh->mBitangents[i].y;
-            // vector.z = mesh->mBitangents[i].z;
-            // vertex.bitangent = vector;
         }
+
+        // Tangent
+        // vector.x = mesh->mTangents[i].x;
+        // vector.y = mesh->mTangents[i].y;
+        // vector.z = mesh->mTangents[i].z;
+        // vertex.tangent = vector;
+
+        // BiTangent
+        // vector.x = mesh->mBitangents[i].x;
+        // vector.y = mesh->mBitangents[i].y;
+        // vector.z = mesh->mBitangents[i].z;
+        // vertex.bitangent = vector;
 
         localMesh.vertices.emplace_back(vertex);
     }
@@ -366,11 +375,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
 
 void AssetService::OnInit()
 {
-    // A mash must be generated and stored in meshes_ after the model is loaded successfully
+    // A mash must be generated and stored in meshes_ after the model is loaded
+    // successfully
     LoadModel("resources/models/cube.obj", "cube");
-
-    Log::info("AssetService: Loaded mesh with {} indices and {} faces", meshes_["cube"].indices.size(),
-              meshes_["cube"].vertices.size());
+    LoadModel("resources/models/plane.obj", "plane");
+    LoadModel("resources/models/stanford_bunny.obj", "bunny");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

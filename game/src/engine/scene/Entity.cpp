@@ -21,6 +21,11 @@ void Entity::SetScene(object_ptr<Scene> scene)
     scene_ = scene;
 }
 
+uint32_t Entity::GetId() const
+{
+    return id_;
+}
+
 void Entity::InitComponent(Component& component)
 {
     ComponentInitializer initializer =
