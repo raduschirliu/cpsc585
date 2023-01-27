@@ -17,6 +17,7 @@
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
+#include "engine/asset/AssetService.h"
 #include "engine/scene/Scene.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
@@ -26,6 +27,8 @@
 using glm::ivec2;
 using std::make_unique;
 using std::string;
+
+using namespace std;
 
 GameApp::GameApp()
 {
@@ -46,6 +49,7 @@ void GameApp::OnInit()
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
+    AddService<AssetService>();
 
     // Model importing test
     Assimp::Importer importer;
