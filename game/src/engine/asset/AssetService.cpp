@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void AssetService::LoadModel(const string &path, const string &name)
+void AssetService::LoadMesh(const string &path, const string &name)
 {
     // Model importing
     Assimp::Importer importer;
@@ -377,9 +377,9 @@ void AssetService::OnInit()
 {
     // A mash must be generated and stored in meshes_ after the model is loaded
     // successfully
-    LoadModel("resources/models/cube.obj", "cube");
-    LoadModel("resources/models/plane.obj", "plane");
-    LoadModel("resources/models/stanford_bunny.obj", "bunny");
+    LoadMesh("resources/models/cube.obj", "cube");
+    LoadMesh("resources/models/plane.obj", "plane");
+    LoadMesh("resources/models/stanford_bunny.obj", "bunny");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
