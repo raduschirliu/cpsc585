@@ -25,9 +25,9 @@
 #include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
+using glm::vec3;
 using std::make_unique;
 using std::string;
-using glm::vec3;
 
 using namespace std;
 
@@ -124,6 +124,7 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 10.0f, 0.0f));
+        transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");

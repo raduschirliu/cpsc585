@@ -11,6 +11,7 @@ class Transform final : public Component
   public:
     Transform();
 
+    void SetScale(const glm::vec3& scale);
     void Translate(const glm::vec3& delta);
     void SetPosition(const glm::vec3& position);
     void Rotate(const glm::quat& delta);

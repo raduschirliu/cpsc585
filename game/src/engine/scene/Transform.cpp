@@ -27,6 +27,12 @@ Transform::Transform()
 {
 }
 
+void Transform::SetScale(const vec3& scale)
+{
+    scale_ = scale;
+    UpdateMatrices();
+}
+
 void Transform::Translate(const vec3& delta)
 {
     position_ += delta;
