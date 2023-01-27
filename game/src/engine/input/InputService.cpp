@@ -1,6 +1,7 @@
 #include "engine/input/InputService.h"
 
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #include <array>
 #include <vector>
@@ -106,6 +107,11 @@ bool InputService::IsMouseButtonDown(int button)
 
 void InputService::OnKeyEvent(int key, int scancode, int action, int mods)
 {
+    if (ImGui::GetIO().WantCaptureKeyboard)
+    {
+        return;
+    }
+
     // Ignore any other keys
     if (key >= 0 && key < kKeyStateMap.size())
     {
@@ -120,6 +126,11 @@ void InputService::OnCursorMove(double x_pos, double y_pos)
 
 void InputService::OnMouseButtonEvent(int button, int action, int mods)
 {
+    if (ImGui::GetIO().WantCaptureMouse)
+    {
+        return;
+    }
+
     // Ignore any other mouse buttons
     if (button >= 0 && button < kMouseState.button_states.size())
     {
