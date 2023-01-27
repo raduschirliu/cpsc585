@@ -1,5 +1,9 @@
 #pragma once
 
+#include <assimp/postprocess.h>  // Post processing flags
+#include <assimp/scene.h>        // Output data structure
+
+#include <assimp/Importer.hpp>  // C++ importer interface
 #include <unordered_map>
 #include <vector>
 
@@ -7,15 +11,10 @@
 #include "engine/render/Mesh.h"
 #include "engine/service/Service.h"
 
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h>       // Output data structure
-
-#include <assimp/Importer.hpp>  // C++ importer interface
-
 class AssetService final : public Service
 {
   public:
-    void LoadModel(const std::string &path, const std::string &name);
+    void LoadModel(const std::string &path, const std::string &name, const std::string &textureName);
 
     // From Service
     void OnInit() override;
@@ -25,14 +24,14 @@ class AssetService final : public Service
     std::string_view GetName() const override;
 
   private:
-    std::vector<Texture> texturesLoaded_;
+    std::unordered_map<std::string, Texture> texturesLoaded_;
     // std::vector<Mesh> meshes;
     std::unordered_map<std::string, Mesh> meshes_;
 
-    void ProcessNode(const std::string &path, const std::string &name,
+    void ProcessNode(const std::string &path, const std::string &name, const std::string &textureName,
                      aiNode *node, const aiScene *scene);
-    Mesh ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene);
-    std::vector<Texture> LoadTexture(const std::string &path, aiMaterial *mat,
+    Mesh ProcessMesh(aiNode *node, const std::string &textureName, aiMesh *mesh, const aiScene *scene);
+    std::vector<Texture> LoadTexture(const std::string &path,
+                                     const string &name, aiMaterial *mat,
                                      aiTextureType type);
-    uint32_t TextureFromFile(const std::string &path);
 };

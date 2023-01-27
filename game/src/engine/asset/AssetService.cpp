@@ -1,25 +1,27 @@
-#include "engine/core/debug/Log.h"
 #include "engine/asset/AssetService.h"
+
+#include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
 using namespace std;
 
-void AssetService::LoadModel(const string &path, const string &name)
+void AssetService::LoadModel(const string &path, const string &name,
+                             const string &textureName)
 {
     // Model importing
     Assimp::Importer importer;
 
     // Process the desired calculation for the model
     unsigned int flag;
-    flag = aiProcess_Triangulate |              // Transform all the model's primitive
-                                                // shapes to triangles
-           aiProcess_JoinIdenticalVertices |    // Identifies and joins identical
-                                                // vertex data sets within all
-                                                // imported meshes
-           aiProcess_CalcTangentSpace |         // Calculate the tangents and
-                                                // bitangents for the imported meshes
-           aiProcess_FlipWindingOrder;          // Adjust the output face winding order
-                                                // to be clockwise
+    flag = aiProcess_Triangulate |  // Transform all the model's primitive
+                                    // shapes to triangles
+           aiProcess_JoinIdenticalVertices |  // Identifies and joins identical
+                                              // vertex data sets within all
+                                              // imported meshes
+           aiProcess_CalcTangentSpace |       // Calculate the tangents and
+                                         // bitangents for the imported meshes
+           aiProcess_FlipWindingOrder;  // Adjust the output face winding order
+                                        // to be clockwise
 
     const aiScene *scene = importer.ReadFile(path, flag);
 
@@ -29,7 +31,7 @@ void AssetService::LoadModel(const string &path, const string &name)
         ASSERT_MSG(false, importer.GetErrorString());
     }
 
-    ProcessNode(path, name, scene->mRootNode, scene);
+    ProcessNode(path, name, textureName, scene->mRootNode, scene);
 }
 
 /*
@@ -37,18 +39,19 @@ void AssetService::LoadModel(const string &path, const string &name)
  * -> : Approach the member through a pointer
  */
 void AssetService::ProcessNode(const string &path, const string &name,
-                               aiNode *node, const aiScene *scene)
+                               const string &textureName, aiNode *node,
+                               const aiScene *scene)
 {
     for (uint32_t i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes_[name] = ProcessMesh(node, mesh, scene);
+        meshes_[name] = ProcessMesh(node, textureName, mesh, scene);
     }
 
     // Do the same for each of its children
     for (uint32_t i = 0; i < node->mNumChildren; ++i)
     {
-        ProcessNode(path, name, node->mChildren[i], scene);
+        ProcessNode(path, name, textureName, node->mChildren[i], scene);
     }
 }
 
@@ -58,10 +61,10 @@ void AssetService::ProcessNode(const string &path, const string &name,
  * emplace_back()   : Create its own objects internally using the
  *                    constructor
  */
-Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
+Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
+                               aiMesh *mesh, const aiScene *scene)
 {
     Mesh localMesh;
-    vector<Texture> textures;
 
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
@@ -118,259 +121,281 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
     // Texture (Material) information
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
-    // // Diffuse Texture: combined with the result of the diffuse lighting
-    // equation if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> diffuseMap = LoadTexture(path, material,
-    //         aiTextureType_DIFFUSE); textures.insert(textures.end(),
-    //         diffuseMap.begin(), diffuseMap.end());
-    //     }
-    // }
+    // Diffuse Texture: combined with the result of the diffuse lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> diffuseMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_DIFFUSE);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      diffuseMap.begin(), diffuseMap.end());
+        }
+    }
 
-    // // Specular Texture: combined with the result of the specular lighting
-    // equation if (material->GetTextureCount(aiTextureType_SPECULAR) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_SPECULAR, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> specularMap = LoadTexture(path, material,
-    //         aiTextureType_SPECULAR); textures.insert(textures.end(),
-    //         specularMap.begin(), specularMap.end());
-    //     }
-    // }
+    // Specular Texture: combined with the result of the specular lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_SPECULAR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> specularMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_SPECULAR);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      specularMap.begin(), specularMap.end());
+        }
+    }
 
-    // // Ambient Texture: combined with the result of the ambient lighting
-    // equation if (material->GetTextureCount(aiTextureType_AMBIENT) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_AMBIENT, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> ambientMap = LoadTexture(path, material,
-    //         aiTextureType_AMBIENT); textures.insert(textures.end(),
-    //         ambientMap.begin(), ambientMap.end());
-    //     }
-    // }
+    // Ambient Texture: combined with the result of the ambient lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_AMBIENT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_AMBIENT, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> ambientMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_AMBIENT);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      ambientMap.begin(), ambientMap.end());
+        }
+    }
 
-    // // Emissive Texture: added to the result of the lighting calculation (X
-    // influenced by incoming light) if
-    // (material->GetTextureCount(aiTextureType_EMISSIVE) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_EMISSIVE, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> emissiveMap = LoadTexture(path, material,
-    //         aiTextureType_EMISSIVE); textures.insert(textures.end(),
-    //         emissiveMap.begin(), emissiveMap.end());
-    //     }
-    // }
+    // Emissive Texture: added to the result of the lighting calculation (X
+    // influenced by incoming light)
+    if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_EMISSIVE, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> emissiveMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_EMISSIVE);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      emissiveMap.begin(), emissiveMap.end());
+        }
+    }
 
-    // // Height Texture: higher grey-scale values stand for higher elevations
-    // from the base height if (material->GetTextureCount(aiTextureType_HEIGHT)
-    // > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> heightMap = LoadTexture(path, material,
-    //         aiTextureType_HEIGHT); textures.insert(textures.end(),
-    //         heightMap.begin(), heightMap.end());
-    //     }
-    // }
+    // Height Texture: higher grey-scale values stand for higher elevations
+    // from the base height
+    if (material->GetTextureCount(aiTextureType_HEIGHT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> heightMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_HEIGHT);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      heightMap.begin(), heightMap.end());
+        }
+    }
 
-    // // Normal Texture: a (tangent space) normal-map
-    // if (material->GetTextureCount(aiTextureType_NORMALS) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_NORMALS, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> normalsMap = LoadTexture(path, material,
-    //         aiTextureType_NORMALS); textures.insert(textures.end(),
-    //         normalsMap.begin(), normalsMap.end());
-    //     }
-    // }
+    // Normal Texture: a (tangent space) normal-map
+    if (material->GetTextureCount(aiTextureType_NORMALS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> normalsMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_NORMALS);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      normalsMap.begin(), normalsMap.end());
+        }
+    }
 
-    // // Shininess Texture: defines the glossiness of the material
-    // if (material->GetTextureCount(aiTextureType_SHININESS) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_SHININESS, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> shininessMap = LoadTexture(path, material,
-    //         aiTextureType_SHININESS); textures.insert(textures.end(),
-    //         shininessMap.begin(), shininessMap.end());
-    //     }
-    // }
+    // Shininess Texture: defines the glossiness of the material
+    if (material->GetTextureCount(aiTextureType_SHININESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_SHININESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> shininessMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_SHININESS);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      shininessMap.begin(), shininessMap.end());
+        }
+    }
 
-    // // Opacity Texture (Transparent): defines per-pixel opacity (white ==
-    // opaque and black == transparent) if
-    // (material->GetTextureCount(aiTextureType_OPACITY) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_OPACITY, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> opacityMap = LoadTexture(path, material,
-    //         aiTextureType_OPACITY); textures.insert(textures.end(),
-    //         opacityMap.begin(), opacityMap.end());
-    //     }
-    // }
+    // Opacity Texture (Transparent): defines per-pixel opacity (white ==
+    // opaque and black == transparent)
+    if (material->GetTextureCount(aiTextureType_OPACITY) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_OPACITY, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> opacityMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_OPACITY);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      opacityMap.begin(), opacityMap.end());
+        }
+    }
 
-    // // Displacement Texture: higher color values stand for higher vertex
-    // displacement if (material->GetTextureCount(aiTextureType_DISPLACEMENT) >
-    // 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> displacementMap = LoadTexture(path, material,
-    //         aiTextureType_DISPLACEMENT); textures.insert(textures.end(),
-    //         displacementMap.begin(), displacementMap.end());
-    //     }
-    // }
+    // Displacement Texture: higher color values stand for higher vertex
+    // displacement
+    if (material->GetTextureCount(aiTextureType_DISPLACEMENT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> displacementMap =
+                LoadTexture(path.C_Str(), textureName, material,
+                            aiTextureType_DISPLACEMENT);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      displacementMap.begin(),
+                                      displacementMap.end());
+        }
+    }
 
-    // // LightMap Texture: cover both lightmaps and dedicated ambient occlusion
-    // maps
-    // //                   contains a scaling value for the final color value
-    // of a pixel if (material->GetTextureCount(aiTextureType_LIGHTMAP) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> lightMap = LoadTexture(path, material,
-    //         aiTextureType_LIGHTMAP); textures.insert(textures.end(),
-    //         lightMap.begin(), lightMap.end());
-    //     }
-    // }
+    // LightMap Texture: cover both lightmaps and dedicated ambient occlusion
+    // maps contains a scaling value for the final color value of a pixel
+    if (material->GetTextureCount(aiTextureType_LIGHTMAP) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> lightMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_LIGHTMAP);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      lightMap.begin(), lightMap.end());
+        }
+    }
 
-    // // BaseColor Texture
-    // if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> baseColorMap = LoadTexture(path, material,
-    //         aiTextureType_BASE_COLOR); textures.insert(textures.end(),
-    //         baseColorMap.begin(), baseColorMap.end());
-    //     }
-    // }
+    // BaseColor Texture
+    if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> baseColorMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_BASE_COLOR);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      baseColorMap.begin(), baseColorMap.end());
+        }
+    }
 
-    // // Emissive Color Texture
-    // if (material->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_EMISSION_COLOR, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> emmissionColorMap = LoadTexture(path, material,
-    //         aiTextureType_EMISSION_COLOR); textures.insert(textures.end(),
-    //         emmissionColorMap.begin(), emmissionColorMap.end());
-    //     }
-    // }
+    // Emissive Color Texture
+    if (material->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_EMISSION_COLOR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> emmissionColorMap =
+                LoadTexture(path.C_Str(), textureName, material,
+                            aiTextureType_EMISSION_COLOR);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      emmissionColorMap.begin(),
+                                      emmissionColorMap.end());
+        }
+    }
 
-    // // Metalness Texture
-    // if (material->GetTextureCount(aiTextureType_METALNESS) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_METALNESS, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> metalnessMap = LoadTexture(path, material,
-    //         aiTextureType_METALNESS); textures.insert(textures.end(),
-    //         metalnessMap.begin(), metalnessMap.end());
-    //     }
-    // }
+    // Metalness Texture
+    if (material->GetTextureCount(aiTextureType_METALNESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_METALNESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> metalnessMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_METALNESS);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      metalnessMap.begin(), metalnessMap.end());
+        }
+    }
 
-    // // Roughness Texture
-    // if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path)
-    //     == AI_SUCCESS){
-    //         vector<Texture> diffuseRoughnessMap = LoadTexture(path, material,
-    //         aiTextureType_DIFFUSE_ROUGHNESS); textures.insert(textures.end(),
-    //         diffuseRoughnessMap.begin(), diffuseRoughnessMap.end());
-    //     }
-    // }
+    // Roughness Texture
+    if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> diffuseRoughnessMap =
+                LoadTexture(path.C_Str(), textureName, material,
+                            aiTextureType_DIFFUSE_ROUGHNESS);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      diffuseRoughnessMap.begin(),
+                                      diffuseRoughnessMap.end());
+        }
+    }
 
-    // // Ambient Occlusion Texture
-    // if (material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &path)
-    //     == AI_SUCCESS){
-    //         vector<Texture> ambientOcclusionMap = LoadTexture(path, material,
-    //         aiTextureType_AMBIENT_OCCLUSION); textures.insert(textures.end(),
-    //         ambientOcclusionMap.begin(), ambientOcclusionMap.end());
-    //     }
-    // }
+    // Ambient Occlusion Texture
+    if (material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &path) ==
+            AI_SUCCESS)
+        {
+            vector<Texture> ambientOcclusionMap =
+                LoadTexture(path.C_Str(), textureName, material,
+                            aiTextureType_AMBIENT_OCCLUSION);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      ambientOcclusionMap.begin(),
+                                      ambientOcclusionMap.end());
+        }
+    }
 
-    // // Unknown: that does not match any of the definitions above
-    // if (material->GetTextureCount(aiTextureType_UNKNOWN) > 0){
-    //     aiString path;
-    //     if (material->GetTexture(aiTextureType_UNKNOWN, 0, &path) ==
-    //     AI_SUCCESS){
-    //         vector<Texture> unknownMap = LoadTexture(path, material,
-    //         aiTextureType_UNKNOWN); textures.insert(textures.end(),
-    //         unknownMap.begin(), unknownMap.end());
-    //     }
-    // }
+    // Unknown: that does not match any of the definitions above
+    if (material->GetTextureCount(aiTextureType_UNKNOWN) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_UNKNOWN, 0, &path) == AI_SUCCESS)
+        {
+            vector<Texture> unknownMap = LoadTexture(
+                path.C_Str(), textureName, material, aiTextureType_UNKNOWN);
+            localMesh.textures.insert(localMesh.textures.end(),
+                                      unknownMap.begin(), unknownMap.end());
+        }
+    }
 
     return localMesh;
 }
 
-// vector<Texture> AssetService::LoadTexture(const string &path, aiMaterial
-// *mat, aiTextureType type)
-// {
-//     vector<Texture> textures;
-//     for (uint32_t i = 0; i < mat->GetTextureCount(type); ++i){
-//         // Check if texture was loaded before and if so, continue to next
-//         iteration: skip loading a new texture bool skip = false; for
-//         (uint32_t j = 0; j < texturesLoaded.size(); ++j){
-//             if (strcmp(texturesLoaded[j].path.data(), path.C_Str()) == 0){
-//                 textures.push_back(texturesLoaded[j]);
-//                 // A texture with the same filepath has already been loaded,
-//                 continue to next one. (optimization) skip = true; break;
-//             }
-//         }
+vector<Texture> AssetService::LoadTexture(const string &path,
+                                          const string &name, aiMaterial *mat,
+                                          aiTextureType type)
+{
+    vector<Texture> textures;
+    for (uint32_t i = 0; i < mat->GetTextureCount(type); ++i)
+    {
+        // Check if texture was loaded before and if so, continue to next
+        // iteration: skip loading a new texture
+        bool skip = false;
+        if (texturesLoaded_.find(name) != texturesLoaded_.end())
+        {
+            textures.push_back(texturesLoaded_[name]);
+            skip = true;
+        }
 
-//         // If texture hasn't been loaded already, load it
-//         if (!skip){
-//             Texture texture;
-//             texture.id = TextureFromFile(path.C_Str());
-//             texture.path = path.C_Str();
-//             textures.push_back(texture);
-//             // Store it as texture loaded for entire model, to ensure not to
-//             load duplicate textures texturesLoaded.push_back(texture);
-//         }
-//     }
+        // If texture hasn't been loaded already, load it
+        if (!skip)
+        {
+            Texture texture(path, Texture::InterpolationMode::kLinear);
+            textures.push_back(texture);
+            // Store it as texture loaded for entire model, to ensure not to
+            // load duplicate textures
+            texturesLoaded_.insert(make_pair(name, texture));
+        }
+    }
 
-//     return textures;
-// }
-
-// uint32_t AssetService::TextureFromFile(const string &path)
-// {
-//     uint32_t textureID;
-//     glGenTextures(1, &textureID);
-
-//     int width, height, nrComponents;
-//     unsigned char *data = stbi_load(path.c_str(), &width, &height,
-//     &nrComponents, 0); if (data){
-//         GLenum format;
-//         if (nrComponents == 1) format = GL_RED;
-//         else if (nrComponents == 3) format = GL_RGB;
-//         else if (nrComponents == 4) format = GL_RGBA;
-
-//         glBindTexture(GL_TEXTURE_2D, textureID);
-//         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-//         GL_UNSIGNED_BYTE, data); glGenerateMipmap(GL_TEXTURE_2D);
-
-//         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-//         GL_LINEAR_MIPMAP_LINEAR); glTexParameteri(GL_TEXTURE_2D,
-//         GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-//         stbi_image_free(data);
-//     } else {
-//         std::cout << "Texture failed to load at path: " << path << std::endl;
-//         stbi_image_free(data);
-//     }
-
-//     return textureID;
-// }
+    return textures;
+}
 
 void AssetService::OnInit()
 {
-    // A mash must be generated and stored in meshes_ after the model is loaded successfully
-    LoadModel("resources/models/cube.obj", "cube");
+    // A mash must be generated and stored in meshes_ after the model is loaded
+    // successfully
+    // LoadModel("resources/models/cube.obj", "cube");
 
-    Log::info("AssetService: Loaded mesh with {} indices and {} faces", meshes_["cube"].indices.size(),
-              meshes_["cube"].vertices.size());
+    // Log::info("AssetService: Loaded mesh with {} indices and {} faces",
+    //           meshes_["cube"].indices.size(), meshes_["cube"].vertices.size());
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
