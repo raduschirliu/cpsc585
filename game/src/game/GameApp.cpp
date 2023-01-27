@@ -72,10 +72,14 @@ void GameApp::OnStart()
 {
     Scene& scene = AddScene("TestScene");
 
-    Entity& entity2 = scene.AddEntity();
-    Transform& entity2_transform = entity2.AddComponent<Transform>();
-    entity2_transform.SetPosition(vec3(10.0f, 0.0f, 0.0f));
-    entity2.AddComponent<GuiExampleComponent>();
+    {
+        Entity& entity = scene.AddEntity();
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0f, 0.0f, 0.0f));
+
+        entity.AddComponent<GuiExampleComponent>();
+    }
 
     {
         // Camera
@@ -101,16 +105,16 @@ void GameApp::OnStart()
 
     {
         // Cube
-        Entity& cube_entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity();
 
-        Transform& transform = cube_entity.AddComponent<Transform>();
+        Transform& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
 
-        auto& rigidbody = cube_entity.AddComponent<CubeRigidbody>();
+        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
         rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
         rigidbody.SetCanControl(true);
 
-        auto& mesh_renderer = cube_entity.AddComponent<MeshRenderer>();
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
     }
 
