@@ -18,11 +18,11 @@ void main()
 {
 	// For the normals, we don't want to apply any non-uniform scaling
 	// since that doesn't preserve a vector's direction
-	mat3 normalMatrix = mat3(transpose(inverse(uModelMatrix)));
+	// mat3 normalMatrix = mat3(transpose(inverse(uModelMatrix)));
 	vec4 modelPos = uModelMatrix * vec4(inPos, 1.0f);
 
 	aPos = vec3(modelPos);
-	aNormal = normalMatrix * inNormal;
+	// aNormal = normalMatrix * inNormal;
 	aColor = inColor;
 	aTextureCoord = inTextureCoord;
 

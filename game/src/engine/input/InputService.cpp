@@ -1,12 +1,15 @@
-#include "engine/Input.h"
+#include "engine/input/InputService.h"
 
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #include <array>
 #include <vector>
 
 #include "engine/core/debug/Assert.h"
+#include "engine/core/debug/Log.h"
 
+using glm::ivec2;
 using glm::vec2;
 using std::array;
 using std::vector;
@@ -21,14 +24,14 @@ enum class KeyState : uint8_t
 
 struct MouseState
 {
-    vec2 pos;
+    ivec2 pos;
     array<KeyState, GLFW_MOUSE_BUTTON_LAST> button_states;
 
-    MouseState() : pos(0.0f, 0.0f), button_states{}
+    MouseState() : pos(0, 0), button_states{}
     {
     }
 
-    void SetPos(float x, float y)
+    void SetPos(int x, int y)
     {
         pos.x = x;
         pos.y = y;
@@ -58,14 +61,14 @@ static array<KeyState, GLFW_KEY_LAST> kKeyStateMap;
 // Keep track of mouse state (pos, button presses)
 static MouseState kMouseState;
 
-bool Input::IsKeyPressed(int key)
+bool InputService::IsKeyPressed(int key)
 {
     ASSERT_MSG(key >= 0 && key < kKeyStateMap.size(),
                "Invalid key code requested");
     return kKeyStateMap[key] == KeyState::kPressed;
 }
 
-bool Input::IsKeyDown(int key)
+bool InputService::IsKeyDown(int key)
 {
     ASSERT_MSG(key >= 0 && key < kKeyStateMap.size(),
                "Invalid key code requested");
@@ -74,26 +77,26 @@ bool Input::IsKeyDown(int key)
     return state == KeyState::kPressed || state == KeyState::kDown;
 }
 
-vec2 Input::GetMousePos()
+ivec2 InputService::GetMousePos()
 {
     return kMouseState.pos;
 }
 
-bool Input::IsMouseButtonPressed(int button)
+bool InputService::IsMouseButtonPressed(int button)
 {
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
     return kMouseState.button_states[button] == KeyState::kPressed;
 }
 
-bool Input::IsMouseButtonReleased(int button)
+bool InputService::IsMouseButtonReleased(int button)
 {
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
     return kMouseState.button_states[button] == KeyState::kReleased;
 }
 
-bool Input::IsMouseButtonDown(int button)
+bool InputService::IsMouseButtonDown(int button)
 {
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
@@ -102,8 +105,13 @@ bool Input::IsMouseButtonDown(int button)
     return state == KeyState::kPressed || state == KeyState::kDown;
 }
 
-void Input::OnKeyEvent(int key, int scancode, int action, int mods)
+void InputService::OnKeyEvent(int key, int scancode, int action, int mods)
 {
+    if (ImGui::GetIO().WantCaptureKeyboard)
+    {
+        return;
+    }
+
     // Ignore any other keys
     if (key >= 0 && key < kKeyStateMap.size())
     {
@@ -111,13 +119,18 @@ void Input::OnKeyEvent(int key, int scancode, int action, int mods)
     }
 }
 
-void Input::OnCursorMove(float x_pos, float y_pos)
+void InputService::OnCursorMove(double x_pos, double y_pos)
 {
-    kMouseState.SetPos(x_pos, y_pos);
+    kMouseState.SetPos(static_cast<int>(x_pos), static_cast<int>(y_pos));
 }
 
-void Input::OnMouseButtonEvent(int button, int action, int mods)
+void InputService::OnMouseButtonEvent(int button, int action, int mods)
 {
+    if (ImGui::GetIO().WantCaptureMouse)
+    {
+        return;
+    }
+
     // Ignore any other mouse buttons
     if (button >= 0 && button < kMouseState.button_states.size())
     {
@@ -125,7 +138,21 @@ void Input::OnMouseButtonEvent(int button, int action, int mods)
     }
 }
 
-void Input::Update()
+void InputService::OnInit()
+{
+    Log::info("InputService - Initialized");
+}
+
+void InputService::OnCleanup()
+{
+}
+
+std::string_view InputService::GetName() const
+{
+    return "InputService";
+}
+
+void InputService::OnUpdate()
 {
     // Update keys in keyboard state map
     for (auto& state : kKeyStateMap)
