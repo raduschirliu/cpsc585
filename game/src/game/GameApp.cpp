@@ -123,7 +123,7 @@ void GameApp::OnStart()
         Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 10.0f, 0.0f));
+        transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();

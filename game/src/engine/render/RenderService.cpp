@@ -13,7 +13,9 @@ using std::make_unique;
 
 RenderService::RenderService()
     : render_list_{},
-      shader_("resources/shaders/default.vert", "resources/shaders/basic.frag")
+      cameras_{},
+      shader_("resources/shaders/default.vert", "resources/shaders/basic.frag"),
+      wireframe_(false)
 {
 }
 
@@ -90,6 +92,15 @@ void RenderService::OnUpdate()
     glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (wireframe_)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     for (auto& camera : cameras_)
     {
         RenderCameraView(*camera);
@@ -115,19 +126,23 @@ void RenderService::RenderCameraView(const Camera& camera)
     const mat4& view_matrix = camera.GetViewMatrix();
     const mat4& projection_matrix = camera.GetProjectionMatrix();
 
+    const mat4 view_proj_matrix = projection_matrix * view_matrix;
+
     // Render each object
     for (const auto& obj : render_list_)
     {
-        const MeshRenderer& renderer = obj->entity->GetComponent<MeshRenderer>();
+        const MeshRenderer& renderer =
+            obj->entity->GetComponent<MeshRenderer>();
         const Transform& transform = obj->entity->GetComponent<Transform>();
 
-        mat4 mvp_matrix =
-            projection_matrix * view_matrix * transform.GetModelMatrix();
+        const mat4 mvp_matrix = view_proj_matrix * transform.GetModelMatrix();
+        // Since we're passing normals in world space, the view matrix =
+        // identity, so we don't need to multiply by it
+        const mat4 normal_matrix = transform.GetNormalMatrix();
 
         shader_.Use();
-        shader_.SetUniform("uModelMatrix", mvp_matrix);
-        shader_.SetUniform("uViewMatrix", mat4(1.0f));
-        shader_.SetUniform("uProjectionMatrix", mat4(1.0f));
+        shader_.SetUniform("uModelViewProjMatrix", mvp_matrix);
+        shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         obj->vertex_array.Bind();
 

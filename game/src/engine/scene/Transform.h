@@ -22,6 +22,12 @@ class Transform final : public Component
     const glm::vec3& GetRightDirection() const;
     const glm::mat4& GetModelMatrix() const;
 
+    /*
+      Return the normal matrix in WORLD SPACE (i.e. assuming the view matrix = identity),
+      where normal matrix = transpose(inverse(model_matrix))
+    */
+    const glm::mat4& GetNormalMatrix() const;
+
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
@@ -38,6 +44,7 @@ class Transform final : public Component
     glm::mat4 rotation_matrix_;
     glm::mat4 scale_matrix_;
     glm::mat4 model_matrix_;
+    glm::mat4 normal_matrix_;
 
     void UpdateMatrices();
 };

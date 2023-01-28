@@ -41,6 +41,7 @@ class RenderService final : public Service
     std::vector<std::unique_ptr<RenderData>> render_list_;
     std::vector<jss::object_ptr<const Camera>> cameras_;
     ShaderProgram shader_;
+    bool wireframe_;
 
     void RenderPrepare();
     void RenderCameraView(const Camera& camera);
