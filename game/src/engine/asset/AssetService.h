@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 #include "engine/core/gfx/Texture.h"
 #include "engine/render/Mesh.h"
@@ -15,7 +16,8 @@
 class AssetService final : public Service
 {
   public:
-    void LoadModel(const std::string &path, const std::string &name);
+    void LoadMesh(const std::string &path, const std::string &name);
+    const Mesh& GetMesh(const std::string& name);
 
     // From Service
     void OnInit() override;
@@ -26,7 +28,6 @@ class AssetService final : public Service
 
   private:
     std::vector<Texture> texturesLoaded_;
-    // std::vector<Mesh> meshes;
     std::unordered_map<std::string, Mesh> meshes_;
 
     void ProcessNode(const std::string &path, const std::string &name,
