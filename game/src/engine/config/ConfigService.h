@@ -6,7 +6,6 @@
 #include "engine/service/Service.h"
 #include "VehicleData.h"
 
-namespace fs = std::filesystem;
 class ConfigService final : public Service
 {
     public:
@@ -15,10 +14,10 @@ class ConfigService final : public Service
         void OnStart(ServiceProvider& service_provider) override;
         void OnUpdate() override;
         void OnCleanup() override;
-        VehicleData getVehicleData();
+        VehicleData GetVehicleData();
         std::string_view GetName() const override;
     
     private:
         std::vector<YAML::Node> config_files;
-        fs::path path;
+        std::filesystem::path path;
 };

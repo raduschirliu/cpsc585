@@ -25,8 +25,6 @@ void ConfigService::OnInit()
         Log::info("[ConfigService] Found file: {}", entry.path().string());
         config_files.push_back(YAML::LoadFile(entry.path().string()));
     }
-
-    
 }
 
 void ConfigService::OnStart(ServiceProvider& service_provider)
@@ -44,7 +42,7 @@ void ConfigService::OnCleanup()
 
 }
 
-VehicleData getVehicleData() 
+VehicleData ConfigService::GetVehicleData() 
 {
     VehicleData vehicleData;    // currently does literally NOTHING
     return vehicleData;
