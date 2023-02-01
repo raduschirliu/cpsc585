@@ -104,6 +104,8 @@
     "random": "cpp",
     "stack": "cpp",
     "unordered_set": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "filesystem": "cpp",
+    "shared_mutex": "cpp"
   }
 }
