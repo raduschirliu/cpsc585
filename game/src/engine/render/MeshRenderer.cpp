@@ -11,54 +11,30 @@
 #include "engine/scene/Entity.h"
 
 using glm::mat4;
+using std::string;
+
+void MeshRenderer::SetMesh(const string& name)
+{
+    if (mesh_name_)
+    {
+        render_service_->UnregisterRenderable(GetEntity());
+    }
+
+    mesh_name_ = name;
+    render_service_->RegisterRenderable(GetEntity());
+}
 
 const Mesh& MeshRenderer::GetMesh() const
 {
-    return mesh_;
-}
-
-const mat4& MeshRenderer::GetModelMatrix() const
-{
-    return transform_->GetModelMatrix();
+    ASSERT_MSG(mesh_name_.has_value(), "No mesh assigned");
+    return asset_service_->GetMesh(mesh_name_.value());
 }
 
 void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 {
-    // TEMP: Load mesh using assimp
-    Assimp::Importer importer;
-    const aiScene* cube_scene = importer.ReadFile(
-        "resources/models/cube.obj",
-        aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-            aiProcess_JoinIdenticalVertices | aiProcess_SortByPType);
-
-    ASSERT_MSG(cube_scene, "Import must be succesful");
-    ASSERT_MSG(cube_scene->HasMeshes(), "Must have mesh");
-
-    for (uint32_t i = 0; i < cube_scene->mNumMeshes; i++)
-    {
-        aiMesh* mesh = cube_scene->mMeshes[i];
-
-        for (uint32_t j = 0; j < mesh->mNumVertices; j++)
-        {
-            aiVector3D& vertex = mesh->mVertices[j];
-            mesh_.vertices.push_back(
-                Vertex(glm::vec3(vertex.x, vertex.y, vertex.z)));
-        }
-
-        for (uint32_t j = 0; j < mesh->mNumFaces; j++)
-        {
-            aiFace& face = mesh->mFaces[j];
-            mesh_.indices.insert(mesh_.indices.end(), &face.mIndices[0],
-                                 &face.mIndices[face.mNumIndices]);
-        }
-    }
-
-    Log::info("Loaded mesh with {} indices and {} faces", mesh_.indices.size(),
-              mesh_.vertices.size());
-
     // Get dependencies
     render_service_ = &service_provider.GetService<RenderService>();
-    render_service_->RegisterRenderable(*this);
+    asset_service_ = &service_provider.GetService<AssetService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
 }

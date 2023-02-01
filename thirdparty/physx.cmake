@@ -51,8 +51,6 @@ set_target_properties(PhysX::PhysXExtensions64
         IMPORTED_LOCATION_RELEASE ${PHYSX_BIN}/release/PhysXExtensions_static_64.lib
 )
 
-
-
 # ---------------------------
 # Full PhysX wrapper
 # ---------------------------
