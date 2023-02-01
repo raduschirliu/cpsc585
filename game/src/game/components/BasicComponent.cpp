@@ -6,10 +6,6 @@
 
 using std::string_view;
 
-using namespace physx;
-
-PxRigidDynamic* Sphere;
-
 void BasicComponent::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("BasicComponent - Init");

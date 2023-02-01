@@ -30,8 +30,6 @@ using glm::vec3;
 using std::make_unique;
 using std::string;
 
-using namespace std;
-
 GameApp::GameApp()
 {
 }
@@ -53,12 +51,6 @@ void GameApp::OnInit()
     AddService<RenderService>();
     AddService<GuiService>();
     AddService<AssetService>();
-
-    // Model importing test
-    Assimp::Importer importer;
-    const aiScene* cube_scene =
-        importer.ReadFile("resources/models/cube.obj", 0);
-    ASSERT_MSG(cube_scene, "Import must be succesful");
 }
 
 /**
