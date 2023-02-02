@@ -10,15 +10,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: awalsh128/cache-apt-pkgs-action@latest
+      - uses: DoozyX/clang-format-lint-action@latest
         with:
-          packages: clang-format
-          version: 2
+          source: './game/src'
+          extensions: 'h,cpp'
+          clangFormatVersion: 15
 
-      - name: clang-format
-        run: |
-          clang-format --version
-          find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror --style=file
+      # - uses: awalsh128/cache-apt-pkgs-action@latest
+      #   with:
+      #     packages: clang-format
+      #     version: 2
+
+      # - name: clang-format
+      #   run: |
+      #     clang-format --version
+      #     find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror --style=file
   
   # build:
   #   name: Build game
