@@ -6,9 +6,9 @@
 #include <string>
 
 #include "engine/asset/AssetService.h"
+#include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
-#include "engine/config/ConfigService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/CubeRigidbody.h"

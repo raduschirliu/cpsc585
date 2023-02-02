@@ -1,23 +1,22 @@
 #pragma once
 
+#include <assimp/postprocess.h>  // Post processing flags
+#include <assimp/scene.h>        // Output data structure
+
+#include <assimp/Importer.hpp>  // C++ importer interface
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <string>
 
 #include "engine/core/gfx/Texture.h"
 #include "engine/render/Mesh.h"
 #include "engine/service/Service.h"
 
-#include <assimp/postprocess.h> // Post processing flags
-#include <assimp/scene.h>       // Output data structure
-
-#include <assimp/Importer.hpp>  // C++ importer interface
-
 class AssetService final : public Service
 {
   public:
     void LoadMesh(const std::string &path, const std::string &name);
-    const Mesh& GetMesh(const std::string& name);
+    const Mesh &GetMesh(const std::string &name);
 
     // From Service
     void OnInit() override;

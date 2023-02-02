@@ -30,6 +30,6 @@ class MeshRenderer final : public Component
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<Transform> transform_;
-    
+
     std::optional<std::string> mesh_name_;
 };

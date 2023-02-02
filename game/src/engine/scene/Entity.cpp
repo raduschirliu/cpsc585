@@ -2,8 +2,8 @@
 
 #include "engine/scene/Scene.h"
 
-using std::unique_ptr;
 using jss::object_ptr;
+using std::unique_ptr;
 
 static uint32_t kNextEntityId = 0;
 

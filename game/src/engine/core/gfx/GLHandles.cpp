@@ -120,8 +120,7 @@ BufferHandle::BufferHandle(BufferHandle&& other) noexcept
     other.vboID = 0;
 }
 
-BufferHandle& BufferHandle::operator=(
-    BufferHandle&& other) noexcept
+BufferHandle& BufferHandle::operator=(BufferHandle&& other) noexcept
 {
     std::swap(vboID, other.vboID);
     return *this;

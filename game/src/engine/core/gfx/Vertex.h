@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+
 #include "engine/core/Colors.h"
 
 struct Vertex

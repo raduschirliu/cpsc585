@@ -55,7 +55,7 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
 }
 
 void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-    physx::PxTransform location_transform)
+                                          physx::PxTransform location_transform)
 {
     // so that we do not use a nullptr and break the game.
     if (dynamic)
@@ -91,9 +91,11 @@ physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
     return kPhysics_->createShape(geometry, *kMaterial_);
 }
 
-physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y, float half_z)
+physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
+                                                float half_z)
 {
-    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z), *kMaterial_);
+    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z),
+                                  *kMaterial_);
 }
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
@@ -122,7 +124,7 @@ void PhysicsService::initPhysX()
     // PhysX init
     // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
-        kDefaultErrorCallback_);
+                                      kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
 
     //// For debugging purposes, initializing the physx visual debugger
@@ -139,8 +141,8 @@ void PhysicsService::initPhysX()
     // Physics initlaization
     bool recordMemoryAllocations = true;
     kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
-        physx::PxTolerancesScale(),
-        recordMemoryAllocations, kPvd_);
+                                physx::PxTolerancesScale(),
+                                recordMemoryAllocations, kPvd_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);

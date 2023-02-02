@@ -21,9 +21,15 @@ class Shader
     // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rc-zero
 
     // Public interface
-    std::string getPath() const { return path; }
+    std::string getPath() const
+    {
+        return path;
+    }
 
-    GLenum getType() const { return type; }
+    GLenum getType() const
+    {
+        return type;
+    }
 
     void friend attach(ShaderProgram& sp, Shader& s);
 
