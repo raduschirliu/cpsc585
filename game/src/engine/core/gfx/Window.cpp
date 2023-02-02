@@ -4,6 +4,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/gfx/GLDebug.h"
 
 using std::shared_ptr;
 
@@ -104,6 +105,7 @@ void Window::Create(int width, int height, const char* title)
 
     ConnectCallbacks();
     Log::info("Window created successfully");
+    GLDebug::enable();
 }
 
 void Window::ConnectCallbacks()

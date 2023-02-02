@@ -7,22 +7,13 @@ using namespace std;
 
 void AssetService::LoadMesh(const string &path, const string &name)
 {
-    // Model importing
     Assimp::Importer importer;
 
-    // Process the desired calculation for the model
-    unsigned int flag;
-    flag = aiProcess_Triangulate |  // Transform all the model's primitive
-                                    // shapes to triangles
-           aiProcess_JoinIdenticalVertices |  // Identifies and joins identical
-                                              // vertex data sets within all
-                                              // imported meshes
-           aiProcess_CalcTangentSpace |       // Calculate the tangents and
-                                         // bitangents for the imported meshes
-           aiProcess_FlipWindingOrder;  // Adjust the output face winding order
-                                        // to be clockwise
+    unsigned int flags = aiProcess_Triangulate |
+                         aiProcess_JoinIdenticalVertices |
+                         aiProcess_CalcTangentSpace | aiProcess_GenNormals;
 
-    const aiScene *scene = importer.ReadFile(path, flag);
+    const aiScene *scene = importer.ReadFile(path, flags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)

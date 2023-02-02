@@ -135,14 +135,15 @@ void RenderService::RenderCameraView(const Camera& camera)
             obj->entity->GetComponent<MeshRenderer>();
         const Transform& transform = obj->entity->GetComponent<Transform>();
 
-        const mat4 mvp_matrix = view_proj_matrix * transform.GetModelMatrix();
+        const mat4& model_matrix = transform.GetModelMatrix();
         // Since we're passing normals in world space, the view matrix =
         // identity, so we don't need to multiply by it
         const mat4 normal_matrix = transform.GetNormalMatrix();
 
         shader_.Use();
-        shader_.SetUniform("uModelViewProjMatrix", mvp_matrix);
-        shader_.SetUniform("uNormalMatrix", normal_matrix);
+        shader_.SetUniform("uModelMatrix", model_matrix);
+        shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+        // shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         obj->vertex_array.Bind();
 

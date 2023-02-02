@@ -3,5 +3,4 @@
 #include <yaml-cpp/yaml.h>
 
 struct VehicleData {
-    VehicleData();
 };
