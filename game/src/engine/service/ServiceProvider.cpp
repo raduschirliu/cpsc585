@@ -19,7 +19,7 @@ void ServiceProvider::DispatchSceneChange(Scene& scene)
 {
     Log::debug("[ServiceProvider] Changing scene");
 
-    for (auto& pair: services_)
+    for (auto& pair : services_)
     {
         pair.service->UpdateActiveScene(scene);
     }

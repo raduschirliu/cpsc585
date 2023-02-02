@@ -16,7 +16,7 @@ class Scene
     Entity& AddEntity();
     EventBus& GetEventBus();
     ComponentInitializer CreateComponentInitializer(Entity& entity);
-  
+
     std::string_view GetName() const;
 
   private:
