@@ -12,11 +12,13 @@ jobs:
 
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: clang-format=15
+          packages: clang-format
           version: 2
 
       - name: clang-format
-        run: find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror --style=file
+        run: |
+          clang-format --version
+          find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror --style=file
   
   # build:
   #   name: Build game
