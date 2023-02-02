@@ -6,9 +6,9 @@
 #include "engine/scene/Transform.h"
 
 class SphereRigidbody final : public Component,
-    public IEventSubscriber<OnUpdateEvent>
+                              public IEventSubscriber<OnUpdateEvent>
 {
-public:
+  public:
     void SetRadius(float radius);
 
     // From Component
@@ -16,7 +16,7 @@ public:
     void OnUpdate() override;
     std::string_view GetName() const override;
 
-private:
+  private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physicsService_;
     physx::PxRigidDynamic* dynamic_;

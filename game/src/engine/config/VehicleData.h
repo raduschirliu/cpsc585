@@ -2,5 +2,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-struct VehicleData {
+struct VehicleData
+{
 };

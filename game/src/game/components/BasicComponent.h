@@ -4,7 +4,8 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class BasicComponent final : public Component, public IEventSubscriber<OnUpdateEvent>
+class BasicComponent final : public Component,
+                             public IEventSubscriber<OnUpdateEvent>
 {
   public:
     // From Component

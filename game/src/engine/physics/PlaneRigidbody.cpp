@@ -21,7 +21,6 @@ void PlaneRigidbody::OnInit(const ServiceProvider& service_provider)
     physicsService_->CreatePlaneRigidBody(PxPlane(0, 1, 0, 0));
 }
 
-
 string_view PlaneRigidbody::GetName() const
 {
     return "PlaneRigidbody";
