@@ -1,0 +1,31 @@
+name: Build and lint the game project
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  formatting:
+    name: Run clang-formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: clang-format
+          version: 1.0
+      
+      - name: clang-format
+        run: find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror
+  
+  # build:
+  #   name: Build game
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: true
+
+  #     - uses: ilammy/msvc-dev-cmd@v1
+  #       with:
+  #         vsversion: "2019"
