@@ -23,8 +23,8 @@ class Transform final : public Component
     const glm::mat4& GetModelMatrix() const;
 
     /*
-      Return the normal matrix in WORLD SPACE (i.e. assuming the view matrix = identity),
-      where normal matrix = transpose(inverse(model_matrix))
+      Return the normal matrix in WORLD SPACE (i.e. assuming the view matrix =
+      identity), where normal matrix = transpose(inverse(model_matrix))
     */
     const glm::mat4& GetNormalMatrix() const;
 

@@ -8,8 +8,8 @@
 #include "engine/core/gfx/VertexArray.h"
 #include "engine/core/gfx/VertexBuffer.h"
 #include "engine/render/Renderable.h"
-#include "engine/service/Service.h"
 #include "engine/scene/Entity.h"
+#include "engine/service/Service.h"
 
 class Camera;
 

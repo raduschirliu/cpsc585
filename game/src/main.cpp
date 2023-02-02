@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "main.h"
+
 #include <PxPhysicsAPI.h>
 
 #include <iostream>
@@ -15,16 +17,12 @@
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/GLDebug.h"
 #include "game/GameApp.h"
-#include "main.h"
-
-#define PVD_HOST "127.0.0.1"
 
 using std::make_shared;
 
 int main()
 {
     initGFLW();
-
 
     // Create and start app
     Log::debug("Starting app");
