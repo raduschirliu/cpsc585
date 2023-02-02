@@ -8,9 +8,9 @@
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 
-using glm::vec3;
 using glm::mat4;
 using glm::value_ptr;
+using glm::vec3;
 using std::string;
 
 ShaderProgram::ShaderProgram(const string& vertexPath,
