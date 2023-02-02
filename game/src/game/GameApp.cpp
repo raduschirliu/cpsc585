@@ -89,7 +89,7 @@ void GameApp::OnStart()
         floor.AddComponent<PlaneRigidbody>();
 
         auto& mesh_renderer = floor.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("plane");
+        // mesh_renderer.SetMesh("plane");
     }
 
     {
@@ -113,7 +113,7 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
+        transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
