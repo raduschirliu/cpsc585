@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "engine/core/gfx/Window.h"
+#include "engine/scene/SceneList.h"
 #include "engine/scene/Scene.h"
 #include "engine/service/ServiceProvider.h"
 
@@ -35,15 +36,15 @@ class App : public std::enable_shared_from_this<App>,
     }
 
     Scene& AddScene(std::string_view name);
+    void SetActiveScene(std::string_view name);
     Window& GetWindow();
-    EventBus& GetEventBus();
+    EventBus& GetActiveEventBus();
 
   private:
     bool running_;
     Window window_;
-    std::vector<std::unique_ptr<Scene>> scenes_;
     ServiceProvider service_provider_;
-    EventBus event_bus_;
+    SceneList scene_list_;
 
     void PerformGameLoop();
 };
