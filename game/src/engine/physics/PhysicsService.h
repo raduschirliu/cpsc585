@@ -1,11 +1,33 @@
 #pragma once
 
+#include <ctype.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 #include "PxPhysicsAPI.h"
+#include "vehicle2/PxVehicleAPI.h"
+
+#include "CommanVehicleFiles/directdrivetrain/DirectDrivetrain.h"
+#include "CommanVehicleFiles/serialization/BaseSerialization.h"
+#include "CommanVehicleFiles/serialization/DirectDrivetrainSerialization.h"
+#include "CommanVehicleFiles/SnippetVehicleHelpers.h"
+
 #include "engine/service/Service.h"
+
+struct Command
+{
+    physx::PxF32 brake;
+    physx::PxF32 throttle;
+    physx::PxF32 steer;
+    physx::PxF32 duration;
+};
+
+
+using namespace physx;
+using namespace physx::vehicle2;
+using namespace snippetvehicle2;
 
 class PhysicsService final : public Service
 {
@@ -29,6 +51,42 @@ private:
     physx::PxMaterial* kMaterial_ = nullptr;
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
+
+    //The path to the vehicle json files to be loaded.
+    const char* gVehicleDataPath = "C:/Desktop/CPSC585/cpsc585/game/src/engine/physics";
+
+    //The vehicle with direct drivetrain
+    DirectDriveVehicle gVehicle;
+
+    //Vehicle simulation needs a simulation context
+    //to store global parameters of the simulation such as 
+    //gravitational acceleration.
+    PxVehiclePhysXSimulationContext gVehicleSimulationContext;
+
+    //Gravitational acceleration
+    const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
+
+    //The mapping between PxMaterial and friction.
+    PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions[16];
+    PxU32 gNbPhysXMaterialFrictions = 0;
+    PxReal gPhysXDefaultMaterialFriction = 1.0f;
+
+    
+
+    //Give the vehicle a name so it can be identified in PVD.
+    const char* gVehicleName = "directDrive";
+
+    
+    PxReal gCommandTime = 0.0f;			//Time spent on current command
+    PxU32 gCommandProgress = 0;			//The id of the current command.
+
+    //A ground plane to drive on.
+    PxRigidStatic* gGroundPlane = NULL;
+
+
+    bool initVehicles();
+
+    void initMaterialFrictionTable();
 
 public:
     // all the functions which will be shared

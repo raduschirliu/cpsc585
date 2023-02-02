@@ -35,6 +35,16 @@ set_target_properties(PhysX::PhysXFoundation64
         IMPORTED_IMPLIB_RELEASE   ${PHYSX_BIN}/release/PhysXFoundation_64.lib
 )
 
+add_library(PhysX::PhysXCooking64 SHARED IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXCooking64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_BIN}/debug/PhysXCooking_64.dll
+        IMPORTED_IMPLIB   ${PHYSX_BIN}/debug/PhysXCooking_64.lib
+
+        IMPORTED_LOCATION_RELEASE ${PHYSX_BIN}/release/PhysXCooking_64.dll
+        IMPORTED_IMPLIB_RELEASE   ${PHYSX_BIN}/release/PhysXCooking_64.lib
+)
+
 add_library(PhysX::PhysXPvdSDKStatic64 STATIC IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysXPvdSDKStatic64
     PROPERTIES
@@ -51,6 +61,22 @@ set_target_properties(PhysX::PhysXExtensions64
         IMPORTED_LOCATION_RELEASE ${PHYSX_BIN}/release/PhysXExtensions_static_64.lib
 )
 
+add_library(PhysX::PhysXVehicle264 STATIC IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXVehicle264
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_BIN}/debug/PhysXVehicle2_static_64.lib
+        
+        IMPORTED_LOCATION_RELEASE ${PHYSX_BIN}/release/PhysXVehicle2_static_64.lib
+)
+
+add_library(PhysX::PhysXVehicle64 STATIC IMPORTED GLOBAL)
+set_target_properties(PhysX::PhysXVehicle64
+    PROPERTIES
+        IMPORTED_LOCATION ${PHYSX_BIN}/debug/PhysXVehicle_static_64.lib
+        
+        IMPORTED_LOCATION_RELEASE ${PHYSX_BIN}/release/PhysXVehicle_static_64.lib
+)
+
 
 
 # ---------------------------
@@ -60,7 +86,7 @@ set_target_properties(PhysX::PhysXExtensions64
 add_library(PhysX::PhysX INTERFACE IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysX
     PROPERTIES
-        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64;PhysX::PhysXPvdSDKStatic64"
+        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64;PhysX::PhysXPvdSDKStatic64;PhysX::PhysXVehicle264;PhysX::PhysXVehicle64;PhysX::PhysXCooking64"
 )
 target_include_directories(PhysX::PhysX
     INTERFACE
