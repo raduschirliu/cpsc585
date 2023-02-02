@@ -10,11 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: clang-format-15
-          version: 2
+      # - uses: awalsh128/cache-apt-pkgs-action@latest
+      #   with:
+      #     packages: clang-format-15
+      #     version: 2
       
+      - name: Install dependencies
+        run: sudo apt-get install clang-format-15
+
       - name: clang-format
         run: find game/src/ -iname *.h -o -iname *.cpp | xargs clang-format --dry-run --Werror --style=file
   
