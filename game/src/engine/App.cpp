@@ -6,7 +6,12 @@
 using std::make_unique;
 using std::string_view;
 
-App::App() : running_(false), window_(), service_provider_(), scene_list_()
+App::App()
+    : running_(false),
+      window_(),
+      service_provider_(),
+      scene_list_(),
+      event_bus_()
 {
 }
 
@@ -18,7 +23,7 @@ void App::Run()
 
     // Init phase
     OnInit();
-    service_provider_.DispatchInit(window_);
+    service_provider_.DispatchInit(*this);
 
     // Run phase
     service_provider_.DispatchStart();
@@ -56,7 +61,13 @@ void App::SetActiveScene(string_view name)
     Log::info("Scene changed to: {}", name);
 
     scene_list_.SetActiveScene(name);
+    event_bus_.SetDownstream(&scene_list_.GetActiveScene().GetEventBus());
     service_provider_.DispatchSceneChange(scene_list_.GetActiveScene());
+}
+
+SceneList& App::GetSceneList()
+{
+    return scene_list_;
 }
 
 Window& App::GetWindow()
@@ -64,9 +75,9 @@ Window& App::GetWindow()
     return window_;
 }
 
-EventBus& App::GetActiveEventBus()
+EventBus& App::GetEventBus()
 {
-    return scene_list_.GetActiveScene().GetEventBus();
+    return event_bus_;
 }
 
 void App::PerformGameLoop()

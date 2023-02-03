@@ -23,6 +23,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
+#include "engine/scene/SceneDebugService.h"
 #include "game/components/GuiExampleComponent.h"
 
 using glm::ivec2;
@@ -45,12 +46,13 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService<ConfigService>();
+    AddService<AssetService>();
+    AddService<SceneDebugService>();
     AddService<InputService>();
     AddService<PhysicsService>();
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
-    AddService<AssetService>();
 }
 
 /**

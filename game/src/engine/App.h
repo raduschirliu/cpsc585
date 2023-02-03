@@ -23,6 +23,10 @@ class App : public std::enable_shared_from_this<App>,
     void OnScroll(double xoffset, double yoffset) override;
     void OnWindowSizeChanged(int width, int height) override;
 
+    Window& GetWindow();
+    EventBus& GetEventBus();
+    SceneList& GetSceneList();
+
   protected:
     virtual void OnInit();
     virtual void OnStart();
@@ -37,14 +41,13 @@ class App : public std::enable_shared_from_this<App>,
 
     Scene& AddScene(std::string_view name);
     void SetActiveScene(std::string_view name);
-    Window& GetWindow();
-    EventBus& GetActiveEventBus();
 
   private:
     bool running_;
     Window window_;
     ServiceProvider service_provider_;
     SceneList scene_list_;
+    EventBus event_bus_;
 
     void PerformGameLoop();
 };

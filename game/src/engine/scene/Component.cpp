@@ -2,8 +2,11 @@
 
 #include "engine/scene/Entity.h"
 
-Component::Component() : entity_(nullptr), event_bus_(nullptr)
+static uint32_t kNextId = 0;
+
+Component::Component() : id_(kNextId), entity_(nullptr), event_bus_(nullptr)
 {
+    kNextId++;
 }
 
 void Component::Init(ComponentInitializer& initializer)
@@ -28,8 +31,17 @@ void Component::OnCleanup()
 {
 }
 
+void Component::OnDebugGui()
+{
+}
+
 EventBus& Component::GetEventBus()
 {
     ASSERT_MSG(event_bus_, "Component EventBus reference must be valid");
     return *event_bus_;
+}
+
+const uint32_t& Component::GetId() const
+{
+    return id_;
 }

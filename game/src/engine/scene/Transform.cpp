@@ -1,5 +1,7 @@
 #include "engine/scene/Transform.h"
 
+#include <imgui.h>
+
 using glm::mat4;
 using glm::quat;
 using glm::vec3;
@@ -99,6 +101,12 @@ const mat4& Transform::GetNormalMatrix() const
 
 void Transform::OnInit(const ServiceProvider& service_provider)
 {
+}
+
+void Transform::OnDebugGui()
+{
+    ImGui::Text("X: %3.2f\tY: %3.2f\tZ: %3.2f", position_.x, position_.y,
+                position_.z);
 }
 
 std::string_view Transform::GetName() const

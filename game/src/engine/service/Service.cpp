@@ -1,18 +1,20 @@
 #include "engine/service/Service.h"
 
+#include "engine/App.h"
 #include "engine/scene/Scene.h"
 #include "engine/service/ServiceProvider.h"
 
 void Service::Init(ServiceInitializer& initializer)
 {
     window_ = &initializer.window;
+    app_ = &initializer.app;
+    event_bus_ = &app_->GetEventBus();
 
     OnInit();
 }
 
 void Service::UpdateActiveScene(Scene& scene)
 {
-    event_bus_ = &scene.GetEventBus();
 }
 
 void Service::OnInit()
@@ -40,4 +42,10 @@ EventBus& Service::GetEventBus()
 {
     ASSERT_MSG(event_bus_, "Service must have valid EventBus reference");
     return *event_bus_;
+}
+
+App& Service::GetApp()
+{
+    ASSERT_MSG(app_, "Service must have valid App reference");
+    return *app_;
 }

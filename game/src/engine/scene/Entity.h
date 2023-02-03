@@ -86,8 +86,12 @@ class Entity
         return false;
     }
 
+    std::vector<ComponentEntry>& GetComponents();
     void SetScene(jss::object_ptr<Scene> scene);
-    uint32_t GetId() const;
+    void SetName(const std::string& name);
+
+    const uint32_t& GetId() const;
+    const std::string& GetName() const;
 
   protected:
     void InitComponent(Component& component);

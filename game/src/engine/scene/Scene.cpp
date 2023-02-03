@@ -4,6 +4,8 @@
 
 using std::make_unique;
 using std::string_view;
+using std::unique_ptr;
+using std::vector;
 
 Scene::Scene(string_view name, ServiceProvider& service_provider)
     : name_(name),
@@ -27,6 +29,11 @@ ComponentInitializer Scene::CreateComponentInitializer(Entity& entity)
     return ComponentInitializer{.service_provider = service_provider_,
                                 .event_bus = event_bus_,
                                 .entity = entity};
+}
+
+vector<unique_ptr<Entity>>& Scene::GetEntities()
+{
+    return entities_;
 }
 
 EventBus& Scene::GetEventBus()

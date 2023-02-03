@@ -30,6 +30,7 @@ class Transform final : public Component
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
   private:
