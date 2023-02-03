@@ -34,7 +34,7 @@ class ComponentEventSubscriber : public EventHandler
 
     void DispatchCall(const IEvent* event) override
     {
-        EventDispatcher::Dispatch<EventType>(instance_,
-                                             static_cast<const EventType*>(event));
+        EventDispatcher::Dispatch<EventType>(
+            instance_, static_cast<const EventType*>(event));
     }
 };

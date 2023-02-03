@@ -8,8 +8,8 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/service/ServiceProvider.h"
 
-using std::string_view;
 using std::make_unique;
+using std::string_view;
 
 ComponentUpdateService::ComponentUpdateService() : last_frame_()
 {
