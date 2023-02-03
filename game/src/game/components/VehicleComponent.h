@@ -35,7 +35,7 @@ class VehicleComponent final : public Component,
 
     // Where to retreat the data from for the vehicle.
     std::string g_vehicle_data_path_ =
-        "C:/Desktop/CPSC585/cpsc585/game/src/engine/physics";
+        "resources/vehicle_data/";
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
