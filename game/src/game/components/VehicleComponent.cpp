@@ -16,6 +16,10 @@ void VehicleComponent::ValidFileChecker()
                                     base_params))
         Log::error("Cannot open Base.json file, error in VehicleComponent.");
 
+    // if (!readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(),
+    // "VehicleData.yaml",
+    //                                  base_params))
+
     // Check that we can read from the json file before continuing.
     DirectDrivetrainParams direct_drivetrain_params;
     if (!readDirectDrivetrainParamsFromJsonFile(
@@ -98,10 +102,11 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
         Log::error("Error while initializing the vehicle");
 }
 
-void VehicleComponent::OnUpdate()
+void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
     // std::cout<<"This is working";
     // Command to execute.
+
     Command command_to_execute = {0.1, 0.f, 0.f, 0.f};
 
     // Log::error("{}, {}, {}", g_vehicle_.mBaseState.rigidBodyState.pose.p.x,
