@@ -3,6 +3,7 @@
 #include "HelperUtils.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/input/InputService.h"
 #include "engine/service/ServiceProvider.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -100,6 +101,29 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
         Log::error(
             "The dynamic pointer passed does not exist, cannot change "
             "location.");
+    }
+}
+
+void PhysicsService::CreateRaycastFromOrigin(InputService input_service, glm::vec3 origin, glm::vec3 unit_dir)
+{
+    physx::PxReal max_distance = 100000;
+    physx::PxRaycastBuffer hit;
+    bool button_press = input_service.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+    physx::PxVec3 px_origin = GlmVecToPxVec(origin);
+    physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
+
+    if (button_press)
+    {
+        bool status = kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
+
+        if (status)
+        {
+            Log::debug("Hit something");
+        }
+        else
+        {
+            Log::debug("No hit");
+        }
     }
 }
 

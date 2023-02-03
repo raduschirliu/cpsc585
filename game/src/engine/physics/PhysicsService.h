@@ -15,6 +15,7 @@
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
+#include "engine/input/InputService.h"
 using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
@@ -73,6 +74,15 @@ class PhysicsService final : public Service
      */
     void UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
                               physx::PxTransform location_transform);
+
+    /*
+     * Function to cast ray from origin of car.
+     * @param input_service : InputService object for mouse click
+     * @param origin : PxVec3 location from which we cast ray
+     * @param unit_dir : PxVec3 direction where we cast ray
+     */
+    void CreateRaycastFromOrigin(InputService input_service, glm::vec3 origin,
+                                 glm::vec3 unit_dir);
 
     /*
      * Function to make a plane based on

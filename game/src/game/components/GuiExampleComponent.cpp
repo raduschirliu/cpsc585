@@ -5,6 +5,8 @@
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
+#include "engine/physics/PhysicsService.h"
+
 using std::string_view;
 
 void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
@@ -13,6 +15,7 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
 
     // Dependencies
     input_service_ = &service_provider.GetService<InputService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
 
@@ -34,6 +37,8 @@ void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
         Log::info("shaaaaaaauun");
         transform_->Translate(glm::vec3(0.0f, 0.25f, 0.0f));
     }
+
+    physics_service_->CreateRaycastFromOrigin(input_service_2_, transform_->GetPosition(), transform_->GetForwardDirection());
 }
 
 string_view GuiExampleComponent::GetName() const

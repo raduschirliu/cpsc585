@@ -8,6 +8,7 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
+#include "engine/physics/PhysicsService.h"
 
 class GuiExampleComponent final : public Component,
                                   public IEventSubscriber<OnGuiEvent>,
@@ -27,4 +28,6 @@ class GuiExampleComponent final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
+    InputService input_service_2_;
 };
