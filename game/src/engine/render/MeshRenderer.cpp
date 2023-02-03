@@ -23,7 +23,7 @@ void MeshRenderer::SetMesh(const string& name)
     mesh_name_ = name;
     render_service_->RegisterRenderable(GetEntity());
 }
-    
+
 const Mesh& MeshRenderer::GetMesh() const
 {
     ASSERT_MSG(mesh_name_.has_value(), "No mesh assigned");

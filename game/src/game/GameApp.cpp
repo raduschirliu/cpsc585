@@ -117,7 +117,6 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
 
-
         Entity& entity2 = scene.AddEntity();
         Transform& entity2_transform = entity2.AddComponent<Transform>();
         entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
@@ -129,13 +128,11 @@ void GameApp::OnStart()
         camera.AddComponent<Camera>();
         camera.AddComponent<DebugCameraController>();
 
-
         Entity& floor = scene.AddEntity();
         Transform& t = floor.AddComponent<Transform>();
         t.SetPosition(glm::vec3(0, 0, 0));
         floor.AddComponent<PlaneRigidbody>();
         // floor.AddComponent<MeshRenderer>();
-
 
         // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         // mesh_renderer.SetMesh("bunny");

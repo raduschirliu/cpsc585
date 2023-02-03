@@ -34,8 +34,7 @@ class VehicleComponent final : public Component,
     /* variables for vehicle */
 
     // Where to retreat the data from for the vehicle.
-    std::string g_vehicle_data_path_ =
-        "resources/vehicle_data/";
+    std::string g_vehicle_data_path_ = "resources/vehicle_data/";
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
