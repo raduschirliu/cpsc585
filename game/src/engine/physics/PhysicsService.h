@@ -16,13 +16,8 @@
 
 #include "engine/service/Service.h"
 
-struct Command
-{
-    physx::PxF32 brake;
-    physx::PxF32 throttle;
-    physx::PxF32 steer;
-    physx::PxF32 duration;
-};
+#include "HelperUtils.h"        // to get enums and structures.
+
 
 
 using namespace physx;
@@ -52,41 +47,43 @@ private:
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
 
-    //The path to the vehicle json files to be loaded.
-    const char* gVehicleDataPath = "C:/Desktop/CPSC585/cpsc585/game/src/engine/physics";
+    // //The path to the vehicle json files to be loaded.
+    // const char* gVehicleDataPath = "C:/Desktop/CPSC585/cpsc585/game/src/engine/physics";
 
-    //The vehicle with direct drivetrain
-    DirectDriveVehicle gVehicle;
+    // //The vehicle with direct drivetrain
+    // DirectDriveVehicle gVehicle;
 
     //Vehicle simulation needs a simulation context
     //to store global parameters of the simulation such as 
     //gravitational acceleration.
-    PxVehiclePhysXSimulationContext gVehicleSimulationContext;
+    // PxVehiclePhysXSimulationContext gVehicleSimulationContext;
 
     //Gravitational acceleration
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
+    
+    const PxF32 timestep = 1.f / 60.f;
 
     //The mapping between PxMaterial and friction.
-    PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions[16];
-    PxU32 gNbPhysXMaterialFrictions = 0;
-    PxReal gPhysXDefaultMaterialFriction = 1.0f;
+    // PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions[16];
+    // PxU32 gNbPhysXMaterialFrictions = 0;
+    // PxReal gPhysXDefaultMaterialFriction = 1.0f;
 
-    
+
 
     //Give the vehicle a name so it can be identified in PVD.
-    const char* gVehicleName = "directDrive";
+    // const char* gVehicleName = "directDrive";
 
-    
-    PxReal gCommandTime = 0.0f;			//Time spent on current command
-    PxU32 gCommandProgress = 0;			//The id of the current command.
+
+    // PxReal gCommandTime = 0.0f;			//Time spent on current command
+    // PxU32 gCommandProgress = 0;			//The id of the current command.
 
     //A ground plane to drive on.
     PxRigidStatic* gGroundPlane = NULL;
 
 
-    bool initVehicles();
+    // bool initVehicles();
 
-    void initMaterialFrictionTable();
+    // void initMaterialFrictionTable();
 
 public:
     // all the functions which will be shared
@@ -124,5 +121,11 @@ public:
     physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
 
     physx::PxShape* CreateShapeCube(float half_x, float half_y, float half_z);
+
+    inline physx::PxPhysics* GetKPhysics() { return kPhysics_; }
+    inline physx::PxMaterial* GetKMaterial() { return kMaterial_; }
+    inline physx::PxScene* GetKScene() { return kScene_;}
+    inline PxVec3 GetGravity() { return gGravity;}
+    inline PxF32 GetTimeStep() { return timestep; }
 
 };

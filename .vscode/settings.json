@@ -104,6 +104,7 @@
     "random": "cpp",
     "stack": "cpp",
     "unordered_set": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "coroutine": "cpp"
   }
 }

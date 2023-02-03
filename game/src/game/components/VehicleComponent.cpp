@@ -1,0 +1,133 @@
+#include "VehicleComponent.h"
+
+#include "engine/core/debug/Log.h"
+#include "engine/physics/PhysicsService.h"
+#include "engine/scene/Entity.h"
+#include "engine/core/math/Physx.h"
+
+using std::string_view;
+using namespace physx;
+
+void VehicleComponent::ValidFileChecker()
+{
+
+    //Check that we can read from the json file before continuing.
+    BaseVehicleParams base_params;
+    if (!readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(), "Base.json", base_params))
+        Log::error("Cannot open Base.json file, error in VehicleComponent.");
+
+    //Check that we can read from the json file before continuing.
+    DirectDrivetrainParams direct_drivetrain_params;
+    if (!readDirectDrivetrainParamsFromJsonFile(g_vehicle_data_path_.c_str(), "DirectDrive.json",
+        base_params.axleDescription, direct_drivetrain_params))
+        Log::error("Cannot open DirectDrive.json file, error in VehicleComponent.");
+
+}
+
+bool VehicleComponent::InitializeVehicle()
+{
+    readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(), "Base.json", g_vehicle_.mBaseParams);
+    setPhysXIntegrationParams(g_vehicle_.mBaseParams.axleDescription,
+        gPhysXMaterialFrictions_, gNbPhysXMaterialFrictions_, gPhysXDefaultMaterialFriction_,
+        g_vehicle_.mPhysXParams);
+    readDirectDrivetrainParamsFromJsonFile(g_vehicle_data_path_.c_str(), "DirectDrive.json",
+        g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
+
+    if (!g_vehicle_.initialize(*physicsService_->GetKPhysics(), PxCookingParams(PxTolerancesScale()), *physicsService_->GetKMaterial()))
+    {
+        return false;
+    }
+
+    g_vehicle_.mTransmissionCommandState.gear = PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
+
+    pose = CreateTransform(transform_->GetPosition(), glm::quat(1.f, 0.f, 0.f, 0.f));
+
+    //Set up the simulation context.
+    //The snippet is set up with
+    //a) z as the longitudinal axis
+    //b) x as the lateral axis
+    //c) y as the vertical axis.
+    //d) metres  as the lengthscale.
+    g_vehicle_simulation_context_.setToDefault();
+    g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::ePosZ;
+    g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::ePosX;
+    g_vehicle_simulation_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
+    g_vehicle_simulation_context_.scale.scale = 1.0f;
+    g_vehicle_simulation_context_.gravity = physicsService_->GetGravity();
+    g_vehicle_simulation_context_.physxScene = physicsService_->GetKScene();
+    g_vehicle_simulation_context_.physxActorUpdateMode = PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
+    return true;
+}
+
+void VehicleComponent::InitMaterialFrictionTable()
+{
+    //Each physx material can be mapped to a tire friction value on a per tire basis.
+    //If a material is encountered that is not mapped to a friction value, the friction value used is the specified default value.
+    //In this snippet there is only a single material so there can only be a single mapping between material and friction.
+    //In this snippet the same mapping is used by all tires.
+    gPhysXMaterialFrictions_[0].friction = 1.0f;
+    gPhysXMaterialFrictions_[0].material = physicsService_->GetKMaterial();
+    gPhysXDefaultMaterialFriction_ = 1.0f;
+    gNbPhysXMaterialFrictions_ = 1;
+}
+
+void VehicleComponent::OnInit(const ServiceProvider& service_provider)
+{
+    Log::info("Vehicle - Init");
+    physicsService_ = &service_provider.GetService<PhysicsService>();
+    input_service_ = &service_provider.GetService<InputService>();
+    transform_ = &GetEntity().GetComponent<Transform>();
+
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
+
+    ValidFileChecker();
+
+    InitMaterialFrictionTable();
+    if(!InitializeVehicle())
+    Log::error("Error while initializing the vehicle");
+
+}
+
+void VehicleComponent::OnUpdate()
+{
+    // std::cout<<"This is working";
+    // Command to execute.
+    Command command_to_execute = {0.1, 0.f, 0.f, 0.f};
+
+    // Log::error("{}, {}, {}", g_vehicle_.mBaseState.rigidBodyState.pose.p.x, g_vehicle_.mBaseState.rigidBodyState.pose.p.y, g_vehicle_.mBaseState.rigidBodyState.pose.p.z);
+
+
+    // Input service so that we can add the commands to it
+    if(input_service_->IsKeyDown(GLFW_KEY_UP)) 
+    {
+        Command temp = {0.f, 1.f, 0.f, physicsService_->GetTimeStep()};
+        command_to_execute = temp;
+       // Log::warning("{}, {}, {}", transform_->GetPosition().x, transform_->GetPosition().y, transform_->GetPosition().z);
+    }
+    else if(input_service_->IsKeyDown(GLFW_KEY_LEFT))
+    {
+        Command temp = {0.f, 0.1f, -0.1f, physicsService_->GetTimeStep()};
+        command_to_execute = temp;
+      
+    }
+    else if(input_service_->IsKeyDown(GLFW_KEY_RIGHT))
+    {
+        Command temp = {0.f, 0.1f, 0.1f, physicsService_->GetTimeStep()};
+        command_to_execute = temp;
+    }
+
+    g_vehicle_.mCommandState.brakes[0] = command_to_execute.brake;
+    g_vehicle_.mCommandState.nbBrakes = 1;
+    g_vehicle_.mCommandState.throttle = command_to_execute.throttle;
+    g_vehicle_.mCommandState.steer = command_to_execute.steer;
+
+    g_vehicle_.step(physicsService_->GetTimeStep(), g_vehicle_simulation_context_);
+
+    transform_->SetPosition(glm::vec3(g_vehicle_.mBaseState.rigidBodyState.pose.p.x, 
+        g_vehicle_.mBaseState.rigidBodyState.pose.p.y,g_vehicle_.mBaseState.rigidBodyState.pose.p.z));
+}
+
+std::string_view VehicleComponent::GetName() const
+{
+    return std::string_view();
+}

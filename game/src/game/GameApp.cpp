@@ -19,6 +19,7 @@
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
 #include "engine/scene/Transform.h"
+#include "../game/components/VehicleComponent.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
@@ -80,6 +81,9 @@ void GameApp::OnStart()
     Transform& entity2_transform = entity2.AddComponent<Transform>();
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
+        // auto vehicle = entity2.AddComponent<VehicleComponent>();
+        // vehicle.SetVehicleDataPath("C:/Desktop/CPSC585/cpsc585/game/src/engine/physics");
+        // vehicle.SetVehicleName("First_Car");
 
     Entity& camera = scene.AddEntity();
     Transform& camera_transform = camera.AddComponent<Transform>();
@@ -98,13 +102,23 @@ void GameApp::OnStart()
     Transform& t = floor.AddComponent<Transform>();
     t.SetPosition(glm::vec3(0, 0, 0));
     floor.AddComponent<PlaneRigidbody>();
-    floor.AddComponent<MeshRenderer>();
+    // floor.AddComponent<MeshRenderer>();
 
-    Entity& cubeRigidBody = scene.AddEntity();
-    Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
-    temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
-    auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
-    rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
-    rigidBody_ref.SetCanControl(true);
-    cubeRigidBody.AddComponent<MeshRenderer>();
+    // Entity& cubeRigidBody = scene.AddEntity();
+    // Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
+    // temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
+    // auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
+    // rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
+    // rigidBody_ref.SetCanControl(true);
+    // cubeRigidBody.AddComponent<MeshRenderer>();
+
+    Entity& first_vehicle = scene.AddEntity();
+    Transform& first_vehicle_transform = first_vehicle.AddComponent<Transform>();
+    first_vehicle_transform.SetPosition(glm::vec3(0.f, 0.f, 0.f));
+    auto first_vehicle_component = first_vehicle.AddComponent<VehicleComponent>();
+    first_vehicle_component.SetVehicleDataPath("C:/Desktop/CPSC585/cpsc585/game/src/engine/physics");
+    first_vehicle_component.SetVehicleName("First_Car");
+    first_vehicle.AddComponent<MeshRenderer>();
+
+
 }
