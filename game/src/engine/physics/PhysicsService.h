@@ -80,8 +80,7 @@ class PhysicsService final : public Service
      * @param origin : PxVec3 location from which we cast ray
      * @param unit_dir : PxVec3 direction where we cast ray
      */
-    void CreateRaycastFromOrigin(InputService input_service, glm::vec3 origin,
-                                 glm::vec3 unit_dir);
+    void CreateRaycastFromOrigin(glm::vec3 origin, glm::vec3 unit_dir);
 
     /*
      * Function to make a plane based on

@@ -66,7 +66,7 @@ void GameApp::OnStart()
     // Entity& entity1 = scene.AddEntity();
     // Transform& entity1_transform = entity1.AddComponent<Transform>();
     //// setting the transformation of the entity to this, and connecting
-    ///physics / in BasicComponent.cpp
+    /// physics / in BasicComponent.cpp
     // entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
     // entity1.AddComponent<SphereRigidbody>();
     // entity1.AddComponent<MeshRenderer>();

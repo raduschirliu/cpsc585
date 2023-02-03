@@ -37,9 +37,11 @@ void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
         transform_->Translate(glm::vec3(0.0f, 0.25f, 0.0f));
     }
 
-    physics_service_->CreateRaycastFromOrigin(
-        input_service_2_, transform_->GetPosition(),
-        transform_->GetForwardDirection());
+    if (input_service_->IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
+    {
+        physics_service_->CreateRaycastFromOrigin(
+            transform_->GetPosition(), transform_->GetForwardDirection());
+    }
 }
 
 string_view GuiExampleComponent::GetName() const
