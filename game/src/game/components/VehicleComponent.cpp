@@ -50,7 +50,7 @@ bool VehicleComponent::InitializeVehicle()
     //d) metres  as the lengthscale.
     g_vehicle_simulation_context_.setToDefault();
     g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::ePosZ;
-    g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::ePosX;
+    g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::eNegX;
     g_vehicle_simulation_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
     g_vehicle_simulation_context_.scale.scale = 1.0f;
     g_vehicle_simulation_context_.gravity = physicsService_->GetGravity();
@@ -113,6 +113,11 @@ void VehicleComponent::OnUpdate()
     else if(input_service_->IsKeyDown(GLFW_KEY_RIGHT))
     {
         Command temp = {0.f, 0.1f, 0.1f, physicsService_->GetTimeStep()};
+        command_to_execute = temp;
+    }
+    else if(input_service_->IsKeyDown(GLFW_KEY_DOWN))
+    {
+        Command temp = {0.5f, 0.0f, 0.0f, physicsService_->GetTimeStep()};
         command_to_execute = temp;
     }
 
