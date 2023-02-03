@@ -12,9 +12,9 @@
 
 #include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
+#include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
-
 using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
@@ -73,6 +73,14 @@ class PhysicsService final : public Service
      */
     void UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
                               physx::PxTransform location_transform);
+
+    /*
+     * Function to cast ray from origin of car.
+     * @param input_service : InputService object for mouse click
+     * @param origin : PxVec3 location from which we cast ray
+     * @param unit_dir : PxVec3 direction where we cast ray
+     */
+    void CreateRaycastFromOrigin(glm::vec3 origin, glm::vec3 unit_dir);
 
     /*
      * Function to make a plane based on
