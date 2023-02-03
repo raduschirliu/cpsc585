@@ -56,8 +56,9 @@ class ServiceProvider
         throw new std::exception("Service does not exist");
     }
 
-    void DispatchInit(Window& window, EventBus& event_bus);
+    void DispatchInit(Window& window);
     void DispatchStart();
+    void DispatchSceneChange(Scene& scene);
     void DispatchUpdate();
     void DispatchCleanup();
 

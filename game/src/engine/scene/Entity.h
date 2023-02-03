@@ -49,7 +49,7 @@ class Entity
 
     template <class ComponentType>
         requires std::derived_from<ComponentType, Component>
-    ComponentType& GetComponent()
+    ComponentType& GetComponent() const
     {
         std::type_index key = typeid(ComponentType);
 
@@ -87,6 +87,7 @@ class Entity
     }
 
     void SetScene(jss::object_ptr<Scene> scene);
+    uint32_t GetId() const;
 
   protected:
     void InitComponent(Component& component);

@@ -1,5 +1,7 @@
 # Use Google style with a few "small" tweeks to add more spacing
+Language: Cpp
 BasedOnStyle: Google
+Standard: c++20
 BreakBeforeBraces: Allman
 IndentWidth: 4
 AccessModifierOffset: -2

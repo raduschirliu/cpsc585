@@ -11,16 +11,17 @@
 class Scene
 {
   public:
-    Scene(std::string_view name, ServiceProvider& service_provider,
-          EventBus& event_bus);
+    Scene(std::string_view name, ServiceProvider& service_provider);
 
     Entity& AddEntity();
+    EventBus& GetEventBus();
+    ComponentInitializer CreateComponentInitializer(Entity& entity);
 
-    ComponentInitializer CreateComponentInitializer(Entity& entity) const;
+    std::string_view GetName() const;
 
   private:
     std::string name_;
     std::vector<std::unique_ptr<Entity>> entities_;
     ServiceProvider& service_provider_;
-    EventBus& event_bus_;
+    EventBus event_bus_;
 };
