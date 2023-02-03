@@ -23,7 +23,7 @@ class VehicleComponent final : public Component,
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
 
   private:
@@ -35,6 +35,7 @@ class VehicleComponent final : public Component,
 
     // Where to retreat the data from for the vehicle.
     std::string g_vehicle_data_path_ = "resources/vehicle_data/";
+    // std::string g_vehicle_data_path_ = "resources/config/";
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
