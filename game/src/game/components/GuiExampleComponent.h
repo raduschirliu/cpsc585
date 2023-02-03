@@ -19,7 +19,7 @@ class GuiExampleComponent final : public Component,
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
 
     // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;

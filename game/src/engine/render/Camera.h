@@ -24,7 +24,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
 
   private:
     float fov_degrees_;

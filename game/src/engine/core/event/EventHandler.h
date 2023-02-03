@@ -11,13 +11,13 @@ class EventHandler
         DispatchCall(nullptr);
     }
 
-    void Exec(IEvent* event)
+    void Exec(const IEvent* event)
     {
         DispatchCall(event);
     }
 
   private:
-    virtual void DispatchCall(IEvent* event) = 0;
+    virtual void DispatchCall(const IEvent* event) = 0;
 };
 
 template <class EventType>
@@ -32,9 +32,9 @@ class ComponentEventSubscriber : public EventHandler
   private:
     IEventSubscriber<EventType>* instance_;
 
-    void DispatchCall(IEvent* event) override
+    void DispatchCall(const IEvent* event) override
     {
-        EventDispatcher::Dispatch<EventType>(instance_,
-                                             static_cast<EventType*>(event));
+        EventDispatcher::Dispatch<EventType>(
+            instance_, static_cast<const EventType*>(event));
     }
 };
