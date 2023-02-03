@@ -3,16 +3,25 @@
 #include "engine/App.h"
 #include "engine/core/debug/Log.h"
 
-void ServiceProvider::DispatchInit(Window& window, EventBus& event_bus)
+void ServiceProvider::DispatchInit(Window& window)
 {
     Log::debug("[ServiceProvider] Initializing services");
 
-    ServiceInitializer initializer{
-        .window = window, .event_bus = event_bus, .service_provider = *this};
+    ServiceInitializer initializer{.window = window, .service_provider = *this};
 
     for (auto& pair : services_)
     {
         pair.service->Init(initializer);
+    }
+}
+
+void ServiceProvider::DispatchSceneChange(Scene& scene)
+{
+    Log::debug("[ServiceProvider] Changing scene");
+
+    for (auto& pair : services_)
+    {
+        pair.service->UpdateActiveScene(scene);
     }
 }
 

@@ -1,13 +1,18 @@
 #include "engine/service/Service.h"
 
+#include "engine/scene/Scene.h"
 #include "engine/service/ServiceProvider.h"
 
 void Service::Init(ServiceInitializer& initializer)
 {
     window_ = &initializer.window;
-    event_bus_ = &initializer.event_bus;
 
     OnInit();
+}
+
+void Service::UpdateActiveScene(Scene& scene)
+{
+    event_bus_ = &scene.GetEventBus();
 }
 
 void Service::OnInit()

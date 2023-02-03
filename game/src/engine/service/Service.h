@@ -8,11 +8,11 @@
 
 class ServiceProvider;
 class Window;
+class Scene;
 
 struct ServiceInitializer
 {
     Window& window;
-    EventBus& event_bus;
     ServiceProvider& service_provider;
 };
 
@@ -20,6 +20,7 @@ class Service
 {
   public:
     void Init(ServiceInitializer& initializer);
+    void UpdateActiveScene(Scene& scene);
 
     virtual void OnInit();
     virtual void OnStart(ServiceProvider& service_provider);

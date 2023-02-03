@@ -60,6 +60,7 @@ void GameApp::OnInit()
 void GameApp::OnStart()
 {
     Scene& scene = AddScene("TestScene");
+    SetActiveScene("TestScene");
 
     {
         Entity& entity = scene.AddEntity();
