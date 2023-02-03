@@ -8,10 +8,10 @@ using glm::vec2;
 using glm::vec3;
 using std::string_view;
 
-static constexpr float kMoveSpeed = 0.25f;
+static constexpr float kMoveSpeed = 15.0f;
 static constexpr float kFastMoveSpeedMultiplier = 2.0f;
-static constexpr float kPitchSensitivity = 5.0f;
-static constexpr float kYawSensitivity = 2.5f;
+static constexpr float kPitchSensitivity = 160.0f;
+static constexpr float kYawSensitivity = 90.0f;
 
 // TODO: Don't hardcode this...
 static constexpr vec2 kViewportSize(1280.0f, 720.0f);
@@ -42,10 +42,11 @@ string_view DebugCameraController::GetName() const
     return "DebugCameraController";
 }
 
-void DebugCameraController::OnUpdate()
+void DebugCameraController::OnUpdate(const Timestep& delta_time)
 {
     // Movement
     const vec3 move_dir = GetMovementDir();
+    const float delta_time_sec = static_cast<float>(delta_time.GetSeconds());
 
     if (glm::length(move_dir) > 0)
     {
@@ -57,7 +58,7 @@ void DebugCameraController::OnUpdate()
             delta *= kFastMoveSpeedMultiplier;
         }
 
-        transform_->Translate(delta);
+        transform_->Translate(delta * delta_time_sec);
     }
 
     if (input_service_->IsMouseButtonDown(GLFW_MOUSE_BUTTON_1))
@@ -81,13 +82,14 @@ void DebugCameraController::OnUpdate()
 
                 // Pitch rotates around horizontal axis
                 transform_->Rotate(glm::angleAxis(
-                    glm::radians(pitch_delta * kPitchSensitivity),
+                    glm::radians(pitch_delta * kPitchSensitivity *
+                                 delta_time_sec),
                     transform_->GetRightDirection()));
 
                 // Yaw rotates around vertical axis
-                transform_->Rotate(
-                    glm::angleAxis(glm::radians(-yaw_delta * kYawSensitivity),
-                                   vec3(0.0f, 1.0f, 0.0f)));
+                transform_->Rotate(glm::angleAxis(
+                    glm::radians(-yaw_delta * kYawSensitivity * delta_time_sec),
+                    vec3(0.0f, 1.0f, 0.0f)));
 
                 last_mouse_pos_ = mouse_pos;
             }

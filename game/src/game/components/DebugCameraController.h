@@ -18,7 +18,7 @@ class DebugCameraController final : public Component,
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
 
   private:
     jss::object_ptr<Transform> transform_;

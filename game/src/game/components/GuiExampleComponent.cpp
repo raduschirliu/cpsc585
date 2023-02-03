@@ -21,7 +21,7 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void GuiExampleComponent::OnUpdate()
+void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F))
     {

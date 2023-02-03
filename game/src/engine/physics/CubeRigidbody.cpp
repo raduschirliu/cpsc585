@@ -20,7 +20,7 @@ void CubeRigidbody::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void CubeRigidbody::OnUpdate()
+void CubeRigidbody::OnUpdate(const Timestep& delta_time)
 {
     if (b_can_control_)
     {

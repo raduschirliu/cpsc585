@@ -13,7 +13,7 @@ void BasicComponent::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void BasicComponent::OnUpdate()
+void BasicComponent::OnUpdate(const Timestep& delta_time)
 {
 }
 
