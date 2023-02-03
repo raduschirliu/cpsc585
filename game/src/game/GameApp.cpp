@@ -5,7 +5,6 @@
 #include <assimp/Importer.hpp>
 #include <string>
 
-#include "game/components/VehicleComponent.h"
 #include "engine/asset/AssetService.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
@@ -25,6 +24,7 @@
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
+#include "game/components/VehicleComponent.h"
 
 using glm::ivec2;
 using glm::vec3;
@@ -63,14 +63,13 @@ void GameApp::OnStart()
     Scene& scene = AddScene("TestScene");
     SetActiveScene("TestScene");
 
-    //Entity& entity1 = scene.AddEntity();
-    //Transform& entity1_transform = entity1.AddComponent<Transform>();
-    //// setting the transformation of the entity to this, and connecting physics
-    //// in BasicComponent.cpp
-    //entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    //entity1.AddComponent<SphereRigidbody>();
-    //entity1.AddComponent<MeshRenderer>();
-
+    // Entity& entity1 = scene.AddEntity();
+    // Transform& entity1_transform = entity1.AddComponent<Transform>();
+    //// setting the transformation of the entity to this, and connecting
+    ///physics / in BasicComponent.cpp
+    // entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    // entity1.AddComponent<SphereRigidbody>();
+    // entity1.AddComponent<MeshRenderer>();
 
     Entity& entity2 = scene.AddEntity();
     Transform& entity2_transform = entity2.AddComponent<Transform>();
@@ -177,5 +176,4 @@ void GameApp::OnStart()
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
     }
-
 }

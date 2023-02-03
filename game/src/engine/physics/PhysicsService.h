@@ -12,10 +12,9 @@
 
 #include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
+#include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
-
-#include "engine/input/InputService.h"
 using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;

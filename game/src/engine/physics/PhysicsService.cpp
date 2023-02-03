@@ -104,17 +104,21 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
     }
 }
 
-void PhysicsService::CreateRaycastFromOrigin(InputService input_service, glm::vec3 origin, glm::vec3 unit_dir)
+void PhysicsService::CreateRaycastFromOrigin(InputService input_service,
+                                             glm::vec3 origin,
+                                             glm::vec3 unit_dir)
 {
     physx::PxReal max_distance = 100000;
     physx::PxRaycastBuffer hit;
-    bool button_press = input_service.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+    bool button_press =
+        input_service.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
     physx::PxVec3 px_origin = GlmVecToPxVec(origin);
     physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
 
     if (button_press)
     {
-        bool status = kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
+        bool status =
+            kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
 
         if (status)
         {
