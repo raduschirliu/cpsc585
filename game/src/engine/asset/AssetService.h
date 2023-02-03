@@ -32,6 +32,6 @@ class AssetService final : public Service
                      aiNode *node, const aiScene *scene);
     Mesh ProcessMesh(aiNode *node, const std::string &textureName, aiMesh *mesh, const aiScene *scene);
     std::vector<Texture> LoadTexture(const std::string &path,
-                                     const string &name, aiMaterial *mat,
+                                     const std::string &name, aiMaterial *mat,
                                      aiTextureType type);
 };
