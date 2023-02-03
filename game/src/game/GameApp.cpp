@@ -165,12 +165,11 @@ void GameApp::OnStart()
     Transform& first_vehicle_transform = first_vehicle.AddComponent<Transform>();
     first_vehicle_transform.SetPosition(glm::vec3(0.f, 0.f, 0.f));
     auto first_vehicle_component = first_vehicle.AddComponent<VehicleComponent>();
-    first_vehicle_component.SetVehicleDataPath("C:/Desktop/CPSC585/cpsc585/game/src/engine/physics");
     first_vehicle_component.SetVehicleName("First_Car");
     first_vehicle.AddComponent<MeshRenderer>();
 
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("bunny");
     }
 }
