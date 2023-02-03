@@ -3,9 +3,11 @@
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
 #include "engine/core/event/EventDispatcher.h"
+#include "engine/core/math/Timestep.h"
 
 struct OnUpdateEvent : public IEvent
 {
+    Timestep delta_time;
 };
 
 template <>
@@ -19,8 +21,8 @@ STATIC_ASSERT_INTERFACE(IEventSubscriber<OnUpdateEvent>);
 
 template <>
 inline void EventDispatcher::Dispatch<OnUpdateEvent>(
-    IEventSubscriber<OnUpdateEvent>* subscriber, OnUpdateEvent* event)
+    IEventSubscriber<OnUpdateEvent>* subscriber, const OnUpdateEvent* event)
 {
-    ASSERT_MSG(event == nullptr, "OnUpdate should not receive any event data");
+    ASSERT_MSG(event != nullptr, "OnUpdate should have valid event data");
     subscriber->OnUpdate();
 }

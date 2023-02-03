@@ -19,7 +19,9 @@ static constexpr vec2 kViewportSize(1280.0f, 720.0f);
 DebugCameraController::DebugCameraController()
     : transform_(nullptr),
       input_service_(nullptr),
-      last_mouse_pos_(std::nullopt)
+      last_mouse_pos_(std::nullopt),
+      pitch_degrees_(0.0f),
+      yaw_degrees_(0.0f)
 {
 }
 
@@ -85,7 +87,7 @@ void DebugCameraController::OnUpdate()
                 // Yaw rotates around vertical axis
                 transform_->Rotate(
                     glm::angleAxis(glm::radians(-yaw_delta * kYawSensitivity),
-                                   transform_->GetUpDirection()));
+                                   vec3(0.0f, 1.0f, 0.0f)));
 
                 last_mouse_pos_ = mouse_pos;
             }

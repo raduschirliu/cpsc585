@@ -46,6 +46,12 @@ void Transform::SetPosition(const vec3& position)
     UpdateMatrices();
 }
 
+void Transform::SetOrientation(const quat& orientation)
+{
+    orientation_ = orientation;
+    UpdateMatrices();
+}
+
 void Transform::Rotate(const quat& delta)
 {
     orientation_ = glm::normalize(delta) * orientation_;
