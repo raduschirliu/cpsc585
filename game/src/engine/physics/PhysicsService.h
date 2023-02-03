@@ -1,24 +1,19 @@
 #pragma once
 
 #include <ctype.h>
+#include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
+#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
+#include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
+#include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
-#include "vehicle2/PxVehicleAPI.h"
-
-#include "CommanVehicleFiles/directdrivetrain/DirectDrivetrain.h"
-#include "CommanVehicleFiles/serialization/BaseSerialization.h"
-#include "CommanVehicleFiles/serialization/DirectDrivetrainSerialization.h"
-#include "CommanVehicleFiles/SnippetVehicleHelpers.h"
-
 #include "engine/service/Service.h"
-
-#include "HelperUtils.h"        // to get enums and structures.
-
-
+#include "vehicle2/PxVehicleAPI.h"
 
 using namespace physx;
 using namespace physx::vehicle2;
@@ -47,14 +42,12 @@ class PhysicsService final : public Service
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
 
-
-    //Gravitational acceleration
+    // Gravitational acceleration
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
-    
+
     const PxF32 timestep = 1.f / 60.f;
 
-
-    //A ground plane to drive on.
+    // A ground plane to drive on.
     PxRigidStatic* gGroundPlane = NULL;
 
   public:
@@ -95,12 +88,28 @@ class PhysicsService final : public Service
 
     physx::PxShape* CreateShapeCube(float half_x, float half_y, float half_z);
 
+    inline physx::PxPhysics* GetKPhysics()
+    {
+        return kPhysics_;
+    }
 
-    inline physx::PxPhysics* GetKPhysics() { return kPhysics_; }
-    inline physx::PxMaterial* GetKMaterial() { return kMaterial_; }
-    inline physx::PxScene* GetKScene() { return kScene_;}
-    inline PxVec3 GetGravity() { return gGravity;}
-    inline PxF32 GetTimeStep() { return timestep; }
+    inline physx::PxMaterial* GetKMaterial()
+    {
+        return kMaterial_;
+    }
 
+    inline physx::PxScene* GetKScene()
+    {
+        return kScene_;
+    }
 
+    inline PxVec3 GetGravity()
+    {
+        return gGravity;
+    }
+
+    inline PxF32 GetTimeStep()
+    {
+        return timestep;
+    }
 };

@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <string>
 
+#include "../game/components/VehicleComponent.h"
 #include "engine/asset/AssetService.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
@@ -21,7 +22,6 @@
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
 #include "engine/scene/Transform.h"
-#include "../game/components/VehicleComponent.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
@@ -117,59 +117,62 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
 
-    //Entity& entity1 = scene.AddEntity();
-    //Transform& entity1_transform = entity1.AddComponent<Transform>();
-    //// setting the transformation of the entity to this, and connecting physics
-    //// in BasicComponent.cpp
-    //entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    //entity1.AddComponent<SphereRigidbody>();
-    //entity1.AddComponent<MeshRenderer>();
+        // Entity& entity1 = scene.AddEntity();
+        // Transform& entity1_transform = entity1.AddComponent<Transform>();
+        //// setting the transformation of the entity to this, and connecting
+        /// physics / in BasicComponent.cpp
+        // entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+        // entity1.AddComponent<SphereRigidbody>();
+        // entity1.AddComponent<MeshRenderer>();
 
-
-    Entity& entity2 = scene.AddEntity();
-    Transform& entity2_transform = entity2.AddComponent<Transform>();
-    entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-    entity2.AddComponent<GuiExampleComponent>();
+        Entity& entity2 = scene.AddEntity();
+        Transform& entity2_transform = entity2.AddComponent<Transform>();
+        entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
+        entity2.AddComponent<GuiExampleComponent>();
         // auto vehicle = entity2.AddComponent<VehicleComponent>();
         // vehicle.SetVehicleDataPath("C:/Desktop/CPSC585/cpsc585/game/src/engine/physics");
         // vehicle.SetVehicleName("First_Car");
 
-    Entity& camera = scene.AddEntity();
-    Transform& camera_transform = camera.AddComponent<Transform>();
-    camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
-    camera.AddComponent<Camera>();
-    camera.AddComponent<DebugCameraController>();
+        Entity& camera = scene.AddEntity();
+        Transform& camera_transform = camera.AddComponent<Transform>();
+        camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
+        camera.AddComponent<Camera>();
+        camera.AddComponent<DebugCameraController>();
 
-    /*Entity& cube = scene.AddEntity();
-    Transform& cube_transform = cube.AddComponent<Transform>();
-    cube_transform.SetPosition(glm::vec3(0.0f, 50.0f, 0.0f));
-    auto& cube_sphere = cube.AddComponent<SphereRigidbody>();
-    cube_sphere.SetRadius(3.f);
-    cube.AddComponent<MeshRenderer>();*/
+        /*Entity& cube = scene.AddEntity();
+        Transform& cube_transform = cube.AddComponent<Transform>();
+        cube_transform.SetPosition(glm::vec3(0.0f, 50.0f, 0.0f));
+        auto& cube_sphere = cube.AddComponent<SphereRigidbody>();
+        cube_sphere.SetRadius(3.f);
+        cube.AddComponent<MeshRenderer>();*/
 
-    Entity& floor = scene.AddEntity();
-    Transform& t = floor.AddComponent<Transform>();
-    t.SetPosition(glm::vec3(0, 0, 0));
-    floor.AddComponent<PlaneRigidbody>();
-    // floor.AddComponent<MeshRenderer>();
+        Entity& floor = scene.AddEntity();
+        Transform& t = floor.AddComponent<Transform>();
+        t.SetPosition(glm::vec3(0, 0, 0));
+        floor.AddComponent<PlaneRigidbody>();
+        // floor.AddComponent<MeshRenderer>();
 
-    // Entity& cubeRigidBody = scene.AddEntity();
-    // Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
-    // temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
-    // auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
-    // rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
-    // rigidBody_ref.SetCanControl(true);
-    // cubeRigidBody.AddComponent<MeshRenderer>();
+        // Entity& cubeRigidBody = scene.AddEntity();
+        // Transform& temp_cube_transform =
+        // cubeRigidBody.AddComponent<Transform>();
+        // temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
+        // auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
+        // rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
+        // rigidBody_ref.SetCanControl(true);
+        // cubeRigidBody.AddComponent<MeshRenderer>();
 
-    Entity& first_vehicle = scene.AddEntity();
-    Transform& first_vehicle_transform = first_vehicle.AddComponent<Transform>();
-    first_vehicle_transform.SetPosition(glm::vec3(0.f, 0.f, 0.f));
-    auto first_vehicle_component = first_vehicle.AddComponent<VehicleComponent>();
-    first_vehicle_component.SetVehicleName("First_Car");
-    first_vehicle.AddComponent<MeshRenderer>();
+        Entity& first_vehicle = scene.AddEntity();
+        Transform& first_vehicle_transform =
+            first_vehicle.AddComponent<Transform>();
+        first_vehicle_transform.SetPosition(glm::vec3(0.f, 0.f, 0.f));
+        auto first_vehicle_component =
+            first_vehicle.AddComponent<VehicleComponent>();
+        first_vehicle_component.SetVehicleDataPath(
+            "C:/Desktop/CPSC585/cpsc585/game/src/engine/physics");
+        first_vehicle_component.SetVehicleName("First_Car");
+        first_vehicle.AddComponent<MeshRenderer>();
 
-
-    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    mesh_renderer.SetMesh("bunny");
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("bunny");
     }
 }

@@ -1,10 +1,9 @@
 #include "engine/physics/PhysicsService.h"
 
+#include "HelperUtils.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/service/ServiceProvider.h"
-
-#include "HelperUtils.h"
 
 #define PVD_HOST "127.0.0.1"
 
@@ -50,7 +49,6 @@ string_view PhysicsService::GetName() const
 {
     return "PhysicsService";
 }
-
 
 void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
 {
@@ -162,8 +160,7 @@ void PhysicsService::initPhysX()
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity =
-        gGravity;  // change the gravity here.
+    sceneDesc.gravity = gGravity;  // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
@@ -173,9 +170,9 @@ void PhysicsService::initPhysX()
     {
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
         pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
+                                   true);
     }
     // setting up the vehicle physics
     PxInitVehicleExtension(*kFoundation_);
-
 }

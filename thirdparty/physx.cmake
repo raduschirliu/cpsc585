@@ -83,12 +83,26 @@ set_target_properties(PhysX::PhysXVehicle64
 # Full PhysX wrapper
 # ---------------------------
 
+set(PHYSX_COMMON ${CMAKE_CURRENT_SOURCE_DIR}/physx_vehicle_common)
+
 add_library(PhysX::PhysX INTERFACE IMPORTED GLOBAL)
 set_target_properties(PhysX::PhysX
     PROPERTIES
-        INTERFACE_LINK_LIBRARIES "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64;PhysX::PhysXPvdSDKStatic64;PhysX::PhysXVehicle264;PhysX::PhysXVehicle64;PhysX::PhysXCooking64"
+        INTERFACE_LINK_LIBRARIES
+            "PhysX::PhysX64;PhysX::PhysXCommon64;PhysX::PhysXFoundation64;PhysX::PhysXExtensions64;PhysX::PhysXPvdSDKStatic64;PhysX::PhysXVehicle264;PhysX::PhysXVehicle64;PhysX::PhysXCooking64"
+)
+target_sources(PhysX::PhysX
+    INTERFACE
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/base/Base.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/physxintegration/PhysXIntegration.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/BaseSerialization.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/SerializationCommon.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/SnippetVehicleHelpers.cpp
 )
 target_include_directories(PhysX::PhysX
     INTERFACE
         ${PHYSX_ROOT}/include
+        ${PHYSX_COMMON}
 )
