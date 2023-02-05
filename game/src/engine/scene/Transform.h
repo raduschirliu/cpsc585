@@ -21,6 +21,7 @@ class Transform final : public Component
     void RotateEulerDegrees(const glm::vec3& delta_euler_degrees);
 
     const glm::vec3& GetPosition() const;
+    const glm::quat& GetOrientation() const;
     const glm::vec3& GetForwardDirection() const;
     const glm::vec3& GetUpDirection() const;
     const glm::vec3& GetRightDirection() const;
