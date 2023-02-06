@@ -1,5 +1,4 @@
 #pragma once
-
 #include <ctype.h>
 #include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
@@ -9,12 +8,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <optional>
 
 #include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
+#include "RaycastData.h"
 #include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
+
 using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
@@ -75,12 +77,19 @@ class PhysicsService final : public Service
                               physx::PxTransform location_transform);
 
     /*
-     * Function to cast ray from origin of car.
-     * @param input_service : InputService object for mouse click
-     * @param origin : PxVec3 location from which we cast ray
-     * @param unit_dir : PxVec3 direction where we cast ray
+     * Casts a ray until the nearest object or no object is hit.
+     *
+     * @param origin location from which we cast ray : glm::vec3
+     * @param unit_dir direction of the ray casted : glm::vec3
+     * @param OPTIONAL max_distance furthest reach of the ray : float
+     *
+     * @returns raycast_result data on the object hit by cast when a cast
+     *    is successful (i.e something was hit) : RaycastData
+     * @returns nothing when a cast is unsuccessful : std::nullopt
      */
-    void CreateRaycastFromOrigin(glm::vec3 origin, glm::vec3 unit_dir);
+    std::optional<RaycastData> Raycast(const glm::vec3& origin,
+                                       const glm::vec3& unit_dir,
+                                       float max_distance = 100000);
 
     /*
      * Function to make a plane based on
