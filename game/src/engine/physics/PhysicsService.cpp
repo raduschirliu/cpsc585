@@ -154,26 +154,26 @@ std::optional<RaycastData> PhysicsService::Raycast(
     if (!raycast_result.hasBlock)
     {
         Log::debug("[Raycast]:  No hit");
-        return {};
+        return std::nullopt;
     }
 
     // data validity guard checks; ensure that data is available:
     if (!physx::PxHitFlag::ePOSITION)
     {
         Log::debug("[Raycast]: Invalid Position");
-        return {};
+        return std::nullopt;
     }
 
     if (!physx::PxHitFlag::eNORMAL)
     {
         Log::debug("[Raycast]: Invalid Normal");
-        return {};
+        return std::nullopt;
     }
 
     if (!physx::PxHitFlag::eUV)  // UV barycentric coords
     {
         Log::debug("[Raycast]: Invalid UV Coordinates");
-        return {};
+        return std::nullopt;
     }
 
     // so we don't have to do these conversions everywhere
