@@ -136,42 +136,46 @@ void GameApp::OnStart()
     }
 
     {
-        // Cube
-        Entity& entity = scene.AddEntity();
+        // // Cube
+        // Entity& entity = scene.AddEntity();
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        // Transform& transform = entity.AddComponent<Transform>();
+        // transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
-        rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
-        rigidbody.SetCanControl(true);
+        // auto& rigidbody = entity.AddComponent<CubeRigidbody>();
+        // rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
+        // rigidbody.SetCanControl(true);
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
     }
 
     {
-        // Cube 2
-        Entity& entity = scene.AddEntity();
+        // // Cube 2
+        // Entity& entity = scene.AddEntity();
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        // Transform& transform = entity.AddComponent<Transform>();
+        // transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
-        rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
-        rigidbody.SetCanControl(false);
+        // auto& rigidbody = entity.AddComponent<CubeRigidbody>();
+        // rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
+        // rigidbody.SetCanControl(false);
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
     }
 
     {
-        // Bunny
+        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
+        // Who cares about brick?
         Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("BunnyVehicle");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
