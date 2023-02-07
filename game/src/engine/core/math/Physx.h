@@ -15,7 +15,7 @@ struct GlmTransform
 };
 
 physx::PxTransform CreatePxTransform(const glm::vec3& position,
-                                   const glm::quat& orientation);
+                                     const glm::quat& orientation);
 
 physx::PxVec3 GlmToPx(const glm::vec3& glm_vec);
 

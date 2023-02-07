@@ -15,7 +15,8 @@ void PlaneStaticBody::OnInit(const ServiceProvider& service_provider)
 
     physics_service_ = &service_provider.GetService<PhysicsService>();
 
-    static_ = physics_service_->CreatePlaneRigidStatic(PxPlane(0.0f, 1.0f, 0.0f, 0.0f));
+    static_ = physics_service_->CreatePlaneRigidStatic(
+        PxPlane(0.0f, 1.0f, 0.0f, 0.0f));
     physics_service_->RegisterActor(static_);
 }
 

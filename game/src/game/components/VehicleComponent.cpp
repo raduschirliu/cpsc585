@@ -52,7 +52,7 @@ bool VehicleComponent::InitializeVehicle()
         PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
 
     pose = CreatePxTransform(transform_->GetPosition(),
-                           glm::quat(1.f, 0.f, 0.f, 0.f));
+                             glm::quat(1.f, 0.f, 0.f, 0.f));
 
     // Set up the simulation context.
     // The snippet is set up with
