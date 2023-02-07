@@ -18,12 +18,15 @@ class DebugCameraController final : public Component,
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
 
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
     std::optional<glm::vec2> last_mouse_pos_;
+    float pitch_degrees_;
+    float yaw_degrees_;
 
     glm::vec3 GetMovementDir();
+    void UpdateRotation(float pitch_delta_degrees, float yaw_delta_degrees);
 };

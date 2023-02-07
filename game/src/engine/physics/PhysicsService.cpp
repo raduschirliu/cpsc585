@@ -1,7 +1,9 @@
 #include "engine/physics/PhysicsService.h"
 
+#include "HelperUtils.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/input/InputService.h"
 #include "engine/service/ServiceProvider.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -15,6 +17,38 @@ void PhysicsService::OnInit()
 
     // initializing all the physx objects for use later.
     initPhysX();
+}
+
+void PhysicsService::OnStart(ServiceProvider& service_provider)
+{
+}
+
+void PhysicsService::OnUpdate()
+{
+    kScene_->simulate(timestep);
+    kScene_->fetchResults(true);
+}
+
+void PhysicsService::OnCleanup()
+{
+    PxCloseVehicleExtension();
+
+    PX_RELEASE(kMaterial_);
+    PX_RELEASE(kScene_);
+    PX_RELEASE(kDispatcher_);
+    PX_RELEASE(kPhysics_);
+    if (kPvd_)
+    {
+        PxPvdTransport* transport = kPvd_->getTransport();
+        kPvd_->release();
+        transport->release();
+    }
+    PX_RELEASE(kFoundation_);
+}
+
+string_view PhysicsService::GetName() const
+{
+    return "PhysicsService";
 }
 
 void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
@@ -70,6 +104,26 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
     }
 }
 
+void PhysicsService::CreateRaycastFromOrigin(glm::vec3 origin,
+                                             glm::vec3 unit_dir)
+{
+    physx::PxReal max_distance = 100000;
+    physx::PxRaycastBuffer hit;
+    physx::PxVec3 px_origin = GlmVecToPxVec(origin);
+    physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
+
+    bool status = kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
+
+    if (status)
+    {
+        Log::debug("Hit something");
+    }
+    else
+    {
+        Log::debug("No hit");
+    }
+}
+
 physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
     const glm::vec3& position, const glm::quat& orientation, PxShape* shape)
 {
@@ -96,27 +150,6 @@ physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
 {
     return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z),
                                   *kMaterial_);
-}
-
-void PhysicsService::OnStart(ServiceProvider& service_provider)
-{
-}
-
-void PhysicsService::OnUpdate()
-{
-    // Log::debug("OnUpdate() Physics, simulating at 60 fps");
-    // simulate the physics
-    kScene_->simulate(1.f / 60.0f);
-    kScene_->fetchResults(true);
-}
-
-void PhysicsService::OnCleanup()
-{
-}
-
-string_view PhysicsService::GetName() const
-{
-    return "PhysicsService";
 }
 
 void PhysicsService::initPhysX()
@@ -148,10 +181,19 @@ void PhysicsService::initPhysX()
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity =
-        physx::PxVec3(0.0f, -5.0f, 0.0f);  // change the gravity here.
+    sceneDesc.gravity = gGravity;  // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     kScene_ = kPhysics_->createScene(sceneDesc);
+    PxPvdSceneClient* pvdClient = kScene_->getScenePvdClient();
+    if (pvdClient)
+    {
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
+                                   true);
+    }
+    // setting up the vehicle physics
+    PxInitVehicleExtension(*kFoundation_);
 }

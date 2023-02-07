@@ -8,7 +8,7 @@ class EventDispatcher
   public:
     template <class EventType>
     static void Dispatch(IEventSubscriber<EventType>* subscriber,
-                         EventType* event)
+                         const EventType* event)
     {
         ASSERT_MSG(false, "Unspecialized Dispatch template should not be used");
     }

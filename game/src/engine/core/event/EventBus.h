@@ -26,7 +26,7 @@ class EventBus
     }
 
     template <class EventType>
-    void Publish(EventType* event)
+    void Publish(const EventType* event)
     {
         std::type_index key = typeid(EventType);
 
