@@ -20,7 +20,7 @@ void CubeRigidbody::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void CubeRigidbody::OnUpdate()
+void CubeRigidbody::OnUpdate(const Timestep& delta_time)
 {
     if (b_can_control_)
     {
@@ -44,7 +44,8 @@ void CubeRigidbody::OnUpdate()
         // updating the position of the cube
         if (dynamic_)
         {
-            dynamic_->setGlobalPose(CreateTransform(transform_->GetPosition(), glm::quat(1.f, 0.f, 0.f, 0.f)));
+            dynamic_->setGlobalPose(CreateTransform(
+                transform_->GetPosition(), glm::quat(1.f, 0.f, 0.f, 0.f)));
         }
     }
 }
@@ -54,7 +55,8 @@ string_view CubeRigidbody::GetName() const
     return "CubeRigidbody";
 }
 
-void CubeRigidbody::SetHalfLength(float length_x, float length_y, float length_z)
+void CubeRigidbody::SetHalfLength(float length_x, float length_y,
+                                  float length_z)
 {
     if (shape_)
     {
@@ -62,13 +64,13 @@ void CubeRigidbody::SetHalfLength(float length_x, float length_y, float length_z
     }
     shape_ = physicsService_->CreateShapeCube(length_x, length_y, length_z);
     dynamic_->attachShape(*shape_);
-
 }
 
 void CubeRigidbody::CreateCube(float length_x, float length_y, float length_z)
 {
     shape_ = physicsService_->CreateShapeCube(length_x, length_y, length_z);
-    dynamic_ = physicsService_->CreateRigidDynamic(transform_->GetPosition(), glm::quat(1, 0, 0, 0), shape_);
+    dynamic_ = physicsService_->CreateRigidDynamic(
+        transform_->GetPosition(), glm::quat(1, 0, 0, 0), shape_);
 }
 
 bool CubeRigidbody::GetCanControl()

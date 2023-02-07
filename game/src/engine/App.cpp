@@ -6,12 +6,7 @@
 using std::make_unique;
 using std::string_view;
 
-App::App()
-    : running_(false),
-      window_(),
-      scenes_{},
-      service_provider_(),
-      event_bus_()
+App::App() : running_(false), window_(), service_provider_(), scene_list_()
 {
 }
 
@@ -23,7 +18,7 @@ void App::Run()
 
     // Init phase
     OnInit();
-    service_provider_.DispatchInit(window_, event_bus_);
+    service_provider_.DispatchInit(window_);
 
     // Run phase
     service_provider_.DispatchStart();
@@ -52,10 +47,16 @@ void App::OnCleanup()
 
 Scene& App::AddScene(string_view name)
 {
-    auto scene = make_unique<Scene>(name, service_provider_, event_bus_);
-    scenes_.push_back(std::move(scene));
+    auto scene = make_unique<Scene>(name, service_provider_);
+    return scene_list_.AddScene(std::move(scene));
+}
 
-    return *scenes_.back();
+void App::SetActiveScene(string_view name)
+{
+    Log::info("Scene changed to: {}", name);
+
+    scene_list_.SetActiveScene(name);
+    service_provider_.DispatchSceneChange(scene_list_.GetActiveScene());
 }
 
 Window& App::GetWindow()
@@ -63,9 +64,9 @@ Window& App::GetWindow()
     return window_;
 }
 
-EventBus& App::GetEventBus()
+EventBus& App::GetActiveEventBus()
 {
-    return event_bus_;
+    return scene_list_.GetActiveScene().GetEventBus();
 }
 
 void App::PerformGameLoop()
@@ -76,8 +77,6 @@ void App::PerformGameLoop()
     {
         window_.PollEvents();
 
-        // TODO: Use fixed timestep for physics?
-        // TODO: Send update event to components in the active scene
         service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();

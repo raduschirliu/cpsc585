@@ -59,7 +59,7 @@ const mat4& Camera::GetViewMatrix() const
     return view_matrix_;
 }
 
-void Camera::OnUpdate()
+void Camera::OnUpdate(const Timestep& delta_time)
 {
     UpdateViewMatrix();
 }

@@ -94,6 +94,11 @@ set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
 set(INCLUDES ${INCLUDES} object_ptr/)
 
 # -------------------------
+# RapidJSON
+# -------------------------
+set(INCLUDES ${INCLUDES} includes)
+
+# -------------------------
 # Thirdparty combination library
 # -------------------------
 

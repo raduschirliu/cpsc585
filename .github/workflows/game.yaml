@@ -1,0 +1,29 @@
+name: Build and lint the game project
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  formatting:
+    name: Check code formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: DoozyX/clang-format-lint-action@v0.15
+        with:
+          source: './game/src'
+          extensions: 'h,cpp'
+          clangFormatVersion: 15.0.2
+  
+  # build:
+  #   name: Build game
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         submodules: true
+
+  #     - uses: ilammy/msvc-dev-cmd@v1
+  #       with:
+  #         vsversion: "2019"

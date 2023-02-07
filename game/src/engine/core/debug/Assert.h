@@ -14,3 +14,11 @@
 #define TODO(default, msg) \
     assert(false && msg);  \
     return default;
+
+#if defined(_MSC_VER) && !defined(__INTEL_COMPILER)
+// This header only exists when using MSVC
+#include <intrin.h>
+#define DEBUG_BREAKPOINT() __debugbreak()
+#else
+#define DEBUG_BREAKPOINT()
+#endif

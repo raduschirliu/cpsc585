@@ -5,25 +5,16 @@
 
 using namespace std;
 
-void AssetService::LoadModel(const string &path, const string &name,
-                             const string &textureName)
+void AssetService::LoadMesh(const string &path, const string &name,
+                            const string &textureName)
 {
-    // Model importing
     Assimp::Importer importer;
 
-    // Process the desired calculation for the model
-    unsigned int flag;
-    flag = aiProcess_Triangulate |  // Transform all the model's primitive
-                                    // shapes to triangles
-           aiProcess_JoinIdenticalVertices |  // Identifies and joins identical
-                                              // vertex data sets within all
-                                              // imported meshes
-           aiProcess_CalcTangentSpace |       // Calculate the tangents and
-                                         // bitangents for the imported meshes
-           aiProcess_FlipWindingOrder;  // Adjust the output face winding order
-                                        // to be clockwise
+    unsigned int flags = aiProcess_Triangulate |
+                         aiProcess_JoinIdenticalVertices |
+                         aiProcess_CalcTangentSpace | aiProcess_GenNormals;
 
-    const aiScene *scene = importer.ReadFile(path, flag);
+    const aiScene *scene = importer.ReadFile(path, flags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)
@@ -32,6 +23,11 @@ void AssetService::LoadModel(const string &path, const string &name,
     }
 
     ProcessNode(path, name, textureName, scene->mRootNode, scene);
+}
+
+const Mesh &AssetService::GetMesh(const std::string &name)
+{
+    return meshes_[name];
 }
 
 /*
@@ -79,10 +75,13 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
         vertex.position = vector;
 
         // Normal
-        vector.x = mesh->mNormals[i].x;
-        vector.y = mesh->mNormals[i].y;
-        vector.z = mesh->mNormals[i].z;
-        vertex.normal = vector;
+        if (mesh->HasNormals())
+        {
+            vector.x = mesh->mNormals[i].x;
+            vector.y = mesh->mNormals[i].y;
+            vector.z = mesh->mNormals[i].z;
+            vertex.normal = vector;
+        }
 
         // TextureCoord: Maximum 8 texture
         if (mesh->mTextureCoords[0])
@@ -91,19 +90,19 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
             vertex.uv = vec;
-
-            // // Tangent
-            // vector.x = mesh->mTangents[i].x;
-            // vector.y = mesh->mTangents[i].y;
-            // vector.z = mesh->mTangents[i].z;
-            // vertex.tangent = vector;
-
-            // // BiTangent
-            // vector.x = mesh->mBitangents[i].x;
-            // vector.y = mesh->mBitangents[i].y;
-            // vector.z = mesh->mBitangents[i].z;
-            // vertex.bitangent = vector;
         }
+
+        // Tangent
+        // vector.x = mesh->mTangents[i].x;
+        // vector.y = mesh->mTangents[i].y;
+        // vector.z = mesh->mTangents[i].z;
+        // vertex.tangent = vector;
+
+        // BiTangent
+        // vector.x = mesh->mBitangents[i].x;
+        // vector.y = mesh->mBitangents[i].y;
+        // vector.z = mesh->mBitangents[i].z;
+        // vertex.bitangent = vector;
 
         localMesh.vertices.emplace_back(vertex);
     }
@@ -390,12 +389,9 @@ vector<Texture> AssetService::LoadTexture(const string &path,
 
 void AssetService::OnInit()
 {
-    // A mash must be generated and stored in meshes_ after the model is loaded
-    // successfully
-    // LoadModel("resources/models/cube.obj", "cube");
-
-    // Log::info("AssetService: Loaded mesh with {} indices and {} faces",
-    //           meshes_["cube"].indices.size(), meshes_["cube"].vertices.size());
+    LoadMesh("resources/models/cube.obj", "cube");
+    LoadMesh("resources/models/plane.obj", "plane");
+    LoadMesh("resources/models/stanford_bunny.obj", "bunny");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

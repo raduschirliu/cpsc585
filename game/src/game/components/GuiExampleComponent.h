@@ -5,6 +5,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -19,7 +20,7 @@ class GuiExampleComponent final : public Component,
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate() override;
+    void OnUpdate(const Timestep& delta_time) override;
 
     // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;
@@ -27,4 +28,5 @@ class GuiExampleComponent final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
 };

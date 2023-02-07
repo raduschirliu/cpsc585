@@ -25,7 +25,7 @@ void SphereRigidbody::OnInit(const ServiceProvider& service_provider)
     SetRadius(5.0f);
 }
 
-void SphereRigidbody::OnUpdate()
+void SphereRigidbody::OnUpdate(const Timestep& delta_time)
 {
     // While the sphere is getting updated, update the transform location.
     if (dynamic_)

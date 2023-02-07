@@ -19,7 +19,7 @@ STATIC_ASSERT_INTERFACE(IEventSubscriber<OnGuiEvent>);
 
 template <>
 inline void EventDispatcher::Dispatch<OnGuiEvent>(
-    IEventSubscriber<OnGuiEvent>* subscriber, OnGuiEvent* event)
+    IEventSubscriber<OnGuiEvent>* subscriber, const OnGuiEvent* event)
 {
     ASSERT_MSG(event == nullptr, "OnGui should not receive any event data");
     subscriber->OnGui();

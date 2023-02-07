@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include "engine/core/debug/Log.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
 using std::string_view;
@@ -13,6 +14,7 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
 
     // Dependencies
     input_service_ = &service_provider.GetService<InputService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
 
@@ -21,7 +23,7 @@ void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void GuiExampleComponent::OnUpdate()
+void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F))
     {
@@ -33,6 +35,12 @@ void GuiExampleComponent::OnUpdate()
     {
         Log::info("shaaaaaaauun");
         transform_->Translate(glm::vec3(0.0f, 0.25f, 0.0f));
+    }
+
+    if (input_service_->IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
+    {
+        physics_service_->CreateRaycastFromOrigin(
+            transform_->GetPosition(), transform_->GetForwardDirection());
     }
 }
 

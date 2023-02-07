@@ -5,6 +5,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/render/Camera.h"
+#include "engine/render/MeshRenderer.h"
 
 using glm::mat4;
 using glm::vec3;
@@ -12,15 +13,17 @@ using std::make_unique;
 
 RenderService::RenderService()
     : render_list_{},
-      shader_("resources/shaders/default.vert", "resources/shaders/basic.frag")
+      cameras_{},
+      shader_("resources/shaders/default.vert", "resources/shaders/basic.frag"),
+      wireframe_(false)
 {
 }
 
-void RenderService::RegisterRenderable(const RenderableComponent& renderable)
+void RenderService::RegisterRenderable(const Entity& entity)
 {
     // TODO(radu): This shouldn't need to be done here...
     auto data = make_unique<RenderData>(RenderData{
-        .renderable = &renderable,
+        .entity = &entity,
         .vertex_array = VertexArray(),
         .vertex_buffer = VertexBuffer(),
         .element_buffer = ElementArrayBuffer(),
@@ -40,13 +43,30 @@ void RenderService::RegisterRenderable(const RenderableComponent& renderable)
     data->vertex_buffer.ConfigureAttribute(3, 2, GL_FLOAT, sizeof(Vertex),
                                            offsetof(Vertex, uv));
 
-    data->vertex_buffer.Upload(renderable.GetMesh().vertices, GL_STATIC_DRAW);
-    data->element_buffer.Upload(renderable.GetMesh().indices, GL_STATIC_DRAW);
+    const Mesh& mesh = entity.GetComponent<MeshRenderer>().GetMesh();
+    data->vertex_buffer.Upload(mesh.vertices, GL_STATIC_DRAW);
+    data->element_buffer.Upload(mesh.indices, GL_STATIC_DRAW);
 
     // TODO(radu): Unbind vertex array?
 
     // Add to render list
     render_list_.push_back(std::move(data));
+}
+
+void RenderService::UnregisterRenderable(const Entity& entity)
+{
+    auto iter = render_list_.begin();
+
+    while (iter < render_list_.end())
+    {
+        if (iter->get()->entity->GetId())
+        {
+            render_list_.erase(iter);
+            break;
+        }
+
+        iter++;
+    }
 }
 
 void RenderService::RegisterCamera(const Camera& camera)
@@ -71,6 +91,15 @@ void RenderService::OnUpdate()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if (wireframe_)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     for (auto& camera : cameras_)
     {
@@ -97,21 +126,29 @@ void RenderService::RenderCameraView(const Camera& camera)
     const mat4& view_matrix = camera.GetViewMatrix();
     const mat4& projection_matrix = camera.GetProjectionMatrix();
 
+    const mat4 view_proj_matrix = projection_matrix * view_matrix;
+
     // Render each object
     for (const auto& obj : render_list_)
     {
-        mat4 mvp_matrix =
-            projection_matrix * view_matrix * obj->renderable->GetModelMatrix();
+        const MeshRenderer& renderer =
+            obj->entity->GetComponent<MeshRenderer>();
+        const Transform& transform = obj->entity->GetComponent<Transform>();
+
+        const mat4& model_matrix = transform.GetModelMatrix();
+        // Since we're passing normals in world space, the view matrix =
+        // identity, so we don't need to multiply by it
+        const mat4 normal_matrix = transform.GetNormalMatrix();
 
         shader_.Use();
-        shader_.SetUniform("uModelMatrix", mvp_matrix);
-        shader_.SetUniform("uViewMatrix", mat4(1.0f));
-        shader_.SetUniform("uProjectionMatrix", mat4(1.0f));
+        shader_.SetUniform("uModelMatrix", model_matrix);
+        shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+        // shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         obj->vertex_array.Bind();
 
         GLsizei index_count =
-            static_cast<GLsizei>(obj->renderable->GetMesh().indices.size());
+            static_cast<GLsizei>(renderer.GetMesh().indices.size());
 
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
     }

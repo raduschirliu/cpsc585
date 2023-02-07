@@ -1,7 +1,9 @@
 #include "engine/physics/PhysicsService.h"
 
+#include "HelperUtils.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/input/InputService.h"
 #include "engine/service/ServiceProvider.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -15,6 +17,38 @@ void PhysicsService::OnInit()
 
     // initializing all the physx objects for use later.
     initPhysX();
+}
+
+void PhysicsService::OnStart(ServiceProvider& service_provider)
+{
+}
+
+void PhysicsService::OnUpdate()
+{
+    kScene_->simulate(timestep);
+    kScene_->fetchResults(true);
+}
+
+void PhysicsService::OnCleanup()
+{
+    PxCloseVehicleExtension();
+
+    PX_RELEASE(kMaterial_);
+    PX_RELEASE(kScene_);
+    PX_RELEASE(kDispatcher_);
+    PX_RELEASE(kPhysics_);
+    if (kPvd_)
+    {
+        PxPvdTransport* transport = kPvd_->getTransport();
+        kPvd_->release();
+        transport->release();
+    }
+    PX_RELEASE(kFoundation_);
+}
+
+string_view PhysicsService::GetName() const
+{
+    return "PhysicsService";
 }
 
 void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
@@ -55,7 +89,7 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
 }
 
 void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-    physx::PxTransform location_transform)
+                                          physx::PxTransform location_transform)
 {
     // so that we do not use a nullptr and break the game.
     if (dynamic)
@@ -67,6 +101,26 @@ void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
         Log::error(
             "The dynamic pointer passed does not exist, cannot change "
             "location.");
+    }
+}
+
+void PhysicsService::CreateRaycastFromOrigin(glm::vec3 origin,
+                                             glm::vec3 unit_dir)
+{
+    physx::PxReal max_distance = 100000;
+    physx::PxRaycastBuffer hit;
+    physx::PxVec3 px_origin = GlmVecToPxVec(origin);
+    physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
+
+    bool status = kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
+
+    if (status)
+    {
+        Log::debug("Hit something");
+    }
+    else
+    {
+        Log::debug("No hit");
     }
 }
 
@@ -91,30 +145,11 @@ physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
     return kPhysics_->createShape(geometry, *kMaterial_);
 }
 
-physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y, float half_z)
+physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
+                                                float half_z)
 {
-    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z), *kMaterial_);
-}
-
-void PhysicsService::OnStart(ServiceProvider& service_provider)
-{
-}
-
-void PhysicsService::OnUpdate()
-{
-    // Log::debug("OnUpdate() Physics, simulating at 60 fps");
-    // simulate the physics
-    kScene_->simulate(1.f / 60.0f);
-    kScene_->fetchResults(true);
-}
-
-void PhysicsService::OnCleanup()
-{
-}
-
-string_view PhysicsService::GetName() const
-{
-    return "PhysicsService";
+    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z),
+                                  *kMaterial_);
 }
 
 void PhysicsService::initPhysX()
@@ -122,7 +157,7 @@ void PhysicsService::initPhysX()
     // PhysX init
     // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
-        kDefaultErrorCallback_);
+                                      kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
 
     //// For debugging purposes, initializing the physx visual debugger
@@ -139,17 +174,26 @@ void PhysicsService::initPhysX()
     // Physics initlaization
     bool recordMemoryAllocations = true;
     kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
-        physx::PxTolerancesScale(),
-        recordMemoryAllocations, kPvd_);
+                                physx::PxTolerancesScale(),
+                                recordMemoryAllocations, kPvd_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
     physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity =
-        physx::PxVec3(0.0f, -5.0f, 0.0f);  // change the gravity here.
+    sceneDesc.gravity = gGravity;  // change the gravity here.
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     kScene_ = kPhysics_->createScene(sceneDesc);
+    PxPvdSceneClient* pvdClient = kScene_->getScenePvdClient();
+    if (pvdClient)
+    {
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
+                                   true);
+    }
+    // setting up the vehicle physics
+    PxInitVehicleExtension(*kFoundation_);
 }

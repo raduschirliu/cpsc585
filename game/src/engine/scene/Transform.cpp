@@ -23,8 +23,15 @@ Transform::Transform()
       translation_matrix_(1.0f),
       rotation_matrix_(1.0f),
       scale_matrix_(1.0f),
-      model_matrix_(1.0f)
+      model_matrix_(1.0f),
+      normal_matrix_(1.0f)
 {
+}
+
+void Transform::SetScale(const vec3& scale)
+{
+    scale_ = scale;
+    UpdateMatrices();
 }
 
 void Transform::Translate(const vec3& delta)
@@ -36,6 +43,12 @@ void Transform::Translate(const vec3& delta)
 void Transform::SetPosition(const vec3& position)
 {
     position_ = position;
+    UpdateMatrices();
+}
+
+void Transform::SetOrientation(const quat& orientation)
+{
+    orientation_ = orientation;
     UpdateMatrices();
 }
 
@@ -85,6 +98,11 @@ const mat4& Transform::GetModelMatrix() const
     return model_matrix_;
 }
 
+const mat4& Transform::GetNormalMatrix() const
+{
+    return normal_matrix_;
+}
+
 void Transform::OnInit(const ServiceProvider& service_provider)
 {
 }
@@ -101,6 +119,7 @@ void Transform::UpdateMatrices()
     scale_matrix_ = glm::scale(mat4(1.0f), scale_);
 
     model_matrix_ = translation_matrix_ * rotation_matrix_ * scale_matrix_;
+    normal_matrix_ = glm::transpose(glm::inverse(model_matrix_));
 
     forward_dir_ = glm::normalize(rotation_matrix_ * kDefaultForwardDir);
     up_dir_ = glm::normalize(rotation_matrix_ * kDefaultUpDir);

@@ -4,6 +4,7 @@
 #include <assimp/scene.h>        // Output data structure
 
 #include <assimp/Importer.hpp>  // C++ importer interface
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -14,7 +15,9 @@
 class AssetService final : public Service
 {
   public:
-    void LoadModel(const std::string &path, const std::string &name, const std::string &textureName);
+    void LoadMesh(const std::string &path, const std::string &name,
+                  const std::string &textureName);
+    const Mesh &GetMesh(const std::string &name);
 
     // From Service
     void OnInit() override;
@@ -25,12 +28,13 @@ class AssetService final : public Service
 
   private:
     std::unordered_map<std::string, Texture> texturesLoaded_;
-    // std::vector<Mesh> meshes;
     std::unordered_map<std::string, Mesh> meshes_;
 
-    void ProcessNode(const std::string &path, const std::string &name, const std::string &textureName,
-                     aiNode *node, const aiScene *scene);
-    Mesh ProcessMesh(aiNode *node, const std::string &textureName, aiMesh *mesh, const aiScene *scene);
+    void ProcessNode(const std::string &path, const std::string &name,
+                     const std::string &textureName, aiNode *node,
+                     const aiScene *scene);
+    Mesh ProcessMesh(aiNode *node, const std::string &textureName, aiMesh *mesh,
+                     const aiScene *scene);
     std::vector<Texture> LoadTexture(const std::string &path,
                                      const std::string &name, aiMaterial *mat,
                                      aiTextureType type);
