@@ -5,7 +5,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class SphereRigidbody final : public Component,
+class SphereRigidBody final : public Component,
                               public IEventSubscriber<OnUpdateEvent>
 {
   public:

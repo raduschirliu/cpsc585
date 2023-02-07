@@ -1,4 +1,4 @@
-#include "engine/physics/CubeRigidbody.h"
+#include "engine/physics/RigidBodyComponent.h"
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
@@ -9,9 +9,11 @@ using glm::vec3;
 using physx::PxTransform;
 using std::string_view;
 
-void CubeRigidbody::OnInit(const ServiceProvider& service_provider)
+static constexpr float kDefaultDenisty = 10.0f;
+
+void RigidBodyComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("CubeRigidbody - Init");
+    Log::info("RigidBodyComponent - Init");
 
     physics_service_ = &service_provider.GetService<PhysicsService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -19,14 +21,15 @@ void CubeRigidbody::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     PxTransform pose = CreatePxTransform(transform_->GetPosition(),
-                                       transform_->GetOrientation());
+                                         transform_->GetOrientation());
     dynamic_ = physics_service_->GetKPhysics()->createRigidDynamic(pose);
-    PxRigidBodyExt::updateMassAndInertia(*dynamic_, 10.0f);
+    dynamic_->userData = &GetEntity();
+    PxRigidBodyExt::updateMassAndInertia(*dynamic_, kDefaultDenisty);
 
-    physics_service_->RegisterDynamicActor(dynamic_);
+    physics_service_->RegisterActor(dynamic_);
 }
 
-void CubeRigidbody::OnUpdate(const Timestep& delta_time)
+void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
 {
     const PxTransform pose = dynamic_->getGlobalPose();
     const GlmTransform transform = PxToGlm(pose);
@@ -34,18 +37,12 @@ void CubeRigidbody::OnUpdate(const Timestep& delta_time)
     transform_->SetOrientation(transform.orientation);
 }
 
-string_view CubeRigidbody::GetName() const
+void RigidBodyComponent::SetMass(float mass)
 {
-    return "CubeRigidbody";
+    dynamic_->setMass(mass);
 }
 
-void CubeRigidbody::SetSize(const vec3& size)
+float RigidBodyComponent::GetMass() const
 {
-    if (shape_)
-    {
-        dynamic_->detachShape(*shape_);
-    }
-
-    shape_ = physics_service_->CreateShapeCube(size.x, size.y, size.z);
-    dynamic_->attachShape(*shape_);
+    return dynamic_->getMass();
 }

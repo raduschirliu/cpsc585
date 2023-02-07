@@ -1,4 +1,4 @@
-#include "engine/physics/SphereRigidbody.h"
+#include "engine/physics/SphereRigidBody.h"
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
@@ -9,9 +9,9 @@ using std::string_view;
 
 using namespace physx;
 
-void SphereRigidbody::OnInit(const ServiceProvider& service_provider)
+void SphereRigidBody::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("SphereRigidbody - Init");
+    Log::info("SphereRigidBody - Init");
 
     physicsService_ = &service_provider.GetService<PhysicsService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -25,7 +25,7 @@ void SphereRigidbody::OnInit(const ServiceProvider& service_provider)
     SetRadius(5.0f);
 }
 
-void SphereRigidbody::OnUpdate(const Timestep& delta_time)
+void SphereRigidBody::OnUpdate(const Timestep& delta_time)
 {
     // While the sphere is getting updated, update the transform location.
     if (dynamic_)
@@ -38,12 +38,12 @@ void SphereRigidbody::OnUpdate(const Timestep& delta_time)
     // std::cout << transform_->GetPosition().y << std::endl;
 }
 
-string_view SphereRigidbody::GetName() const
+string_view SphereRigidBody::GetName() const
 {
-    return "SphereRigidbody";
+    return "SphereRigidBody";
 }
 
-void SphereRigidbody::SetRadius(float radius)
+void SphereRigidBody::SetRadius(float radius)
 {
     if (shape_)
     {

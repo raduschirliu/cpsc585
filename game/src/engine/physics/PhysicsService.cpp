@@ -53,11 +53,9 @@ string_view PhysicsService::GetName() const
     return "PhysicsService";
 }
 
-void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
+PxRigidStatic* PhysicsService::CreatePlaneRigidStatic(PxPlane plane_dimensions)
 {
-    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(
-        *kPhysics_, plane, *kMaterial_);  // now we have the plane actor.
-    kScene_->addActor(*groundPlane);
+    return physx::PxCreatePlane(*kPhysics_, plane_dimensions, *kMaterial_);
 }
 
 PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
@@ -90,7 +88,7 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
     return dynamic;
 }
 
-void PhysicsService::RegisterDynamicActor(PxRigidDynamic* actor)
+void PhysicsService::RegisterActor(PxActor* actor)
 {
     kScene_->addActor(*actor);
 }

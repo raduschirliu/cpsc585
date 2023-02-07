@@ -11,10 +11,10 @@
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
-#include "engine/physics/CubeRigidbody.h"
+#include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/PhysicsService.h"
-#include "engine/physics/PlaneRigidbody.h"
-#include "engine/physics/SphereRigidbody.h"
+#include "engine/physics/PlaneStaticBody.h"
+#include "engine/physics/SphereRigidBody.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
@@ -69,7 +69,7 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
-        
+
         entity.AddComponent<Camera>();
         entity.AddComponent<DebugCameraController>();
     }
@@ -93,7 +93,7 @@ void GameApp::OnStart()
         transform.SetScale(vec3(10.0f, 1.0f, 10.0f));
         transform.RotateEulerDegrees(vec3(-90.0f, 0.0f, 0.0f));
 
-        entity.AddComponent<PlaneRigidbody>();
+        entity.AddComponent<PlaneStaticBody>();
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("plane");
@@ -107,7 +107,7 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
         transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
         rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -122,7 +122,7 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
         transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
         rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();

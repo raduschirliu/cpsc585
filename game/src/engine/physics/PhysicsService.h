@@ -9,7 +9,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
-
 #include <vector>
 
 #include "HelperUtils.h"  // to get enums and structures.
@@ -52,7 +51,7 @@ class PhysicsService final : public Service
     const PxF32 timestep = 1.f / 60.f;
 
   public:
-    void RegisterDynamicActor(physx::PxRigidDynamic* actor);
+    void RegisterActor(physx::PxActor* actor);
     void UnregisterActor(physx::PxActor* actor);
 
     /*
@@ -80,7 +79,8 @@ class PhysicsService final : public Service
      * Function to make a plane based on
      * @param dimension : PxPlane
      */
-    void CreatePlaneRigidBody(physx::PxPlane plane_dimensions);
+    physx::PxRigidStatic* CreatePlaneRigidStatic(
+        physx::PxPlane plane_dimensions);
 
     physx::PxRigidDynamic* CreateRigidDynamic(const glm::vec3& position,
                                               const glm::quat& orientation,
