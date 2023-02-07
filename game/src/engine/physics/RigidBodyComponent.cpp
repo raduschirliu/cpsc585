@@ -46,3 +46,10 @@ float RigidBodyComponent::GetMass() const
 {
     return dynamic_->getMass();
 }
+
+void RigidBodyComponent::SyncTransform()
+{
+    PxTransform pose = CreatePxTransform(transform_->GetPosition(),
+                                         transform_->GetOrientation());
+    dynamic_->setGlobalPose(pose);
+}

@@ -12,6 +12,8 @@ class RigidBodyComponent : public Component,
     void SetMass(float mass);
     float GetMass() const;
 
+    void SyncTransform();
+
     // From Component
     virtual void OnInit(const ServiceProvider& service_provider) override;
     virtual void OnUpdate(const Timestep& delta_time) override;
