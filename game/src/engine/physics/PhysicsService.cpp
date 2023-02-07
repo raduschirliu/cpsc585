@@ -37,12 +37,14 @@ void PhysicsService::OnCleanup()
     PX_RELEASE(kScene_);
     PX_RELEASE(kDispatcher_);
     PX_RELEASE(kPhysics_);
+
     if (kPvd_)
     {
         PxPvdTransport* transport = kPvd_->getTransport();
         kPvd_->release();
         transport->release();
     }
+
     PX_RELEASE(kFoundation_);
 }
 
@@ -51,11 +53,9 @@ string_view PhysicsService::GetName() const
     return "PhysicsService";
 }
 
-void PhysicsService::CreatePlaneRigidBody(PxPlane plane)
+PxRigidStatic* PhysicsService::CreatePlaneRigidStatic(PxPlane plane_dimensions)
 {
-    physx::PxRigidStatic* groundPlane = physx::PxCreatePlane(
-        *kPhysics_, plane, *kMaterial_);  // now we have the plane actor.
-    kScene_->addActor(*groundPlane);
+    return physx::PxCreatePlane(*kPhysics_, plane_dimensions, *kMaterial_);
 }
 
 PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
@@ -88,31 +88,32 @@ PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
     return dynamic;
 }
 
-void PhysicsService::UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-                                          physx::PxTransform location_transform)
+void PhysicsService::RegisterActor(PxActor* actor)
 {
-    // so that we do not use a nullptr and break the game.
-    if (dynamic)
-    {
-        dynamic->setGlobalPose(location_transform);
-    }
-    else
-    {
-        Log::error(
-            "The dynamic pointer passed does not exist, cannot change "
-            "location.");
-    }
+    kScene_->addActor(*actor);
+}
+
+void PhysicsService::UnregisterActor(PxActor* actor)
+{
+    kScene_->removeActor(*actor);
 }
 
 void PhysicsService::CreateRaycastFromOrigin(glm::vec3 origin,
                                              glm::vec3 unit_dir)
 {
+    constexpr uint32_t kZoneId = 1;
+    void* profile_data = kPvd_->zoneStart("raycast", false, kZoneId);
+
     physx::PxReal max_distance = 100000;
     physx::PxRaycastBuffer hit;
-    physx::PxVec3 px_origin = GlmVecToPxVec(origin);
-    physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
+    physx::PxVec3 px_origin = GlmToPx(origin);
+    physx::PxVec3 px_unit_dir = GlmToPx(unit_dir);
+    physx::PxVec3 px_endpoint = px_origin + px_unit_dir * max_distance;
 
     bool status = kScene_->raycast(px_origin, px_unit_dir, max_distance, hit);
+
+    PxDebugLine line(px_origin, px_endpoint, PxDebugColor::eARGB_RED);
+    kScene_->getScenePvdClient()->drawLines(&line, 1);
 
     if (status)
     {
@@ -122,13 +123,14 @@ void PhysicsService::CreateRaycastFromOrigin(glm::vec3 origin,
     {
         Log::debug("No hit");
     }
+
+    kPvd_->zoneEnd(profile_data, "raycast", false, kZoneId);
 }
 
 physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
     const glm::vec3& position, const glm::quat& orientation, PxShape* shape)
 {
-    Log::debug("I was called here");
-    physx::PxTransform transform = CreateTransform(position, orientation);
+    physx::PxTransform transform = CreatePxTransform(position, orientation);
     physx::PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform);
     if (shape)
     {

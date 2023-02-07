@@ -78,6 +78,11 @@ const vec3& Transform::GetPosition() const
     return position_;
 }
 
+const quat& Transform::GetOrientation() const
+{
+    return orientation_;
+}
+
 const vec3& Transform::GetForwardDirection() const
 {
     return forward_dir_;

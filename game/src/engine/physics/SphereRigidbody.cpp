@@ -1,4 +1,4 @@
-#include "engine/physics/SphereRigidbody.h"
+#include "engine/physics/SphereRigidBody.h"
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
@@ -9,48 +9,29 @@ using std::string_view;
 
 using namespace physx;
 
-void SphereRigidbody::OnInit(const ServiceProvider& service_provider)
+static constexpr float kDefaultRadius = 5.0f;
+
+void SphereRigidBody::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("SphereRigidbody - Init");
-
-    physicsService_ = &service_provider.GetService<PhysicsService>();
-    transform_ = &GetEntity().GetComponent<Transform>();
-
-    GetEventBus().Subscribe<OnUpdateEvent>(this);
-
-    glm::vec3 starting_pos = transform_->GetPosition();
-
-    dynamic_ = physicsService_->CreateRigidDynamic(
-        starting_pos, glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    SetRadius(5.0f);
+    RigidBodyComponent::OnInit(service_provider);
+    SetRadius(kDefaultRadius);
 }
 
-void SphereRigidbody::OnUpdate(const Timestep& delta_time)
+string_view SphereRigidBody::GetName() const
 {
-    // While the sphere is getting updated, update the transform location.
-    if (dynamic_)
-    {
-        glm::vec3 updated_sphere_location = glm::vec3(
-            dynamic_->getGlobalPose().p.x, dynamic_->getGlobalPose().p.y,
-            dynamic_->getGlobalPose().p.z);
-        transform_->SetPosition(updated_sphere_location);
-    }
-    // std::cout << transform_->GetPosition().y << std::endl;
+    return "SphereRigidBody";
 }
 
-string_view SphereRigidbody::GetName() const
+void SphereRigidBody::SetRadius(float radius)
 {
-    return "SphereRigidbody";
-}
+    radius_ = radius;
 
-void SphereRigidbody::SetRadius(float radius)
-{
     if (shape_)
     {
         dynamic_->detachShape(*shape_);
     }
 
     physx::PxSphereGeometry geometry(radius);
-    shape_ = physicsService_->CreateShape(geometry);
+    shape_ = physics_service_->CreateShape(geometry);
     dynamic_->attachShape(*shape_);
 }
