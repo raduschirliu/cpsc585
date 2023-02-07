@@ -130,12 +130,16 @@ void GameApp::OnStart()
     }
 
     {
-        // Bunny
+        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
+        // Who cares about brick?
         Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("BunnyVehicle");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
