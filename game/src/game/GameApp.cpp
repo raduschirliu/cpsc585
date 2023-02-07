@@ -90,13 +90,12 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
-        transform.SetScale(vec3(10.0f, 1.0f, 10.0f));
-        transform.RotateEulerDegrees(vec3(-90.0f, 0.0f, 0.0f));
+        transform.SetScale(vec3(250.0f, 1.0f, 250.0f));
 
         entity.AddComponent<PlaneStaticBody>();
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("plane");
+        mesh_renderer.SetMesh("cube");
     }
 
     {
