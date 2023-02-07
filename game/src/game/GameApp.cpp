@@ -77,7 +77,6 @@ void GameApp::OnStart()
     }
 
     {
-
         // Camera
         Entity& camera = scene.AddEntity("Camera");
         Transform& camera_transform = camera.AddComponent<Transform>();
@@ -92,13 +91,11 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(10.0f, 0.0f, 0.0f));
 
         entity.AddComponent<GuiExampleComponent>();
-
     }
 
     {
         // Floor
         Entity& floor = scene.AddEntity("Floor");
-
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
