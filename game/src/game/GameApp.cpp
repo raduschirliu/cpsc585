@@ -20,10 +20,10 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
+#include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
-#include "engine/scene/SceneDebugService.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/VehicleComponent.h"
 
@@ -117,7 +117,7 @@ void GameApp::OnStart()
 
     {
         // Camera
-        Entity& camera = scene.AddEntity();
+        Entity& camera = scene.AddEntity("Camera");
         Transform& camera_transform = camera.AddComponent<Transform>();
         camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
         camera.AddComponent<Camera>();
@@ -126,7 +126,7 @@ void GameApp::OnStart()
 
     {
         // Floor
-        Entity& floor = scene.AddEntity();
+        Entity& floor = scene.AddEntity("Floor");
 
         Transform& transform = floor.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
@@ -170,7 +170,7 @@ void GameApp::OnStart()
     {
         // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
         // Who cares about brick?
-        Entity& entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));

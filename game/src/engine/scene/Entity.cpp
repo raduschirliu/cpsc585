@@ -9,9 +9,9 @@ using std::vector;
 
 static uint32_t kNextEntityId = 0;
 
-Entity::Entity()
+Entity::Entity(const std::string& name)
     : id_(kNextEntityId),
-      name_("Entity"),
+      name_(name),
       scene_(nullptr),
       components_{}
 {

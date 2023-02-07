@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/gui/OnGuiEvent.h"
+#include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 
 class SceneDebugService final : public Service,
@@ -16,4 +17,11 @@ class SceneDebugService final : public Service,
 
     // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;
+
+  private:
+    jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<Scene> active_scene_;
+    bool show_menu_;
+
+    void DrawEntityList();
 };

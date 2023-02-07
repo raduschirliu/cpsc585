@@ -21,7 +21,7 @@ class Entity
         std::unique_ptr<Component> component;
     };
 
-    Entity();
+    Entity(const std::string& name = "Entity");
 
     template <class ComponentType>
         requires std::derived_from<ComponentType, Component>

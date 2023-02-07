@@ -4,6 +4,7 @@
 #include "engine/input/InputService.h"
 
 using std::make_unique;
+using std::string;
 using std::string_view;
 
 App::App()
@@ -50,13 +51,13 @@ void App::OnCleanup()
     // To be overridden if needed
 }
 
-Scene& App::AddScene(string_view name)
+Scene& App::AddScene(const string& name)
 {
     auto scene = make_unique<Scene>(name, service_provider_);
     return scene_list_.AddScene(std::move(scene));
 }
 
-void App::SetActiveScene(string_view name)
+void App::SetActiveScene(const string& name)
 {
     Log::info("Scene changed to: {}", name);
 

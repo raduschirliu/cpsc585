@@ -11,17 +11,26 @@
 
 using std::string_view;
 
+static constexpr float kComponentGuiIndent = 12.5f;
+
 void SceneDebugService::OnInit()
 {
 }
 
 void SceneDebugService::OnStart(ServiceProvider& service_provider)
 {
+    input_service_ = &service_provider.GetService<InputService>();
+
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 void SceneDebugService::OnUpdate()
 {
+    if (input_service_->IsKeyPressed(GLFW_KEY_F1))
+    {
+        active_scene_ = &GetApp().GetSceneList().GetActiveScene();
+        show_menu_ = !show_menu_;
+    }
 }
 
 void SceneDebugService::OnCleanup()
@@ -35,11 +44,30 @@ string_view SceneDebugService::GetName() const
 
 void SceneDebugService::OnGui()
 {
-    ImGui::Begin("Scene");
+    if (!show_menu_)
+    {
+        return;
+    }
 
-    auto& scene = GetApp().GetSceneList().GetActiveScene();
+    if (!ImGui::Begin("Scene", &show_menu_))
+    {
+        ImGui::End();
+        return;
+    }
 
-    for (auto& entity : scene.GetEntities())
+    ImGui::Text("Active scene: %s", active_scene_->GetName().c_str());
+
+    if (ImGui::CollapsingHeader("Entities"))
+    {
+        DrawEntityList();
+    }
+
+    ImGui::End();
+}
+
+void SceneDebugService::DrawEntityList()
+{
+    for (auto& entity : active_scene_->GetEntities())
     {
         const uint32_t& entity_id = entity->GetId();
 
@@ -55,7 +83,9 @@ void SceneDebugService::OnGui()
                 if (ImGui::TreeNode(&component_id, "%s", name.c_str(),
                                     entity->GetId()))
                 {
+                    ImGui::Indent(kComponentGuiIndent);
                     component_entry.component->OnDebugGui();
+                    ImGui::Unindent(kComponentGuiIndent);
                     ImGui::TreePop();
                 }
             }
@@ -63,6 +93,4 @@ void SceneDebugService::OnGui()
             ImGui::TreePop();
         }
     }
-
-    ImGui::End();
 }

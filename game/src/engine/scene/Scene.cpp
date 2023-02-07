@@ -3,11 +3,11 @@
 #include "engine/scene/Entity.h"
 
 using std::make_unique;
-using std::string_view;
+using std::string;
 using std::unique_ptr;
 using std::vector;
 
-Scene::Scene(string_view name, ServiceProvider& service_provider)
+Scene::Scene(const string& name, ServiceProvider& service_provider)
     : name_(name),
       entities_{},
       service_provider_(service_provider),
@@ -15,9 +15,9 @@ Scene::Scene(string_view name, ServiceProvider& service_provider)
 {
 }
 
-Entity& Scene::AddEntity()
+Entity& Scene::AddEntity(const string& name)
 {
-    auto entity = make_unique<Entity>();
+    auto entity = make_unique<Entity>(name);
     entity->SetScene(this);
     entities_.push_back(std::move(entity));
 
@@ -41,7 +41,7 @@ EventBus& Scene::GetEventBus()
     return event_bus_;
 }
 
-string_view Scene::GetName() const
+const string& Scene::GetName() const
 {
     return name_;
 }

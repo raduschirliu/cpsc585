@@ -153,5 +153,5 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
 std::string_view VehicleComponent::GetName() const
 {
-    return std::string_view();
+    return "Vehicle";
 }

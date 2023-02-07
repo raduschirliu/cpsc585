@@ -13,6 +13,7 @@
 #include "engine/service/Service.h"
 
 class App;
+
 struct ServiceEntry
 {
     std::type_index type;

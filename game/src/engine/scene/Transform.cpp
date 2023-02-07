@@ -111,8 +111,19 @@ void Transform::OnInit(const ServiceProvider& service_provider)
 
 void Transform::OnDebugGui()
 {
+    ImGui::Text("Position");
     ImGui::Text("X: %3.2f\tY: %3.2f\tZ: %3.2f", position_.x, position_.y,
                 position_.z);
+    ImGui::Spacing();
+
+    const vec3& orientation = glm::eulerAngles(orientation_);
+    ImGui::Text("Orientation (Euler Angles)");
+    ImGui::Text("X: %3.2f\tY: %3.2f\tZ: %3.2f", orientation.x, orientation.y,
+                orientation.z);
+    ImGui::Spacing();
+
+    ImGui::Text("Scale");
+    ImGui::Text("X: %3.2f\tY: %3.2f\tZ: %3.2f", scale_.x, scale_.y, scale_.z);
 }
 
 std::string_view Transform::GetName() const

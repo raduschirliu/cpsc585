@@ -39,8 +39,8 @@ class App : public std::enable_shared_from_this<App>,
         service_provider_.AddService(std::make_unique<ServiceType>());
     }
 
-    Scene& AddScene(std::string_view name);
-    void SetActiveScene(std::string_view name);
+    Scene& AddScene(const std::string& name);
+    void SetActiveScene(const std::string& name);
 
   private:
     bool running_;
