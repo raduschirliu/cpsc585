@@ -24,6 +24,7 @@ class MeshRenderer final : public Component
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui();
     std::string_view GetName() const override;
 
   private:

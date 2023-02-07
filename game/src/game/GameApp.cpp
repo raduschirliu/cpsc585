@@ -20,6 +20,7 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
+#include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
@@ -46,12 +47,13 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService<ConfigService>();
+    AddService<AssetService>();
+    AddService<SceneDebugService>();
     AddService<InputService>();
     AddService<PhysicsService>();
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
-    AddService<AssetService>();
 }
 
 /**
@@ -75,6 +77,13 @@ void GameApp::OnStart()
     }
 
     {
+        // Camera
+        Entity& camera = scene.AddEntity("Camera");
+        Transform& camera_transform = camera.AddComponent<Transform>();
+        camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+        camera.AddComponent<Camera>();
+        camera.AddComponent<DebugCameraController>();
+
         // Gui Example
         Entity& entity = scene.AddEntity();
 
@@ -86,7 +95,7 @@ void GameApp::OnStart()
 
     {
         // Floor
-        Entity& entity = scene.AddEntity();
+        Entity& floor = scene.AddEntity("Floor");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
@@ -131,7 +140,7 @@ void GameApp::OnStart()
     {
         // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
         // Who cares about brick?
-        Entity& entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));

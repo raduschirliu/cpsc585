@@ -10,9 +10,15 @@
 #include "engine/core/event/Event.h"
 #include "engine/core/event/EventHandler.h"
 
+class EventBus;
+
 class EventBus
 {
   public:
+    EventBus() : subscribers_{}, downstream_(nullptr)
+    {
+    }
+
     template <class EventType>
     void Publish()
     {
@@ -28,6 +34,12 @@ class EventBus
         {
             subscriber->Exec(event);
         }
+
+        // Forward event to all downstream busses
+        if (downstream_)
+        {
+            downstream_->Publish<EventType>(event);
+        }
     }
 
     template <class EventType>
@@ -40,8 +52,14 @@ class EventBus
         subscribers_[key].push_back(std::move(subscriber));
     }
 
+    void SetDownstream(EventBus* event_bus)
+    {
+        downstream_ = event_bus;
+    }
+
   private:
     std::unordered_map<std::type_index,
                        std::vector<std::unique_ptr<EventHandler>>>
         subscribers_;
+    jss::object_ptr<EventBus> downstream_;
 };

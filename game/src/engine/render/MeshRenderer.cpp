@@ -2,6 +2,7 @@
 
 #include <assimp/postprocess.h>  // Post processing flags
 #include <assimp/scene.h>        // Output data structure
+#include <imgui.h>
 
 #include <assimp/Importer.hpp>  // C++ importer interface
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,6 +38,18 @@ void MeshRenderer::OnInit(const ServiceProvider& service_provider)
     asset_service_ = &service_provider.GetService<AssetService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
+}
+
+void MeshRenderer::OnDebugGui()
+{
+    if (mesh_name_)
+    {
+        ImGui::Text("Mesh: %s", mesh_name_.value().c_str());
+    }
+    else
+    {
+        ImGui::Text("Mesh: %s", "<NONE>");
+    }
 }
 
 std::string_view MeshRenderer::GetName() const
