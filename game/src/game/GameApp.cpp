@@ -25,6 +25,7 @@
 #include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/RaycastComponent.h"
 
 using glm::ivec2;
 using glm::vec3;
@@ -145,6 +146,8 @@ void GameApp::OnStart()
         auto& rigidbody = entity.AddComponent<CubeRigidbody>();
         rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
         rigidbody.SetCanControl(true);
+
+        entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
