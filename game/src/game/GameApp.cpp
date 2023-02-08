@@ -16,6 +16,7 @@
 #include "engine/physics/PlaneRigidbody.h"
 #include "engine/physics/SphereRigidbody.h"
 #include "engine/render/Camera.h"
+#include "engine/render/FollowCamera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
@@ -23,6 +24,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
+#include "game/components/FollowCameraController.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/VehicleComponent.h"
 
@@ -76,11 +78,11 @@ void GameApp::OnStart()
     entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
     entity2.AddComponent<GuiExampleComponent>();
 
-    Entity& camera = scene.AddEntity();
-    Transform& camera_transform = camera.AddComponent<Transform>();
-    camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
-    camera.AddComponent<Camera>();
-    camera.AddComponent<DebugCameraController>();
+    // Entity& camera = scene.AddEntity();
+    // Transform& camera_transform = camera.AddComponent<Transform>();
+    // camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
+    // camera.AddComponent<Camera>();
+    // camera.AddComponent<DebugCameraController>();
 
     /*Entity& cube = scene.AddEntity();
     Transform& cube_transform = cube.AddComponent<Transform>();
@@ -95,14 +97,14 @@ void GameApp::OnStart()
     floor.AddComponent<PlaneRigidbody>();
     floor.AddComponent<MeshRenderer>();
 
-    Entity& cubeRigidBody = scene.AddEntity();
-    Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
-    temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
-    auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
-    rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
-    rigidBody_ref.SetCanControl(true);
-    cubeRigidBody.AddComponent<MeshRenderer>();
-    SetActiveScene("TestScene");
+    // Entity& cubeRigidBody = scene.AddEntity();
+    // Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
+    // temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
+    // auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
+    // rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
+    // rigidBody_ref.SetCanControl(true);
+    // cubeRigidBody.AddComponent<MeshRenderer>();
+    // SetActiveScene("TestScene");
 
     {
         Entity& entity = scene.AddEntity();
@@ -118,8 +120,8 @@ void GameApp::OnStart()
         Entity& camera = scene.AddEntity();
         Transform& camera_transform = camera.AddComponent<Transform>();
         camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
-        camera.AddComponent<Camera>();
-        camera.AddComponent<DebugCameraController>();
+        // camera.AddComponent<Camera>();
+        // camera.AddComponent<DebugCameraController>();
     }
 
     {
@@ -166,18 +168,19 @@ void GameApp::OnStart()
     }
 
     {
-        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
-        // Who cares about brick?
         Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+        // transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        entity.AddComponent<FollowCamera>();
+        entity.AddComponent<FollowCameraController>();
 
         auto bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("BunnyVehicle");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMesh("cube");
     }
 }

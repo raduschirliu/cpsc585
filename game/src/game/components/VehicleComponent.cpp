@@ -149,6 +149,15 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         glm::vec3(g_vehicle_.mBaseState.rigidBodyState.pose.p.x,
                   g_vehicle_.mBaseState.rigidBodyState.pose.p.y,
                   g_vehicle_.mBaseState.rigidBodyState.pose.p.z));
+
+    // transform_->SetOrientation(glm::quat(g_vehicle_.mBaseState.rigidBodyState.pose.q.w,
+    //                             g_vehicle_.mBaseState.rigidBodyState.pose.q.x,
+    //                             g_vehicle_.mBaseState.rigidBodyState.pose.q.y,
+    //                             g_vehicle_.mBaseState.rigidBodyState.pose.q.z));
+
+    //std::cout<<"vehicle : " << transform_->GetPosition() << std::endl;
+    
+    //Log::debug("{}, {}, {}", transform_->GetPosition().x,  transform_->GetPosition().y,  transform_->GetPosition().z);
 }
 
 std::string_view VehicleComponent::GetName() const
