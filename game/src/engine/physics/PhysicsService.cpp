@@ -178,7 +178,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
-    Log::debug("Hit something");
+    Log::debug("[Raycast]: Hit something");
 
     return result;
 }
