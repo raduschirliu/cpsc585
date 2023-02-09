@@ -42,8 +42,10 @@ void MeshRenderer::OnDebugGui()
         ImGui::Text("Mesh: %s", "<NONE>");
     }
 
-    gui::Vec3Field("Albedo", material_properties_.albedo_color);
-    gui::Vec3Field("Specular", material_properties_.specular);
+    gui::EditColorProperty("Albedo", material_properties_.albedo_color);
+    gui::EditColorProperty("Specular", material_properties_.specular);
+    ImGui::DragFloat("Shininess", &material_properties_.shininess, 0.5f, 1.0f,
+                     512.0f);
 }
 
 std::string_view MeshRenderer::GetName() const

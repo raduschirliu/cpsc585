@@ -83,9 +83,11 @@ void SceneDebugService::DrawEntityList()
                 if (ImGui::TreeNode(&component_id, "%s", name.c_str(),
                                     entity->GetId()))
                 {
+                    ImGui::PushID(component_id);
                     ImGui::Indent(kComponentGuiIndent);
                     component_entry.component->OnDebugGui();
                     ImGui::Unindent(kComponentGuiIndent);
+                    ImGui::PopID();
                     ImGui::TreePop();
                 }
             }

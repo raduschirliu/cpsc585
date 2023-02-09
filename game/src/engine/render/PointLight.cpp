@@ -1,5 +1,6 @@
 #include "engine/render/PointLight.h"
 
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/render/RenderService.h"
 
 using glm::vec3;
@@ -13,6 +14,7 @@ void PointLight::OnInit(const ServiceProvider& service_provider)
 
 void PointLight::OnDebugGui()
 {
+    gui::EditColorProperty("Diffuse", diffuse_);
 }
 
 std::string_view PointLight::GetName() const
@@ -20,12 +22,12 @@ std::string_view PointLight::GetName() const
     return "PointLight";
 }
 
-void PointLight::SetColor(const vec3& color)
+void PointLight::SetDiffuse(const vec3& diffuse)
 {
-    color_ = color;
+    diffuse_ = diffuse;
 }
 
-const vec3 PointLight::GetColor() const
+const vec3 PointLight::GetDiffuse() const
 {
-    return color_;
+    return diffuse_;
 }
