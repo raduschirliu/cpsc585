@@ -11,15 +11,16 @@
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
-#include "engine/physics/CubeRigidbody.h"
+#include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/PhysicsService.h"
-#include "engine/physics/PlaneRigidbody.h"
-#include "engine/physics/SphereRigidbody.h"
+#include "engine/physics/PlaneStaticBody.h"
+#include "engine/physics/SphereRigidBody.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
+#include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
@@ -47,12 +48,13 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
 
     AddService<ConfigService>();
+    AddService<AssetService>();
+    AddService<SceneDebugService>();
     AddService<InputService>();
     AddService<PhysicsService>();
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
-    AddService<AssetService>();
 }
 
 /**
@@ -64,48 +66,26 @@ void GameApp::OnStart()
     Scene& scene = AddScene("TestScene");
     SetActiveScene("TestScene");
 
-    // Entity& entity1 = scene.AddEntity();
-    // Transform& entity1_transform = entity1.AddComponent<Transform>();
-    //// setting the transformation of the entity to this, and connecting
-    /// physics / in BasicComponent.cpp
-    // entity1_transform.SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-    // entity1.AddComponent<SphereRigidbody>();
-    // entity1.AddComponent<MeshRenderer>();
+    {
+        // Camera
+        Entity& entity = scene.AddEntity();
 
-    Entity& entity2 = scene.AddEntity();
-    Transform& entity2_transform = entity2.AddComponent<Transform>();
-    entity2_transform.SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-    entity2.AddComponent<GuiExampleComponent>();
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
 
-    Entity& camera = scene.AddEntity();
-    Transform& camera_transform = camera.AddComponent<Transform>();
-    camera_transform.SetPosition(glm::vec3(0.0f, 10.0f, 15.0f));
-    camera.AddComponent<Camera>();
-    camera.AddComponent<DebugCameraController>();
-
-    /*Entity& cube = scene.AddEntity();
-    Transform& cube_transform = cube.AddComponent<Transform>();
-    cube_transform.SetPosition(glm::vec3(0.0f, 50.0f, 0.0f));
-    auto& cube_sphere = cube.AddComponent<SphereRigidbody>();
-    cube_sphere.SetRadius(3.f);
-    cube.AddComponent<MeshRenderer>();*/
-
-    Entity& floor = scene.AddEntity();
-    Transform& t = floor.AddComponent<Transform>();
-    t.SetPosition(glm::vec3(0, 0, 0));
-    floor.AddComponent<PlaneRigidbody>();
-    floor.AddComponent<MeshRenderer>();
-
-    Entity& cubeRigidBody = scene.AddEntity();
-    Transform& temp_cube_transform = cubeRigidBody.AddComponent<Transform>();
-    temp_cube_transform.SetPosition(glm::vec3(0.0, 5.f, 0.f));
-    auto& rigidBody_ref = cubeRigidBody.AddComponent<CubeRigidbody>();
-    rigidBody_ref.CreateCube(5.f, 5.f, 5.f);
-    rigidBody_ref.SetCanControl(true);
-    cubeRigidBody.AddComponent<MeshRenderer>();
-    SetActiveScene("TestScene");
+        entity.AddComponent<Camera>();
+        entity.AddComponent<DebugCameraController>();
+    }
 
     {
+        // Camera
+        Entity& camera = scene.AddEntity("Camera");
+        Transform& camera_transform = camera.AddComponent<Transform>();
+        camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+        camera.AddComponent<Camera>();
+        camera.AddComponent<DebugCameraController>();
+
+        // Gui Example
         Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
@@ -115,25 +95,17 @@ void GameApp::OnStart()
     }
 
     {
-        // Camera
-        Entity& camera = scene.AddEntity();
-        Transform& camera_transform = camera.AddComponent<Transform>();
-        camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
-        camera.AddComponent<Camera>();
-        camera.AddComponent<DebugCameraController>();
-    }
-
-    {
         // Floor
-        Entity& floor = scene.AddEntity();
+        Entity& floor = scene.AddEntity("Floor");
 
-        Transform& transform = floor.AddComponent<Transform>();
+        auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
+        transform.SetScale(vec3(250.0f, 1.0f, 250.0f));
 
-        floor.AddComponent<PlaneRigidbody>();
+        entity.AddComponent<PlaneStaticBody>();
 
-        auto& mesh_renderer = floor.AddComponent<MeshRenderer>();
-        // mesh_renderer.SetMesh("plane");
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
     }
 
     {
@@ -142,10 +114,10 @@ void GameApp::OnStart()
 
         Transform& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
-        rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
-        rigidbody.SetCanControl(true);
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
         entity.AddComponent<RaycastComponent>();
 
@@ -157,24 +129,28 @@ void GameApp::OnStart()
         // Cube 2
         Entity& entity = scene.AddEntity();
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
+        transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
 
-        auto& rigidbody = entity.AddComponent<CubeRigidbody>();
-        rigidbody.CreateCube(5.0f, 5.0f, 5.0f);
-        rigidbody.SetCanControl(false);
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
     }
 
     {
-        // Bunny
-        Entity& entity = scene.AddEntity();
+        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
+        // Who cares about brick?
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(40.0f, 40.0f, 40.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("BunnyVehicle");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");

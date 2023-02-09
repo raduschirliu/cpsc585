@@ -4,9 +4,15 @@
 #include "engine/input/InputService.h"
 
 using std::make_unique;
+using std::string;
 using std::string_view;
 
-App::App() : running_(false), window_(), service_provider_(), scene_list_()
+App::App()
+    : running_(false),
+      window_(),
+      service_provider_(),
+      scene_list_(),
+      event_bus_()
 {
 }
 
@@ -18,7 +24,7 @@ void App::Run()
 
     // Init phase
     OnInit();
-    service_provider_.DispatchInit(window_);
+    service_provider_.DispatchInit(*this);
 
     // Run phase
     service_provider_.DispatchStart();
@@ -45,18 +51,24 @@ void App::OnCleanup()
     // To be overridden if needed
 }
 
-Scene& App::AddScene(string_view name)
+Scene& App::AddScene(const string& name)
 {
     auto scene = make_unique<Scene>(name, service_provider_);
     return scene_list_.AddScene(std::move(scene));
 }
 
-void App::SetActiveScene(string_view name)
+void App::SetActiveScene(const string& name)
 {
     Log::info("Scene changed to: {}", name);
 
     scene_list_.SetActiveScene(name);
+    event_bus_.SetDownstream(&scene_list_.GetActiveScene().GetEventBus());
     service_provider_.DispatchSceneChange(scene_list_.GetActiveScene());
+}
+
+SceneList& App::GetSceneList()
+{
+    return scene_list_;
 }
 
 Window& App::GetWindow()
@@ -64,9 +76,9 @@ Window& App::GetWindow()
     return window_;
 }
 
-EventBus& App::GetActiveEventBus()
+EventBus& App::GetEventBus()
 {
-    return scene_list_.GetActiveScene().GetEventBus();
+    return event_bus_;
 }
 
 void App::PerformGameLoop()

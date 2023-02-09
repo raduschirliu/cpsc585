@@ -9,6 +9,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <optional>
+#include <vector>
 
 #include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
@@ -44,16 +45,16 @@ class PhysicsService final : public Service
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
 
+    std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
+
     // Gravitational acceleration
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
 
     const PxF32 timestep = 1.f / 60.f;
 
-    // A ground plane to drive on.
-    PxRigidStatic* gGroundPlane = NULL;
-
   public:
-    // all the functions which will be shared
+    void RegisterActor(physx::PxActor* actor);
+    void UnregisterActor(physx::PxActor* actor);
 
     /*
      * Function to make a sphere collider.
@@ -68,13 +69,6 @@ class PhysicsService final : public Service
         physx::PxReal density, physx::PxVec3 velocity,
         physx::PxReal angularDamping = 0.5f);
 
-    /*
-     * Function to update the location of the sphere.
-     * @param dynamic object : PxRigidDynamic ptr (PxRigidDynamic*)
-     * @param new location transform : PxTransform
-     */
-    void UpdateSphereLocation(physx::PxRigidDynamic* dynamic,
-                              physx::PxTransform location_transform);
 
     /*
      * Casts a ray until the nearest object or no object is hit.
@@ -95,7 +89,8 @@ class PhysicsService final : public Service
      * Function to make a plane based on
      * @param dimension : PxPlane
      */
-    void CreatePlaneRigidBody(physx::PxPlane plane_dimensions);
+    physx::PxRigidStatic* CreatePlaneRigidStatic(
+        physx::PxPlane plane_dimensions);
 
     physx::PxRigidDynamic* CreateRigidDynamic(const glm::vec3& position,
                                               const glm::quat& orientation,

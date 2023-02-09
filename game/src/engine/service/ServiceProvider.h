@@ -12,6 +12,8 @@
 #include "engine/core/gfx/Window.h"
 #include "engine/service/Service.h"
 
+class App;
+
 struct ServiceEntry
 {
     std::type_index type;
@@ -56,7 +58,7 @@ class ServiceProvider
         throw new std::exception("Service does not exist");
     }
 
-    void DispatchInit(Window& window);
+    void DispatchInit(App& app);
     void DispatchStart();
     void DispatchSceneChange(Scene& scene);
     void DispatchUpdate();

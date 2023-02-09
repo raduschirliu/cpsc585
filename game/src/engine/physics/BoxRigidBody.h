@@ -1,15 +1,16 @@
 #pragma once
 
-#include "engine/physics/PhysicsService.h"
-#include "engine/scene/Component.h"
+#include "engine/physics/RigidBodyComponent.h"
 
-class PlaneRigidbody final : public Component
+class BoxRigidBody final : public RigidBodyComponent
 {
   public:
+    void SetSize(const glm::vec3& size);
+
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
 
   private:
-    jss::object_ptr<PhysicsService> physicsService_;
+    physx::PxShape* shape_;
 };

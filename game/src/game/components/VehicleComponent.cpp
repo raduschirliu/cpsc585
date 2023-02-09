@@ -51,8 +51,8 @@ bool VehicleComponent::InitializeVehicle()
     g_vehicle_.mTransmissionCommandState.gear =
         PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
 
-    pose = CreateTransform(transform_->GetPosition(),
-                           glm::quat(1.f, 0.f, 0.f, 0.f));
+    pose = CreatePxTransform(transform_->GetPosition(),
+                             glm::quat(1.f, 0.f, 0.f, 0.f));
 
     // Set up the simulation context.
     // The snippet is set up with
@@ -153,5 +153,5 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
 std::string_view VehicleComponent::GetName() const
 {
-    return std::string_view();
+    return "Vehicle";
 }
