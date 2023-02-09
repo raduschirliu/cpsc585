@@ -2,10 +2,14 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
 
 #include "engine/core/debug/Log.h"
+#include "engine/input/InputService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/PointLight.h"
+#include "engine/service/ServiceProvider.h"
 
 using glm::mat4;
 using glm::vec3;
@@ -14,8 +18,11 @@ using std::make_unique;
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
-      shader_("resources/shaders/default.vert", "resources/shaders/basic.frag"),
-      wireframe_(false)
+      lights_{},
+      shader_("resources/shaders/default.vert",
+              "resources/shaders/blinnphong.frag"),
+      wireframe_(false),
+      menu_open_(false)
 {
 }
 
@@ -69,9 +76,14 @@ void RenderService::UnregisterRenderable(const Entity& entity)
     }
 }
 
-void RenderService::RegisterCamera(const Camera& camera)
+void RenderService::RegisterCamera(Camera& camera)
 {
     cameras_.push_back(&camera);
+}
+
+void RenderService::RegisterLight(Entity& entity)
+{
+    lights_.push_back(&entity);
 }
 
 void RenderService::OnInit()
@@ -81,10 +93,20 @@ void RenderService::OnInit()
 
 void RenderService::OnStart(ServiceProvider& service_provider)
 {
+    input_service_ = &service_provider.GetService<InputService>();
+
+    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 void RenderService::OnUpdate()
 {
+    // Debug menu
+    if (input_service_->IsKeyPressed(GLFW_KEY_F2))
+    {
+        menu_open_ = !menu_open_;
+    }
+
+    // Rendering
     RenderPrepare();
 
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -117,16 +139,44 @@ std::string_view RenderService::GetName() const
     return "RenderService";
 }
 
+void RenderService::OnGui()
+{
+    if (!menu_open_)
+    {
+        return;
+    }
+
+    if (!ImGui::Begin("RenderService", &menu_open_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Cameras: %zu", cameras_.size());
+    ImGui::Text("Lights: %zu", lights_.size());
+    ImGui::Text("Meshes: %zu", render_list_.size());
+
+    ImGui::Checkbox("Wireframe", &wireframe_);
+
+    ImGui::End();
+}
+
 void RenderService::RenderPrepare()
 {
 }
 
-void RenderService::RenderCameraView(const Camera& camera)
+void RenderService::RenderCameraView(Camera& camera)
 {
+    auto& camera_transform = camera.GetEntity().GetComponent<Transform>();
+    const vec3& camera_pos = camera_transform.GetPosition();
+
     const mat4& view_matrix = camera.GetViewMatrix();
     const mat4& projection_matrix = camera.GetProjectionMatrix();
-
     const mat4 view_proj_matrix = projection_matrix * view_matrix;
+
+    // TODO(radu): Allow for more than one light, and actually use light props
+    // auto light_entity = lights_[0];
+    // PointLight& light = light_entity->GetComponent<PointLight>();
 
     // Render each object
     for (const auto& obj : render_list_)
@@ -140,10 +190,34 @@ void RenderService::RenderCameraView(const Camera& camera)
         // identity, so we don't need to multiply by it
         const mat4 normal_matrix = transform.GetNormalMatrix();
 
+        // TODO(radu): Move this logic to Material
         shader_.Use();
+
+        // Vert shader vars
         shader_.SetUniform("uModelMatrix", model_matrix);
         shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
-        // shader_.SetUniform("uNormalMatrix", normal_matrix);
+        shader_.SetUniform("uNormalMatrix", normal_matrix);
+
+        // Frags shader vars
+        // TODO(radu): Don't hardcode
+        shader_.SetUniform("uAmbientLight", vec3(0.15f, 0.15f, 0.15f));
+        shader_.SetUniform("uCameraPos", camera_pos);
+        shader_.SetUniform("uMaterial.specularColor", vec3(0.4f, 0.4f, 0.4f));
+        shader_.SetUniform("uMaterial.shininess", 32.0f);
+        // shader_.SetUniform("uMaterial.albedoTexture", 0);
+        shader_.SetUniform("uMaterial.albedoColor", vec3(0.8f, 0.2f, 0.2f));
+        shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
+        shader_.SetUniform("uLight.color", vec3(0.5f, 0.5f, 0.5f));
+
+        /*
+        uAmbientLight
+        uCameraPos
+        uMaterial.specularColor
+        uMaterial.shininess
+        uMaterial.albedoTexture
+        uLight.pos
+        uLight.color
+         */
 
         obj->vertex_array.Bind();
 

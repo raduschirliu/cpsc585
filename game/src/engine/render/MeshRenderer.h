@@ -5,7 +5,6 @@
 #include <string>
 
 #include "engine/asset/AssetService.h"
-#include "engine/render/Renderable.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
 
@@ -20,7 +19,6 @@ class MeshRenderer final : public Component
 
     // From RenderableComponent
     const Mesh& GetMesh() const;
-    // const glm::mat4& GetModelMatrix() const override;
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;

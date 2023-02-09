@@ -95,7 +95,7 @@ void GameApp::OnStart()
 
     {
         // Floor
-        Entity& floor = scene.AddEntity("Floor");
+        Entity& entity = scene.AddEntity("Floor");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
