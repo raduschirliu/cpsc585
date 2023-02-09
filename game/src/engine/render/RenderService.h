@@ -8,6 +8,7 @@
 #include "engine/core/gfx/VertexArray.h"
 #include "engine/core/gfx/VertexBuffer.h"
 #include "engine/gui/OnGuiEvent.h"
+#include "engine/render/Material.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
 
@@ -47,10 +48,12 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::unique_ptr<RenderData>> render_list_;
     std::vector<jss::object_ptr<Camera>> cameras_;
     std::vector<jss::object_ptr<Entity>> lights_;
+    std::vector<std::unique_ptr<Material>> materials_;
     ShaderProgram shader_;
     bool wireframe_;
     bool menu_open_;
 
     void RenderPrepare();
     void RenderCameraView(Camera& camera);
+    void RegisterMaterial(std::unique_ptr<Material> material);
 };

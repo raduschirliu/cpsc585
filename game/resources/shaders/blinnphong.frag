@@ -9,16 +9,16 @@ out vec4 outColor;
 
 struct Material
 {
-    vec3 specularColor;
-    float shininess;
     // sampler2D albedoTexture;
     vec3 albedoColor;
+    vec3 specularColor;
+    float shininess;
 };
 
 struct Light
 {
     vec3 pos;
-    vec3 color;
+    vec3 diffuse;
 };
 
 uniform Material uMaterial;
@@ -34,14 +34,16 @@ void main()
     // vec3 albedo = texture(uMaterial.albedoTexture, aTextureCoord);
     vec3 albedo = uMaterial.albedoColor;
 
+    vec3 ambient = albedo * uAmbientLight;
+
     float diffuseFactor = max(dot(normal, lightDir), 0.0f);
-    vec3 diffuse = uLight.color * albedo * diffuseFactor;
+    vec3 diffuse = uLight.diffuse * (albedo * diffuseFactor);
     
     vec3 viewDir = normalize(uCameraPos - aPos);
     vec3 reflectDir = reflect(-lightDir, normal);
     float specularFactor = pow(max(dot(viewDir, reflectDir), 0.0f), uMaterial.shininess);
-    vec3 specular = uMaterial.specularColor * uLight.color * specularFactor;
+    vec3 specular = uMaterial.specularColor * (uLight.diffuse * specularFactor);
 
-    vec3 result = uAmbientLight + diffuse + specular;
+    vec3 result = ambient + diffuse + specular;
 	outColor = vec4(result, 1.0f);
 }

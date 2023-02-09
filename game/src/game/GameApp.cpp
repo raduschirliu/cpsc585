@@ -83,7 +83,9 @@ void GameApp::OnStart()
         camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
         camera.AddComponent<Camera>();
         camera.AddComponent<DebugCameraController>();
+    }
 
+    {
         // Gui Example
         Entity& entity = scene.AddEntity();
 
@@ -120,6 +122,10 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+             .specular = vec3(0.4f, 0.1f, 0.1f),
+             .shininess = 128.0f});
     }
 
     {
@@ -151,5 +157,9 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
+             .specular = vec3(0.1f, 0.1f, 1.0f),
+             .shininess = 64.0f});
     }
 }

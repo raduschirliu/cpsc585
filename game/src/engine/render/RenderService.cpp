@@ -14,11 +14,13 @@
 using glm::mat4;
 using glm::vec3;
 using std::make_unique;
+using std::unique_ptr;
 
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
       lights_{},
+      materials_{},
       shader_("resources/shaders/default.vert",
               "resources/shaders/blinnphong.frag"),
       wireframe_(false),
@@ -190,6 +192,9 @@ void RenderService::RenderCameraView(Camera& camera)
         // identity, so we don't need to multiply by it
         const mat4 normal_matrix = transform.GetNormalMatrix();
 
+        const MaterialProperties& material_properties =
+            renderer.GetMaterialProperties();
+
         // TODO(radu): Move this logic to Material
         shader_.Use();
 
@@ -200,24 +205,14 @@ void RenderService::RenderCameraView(Camera& camera)
 
         // Frags shader vars
         // TODO(radu): Don't hardcode
-        shader_.SetUniform("uAmbientLight", vec3(0.15f, 0.15f, 0.15f));
+        shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
         shader_.SetUniform("uCameraPos", camera_pos);
-        shader_.SetUniform("uMaterial.specularColor", vec3(0.4f, 0.4f, 0.4f));
-        shader_.SetUniform("uMaterial.shininess", 32.0f);
+        shader_.SetUniform("uMaterial.specularColor", material_properties.specular);
+        shader_.SetUniform("uMaterial.shininess", material_properties.shininess);
         // shader_.SetUniform("uMaterial.albedoTexture", 0);
-        shader_.SetUniform("uMaterial.albedoColor", vec3(0.8f, 0.2f, 0.2f));
+        shader_.SetUniform("uMaterial.albedoColor", material_properties.albedo_color);
         shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
-        shader_.SetUniform("uLight.color", vec3(0.5f, 0.5f, 0.5f));
-
-        /*
-        uAmbientLight
-        uCameraPos
-        uMaterial.specularColor
-        uMaterial.shininess
-        uMaterial.albedoTexture
-        uLight.pos
-        uLight.color
-         */
+        shader_.SetUniform("uLight.diffuse", vec3(0.7f, 0.7f, 0.7f));
 
         obj->vertex_array.Bind();
 
@@ -226,4 +221,9 @@ void RenderService::RenderCameraView(Camera& camera)
 
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
     }
+}
+
+void RenderService::RegisterMaterial(unique_ptr<Material> material)
+{
+    materials_.push_back(std::move(material));
 }
