@@ -31,6 +31,14 @@ void Component::OnCleanup()
 {
 }
 
+void Component::OnTriggerEnter(const OnTriggerEvent& data)
+{
+}
+
+void Component::OnTriggerExit(const OnTriggerEvent& data)
+{
+}
+
 void Component::OnDebugGui()
 {
 }

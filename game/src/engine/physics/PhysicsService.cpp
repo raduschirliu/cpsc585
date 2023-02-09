@@ -4,6 +4,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/input/InputService.h"
+#include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -188,6 +189,7 @@ void PhysicsService::initPhysX()
     sceneDesc.cpuDispatcher = kDispatcher_;
     sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
     kScene_ = kPhysics_->createScene(sceneDesc);
+    kScene_->setSimulationEventCallback(this);
     PxPvdSceneClient* pvdClient = kScene_->getScenePvdClient();
     if (pvdClient)
     {
@@ -198,4 +200,65 @@ void PhysicsService::initPhysX()
     }
     // setting up the vehicle physics
     PxInitVehicleExtension(*kFoundation_);
+}
+
+/* From PxSimulationEventCallback */
+void PhysicsService::onConstraintBreak(PxConstraintInfo* constraints,
+                                       PxU32 count)
+{
+}
+
+void PhysicsService::onWake(PxActor** actors, PxU32 count)
+{
+}
+
+void PhysicsService::onSleep(PxActor** actors, PxU32 count)
+{
+}
+
+void PhysicsService::onContact(const PxContactPairHeader& pair_header,
+                               const PxContactPair* pairs, PxU32 pairs_count)
+{
+}
+
+void PhysicsService::onTrigger(PxTriggerPair* pairs, PxU32 count)
+{
+    for (uint32_t i = 0; i < count; i++)
+    {
+        PxTriggerPair& pair = pairs[i];
+
+        Entity* trigger_entity =
+            static_cast<Entity*>(pair.triggerActor->userData);
+        Entity* other_entity = static_cast<Entity*>(pair.otherActor->userData);
+
+        ASSERT_MSG(trigger_entity,
+                   "PxActor userdata must be a valid entity pointer");
+        ASSERT_MSG(other_entity,
+                   "PxActor userdata must be a valid entity pointer");
+
+        OnTriggerEvent event_data = {
+            .other = other_entity
+        };
+
+        // TODO: this should only be called on enter, not always
+        for (auto& entry : trigger_entity->GetComponents())
+        {
+            entry.component->OnTriggerEnter(event_data);
+        }
+
+        event_data = {
+            .other = trigger_entity
+        };
+
+        for (auto& entry : other_entity->GetComponents())
+        {
+            entry.component->OnTriggerEnter(event_data);
+        }
+    }
+}
+
+void PhysicsService::onAdvance(const PxRigidBody* const* body_buffer,
+                               const PxTransform* pose_buffer,
+                               const PxU32 count)
+{
 }
