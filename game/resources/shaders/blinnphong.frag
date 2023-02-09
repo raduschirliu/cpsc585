@@ -40,8 +40,8 @@ void main()
     vec3 diffuse = uLight.diffuse * (albedo * diffuseFactor);
     
     vec3 viewDir = normalize(uCameraPos - aPos);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float specularFactor = pow(max(dot(viewDir, reflectDir), 0.0f), uMaterial.shininess);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float specularFactor = pow(max(dot(viewDir, halfwayDir), 0.0f), uMaterial.shininess);
     vec3 specular = uMaterial.specularColor * (uLight.diffuse * specularFactor);
 
     vec3 result = ambient + diffuse + specular;
