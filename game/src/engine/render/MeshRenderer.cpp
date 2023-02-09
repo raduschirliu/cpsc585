@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 
@@ -40,6 +41,9 @@ void MeshRenderer::OnDebugGui()
     {
         ImGui::Text("Mesh: %s", "<NONE>");
     }
+
+    gui::Vec3Field("Albedo", material_properties_.albedo_color);
+    gui::Vec3Field("Specular", material_properties_.specular);
 }
 
 std::string_view MeshRenderer::GetName() const
