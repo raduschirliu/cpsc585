@@ -154,7 +154,7 @@ void GameApp::OnStart()
         Entity& entity = scene.AddEntity("Finish Line");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(50.0, 15.0f, 20.0f));
+        transform.SetPosition(vec3(50.0, 0.0f, 20.0f));
         transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
@@ -165,8 +165,8 @@ void GameApp::OnStart()
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.1f, 1.0f),
-             .specular = vec3(1.0f, 0.1f, 1.0f),
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
 }

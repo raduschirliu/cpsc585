@@ -234,23 +234,40 @@ void PhysicsService::onTrigger(PxTriggerPair* pairs, PxU32 count)
         ASSERT_MSG(other_entity,
                    "PxActor userdata must be a valid entity pointer");
 
-        OnTriggerEvent event_data = {
-            .other = other_entity
-        };
+        OnTriggerEvent event_data = {.other = other_entity};
 
-        // TODO: this should only be called on enter, not always
-        for (auto& entry : trigger_entity->GetComponents())
+        bool enter = pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
+        if (enter)
         {
-            entry.component->OnTriggerEnter(event_data);
+            for (auto& entry : trigger_entity->GetComponents())
+            {
+                entry.component->OnTriggerEnter(event_data);
+            }
+        }
+        else
+        {
+            for (auto& entry : trigger_entity->GetComponents())
+            {
+                entry.component->OnTriggerExit(event_data);
+            }
         }
 
-        event_data = {
-            .other = trigger_entity
-        };
+        event_data = {.other = trigger_entity};
 
-        for (auto& entry : other_entity->GetComponents())
+        if (enter)
         {
-            entry.component->OnTriggerEnter(event_data);
+            for (auto& entry : other_entity->GetComponents())
+            {
+                entry.component->OnTriggerEnter(event_data);
+            }
+        }
+        else
+        {
+            for (auto& entry : other_entity->GetComponents())
+            {
+                entry.component->OnTriggerExit(event_data);
+            }
         }
     }
 }
