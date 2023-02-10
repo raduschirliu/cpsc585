@@ -67,6 +67,7 @@ bool VehicleComponent::InitializeVehicle()
         PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
     PxRigidBody* rigidbody = g_vehicle_.mPhysXState.physxActor.rigidBody;
+    rigidbody->userData = &GetEntity();
     uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 
