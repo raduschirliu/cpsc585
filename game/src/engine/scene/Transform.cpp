@@ -123,8 +123,8 @@ void Transform::OnDebugGui()
     dirty |= gui::EditProperty("Position", position_);
     ImGui::Spacing();
 
-    const vec3& orientation = glm::eulerAngles(orientation_);
-    gui::ViewProperty("Orientation (Euler Angles)", orientation);
+    const vec3& orientation = glm::degrees(glm::eulerAngles(orientation_));
+    gui::ViewProperty("Orientation (Euler, Degrees)", orientation);
     ImGui::Spacing();
 
     ImGui::Text("Scale");

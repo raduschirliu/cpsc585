@@ -17,6 +17,7 @@
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
 #include "engine/render/Camera.h"
+#include "engine/render/FollowCamera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
@@ -68,15 +69,15 @@ void GameApp::OnStart()
     Scene& scene = AddScene("TestScene");
     SetActiveScene("TestScene");
 
-    {
-        // Camera
-        Entity& entity = scene.AddEntity("Camera");
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+    // {
+    //     // Camera
+    //     Entity& entity = scene.AddEntity("Camera");
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
 
-        entity.AddComponent<Camera>();
-        entity.AddComponent<DebugCameraController>();
-    }
+    //     entity.AddComponent<Camera>();
+    //     entity.AddComponent<DebugCameraController>();
+    // }
 
     {
         // Floor
@@ -133,40 +134,46 @@ void GameApp::OnStart()
     }
 
     {
-        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
-        // Who cares about brick?
-        Entity& entity = scene.AddEntity("BunnyCar!!!");
+        // Player car
+        Entity& car_entity = scene.AddEntity("PlayerVehicle");
 
-        auto& transform = entity.AddComponent<Transform>();
+        auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("BunnyVehicle");
-        bunny_vehicle.SetCanControl(true);
+        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
+        vehicle.SetVehicleName("PlayerVehicle");
+        vehicle.SetCanControl(true);
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
+
+        // Camera following car
+        Entity& follow_camera_entity = scene.AddEntity();
+        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
+        auto& follow_camera_comp =
+            follow_camera_entity.AddComponent<FollowCamera>();
+        follow_camera_comp.SetFollowingTransform(car_entity);
+
+        follow_camera_entity.AddComponent<Camera>();
     }
 
     {
         // AI 1
-        Entity& entity = scene.AddEntity("BunnyCar!!!");
+        Entity& entity = scene.AddEntity("AiVehicle1");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");
         bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
@@ -175,38 +182,36 @@ void GameApp::OnStart()
 
     {
         // AI 2
-        Entity& entity = scene.AddEntity("BunnyCar!!!");
+        Entity& entity = scene.AddEntity("AiVehicle2");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI2");
         bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.0f, 1.0f, 0.0f),
+            {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
              .shininess = 64.0f});
     }
 
     {
         // AI 3
-        Entity& entity = scene.AddEntity("BunnyCar!!!");
+        Entity& entity = scene.AddEntity("AiVehicle3");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
         bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
@@ -218,11 +223,11 @@ void GameApp::OnStart()
         Entity& entity = scene.AddEntity("Finish Line");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(50.0, 0.0f, 20.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+        transform.SetPosition(vec3(50.0, 4.0f, 20.0f));
+        transform.SetScale(vec3(10.0f, 4.0f, 10.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(10.0f, 10.0f, 10.0f));
+        trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
 
         entity.AddComponent<FinishLineComponent>();
 
