@@ -90,7 +90,6 @@ void RenderService::RegisterLight(Entity& entity)
 
 void RenderService::OnInit()
 {
-    Log::info("RenderService - Initializing");
 }
 
 void RenderService::OnStart(ServiceProvider& service_provider)
@@ -133,7 +132,6 @@ void RenderService::OnUpdate()
 
 void RenderService::OnCleanup()
 {
-    Log::info("RenderService - Cleaning up");
 }
 
 std::string_view RenderService::GetName() const

@@ -15,6 +15,9 @@ static constexpr float kComponentGuiIndent = 12.5f;
 
 void SceneDebugService::OnInit()
 {
+    framerate_ = 0;
+    prev_time_ = 0.0;
+    frame_count_ = 0;
 }
 
 void SceneDebugService::OnStart(ServiceProvider& service_provider)
@@ -30,6 +33,16 @@ void SceneDebugService::OnUpdate()
     {
         active_scene_ = &GetApp().GetSceneList().GetActiveScene();
         show_menu_ = !show_menu_;
+    }
+
+    double cur_time = glfwGetTime();
+    frame_count_ += 1;
+
+    if (cur_time - prev_time_ >= 1.0)
+    {
+        framerate_ = frame_count_;
+        frame_count_ = 0;
+        prev_time_ = cur_time;
     }
 }
 
@@ -55,6 +68,7 @@ void SceneDebugService::OnGui()
         return;
     }
 
+    ImGui::Text("FPS: %d", framerate_);
     ImGui::Text("Active scene: %s", active_scene_->GetName().c_str());
 
     if (ImGui::CollapsingHeader("Entities"))

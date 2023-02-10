@@ -11,8 +11,6 @@ using namespace physx;
 
 void PlaneStaticBody::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("PlaneStaticBody - Init");
-
     physics_service_ = &service_provider.GetService<PhysicsService>();
 
     static_ = physics_service_->CreatePlaneRigidStatic(
