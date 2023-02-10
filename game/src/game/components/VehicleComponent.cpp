@@ -88,7 +88,6 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("Vehicle - Init");
     physicsService_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();

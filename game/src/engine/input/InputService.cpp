@@ -140,7 +140,6 @@ void InputService::OnMouseButtonEvent(int button, int action, int mods)
 
 void InputService::OnInit()
 {
-    Log::info("InputService - Initialized");
 }
 
 void InputService::OnCleanup()

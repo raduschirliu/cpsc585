@@ -67,8 +67,7 @@ void GameApp::OnStart()
 
     {
         // Camera
-        Entity& entity = scene.AddEntity();
-
+        Entity& entity = scene.AddEntity("Camera");
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
 
@@ -77,25 +76,8 @@ void GameApp::OnStart()
     }
 
     {
-        // Camera
-        Entity& camera = scene.AddEntity("Camera");
-        Transform& camera_transform = camera.AddComponent<Transform>();
-        camera_transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
-        camera.AddComponent<Camera>();
-        camera.AddComponent<DebugCameraController>();
-
-        // Gui Example
-        Entity& entity = scene.AddEntity();
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 0.0f, 0.0f));
-
-        entity.AddComponent<GuiExampleComponent>();
-    }
-
-    {
         // Floor
-        Entity& floor = scene.AddEntity("Floor");
+        Entity& entity = scene.AddEntity("Floor");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0, 0, 0));
@@ -146,7 +128,7 @@ void GameApp::OnStart()
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
-        auto bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("BunnyVehicle");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
