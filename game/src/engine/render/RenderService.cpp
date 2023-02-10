@@ -207,10 +207,13 @@ void RenderService::RenderCameraView(Camera& camera)
         // TODO(radu): Don't hardcode
         shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
         shader_.SetUniform("uCameraPos", camera_pos);
-        shader_.SetUniform("uMaterial.specularColor", material_properties.specular);
-        shader_.SetUniform("uMaterial.shininess", material_properties.shininess);
+        shader_.SetUniform("uMaterial.specularColor",
+                           material_properties.specular);
+        shader_.SetUniform("uMaterial.shininess",
+                           material_properties.shininess);
         // shader_.SetUniform("uMaterial.albedoTexture", 0);
-        shader_.SetUniform("uMaterial.albedoColor", material_properties.albedo_color);
+        shader_.SetUniform("uMaterial.albedoColor",
+                           material_properties.albedo_color);
         shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
         shader_.SetUniform("uLight.diffuse", vec3(0.7f, 0.7f, 0.7f));
 

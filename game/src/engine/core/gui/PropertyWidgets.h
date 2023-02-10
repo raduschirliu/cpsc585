@@ -14,4 +14,4 @@ bool EditProperty(const std::string& label, glm::vec3& value);
 
 void EditColorProperty(const std::string& label, glm::vec3& value);
 
-};
+};  // namespace gui
