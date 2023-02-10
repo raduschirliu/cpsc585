@@ -134,21 +134,17 @@ void GameApp::OnStart()
     }
 
     {
-        Entity& entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity("vehicle");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        // transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
-
-        // entity.AddComponent<FollowCamera>();
-        // entity.AddComponent<FollowCameraController>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("BunnyVehicle");
         bunny_vehicle.SetCanControl(true);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMesh("car");
 
         Entity& follow_camera_entity = scene.AddEntity();
         auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
@@ -164,11 +160,11 @@ void GameApp::OnStart()
         Entity& entity = scene.AddEntity("Finish Line");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(50.0, 0.0f, 20.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+        transform.SetPosition(vec3(50.0, 4.0f, 20.0f));
+        transform.SetScale(vec3(10.0f, 4.0f, 10.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(10.0f, 10.0f, 10.0f));
+        trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
 
         entity.AddComponent<FinishLineComponent>();
 
