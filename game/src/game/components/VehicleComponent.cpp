@@ -5,6 +5,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
+using std::string;
 using std::string_view;
 using namespace physx;
 
@@ -49,9 +50,6 @@ bool VehicleComponent::InitializeVehicle()
     g_vehicle_.mTransmissionCommandState.gear =
         PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
 
-    pose = CreatePxTransform(transform_->GetPosition(),
-                             glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-
     // Set up the simulation context.
     // The snippet is set up with
     // a) z as the longitudinal axis
@@ -59,7 +57,7 @@ bool VehicleComponent::InitializeVehicle()
     // c) y as the vertical axis.
     // d) metres  as the lengthscale.
     g_vehicle_simulation_context_.setToDefault();
-    g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::ePosZ;
+    g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::eNegZ;
     g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::eNegX;
     g_vehicle_simulation_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
     g_vehicle_simulation_context_.scale.scale = 1.0f;
@@ -67,6 +65,20 @@ bool VehicleComponent::InitializeVehicle()
     g_vehicle_simulation_context_.physxScene = physicsService_->GetKScene();
     g_vehicle_simulation_context_.physxActorUpdateMode =
         PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
+
+    PxRigidBody* rigidbody = g_vehicle_.mPhysXState.physxActor.rigidBody;
+    uint32_t num_shapes = rigidbody->getNbShapes();
+    PxShape* shape = nullptr;
+
+    for (uint32_t i = 0; i < 1; i++)
+    {
+        rigidbody->getShapes(&shape, 1, i);
+
+        shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+        shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+    }
+
     return true;
 }
 
@@ -130,18 +142,28 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         g_vehicle_.mCommandState.nbBrakes = 1;
         g_vehicle_.mCommandState.throttle = command_to_execute.throttle;
         g_vehicle_.mCommandState.steer = command_to_execute.steer;
-
-        g_vehicle_.step(physicsService_->GetTimeStep(),
-                        g_vehicle_simulation_context_);
-
-        transform_->SetPosition(
-            glm::vec3(g_vehicle_.mBaseState.rigidBodyState.pose.p.x,
-                      g_vehicle_.mBaseState.rigidBodyState.pose.p.y,
-                      g_vehicle_.mBaseState.rigidBodyState.pose.p.z));
     }
+
+    g_vehicle_.step(physicsService_->GetTimeStep(),
+                    g_vehicle_simulation_context_);
+
+    const PxTransform& pose =
+        g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+    const GlmTransform transform = PxToGlm(pose);
+    transform_->SetPosition(transform.position);
+    transform_->SetOrientation(transform.orientation);
 }
 
 std::string_view VehicleComponent::GetName() const
 {
     return "Vehicle";
+}
+
+void VehicleComponent::SetVehicleName(const string& vehicle_name)
+{
+    PxTransform pose(GlmToPx(transform_->GetPosition()), PxQuat(PxIdentity));
+
+    g_vehicle_name_ = vehicle_name;
+    g_vehicle_.setUpActor(*physicsService_->GetKScene(), pose,
+                          g_vehicle_name_.c_str());
 }

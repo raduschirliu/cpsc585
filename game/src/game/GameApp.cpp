@@ -139,14 +139,13 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("BunnyVehicle");
         bunny_vehicle.SetCanControl(true);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
              .specular = vec3(0.1f, 0.1f, 1.0f),

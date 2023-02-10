@@ -33,5 +33,5 @@ vec3 PxToGlm(const PxVec3& px_vec)
 
 quat PxToGlm(const PxQuat& px_quat)
 {
-    return quat(px_quat.x, px_quat.y, px_quat.z, px_quat.w);
+    return quat(px_quat.w, px_quat.x, px_quat.y, px_quat.z);
 }
