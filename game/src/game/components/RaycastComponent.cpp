@@ -11,9 +11,9 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"
+#include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-#include "engine/scene/Entity.h"
 
 void RaycastComponent::OnInit(const ServiceProvider& service_provider)
 {
@@ -23,7 +23,7 @@ void RaycastComponent::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     input_service_ = &service_provider.GetService<InputService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
-    
+
     // events
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -36,13 +36,13 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
 
     /*
     note: rn object hits itself with its own cast
-    when i change direction to upDirection and shoot immediately 
+    when i change direction to upDirection and shoot immediately
     i get a hit for a split second and then never again lol
     */
     glm::vec3 origin = transform_->GetPosition();
     glm::vec3 direction = transform_->GetForwardDirection();
 
-    // no raycast data == no hit 
+    // no raycast data == no hit
     if (!physics_service_->Raycast(origin, direction).has_value())
         return;
 
@@ -53,11 +53,9 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
     glm::vec3 position = raycast.position;
 
     // idk how to Log::debug this lol
-    std::cout
-        << "distance: " << distance << "\t"
-        << "normal: "   << normal   << "\t"
-        << "position: " << position << "\t"
-        << std::endl;
+    std::cout << "distance: " << distance << "\t"
+              << "normal: " << normal << "\t"
+              << "position: " << position << "\t" << std::endl;
 }
 
 std::string_view RaycastComponent::GetName() const
