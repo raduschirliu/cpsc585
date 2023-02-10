@@ -25,8 +25,8 @@
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/GuiExampleComponent.h"
-#include "game/components/VehicleComponent.h"
 #include "game/components/RaycastComponent.h"
+#include "game/components/VehicleComponent.h"
 
 using glm::ivec2;
 using glm::vec3;
