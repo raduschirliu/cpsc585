@@ -17,6 +17,7 @@
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
 #include "engine/render/Camera.h"
+#include "engine/render/FollowCamera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
@@ -68,15 +69,15 @@ void GameApp::OnStart()
     Scene& scene = AddScene("TestScene");
     SetActiveScene("TestScene");
 
-    {
-        // Camera
-        Entity& entity = scene.AddEntity("Camera");
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+    // {
+    //     // Camera
+    //     Entity& entity = scene.AddEntity("Camera");
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
 
-        entity.AddComponent<Camera>();
-        entity.AddComponent<DebugCameraController>();
-    }
+    //     entity.AddComponent<Camera>();
+    //     entity.AddComponent<DebugCameraController>();
+    // }
 
     {
         // Floor
@@ -133,24 +134,29 @@ void GameApp::OnStart()
     }
 
     {
-        // Bunny Vehicle!!!!!!!!!!!!!!!!!!!!!!!
-        // Who cares about brick?
-        Entity& entity = scene.AddEntity("BunnyCar!!!");
+        Entity& entity = scene.AddEntity();
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+        // transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        // entity.AddComponent<FollowCamera>();
+        // entity.AddComponent<FollowCameraController>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("BunnyVehicle");
         bunny_vehicle.SetCanControl(true);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("bunny");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
-             .specular = vec3(0.1f, 0.1f, 1.0f),
-             .shininess = 64.0f});
+        mesh_renderer.SetMesh("cube");
+
+        Entity& follow_camera_entity = scene.AddEntity();
+        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
+        auto& follow_camera_comp =
+            follow_camera_entity.AddComponent<FollowCamera>();
+        follow_camera_comp.SetFollowingTransform(entity);
+
+        follow_camera_entity.AddComponent<Camera>();
     }
 
     {
