@@ -34,6 +34,7 @@ void FollowCamera::SetFollowingTransform(Entity& entity)
     // get the transform of the entity
     auto temp_transform_ = &entity.GetComponent<Transform>();
     transform_->SetPosition(temp_transform_->GetPosition());
+    transform_->SetOrientation(temp_transform_->GetOrientation());
 }
 
 std::string_view FollowCamera::GetName() const
@@ -46,6 +47,8 @@ void FollowCamera::OnUpdate(const Timestep& delta_time)
     // should not be a null pointer
     if (transform_ && car_entity_)
     {
+        transform_->SetOrientation(
+            car_entity_->GetComponent<Transform>().GetOrientation());
         transform_->SetPosition(
             car_entity_->GetComponent<Transform>().GetPosition() -
             transform_->GetForwardDirection() * 30.f +
