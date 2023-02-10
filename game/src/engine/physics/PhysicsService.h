@@ -100,6 +100,11 @@ class PhysicsService final
 
     /**
      * from physx::PxQueryFilterCallback
+     * 
+     * filters out the actor that called the raycast to prevent it
+     * from hitting itself
+     * 
+     * @returns eTOUCH hit type (which is ignored by the raycast)
      */
     PxQueryHitType postFilter(const PxFilterData& filter_data,
                               const PxQueryHit& hit) override;

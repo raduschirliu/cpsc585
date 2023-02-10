@@ -166,11 +166,11 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    if (!PxHitFlag::eUV)  // UV barycentric coords
-    {
-        Log::debug("[Raycast]: Invalid UV Coordinates");
-        return std::nullopt;
-    }
+    // if (!PxHitFlag::eUV)  // UV barycentric coords
+    // {
+    //     Log::debug("[Raycast]: Invalid UV Coordinates");
+    //     return std::nullopt;
+    // }
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
