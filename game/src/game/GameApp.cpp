@@ -25,7 +25,6 @@
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
-#include "game/components/FollowCameraController.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/VehicleComponent.h"
 
