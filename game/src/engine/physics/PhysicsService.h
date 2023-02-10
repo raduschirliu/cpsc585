@@ -99,15 +99,17 @@ class PhysicsService final
                                        float max_distance = 100000);
 
     /**
-     * from physx::PxQueryFilterCallback
-     * 
-     * filters out the actor that called the raycast to prevent it
+     * (from physx::PxQueryFilterCallback)
+     *
+     * Filters out the actor that called the raycast to prevent it
      * from hitting itself
-     * 
+     * @param filter_data
+     * @param hit data on the raycast hit
      * @returns eTOUCH hit type (which is ignored by the raycast)
      */
-    PxQueryHitType postFilter(const PxFilterData& filter_data,
-                              const PxQueryHit& hit) override;
+    PxQueryHitType preFilter(const PxFilterData& filter_data,
+                             const PxShape* shape, const PxRigidActor* actor,
+                             PxHitFlags& query_flags) override;
 
     PxRigidActor get_self_actor();
 
