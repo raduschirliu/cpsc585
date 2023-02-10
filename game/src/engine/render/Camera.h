@@ -11,7 +11,7 @@ class RenderService;
 class InputService;
 
 // TODO(radu): Need to have a way to update the Camera's FoV and aspect ratio
-class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
+class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     Camera();
@@ -27,9 +27,6 @@ class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
-  protected:
-    glm::mat4 view_matrix_;
-
   private:
     float fov_degrees_;
     float aspect_ratio_;
@@ -37,6 +34,7 @@ class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
     float far_plane_;
 
     glm::mat4 projection_matrix_;
+    glm::mat4 view_matrix_;
 
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<InputService> input_service_;
