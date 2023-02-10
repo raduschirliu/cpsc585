@@ -15,9 +15,11 @@
 class AssetService final : public Service
 {
   public:
-    void LoadMesh(const std::string &path, const std::string &name,
-                  const std::string &textureName);
+    void LoadMesh(const std::string &path, const std::string &name);
     const Mesh &GetMesh(const std::string &name);
+    void LoadTexture(const std::string &path, aiMesh *mesh, const std::string &name,
+                     const aiScene *scene);
+    const Texture &GetTexture(const std::string &name);
 
     // From Service
     void OnInit() override;
@@ -31,11 +33,8 @@ class AssetService final : public Service
     std::unordered_map<std::string, Mesh> meshes_;
 
     void ProcessNode(const std::string &path, const std::string &name,
-                     const std::string &textureName, aiNode *node,
-                     const aiScene *scene);
-    Mesh ProcessMesh(aiNode *node, const std::string &textureName, aiMesh *mesh,
-                     const aiScene *scene);
-    std::vector<Texture> LoadTexture(const std::string &path,
-                                     const std::string &name, aiMaterial *mat,
-                                     aiTextureType type);
+                     aiNode *node, const aiScene *scene);
+    Mesh ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene);
+    void ProcessTexture(const std::string &path, const std::string &name,
+                         aiMaterial *mat, aiTextureType type);
 };

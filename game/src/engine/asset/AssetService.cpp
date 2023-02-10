@@ -5,8 +5,7 @@
 
 using namespace std;
 
-void AssetService::LoadMesh(const string &path, const string &name,
-                            const string &textureName)
+void AssetService::LoadMesh(const string &path, const string &name)
 {
     Assimp::Importer importer;
 
@@ -22,12 +21,213 @@ void AssetService::LoadMesh(const string &path, const string &name,
         ASSERT_MSG(false, importer.GetErrorString());
     }
 
-    ProcessNode(path, name, textureName, scene->mRootNode, scene);
+    ProcessNode(path, name, scene->mRootNode, scene);
 }
 
-const Mesh &AssetService::GetMesh(const std::string &name)
+const Mesh &AssetService::GetMesh(const string &name)
 {
     return meshes_[name];
+}
+
+void AssetService::LoadTexture(const string &path, aiMesh *mesh,
+                               const string &name, const aiScene *scene)
+{
+    // Texture (Material) information
+    aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+
+    // Diffuse Texture: combined with the result of the diffuse lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_DIFFUSE);
+        }
+    }
+
+    // Specular Texture: combined with the result of the specular lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_SPECULAR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_SPECULAR);
+        }
+    }
+
+    // Ambient Texture: combined with the result of the ambient lighting
+    // equation
+    if (material->GetTextureCount(aiTextureType_AMBIENT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_AMBIENT, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_AMBIENT);
+        }
+    }
+
+    // Emissive Texture: added to the result of the lighting calculation (X
+    // influenced by incoming light)
+    if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_EMISSIVE, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_EMISSIVE);
+        }
+    }
+
+    // Height Texture: higher grey-scale values stand for higher elevations
+    // from the base height
+    if (material->GetTextureCount(aiTextureType_HEIGHT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_HEIGHT);
+        }
+    }
+
+    // Normal Texture: a (tangent space) normal-map
+    if (material->GetTextureCount(aiTextureType_NORMALS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_NORMALS);
+        }
+    }
+
+    // Shininess Texture: defines the glossiness of the material
+    if (material->GetTextureCount(aiTextureType_SHININESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_SHININESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_SHININESS);
+        }
+    }
+
+    // Opacity Texture (Transparent): defines per-pixel opacity (white ==
+    // opaque and black == transparent)
+    if (material->GetTextureCount(aiTextureType_OPACITY) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_OPACITY, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_OPACITY);
+        }
+    }
+
+    // Displacement Texture: higher color values stand for higher vertex
+    // displacement
+    if (material->GetTextureCount(aiTextureType_DISPLACEMENT) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_DISPLACEMENT);
+        }
+    }
+
+    // LightMap Texture: cover both lightmaps and dedicated ambient
+    // occlusion maps contains a scaling value for the final color value of
+    // a pixel
+    if (material->GetTextureCount(aiTextureType_LIGHTMAP) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_LIGHTMAP);
+        }
+    }
+
+    // BaseColor Texture
+    if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_BASE_COLOR);
+        }
+    }
+
+    // Emissive Color Texture
+    if (material->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_EMISSION_COLOR, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_EMISSION_COLOR);
+        }
+    }
+
+    // Metalness Texture
+    if (material->GetTextureCount(aiTextureType_METALNESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_METALNESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_METALNESS);
+        }
+    }
+
+    // Roughness Texture
+    if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_DIFFUSE_ROUGHNESS);
+        }
+    }
+
+    // Ambient Occlusion Texture
+    if (material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &path) ==
+            AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material,
+                           aiTextureType_AMBIENT_OCCLUSION);
+        }
+    }
+
+    // Unknown: that does not match any of the definitions above
+    if (material->GetTextureCount(aiTextureType_UNKNOWN) > 0)
+    {
+        aiString path;
+        if (material->GetTexture(aiTextureType_UNKNOWN, 0, &path) == AI_SUCCESS)
+        {
+            ProcessTexture(path.C_Str(), name, material, aiTextureType_UNKNOWN);
+        }
+    }
+}
+
+const Texture &AssetService::GetTexture(const string &name)
+{
+    return texturesLoaded_[name];
 }
 
 /*
@@ -35,19 +235,18 @@ const Mesh &AssetService::GetMesh(const std::string &name)
  * -> : Approach the member through a pointer
  */
 void AssetService::ProcessNode(const string &path, const string &name,
-                               const string &textureName, aiNode *node,
-                               const aiScene *scene)
+                               aiNode *node, const aiScene *scene)
 {
     for (uint32_t i = 0; i < node->mNumMeshes; ++i)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes_[name] = ProcessMesh(node, textureName, mesh, scene);
+        meshes_[name] = ProcessMesh(node, mesh, scene);
     }
 
     // Do the same for each of its children
     for (uint32_t i = 0; i < node->mNumChildren; ++i)
     {
-        ProcessNode(path, name, textureName, node->mChildren[i], scene);
+        ProcessNode(path, name, node->mChildren[i], scene);
     }
 }
 
@@ -57,8 +256,7 @@ void AssetService::ProcessNode(const string &path, const string &name,
  * emplace_back()   : Create its own objects internally using the
  *                    constructor
  */
-Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
-                               aiMesh *mesh, const aiScene *scene)
+Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
 {
     Mesh localMesh;
 
@@ -117,265 +315,12 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
         }
     }
 
-    // Texture (Material) information
-    aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-
-    if (textureName.compare("") < 0){
-        // Diffuse Texture: combined with the result of the diffuse lighting
-        // equation
-        if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> diffuseMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_DIFFUSE);
-                for (auto& diffuse : diffuseMap){
-                    localMesh.textures.push_back(std::move(diffuse));
-                }
-            }
-        }
-
-        // Specular Texture: combined with the result of the specular lighting
-        // equation
-        if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_SPECULAR, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> specularMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_SPECULAR);
-                for (auto& specular : specularMap){
-                    localMesh.textures.push_back(std::move(specular));
-                }
-            }
-        }
-
-        // Ambient Texture: combined with the result of the ambient lighting
-        // equation
-        if (material->GetTextureCount(aiTextureType_AMBIENT) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_AMBIENT, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> ambientMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_AMBIENT);
-                for (auto& ambient : ambientMap){
-                    localMesh.textures.push_back(std::move(ambient));
-                }
-            }
-        }
-
-        // Emissive Texture: added to the result of the lighting calculation (X
-        // influenced by incoming light)
-        if (material->GetTextureCount(aiTextureType_EMISSIVE) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_EMISSIVE, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> emissiveMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_EMISSIVE);
-                for (auto& emissive : emissiveMap){
-                    localMesh.textures.push_back(std::move(emissive));
-                }
-            }
-        }
-
-        // Height Texture: higher grey-scale values stand for higher elevations
-        // from the base height
-        if (material->GetTextureCount(aiTextureType_HEIGHT) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> heightMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_HEIGHT);
-                for (auto& height : heightMap){
-                    localMesh.textures.push_back(std::move(height));
-                }
-            }
-        }
-
-        // Normal Texture: a (tangent space) normal-map
-        if (material->GetTextureCount(aiTextureType_NORMALS) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> normalsMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_NORMALS);
-                for (auto& normals : normalsMap){
-                    localMesh.textures.push_back(std::move(normals));
-                }
-            }
-        }
-
-        // Shininess Texture: defines the glossiness of the material
-        if (material->GetTextureCount(aiTextureType_SHININESS) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_SHININESS, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> shininessMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_SHININESS);
-                for (auto& shininess : shininessMap){
-                    localMesh.textures.push_back(std::move(shininess));
-                }
-            }
-        }
-
-        // Opacity Texture (Transparent): defines per-pixel opacity (white ==
-        // opaque and black == transparent)
-        if (material->GetTextureCount(aiTextureType_OPACITY) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_OPACITY, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> opacityMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_OPACITY);
-                for (auto& opacity : opacityMap){
-                    localMesh.textures.push_back(std::move(opacity));
-                }
-            }
-        }
-
-        // Displacement Texture: higher color values stand for higher vertex
-        // displacement
-        if (material->GetTextureCount(aiTextureType_DISPLACEMENT) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> displacementMap =
-                    LoadTexture(path.C_Str(), textureName, material,
-                                aiTextureType_DISPLACEMENT);
-                for (auto& displacement : displacementMap){
-                    localMesh.textures.push_back(std::move(displacement));
-                }
-            }
-        }
-
-        // LightMap Texture: cover both lightmaps and dedicated ambient occlusion
-        // maps contains a scaling value for the final color value of a pixel
-        if (material->GetTextureCount(aiTextureType_LIGHTMAP) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> lightMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_LIGHTMAP);
-                for (auto& light : lightMap){
-                    localMesh.textures.push_back(std::move(light));
-                }
-            }
-        }
-
-        // BaseColor Texture
-        if (material->GetTextureCount(aiTextureType_BASE_COLOR) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> baseColorMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_BASE_COLOR);
-                for (auto& baseColor : baseColorMap){
-                    localMesh.textures.push_back(std::move(baseColor));
-                }
-            }
-        }
-
-        // Emissive Color Texture
-        if (material->GetTextureCount(aiTextureType_EMISSION_COLOR) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_EMISSION_COLOR, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> emmissionColorMap =
-                    LoadTexture(path.C_Str(), textureName, material,
-                                aiTextureType_EMISSION_COLOR);
-                for (auto& emmissionColor : emmissionColorMap){
-                    localMesh.textures.push_back(std::move(emmissionColor));
-                }
-            }
-        }
-
-        // Metalness Texture
-        if (material->GetTextureCount(aiTextureType_METALNESS) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_METALNESS, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> metalnessMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_METALNESS);
-                for (auto& metalness : metalnessMap){
-                    localMesh.textures.push_back(std::move(metalness));
-                }
-            }
-        }
-
-        // Roughness Texture
-        if (material->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> diffuseRoughnessMap =
-                    LoadTexture(path.C_Str(), textureName, material,
-                                aiTextureType_DIFFUSE_ROUGHNESS);
-                for (auto& diffuseRoughness : diffuseRoughnessMap){
-                    localMesh.textures.push_back(std::move(diffuseRoughness));
-                }
-            }
-        }
-
-        // Ambient Occlusion Texture
-        if (material->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &path) ==
-                AI_SUCCESS)
-            {
-                vector<Texture> ambientOcclusionMap =
-                    LoadTexture(path.C_Str(), textureName, material,
-                                aiTextureType_AMBIENT_OCCLUSION);
-                for (auto& ambientOcclusion : ambientOcclusionMap){
-                    localMesh.textures.push_back(std::move(ambientOcclusion));
-                }
-            }
-        }
-
-        // Unknown: that does not match any of the definitions above
-        if (material->GetTextureCount(aiTextureType_UNKNOWN) > 0)
-        {
-            aiString path;
-            if (material->GetTexture(aiTextureType_UNKNOWN, 0, &path) == AI_SUCCESS)
-            {
-                vector<Texture> unknownMap = LoadTexture(
-                    path.C_Str(), textureName, material, aiTextureType_UNKNOWN);
-                for (auto& unknown : unknownMap){
-                    localMesh.textures.push_back(std::move(unknown));
-                }
-            }
-        }
-    }
-    
     return localMesh;
 }
 
-vector<Texture> AssetService::LoadTexture(const string &path,
-                                          const string &name, aiMaterial *mat,
-                                          aiTextureType type)
+void AssetService::ProcessTexture(const string &path, const string &name,
+                                  aiMaterial *mat, aiTextureType type)
 {
-    vector<Texture> textures;
     for (uint32_t i = 0; i < mat->GetTextureCount(type); ++i)
     {
         // Check if texture was loaded before and if so, continue to next
@@ -383,7 +328,6 @@ vector<Texture> AssetService::LoadTexture(const string &path,
         bool skip = false;
         if (texturesLoaded_.find(name) != texturesLoaded_.end())
         {
-            //textures.push_back(texturesLoaded_[name]);
             skip = true;
         }
 
@@ -391,21 +335,18 @@ vector<Texture> AssetService::LoadTexture(const string &path,
         if (!skip)
         {
             Texture texture(path, Texture::InterpolationMode::kLinear);
-            textures.push_back(std::move(texture));
             // Store it as texture loaded for entire model, to ensure not to
             // load duplicate textures
             texturesLoaded_[name] = std::move(texture);
         }
     }
-
-    return textures;
 }
 
 void AssetService::OnInit()
 {
-    LoadMesh("resources/models/cube.obj", "cube", "");
-    LoadMesh("resources/models/plane.obj", "plane", "");
-    LoadMesh("resources/models/stanford_bunny.obj", "bunny", "");
+    LoadMesh("resources/models/cube.obj", "cube");
+    LoadMesh("resources/models/plane.obj", "plane");
+    LoadMesh("resources/models/stanford_bunny.obj", "bunny");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
