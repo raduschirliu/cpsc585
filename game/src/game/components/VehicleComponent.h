@@ -63,6 +63,8 @@ class VehicleComponent final : public Component,
     bool InitializeVehicle();
     void InitMaterialFrictionTable();
 
+    bool b_can_control_ = false;
+
   public:
     // Getters
 
@@ -78,4 +80,7 @@ class VehicleComponent final : public Component,
         g_vehicle_.setUpActor(*physicsService_->GetKScene(), pose,
                               g_vehicle_name_.c_str());
     }
+    
+    inline void SetCanControl(bool b_value) { b_can_control_ = b_value;}
+    
 };
