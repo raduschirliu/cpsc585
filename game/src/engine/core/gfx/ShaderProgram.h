@@ -28,10 +28,7 @@ class ShaderProgram
     void SetUniform(const std::string& name, bool value);
     void SetUniform(const std::string& name, int value);
 
-    void Use() const
-    {
-        glUseProgram(programID);
-    }
+    void Use() const;
 
     void friend attach(ShaderProgram& sp, Shader& s);
 

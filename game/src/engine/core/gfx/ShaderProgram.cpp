@@ -116,6 +116,11 @@ bool ShaderProgram::CheckAndLogLinkSuccess() const
     }
 }
 
+void ShaderProgram::Use() const
+{
+    glUseProgram(programID);
+}
+
 GLint ShaderProgram::GetUniformLocation(const string& name) const
 {
     return glGetUniformLocation(programID, name.c_str());

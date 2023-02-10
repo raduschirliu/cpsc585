@@ -14,19 +14,19 @@ void VehicleComponent::ValidFileChecker()
     BaseVehicleParams base_params;
     if (!readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(), "Base.json",
                                     base_params))
-        Log::error("Cannot open Base.json file, error in VehicleComponent.");
-
-    // if (!readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(),
-    // "VehicleData.yaml",
-    //                                  base_params))
+        ASSERT_MSG(false,
+                   "Cannot open Base.json file, error in VehicleComponent.");
 
     // Check that we can read from the json file before continuing.
     DirectDrivetrainParams direct_drivetrain_params;
     if (!readDirectDrivetrainParamsFromJsonFile(
             g_vehicle_data_path_.c_str(), "DirectDrive.json",
             base_params.axleDescription, direct_drivetrain_params))
-        Log::error(
+    {
+        ASSERT_MSG(
+            false,
             "Cannot open DirectDrive.json file, error in VehicleComponent.");
+    }
 }
 
 bool VehicleComponent::InitializeVehicle()
@@ -41,18 +41,16 @@ bool VehicleComponent::InitializeVehicle()
         g_vehicle_data_path_.c_str(), "DirectDrive.json",
         g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
 
-    if (!g_vehicle_.initialize(*physicsService_->GetKPhysics(),
-                               PxCookingParams(PxTolerancesScale()),
-                               *physicsService_->GetKMaterial()))
-    {
-        return false;
-    }
+    ASSERT_MSG(g_vehicle_.initialize(*physicsService_->GetKPhysics(),
+                                     PxCookingParams(PxTolerancesScale()),
+                                     *physicsService_->GetKMaterial(), true),
+               "Vehicle must successfully initialize");
 
     g_vehicle_.mTransmissionCommandState.gear =
         PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
 
-    pose = CreateTransform(transform_->GetPosition(),
-                           glm::quat(1.f, 0.f, 0.f, 0.f));
+    pose = CreatePxTransform(transform_->GetPosition(),
+                             glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
     // Set up the simulation context.
     // The snippet is set up with
@@ -88,7 +86,6 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("Vehicle - Init");
     physicsService_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -98,37 +95,27 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     ValidFileChecker();
 
     InitMaterialFrictionTable();
-    if (!InitializeVehicle())
-        Log::error("Error while initializing the vehicle");
+    ASSERT_MSG(InitializeVehicle(), "Vehicle must initialize");
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-    // std::cout<<"This is working";
-    // Command to execute.
-
-    Command command_to_execute = {0.1, 0.f, 0.f, 0.f};
-
-    // Log::error("{}, {}, {}", g_vehicle_.mBaseState.rigidBodyState.pose.p.x,
-    // g_vehicle_.mBaseState.rigidBodyState.pose.p.y,
-    // g_vehicle_.mBaseState.rigidBodyState.pose.p.z);
+    Command command_to_execute = {0.1f, 0.0f, 0.0f, 0.0f};
 
     // Input service so that we can add the commands to it
     if (input_service_->IsKeyDown(GLFW_KEY_UP))
     {
-        Command temp = {0.f, 1.f, 0.f, physicsService_->GetTimeStep()};
+        Command temp = {0.0f, 1.0f, 0.0f, physicsService_->GetTimeStep()};
         command_to_execute = temp;
-        // Log::warning("{}, {}, {}", transform_->GetPosition().x,
-        // transform_->GetPosition().y, transform_->GetPosition().z);
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_LEFT))
     {
-        Command temp = {0.f, 0.1f, -0.1f, physicsService_->GetTimeStep()};
+        Command temp = {0.0f, 0.1f, -0.1f, physicsService_->GetTimeStep()};
         command_to_execute = temp;
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_RIGHT))
     {
-        Command temp = {0.f, 0.1f, 0.1f, physicsService_->GetTimeStep()};
+        Command temp = {0.0f, 0.1f, 0.1f, physicsService_->GetTimeStep()};
         command_to_execute = temp;
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_DOWN))
@@ -162,5 +149,5 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
 std::string_view VehicleComponent::GetName() const
 {
-    return std::string_view();
+    return "Vehicle";
 }

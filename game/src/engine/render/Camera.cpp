@@ -1,5 +1,7 @@
 #include "engine/render/Camera.h"
 
+#include <imgui.h>
+
 #include <glm/gtx/transform.hpp>
 
 #include "engine/core/debug/Log.h"
@@ -37,11 +39,22 @@ void Camera::OnInit(const ServiceProvider& service_provider)
     // Event subscriptions
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    // Setup camera params
-    projection_matrix_ = glm::perspective(
-        glm::radians(fov_degrees_), aspect_ratio_, near_plane_, far_plane_);
-
+    UpdateProjectionMatrix();
     UpdateViewMatrix();
+}
+
+void Camera::OnDebugGui()
+{
+    bool dirty = false;
+
+    dirty |= ImGui::DragFloat("FoV (deg)", &fov_degrees_, 1.0f, 0.0f, 120.0f);
+    dirty |= ImGui::DragFloat("Near Plane", &near_plane_, 1.0f, 1000.0f);
+    dirty |= ImGui::DragFloat("Far Plane", &far_plane_, 1.0f, 1000.0f);
+
+    if (dirty)
+    {
+        UpdateProjectionMatrix();
+    }
 }
 
 std::string_view Camera::GetName() const
@@ -73,4 +86,10 @@ void Camera::UpdateViewMatrix()
 
     //std::cout<<"camera : " << forward << std::endl;
 
+}
+
+void Camera::UpdateProjectionMatrix()
+{
+    projection_matrix_ = glm::perspective(
+        glm::radians(fov_degrees_), aspect_ratio_, near_plane_, far_plane_);
 }

@@ -27,12 +27,16 @@ class Component
     virtual void OnInit(const ServiceProvider& service_provider) = 0;
     virtual void OnStart();
     virtual void OnCleanup();
+    virtual void OnDebugGui();
     virtual std::string_view GetName() const = 0;
+
+    const uint32_t& GetId() const;
 
   protected:
     EventBus& GetEventBus();
 
   private:
+    uint32_t id_;
     jss::object_ptr<Entity> entity_;
     jss::object_ptr<EventBus> event_bus_;
 };

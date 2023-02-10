@@ -21,18 +21,13 @@ class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
   protected:
-    virtual void UpdateViewMatrix();
-
-    jss::object_ptr<RenderService> render_service_;
-    jss::object_ptr<InputService> input_service_;
-    jss::object_ptr<Transform> transform_;
-
     glm::mat4 view_matrix_;
     
   private:
@@ -43,4 +38,10 @@ class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
 
     glm::mat4 projection_matrix_;
 
+    jss::object_ptr<RenderService> render_service_;
+    jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<Transform> transform_;
+
+    void UpdateViewMatrix();
+    void UpdateProjectionMatrix();
 };

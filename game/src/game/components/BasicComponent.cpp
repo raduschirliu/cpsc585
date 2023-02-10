@@ -8,8 +8,6 @@ using std::string_view;
 
 void BasicComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("BasicComponent - Init");
-
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
