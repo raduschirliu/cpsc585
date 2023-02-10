@@ -134,8 +134,8 @@ std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
     float max_distance /* = 100000 */)
 {
-    physx::PxVec3 px_origin = GlmVecToPxVec(origin);
-    physx::PxVec3 px_unit_dir = GlmVecToPxVec(unit_dir);
+    physx::PxVec3 px_origin = GlmToPx(origin);
+    physx::PxVec3 px_unit_dir = GlmToPx(unit_dir);
     physx::PxRaycastBuffer raycast_result;
 
     // raycast against all static & dynamic objects in scene (with no filtering)
