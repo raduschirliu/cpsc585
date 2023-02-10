@@ -13,8 +13,6 @@ static constexpr float kDefaultDenisty = 10.0f;
 
 void RigidBodyComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("RigidBodyComponent - Init");
-
     physics_service_ = &service_provider.GetService<PhysicsService>();
     transform_ = &GetEntity().GetComponent<Transform>();
 

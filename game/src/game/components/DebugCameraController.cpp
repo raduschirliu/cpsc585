@@ -27,8 +27,6 @@ DebugCameraController::DebugCameraController()
 
 void DebugCameraController::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("DebugCameraController - Init");
-
     // Dependencies
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
