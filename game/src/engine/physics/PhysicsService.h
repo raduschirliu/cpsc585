@@ -69,7 +69,6 @@ class PhysicsService final : public Service
         physx::PxReal density, physx::PxVec3 velocity,
         physx::PxReal angularDamping = 0.5f);
 
-
     /*
      * Casts a ray until the nearest object or no object is hit.
      *
