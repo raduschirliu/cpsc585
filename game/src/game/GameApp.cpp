@@ -148,8 +148,68 @@ void GameApp::OnStart()
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
-             .specular = vec3(0.1f, 0.1f, 1.0f),
+            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+             .specular = vec3(0.3f, 0.3f, 0.3f),
+             .shininess = 64.0f});
+    }
+
+    {
+        // AI 1
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI1");
+        bunny_vehicle.SetCanControl(false);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
+             .specular = vec3(1.0f, 0.0f, 0.0f),
+             .shininess = 64.0f});
+    }
+
+    {
+        // AI 2
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI2");
+        bunny_vehicle.SetCanControl(false);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.0f, 1.0f, 0.0f),
+             .specular = vec3(0.0f, 1.0f, 0.0f),
+             .shininess = 64.0f});
+    }
+
+    {
+        // AI 3
+        Entity& entity = scene.AddEntity("BunnyCar!!!");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI3");
+        bunny_vehicle.SetCanControl(false);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
+             .specular = vec3(0.0f, 0.0f, 1.0f),
              .shininess = 64.0f});
     }
 
