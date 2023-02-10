@@ -128,10 +128,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             aiString path;
             if (material->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS)
             {
-                // vector<Texture> diffuseMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_DIFFUSE);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         diffuseMap.begin(), diffuseMap.end());
+                vector<Texture> diffuseMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_DIFFUSE);
+                for (auto& diffuse : diffuseMap){
+                    localMesh.textures.push_back(std::move(diffuse));
+                }
             }
         }
 
@@ -143,10 +144,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_SPECULAR, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> specularMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_SPECULAR);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         specularMap.begin(), specularMap.end());
+                vector<Texture> specularMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_SPECULAR);
+                for (auto& specular : specularMap){
+                    localMesh.textures.push_back(std::move(specular));
+                }
             }
         }
 
@@ -157,10 +159,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             aiString path;
             if (material->GetTexture(aiTextureType_AMBIENT, 0, &path) == AI_SUCCESS)
             {
-                // vector<Texture> ambientMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_AMBIENT);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         ambientMap.begin(), ambientMap.end());
+                vector<Texture> ambientMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_AMBIENT);
+                for (auto& ambient : ambientMap){
+                    localMesh.textures.push_back(std::move(ambient));
+                }
             }
         }
 
@@ -172,10 +175,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_EMISSIVE, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> emissiveMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_EMISSIVE);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         emissiveMap.begin(), emissiveMap.end());
+                vector<Texture> emissiveMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_EMISSIVE);
+                for (auto& emissive : emissiveMap){
+                    localMesh.textures.push_back(std::move(emissive));
+                }
             }
         }
 
@@ -186,10 +190,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             aiString path;
             if (material->GetTexture(aiTextureType_HEIGHT, 0, &path) == AI_SUCCESS)
             {
-                // vector<Texture> heightMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_HEIGHT);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         heightMap.begin(), heightMap.end());
+                vector<Texture> heightMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_HEIGHT);
+                for (auto& height : heightMap){
+                    localMesh.textures.push_back(std::move(height));
+                }
             }
         }
 
@@ -199,10 +204,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             aiString path;
             if (material->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS)
             {
-                // vector<Texture> normalsMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_NORMALS);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         normalsMap.begin(), normalsMap.end());
+                vector<Texture> normalsMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_NORMALS);
+                for (auto& normals : normalsMap){
+                    localMesh.textures.push_back(std::move(normals));
+                }
             }
         }
 
@@ -213,10 +219,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_SHININESS, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> shininessMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_SHININESS);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         shininessMap.begin(), shininessMap.end());
+                vector<Texture> shininessMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_SHININESS);
+                for (auto& shininess : shininessMap){
+                    localMesh.textures.push_back(std::move(shininess));
+                }
             }
         }
 
@@ -227,10 +234,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             aiString path;
             if (material->GetTexture(aiTextureType_OPACITY, 0, &path) == AI_SUCCESS)
             {
-                // vector<Texture> opacityMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_OPACITY);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         opacityMap.begin(), opacityMap.end());
+                vector<Texture> opacityMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_OPACITY);
+                for (auto& opacity : opacityMap){
+                    localMesh.textures.push_back(std::move(opacity));
+                }
             }
         }
 
@@ -242,12 +250,12 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_DISPLACEMENT, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> displacementMap =
-                //     LoadTexture(path.C_Str(), textureName, material,
-                //                 aiTextureType_DISPLACEMENT);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         displacementMap.begin(),
-                //                         displacementMap.end());
+                vector<Texture> displacementMap =
+                    LoadTexture(path.C_Str(), textureName, material,
+                                aiTextureType_DISPLACEMENT);
+                for (auto& displacement : displacementMap){
+                    localMesh.textures.push_back(std::move(displacement));
+                }
             }
         }
 
@@ -259,10 +267,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_LIGHTMAP, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> lightMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_LIGHTMAP);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         lightMap.begin(), lightMap.end());
+                vector<Texture> lightMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_LIGHTMAP);
+                for (auto& light : lightMap){
+                    localMesh.textures.push_back(std::move(light));
+                }
             }
         }
 
@@ -273,10 +282,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> baseColorMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_BASE_COLOR);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         baseColorMap.begin(), baseColorMap.end());
+                vector<Texture> baseColorMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_BASE_COLOR);
+                for (auto& baseColor : baseColorMap){
+                    localMesh.textures.push_back(std::move(baseColor));
+                }
             }
         }
 
@@ -287,12 +297,12 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_EMISSION_COLOR, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> emmissionColorMap =
-                //     LoadTexture(path.C_Str(), textureName, material,
-                //                 aiTextureType_EMISSION_COLOR);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         emmissionColorMap.begin(),
-                //                         emmissionColorMap.end());
+                vector<Texture> emmissionColorMap =
+                    LoadTexture(path.C_Str(), textureName, material,
+                                aiTextureType_EMISSION_COLOR);
+                for (auto& emmissionColor : emmissionColorMap){
+                    localMesh.textures.push_back(std::move(emmissionColor));
+                }
             }
         }
 
@@ -303,10 +313,11 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_METALNESS, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> metalnessMap = LoadTexture(
-                //     path.C_Str(), textureName, material, aiTextureType_METALNESS);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         metalnessMap.begin(), metalnessMap.end());
+                vector<Texture> metalnessMap = LoadTexture(
+                    path.C_Str(), textureName, material, aiTextureType_METALNESS);
+                for (auto& metalness : metalnessMap){
+                    localMesh.textures.push_back(std::move(metalness));
+                }
             }
         }
 
@@ -317,12 +328,12 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> diffuseRoughnessMap =
-                //     LoadTexture(path.C_Str(), textureName, material,
-                //                 aiTextureType_DIFFUSE_ROUGHNESS);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         diffuseRoughnessMap.begin(),
-                //                         diffuseRoughnessMap.end());
+                vector<Texture> diffuseRoughnessMap =
+                    LoadTexture(path.C_Str(), textureName, material,
+                                aiTextureType_DIFFUSE_ROUGHNESS);
+                for (auto& diffuseRoughness : diffuseRoughnessMap){
+                    localMesh.textures.push_back(std::move(diffuseRoughness));
+                }
             }
         }
 
@@ -333,12 +344,12 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
             if (material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &path) ==
                 AI_SUCCESS)
             {
-                // vector<Texture> ambientOcclusionMap =
-                //     LoadTexture(path.C_Str(), textureName, material,
-                //                 aiTextureType_AMBIENT_OCCLUSION);
-                // localMesh.textures.insert(localMesh.textures.end(),
-                //                         ambientOcclusionMap.begin(),
-                //                         ambientOcclusionMap.end());
+                vector<Texture> ambientOcclusionMap =
+                    LoadTexture(path.C_Str(), textureName, material,
+                                aiTextureType_AMBIENT_OCCLUSION);
+                for (auto& ambientOcclusion : ambientOcclusionMap){
+                    localMesh.textures.push_back(std::move(ambientOcclusion));
+                }
             }
         }
 
@@ -351,7 +362,7 @@ Mesh AssetService::ProcessMesh(aiNode *node, const string &textureName,
                 vector<Texture> unknownMap = LoadTexture(
                     path.C_Str(), textureName, material, aiTextureType_UNKNOWN);
                 for (auto& unknown : unknownMap){
-                    // localMesh.textures.push_back(unknown);
+                    localMesh.textures.push_back(std::move(unknown));
                 }
             }
         }
@@ -380,10 +391,10 @@ vector<Texture> AssetService::LoadTexture(const string &path,
         if (!skip)
         {
             Texture texture(path, Texture::InterpolationMode::kLinear);
-            //textures.push_back(texture);
+            textures.push_back(std::move(texture));
             // Store it as texture loaded for entire model, to ensure not to
             // load duplicate textures
-            //texturesLoaded_[name] = std::move(texture);
+            texturesLoaded_[name] = std::move(texture);
         }
     }
 

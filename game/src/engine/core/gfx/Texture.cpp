@@ -2,6 +2,12 @@
 
 #include <iostream>
 
+Texture::Texture()
+    : handle_(),
+      path_(""),
+      interpolation_(Texture::InterpolationMode::kLinear)
+{};
+
 Texture::Texture(std::string path, InterpolationMode interpolation_mode)
     : handle_(),
       path_(path),
