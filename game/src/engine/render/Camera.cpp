@@ -83,9 +83,6 @@ void Camera::UpdateViewMatrix()
     const vec3& forward = transform_->GetForwardDirection();
 
     view_matrix_ = glm::lookAt(position, position + forward, kUpDirection);
-
-    //std::cout<<"camera : " << forward << std::endl;
-
 }
 
 void Camera::UpdateProjectionMatrix()
