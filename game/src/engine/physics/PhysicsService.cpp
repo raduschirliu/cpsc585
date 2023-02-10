@@ -14,8 +14,6 @@ using namespace physx;
 
 void PhysicsService::OnInit()
 {
-    Log::info("PhysicsService Initializing");
-
     // initializing all the physx objects for use later.
     initPhysX();
 }

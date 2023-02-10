@@ -22,6 +22,9 @@ class SceneDebugService final : public Service,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<Scene> active_scene_;
     bool show_menu_;
+    int framerate_;
+    double prev_time_;
+    int frame_count_;
 
     void DrawEntityList();
 };

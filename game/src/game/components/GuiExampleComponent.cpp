@@ -10,8 +10,6 @@ using std::string_view;
 
 void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("GuiExampleComponent - Init");
-
     // Dependencies
     input_service_ = &service_provider.GetService<InputService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();

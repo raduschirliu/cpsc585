@@ -7,8 +7,8 @@ class RenderService;
 
 class PointLight final : public Component
 {
-    void SetColor(const glm::vec3& color);
-    const glm::vec3 GetColor() const;
+    void SetDiffuse(const glm::vec3& diffuse);
+    const glm::vec3 GetDiffuse() const;
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
@@ -18,5 +18,5 @@ class PointLight final : public Component
   private:
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<Transform> transform_;
-    glm::vec3 color_ = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 diffuse_ = glm::vec3(1.0f, 1.0f, 1.0f);
 };
