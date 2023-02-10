@@ -22,8 +22,10 @@ using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
-class PhysicsService final : public Service,
-                             public physx::PxSimulationEventCallback
+class PhysicsService final
+    : public Service,
+      public physx::PxSimulationEventCallback public physx::
+          PxQueryFilterCallback
 {
   private:
     void initPhysX();
@@ -88,12 +90,21 @@ class PhysicsService final : public Service,
      * @param OPTIONAL max_distance furthest reach of the ray : float
      *
      * @returns raycast_result data on the object hit by cast when a cast
-     *    is successful (i.e something was hit) : RaycastData
-     * @returns nothing when a cast is unsuccessful : std::nullopt
+     *      is successful (i.e something was hit)
+     *      or nothing when a cast is unsuccessful
      */
-    std::optional<RaycastData> Raycast(const glm::vec3& origin,
+    std::optional<RaycastData> Raycast(const PxRigidActor* actor,
+                                       const glm::vec3& origin,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
+
+    /**
+     * from physx::PxQueryFilterCallback
+     */
+    PxQueryHitType postFilter(const PxFilterData& filter_data,
+                              const PxQueryHit& hit) override;
+
+    PxRigidActor get_self_actor();
 
     /*
      * Function to make a plane based on

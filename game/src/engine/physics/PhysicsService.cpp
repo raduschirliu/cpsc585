@@ -133,12 +133,18 @@ std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
     float max_distance /* = 100000 */)
 {
-    physx::PxVec3 px_origin = GlmToPx(origin);
-    physx::PxVec3 px_unit_dir = GlmToPx(unit_dir);
-    physx::PxRaycastBuffer raycast_result;
+    // convert coordinates
+    PxVec3 px_origin = GlmToPx(origin);
+    PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // raycast against all static & dynamic objects in scene (with no filtering)
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
+    // setting up raycast object filtering
+    PxQueryFlag query_flag = PxQueryFlag::ePOSTFILTER;
+    PxQueryFilterData filter_data = PxQueryFilterData(query_flag);
+
+    PxHitFlag hit_flag = physx::PxQueryHitFlag::eDEFAULT;
+    PxRaycastBuffer raycast_result;
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flag, filter_data);
 
     // check if hit successful
     if (!raycast_result.hasBlock)
@@ -148,19 +154,19 @@ std::optional<RaycastData> PhysicsService::Raycast(
     }
 
     // data validity guard checks; ensure that data is available:
-    if (!physx::PxHitFlag::ePOSITION)
+    if (!PxHitFlag::ePOSITION)
     {
         Log::debug("[Raycast]: Invalid Position");
         return std::nullopt;
     }
 
-    if (!physx::PxHitFlag::eNORMAL)
+    if (!PxHitFlag::eNORMAL)
     {
         Log::debug("[Raycast]: Invalid Normal");
         return std::nullopt;
     }
 
-    if (!physx::PxHitFlag::eUV)  // UV barycentric coords
+    if (!PxHitFlag::eUV)  // UV barycentric coords
     {
         Log::debug("[Raycast]: Invalid UV Coordinates");
         return std::nullopt;
@@ -171,6 +177,18 @@ std::optional<RaycastData> PhysicsService::Raycast(
     Log::debug("[Raycast]: Hit something");
 
     return result;
+}
+
+PxQueryHitType postFilter(const PxFilterData& filter_data,
+                          const PxQueryHit& hit)
+{
+    // if (hit.block.actor == the actor that shot the raycast)
+    return PxQueryHitType::eTOUCH;  // raycast ignores touching hits;
+                                    // only registers blocking hits
+}
+
+PxRigidActor get_self_actor()
+{
 }
 
 /* ---------- PhysX ----------*/
