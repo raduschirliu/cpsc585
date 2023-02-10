@@ -5,6 +5,7 @@
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
+#include "engine/scene/EventData.h"
 #include "engine/service/ServiceProvider.h"
 
 class Entity;
@@ -27,6 +28,8 @@ class Component
     virtual void OnInit(const ServiceProvider& service_provider) = 0;
     virtual void OnStart();
     virtual void OnCleanup();
+    virtual void OnTriggerEnter(const OnTriggerEvent& data);
+    virtual void OnTriggerExit(const OnTriggerEvent& data);
     virtual void OnDebugGui();
     virtual std::string_view GetName() const = 0;
 

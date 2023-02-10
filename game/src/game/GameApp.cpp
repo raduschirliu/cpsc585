@@ -12,6 +12,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
+#include "engine/physics/BoxTrigger.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
@@ -24,6 +25,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
 #include "game/components/DebugCameraController.h"
+#include "game/components/FinishLineComponent.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
@@ -147,6 +149,27 @@ void GameApp::OnStart()
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
              .specular = vec3(0.1f, 0.1f, 1.0f),
+             .shininess = 64.0f});
+    }
+
+    {
+        // Alleged finish line
+        Entity& entity = scene.AddEntity("Finish Line");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(50.0, 0.0f, 20.0f));
+        transform.SetScale(vec3(10.0f, 10.0f, 10.0f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(10.0f, 10.0f, 10.0f));
+
+        entity.AddComponent<FinishLineComponent>();
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
 }

@@ -22,7 +22,8 @@ using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
-class PhysicsService final : public Service
+class PhysicsService final : public Service,
+                             public physx::PxSimulationEventCallback
 {
   private:
     void initPhysX();
@@ -55,6 +56,16 @@ class PhysicsService final : public Service
   public:
     void RegisterActor(physx::PxActor* actor);
     void UnregisterActor(physx::PxActor* actor);
+
+    /* From PxSimulationEventCallback */
+    void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
+    void onWake(PxActor** actors, PxU32 count) override;
+    void onSleep(PxActor** actors, PxU32 count) override;
+    void onContact(const PxContactPairHeader& pairHeader,
+                   const PxContactPair* pairs, PxU32 nbPairs) override;
+    void onTrigger(PxTriggerPair* pairs, PxU32 count) override;
+    void onAdvance(const PxRigidBody* const* bodyBuffer,
+                   const PxTransform* poseBuffer, const PxU32 count) override;
 
     /*
      * Function to make a sphere collider.
