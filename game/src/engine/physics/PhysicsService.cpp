@@ -129,7 +129,6 @@ physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
 }
 
 /* ---------- raycasting ---------- */
-
 std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
     float max_distance /* = 100000 */)

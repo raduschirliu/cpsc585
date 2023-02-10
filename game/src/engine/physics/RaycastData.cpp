@@ -18,4 +18,6 @@ RaycastData::RaycastData(PxRaycastBuffer raycast_result)
                   raycast_result.block.normal.z);
 
     RaycastData::distance = raycast_result.block.distance;
+
+    RaycastData::entity = raycast_result.block.actor;
 }
