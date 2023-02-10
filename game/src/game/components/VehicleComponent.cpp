@@ -57,7 +57,7 @@ bool VehicleComponent::InitializeVehicle()
     // c) y as the vertical axis.
     // d) metres  as the lengthscale.
     g_vehicle_simulation_context_.setToDefault();
-    g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::eNegZ;
+    g_vehicle_simulation_context_.frame.lngAxis = PxVehicleAxes::ePosZ;
     g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::eNegX;
     g_vehicle_simulation_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
     g_vehicle_simulation_context_.scale.scale = 1.0f;
@@ -115,7 +115,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (b_can_control_)
     {
-        Command command_to_execute = {0.1f, 0.0f, 0.0f, 0.0f};
+        Command command_to_execute = {0.2f, 0.0f, 0.0f, 0.0f};
 
         // Input service so that we can add the commands to it
         if (input_service_->IsKeyDown(GLFW_KEY_UP))
@@ -125,17 +125,17 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_LEFT))
         {
-            Command temp = {0.0f, 0.1f, -0.1f, physicsService_->GetTimeStep()};
+            Command temp = {0.0f, 0.1f, -0.2f, physicsService_->GetTimeStep()};
             command_to_execute = temp;
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_RIGHT))
         {
-            Command temp = {0.0f, 0.1f, 0.1f, physicsService_->GetTimeStep()};
+            Command temp = {0.0f, 0.1f, 0.2f, physicsService_->GetTimeStep()};
             command_to_execute = temp;
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_DOWN))
         {
-            Command temp = {0.5f, 0.0f, 0.0f, physicsService_->GetTimeStep()};
+            Command temp = {1.0f, 0.0f, 0.0f, physicsService_->GetTimeStep()};
             command_to_execute = temp;
         }
 
