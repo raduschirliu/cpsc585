@@ -29,7 +29,7 @@ class Camera : public Component, public IEventSubscriber<OnUpdateEvent>
 
   protected:
     glm::mat4 view_matrix_;
-    
+
   private:
     float fov_degrees_;
     float aspect_ratio_;

@@ -8,7 +8,7 @@
 #include "engine/scene/Transform.h"
 
 class DebugCameraController : public Component,
-                                    public IEventSubscriber<OnUpdateEvent>
+                              public IEventSubscriber<OnUpdateEvent>
 {
   public:
     DebugCameraController();
@@ -20,7 +20,6 @@ class DebugCameraController : public Component,
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
-
   protected:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
@@ -31,5 +30,4 @@ class DebugCameraController : public Component,
   private:
     glm::vec3 GetMovementDir();
     void UpdateRotation(float pitch_delta_degrees, float yaw_delta_degrees);
-    
 };
