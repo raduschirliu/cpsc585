@@ -87,11 +87,15 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 32.0f});
     }
 
     {
         // Cube
-        Entity& entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity("red cube");
 
         Transform& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
@@ -102,11 +106,15 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+             .specular = vec3(0.4f, 0.1f, 0.1f),
+             .shininess = 128.0f});
     }
 
     {
         // Cube 2
-        Entity& entity = scene.AddEntity();
+        Entity& entity = scene.AddEntity("white cube");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
@@ -133,5 +141,9 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("bunny");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 0.1f, 1.0f),
+             .specular = vec3(0.1f, 0.1f, 1.0f),
+             .shininess = 64.0f});
     }
 }

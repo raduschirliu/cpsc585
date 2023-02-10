@@ -21,6 +21,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
@@ -40,4 +41,5 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<Transform> transform_;
 
     void UpdateViewMatrix();
+    void UpdateProjectionMatrix();
 };

@@ -100,7 +100,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-    Command command_to_execute = {0.1, 0.0f, 0.0f, 0.0f};
+    Command command_to_execute = {0.1f, 0.0f, 0.0f, 0.0f};
 
     // Input service so that we can add the commands to it
     if (input_service_->IsKeyDown(GLFW_KEY_UP))
