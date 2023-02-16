@@ -113,38 +113,6 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-    if (b_can_control_)
-    {
-        Command command_to_execute = {0.2f, 0.0f, 0.0f, 0.0f};
-
-        // Input service so that we can add the commands to it
-        if (input_service_->IsKeyDown(GLFW_KEY_UP))
-        {
-            Command temp = {0.0f, 1.0f, 0.0f, physicsService_->GetTimeStep()};
-            command_to_execute = temp;
-        }
-        else if (input_service_->IsKeyDown(GLFW_KEY_LEFT))
-        {
-            Command temp = {0.0f, 0.1f, -0.2f, physicsService_->GetTimeStep()};
-            command_to_execute = temp;
-        }
-        else if (input_service_->IsKeyDown(GLFW_KEY_RIGHT))
-        {
-            Command temp = {0.0f, 0.1f, 0.2f, physicsService_->GetTimeStep()};
-            command_to_execute = temp;
-        }
-        else if (input_service_->IsKeyDown(GLFW_KEY_DOWN))
-        {
-            Command temp = {1.0f, 0.0f, 0.0f, physicsService_->GetTimeStep()};
-            command_to_execute = temp;
-        }
-
-        g_vehicle_.mCommandState.brakes[0] = command_to_execute.brake;
-        g_vehicle_.mCommandState.nbBrakes = 1;
-        g_vehicle_.mCommandState.throttle = command_to_execute.throttle;
-        g_vehicle_.mCommandState.steer = command_to_execute.steer;
-    }
-
     g_vehicle_.step(physicsService_->GetTimeStep(),
                     g_vehicle_simulation_context_);
 

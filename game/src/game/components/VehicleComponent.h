@@ -65,6 +65,11 @@ class VehicleComponent final : public Component,
   public:
     // Getters
 
+    inline DirectDriveVehicle& GetVehicle()
+    {
+        return g_vehicle_;
+    }
+
     // Setters
     inline void SetVehicleDataPath(const std::string& data_path)
     {
@@ -72,9 +77,4 @@ class VehicleComponent final : public Component,
     }
 
     void SetVehicleName(const std::string& vehicle_name);
-
-    inline void SetCanControl(bool b_value)
-    {
-        b_can_control_ = b_value;
-    }
 };
