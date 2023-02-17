@@ -25,6 +25,7 @@
 #include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
+#include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FinishLineComponent.h"
 #include "game/components/GuiExampleComponent.h"
@@ -142,7 +143,8 @@ void GameApp::OnStart()
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
-        vehicle.SetCanControl(true);
+        auto& controller = car_entity.AddComponent<PlayerController>();
+        controller.SetGVehicle(vehicle.GetVehicle());
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -170,7 +172,6 @@ void GameApp::OnStart()
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");
-        bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -189,7 +190,6 @@ void GameApp::OnStart()
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI2");
-        bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -208,7 +208,6 @@ void GameApp::OnStart()
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
-        bunny_vehicle.SetCanControl(false);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
