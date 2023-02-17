@@ -138,13 +138,12 @@ std::optional<RaycastData> PhysicsService::Raycast(
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
     // setting up raycast object filtering
-    PxQueryFlag query_flag = PxQueryFlag::ePOSTFILTER;
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
+    PxQueryFlag::Enum query_flag = PxQueryFlag::ePOSTFILTER;
     PxQueryFilterData filter_data = PxQueryFilterData(query_flag);
-    
-    PxHitFlag hit_flag = physx::PxQueryHitFlag::eDEFAULT;   // registers blocking but not touching hits
+
     PxRaycastBuffer raycast_result;
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
-                     hit_flag, filter_data);
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result, hit_flags, filter_data);
 
     // check if hit successful
     if (!raycast_result.hasBlock)
@@ -174,14 +173,13 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
-    Log::debug("[Raycast]: Hit something");     // pog
+    Log::debug("[Raycast]: Hit something");  // pog
 
     return result;
 }
 
-PxQueryHitType preFilter(const PxFilterData& filter_data,
-                             const PxShape* shape, const PxRigidActor* actor,
-                             PxHitFlags& query_flags)
+PxQueryHitType preFilter(const PxFilterData& filter_data, const PxShape* shape,
+                         const PxRigidActor* actor, PxHitFlags& query_flags)
 {
     // if (actor == the actor that shot the raycast)
     return PxQueryHitType::eTOUCH;  // cuz raycast ignores touching hits
@@ -190,7 +188,6 @@ PxQueryHitType preFilter(const PxFilterData& filter_data,
 
 PxRigidActor get_self_actor()
 {
-    
 }
 
 /* ---------- PhysX ----------*/

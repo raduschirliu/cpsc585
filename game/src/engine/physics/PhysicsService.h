@@ -22,10 +22,9 @@ using namespace physx;
 using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
-class PhysicsService final
-    : public Service,
-      public physx::PxSimulationEventCallback public physx::
-          PxQueryFilterCallback
+class PhysicsService final : public Service,
+                             public physx::PxSimulationEventCallback,
+                             public physx::PxQueryFilterCallback
 {
   private:
     void initPhysX();
@@ -93,8 +92,7 @@ class PhysicsService final
      *      is successful (i.e something was hit)
      *      or nothing when a cast is unsuccessful
      */
-    std::optional<RaycastData> Raycast(const PxRigidActor* actor,
-                                       const glm::vec3& origin,
+    std::optional<RaycastData> Raycast(const glm::vec3& origin,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
 
@@ -107,9 +105,10 @@ class PhysicsService final
      * @param hit data on the raycast hit
      * @returns eTOUCH hit type (which is ignored by the raycast)
      */
-    PxQueryHitType preFilter(const PxFilterData& filter_data,
-                             const PxShape* shape, const PxRigidActor* actor,
-                             PxHitFlags& query_flags) override;
+    PxQueryHitType::Enum preFilter(const PxFilterData& filter_data,
+                                   const PxShape* shape,
+                                   const PxRigidActor* actor,
+                                   PxHitFlags& query_flags) override;
 
     PxRigidActor get_self_actor();
 
