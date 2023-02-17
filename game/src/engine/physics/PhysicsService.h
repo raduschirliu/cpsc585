@@ -105,10 +105,9 @@ class PhysicsService final : public Service,
      * @param hit data on the raycast hit
      * @returns eTOUCH hit type (which is ignored by the raycast)
      */
-    PxQueryHitType::Enum preFilter(const PxFilterData& filter_data,
-                                   const PxShape* shape,
-                                   const PxRigidActor* actor,
-                                   PxHitFlags& query_flags) override;
+    PxQueryHitType::Enum postFilter(const PxFilterData& filter_data,
+                                    const PxQueryHit& hit, const PxShape* shape,
+                                    const PxRigidActor* actor) override;
 
     PxRigidActor get_self_actor();
 

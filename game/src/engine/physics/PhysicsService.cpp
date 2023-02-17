@@ -143,7 +143,8 @@ std::optional<RaycastData> PhysicsService::Raycast(
     PxQueryFilterData filter_data = PxQueryFilterData(query_flag);
 
     PxRaycastBuffer raycast_result;
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result, hit_flags, filter_data);
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flags, filter_data);
 
     // check if hit successful
     if (!raycast_result.hasBlock)
@@ -165,12 +166,6 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    // if (!PxHitFlag::eUV)  // UV barycentric coords
-    // {
-    //     Log::debug("[Raycast]: Invalid UV Coordinates");
-    //     return std::nullopt;
-    // }
-
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
     Log::debug("[Raycast]: Hit something");  // pog
@@ -178,16 +173,13 @@ std::optional<RaycastData> PhysicsService::Raycast(
     return result;
 }
 
-PxQueryHitType preFilter(const PxFilterData& filter_data, const PxShape* shape,
-                         const PxRigidActor* actor, PxHitFlags& query_flags)
+PxQueryHitType::Enum postFilter(const PxFilterData& filter_data,
+                                const PxQueryHit& hit, const PxShape* shape,
+                                const PxRigidActor* actor,
+                                PxHitFlags& query_flags)
 {
     // if (actor == the actor that shot the raycast)
-    return PxQueryHitType::eTOUCH;  // cuz raycast ignores touching hits
-                                    // i.e only registers blocking hits
-}
-
-PxRigidActor get_self_actor()
-{
+    return PxQueryHitType::Enum::eNONE;  // i.e only registers blocking hits
 }
 
 /* ---------- PhysX ----------*/
