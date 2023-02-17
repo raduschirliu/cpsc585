@@ -4,7 +4,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
-PlayerController::PlayerController() : g_vehicle_(nullptr)
+PlayerController::PlayerController() : vehicle_reference_(nullptr)
 {
 }
 
@@ -29,32 +29,32 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
         input_service_->IsKeyDown(GLFW_KEY_W))
     {
-        Command temp = {0.0f, 3.0f, 0.0f, timestep};
+        Command temp = {0.0f, 3.0f, 0.0f, timestep_};
         executable_command_ = temp;
     }
     if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
         input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        Command temp = {0.0f, 0.1f, -0.4f, timestep};
+        Command temp = {0.0f, 0.1f, -0.4f, timestep_};
         executable_command_ = temp;
     }
     if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
         input_service_->IsKeyDown(GLFW_KEY_D))
     {
-        Command temp = {0.0f, 0.1f, 0.4f, timestep};
+        Command temp = {0.0f, 0.1f, 0.4f, timestep_};
         executable_command_ = temp;
     }
     if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
         input_service_->IsKeyDown(GLFW_KEY_S))
     {
-        Command temp = {1.0f, 0.0f, 0.0f, timestep};
+        Command temp = {1.0f, 0.0f, 0.0f, timestep_};
         executable_command_ = temp;
     }
 
-    g_vehicle_->mCommandState.brakes[0] = executable_command_.brake;
-    g_vehicle_->mCommandState.nbBrakes = 1;
-    g_vehicle_->mCommandState.throttle = executable_command_.throttle;
-    g_vehicle_->mCommandState.steer = executable_command_.steer;
+    vehicle_reference_->mCommandState.brakes[0] = executable_command_.brake;
+    vehicle_reference_->mCommandState.nbBrakes = 1;
+    vehicle_reference_->mCommandState.throttle = executable_command_.throttle;
+    vehicle_reference_->mCommandState.steer = executable_command_.steer;
 }
 
 std::string_view PlayerController::GetName() const

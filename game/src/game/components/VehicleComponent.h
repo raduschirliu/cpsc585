@@ -14,7 +14,7 @@
 #include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
 #include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
 
-#include "engine/physics/HelperUtils.h"
+#include "engine/physics/VehicleCommands.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,

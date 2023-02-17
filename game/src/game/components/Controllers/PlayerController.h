@@ -2,7 +2,7 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/physics/HelperUtils.h"  // to get the command struct
+#include "engine/physics/VehicleCommands.h"  // to get the command struct
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -23,15 +23,15 @@ class PlayerController final : public Component,
     jss::object_ptr<InputService> input_service_;
 
     // We get this using the vehiclecomponent.
-    DirectDriveVehicle* g_vehicle_;
+    DirectDriveVehicle* vehicle_reference_;
 
     Command executable_command_;
 
-    float timestep = 1.f / 60.f;
+    float timestep_ = 1.f / 60.f;
 
   public:
     inline void SetGVehicle(DirectDriveVehicle& vehicle)
     {
-        g_vehicle_ = &vehicle;
+        vehicle_reference_ = &vehicle;
     }
 };
