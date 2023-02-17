@@ -11,9 +11,9 @@
 #include <optional>
 #include <vector>
 
-#include "HelperUtils.h"  // to get enums and structures.
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
+#include "VehicleCommands.h"  // to get enums and structures.
 #include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
