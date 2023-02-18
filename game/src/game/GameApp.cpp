@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <string>
 
+#include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
@@ -59,6 +60,7 @@ void GameApp::OnInit()
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
     AddService<GuiService>();
+    AddService<AIService>();
 }
 
 /**
