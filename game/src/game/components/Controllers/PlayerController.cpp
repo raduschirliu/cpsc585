@@ -26,6 +26,39 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     // value we get from the joystick / button value we get from how firmly we
     // press the triggers.
 
+    int joystick1_axis_count;
+    int joystick1_button_count;
+
+    if (glfwJoystickPresent(GLFW_JOYSTICK_1) == GLFW_TRUE)
+    {
+        const float* joystick1_axes =
+            glfwGetJoystickAxes(GLFW_JOYSTICK_1, &joystick1_axis_count);
+        const unsigned char* joystick1_buttons =
+            glfwGetJoystickButtons(GLFW_JOYSTICK_1, &joystick1_button_count);
+
+        if (joystick1_axes[5] > 0)
+        {
+            Command temp = {0.0f, 3.0f * joystick1_axes[5], 0.0f, timestep_};
+            executable_command_ = temp;
+        }
+        if (joystick1_axes[0] < -0.1)
+        {
+            Command temp = {0.0f, 0.1f, -0.4f * joystick1_axes[0] * -1.0f,
+                            timestep_};
+            executable_command_ = temp;
+        }
+        if (joystick1_axes[0] > 0.1)
+        {
+            Command temp = {0.0f, 0.1f, 0.4f * joystick1_axes[0], timestep_};
+            executable_command_ = temp;
+        }
+        if (joystick1_axes[4] > 0)
+        {
+            Command temp = {1.0f * joystick1_axes[4], 0.0f, 0.0f, timestep_};
+            executable_command_ = temp;
+        }
+    }
+
     if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
         input_service_->IsKeyDown(GLFW_KEY_W))
     {
