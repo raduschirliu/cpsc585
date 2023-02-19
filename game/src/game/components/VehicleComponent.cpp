@@ -74,7 +74,8 @@ bool VehicleComponent::InitializeVehicle()
     PxShape* shape = nullptr;
 
     // First shape is the vehicle body, the next 4 should be the wheels.
-    // TODO: enabling collision for all shapes makes the vehicle get stuck in the floor?
+    // TODO: enabling collision for all shapes makes the vehicle get stuck in
+    // the floor?
     for (uint32_t i = 0; i < 1; i++)
     {
         rigidbody->getShapes(&shape, 1, i);
