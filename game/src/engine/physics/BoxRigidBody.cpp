@@ -33,3 +33,8 @@ void BoxRigidBody::SetSize(const vec3& size)
     shape_ = physics_service_->CreateShapeCube(size.x, size.y, size.z);
     dynamic_->attachShape(*shape_);
 }
+
+physx::PxShape* BoxRigidBody::GetShape()
+{
+    return shape_;
+}
