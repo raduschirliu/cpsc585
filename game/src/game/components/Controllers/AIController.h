@@ -2,15 +2,15 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/AI/AIService.h"
 #include "engine/physics/VehicleCommands.h"  // to get the command struct
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-#include "engine/AI/AIService.h"
 #include "game/components/VehicleComponent.h"
 
 class AIController final : public Component,
-                               public IEventSubscriber<OnUpdateEvent>
+                           public IEventSubscriber<OnUpdateEvent>
 {
   public:
     AIController();
@@ -24,14 +24,24 @@ class AIController final : public Component,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<AIService> ai_service_;
 
-    // We get this using the vehiclecomponent.
+    // variables for car
+
+    std::vector<glm::vec3> path_to_follow_;
     DirectDriveVehicle* vehicle_reference_;
 
     Command executable_command_;
-
     float timestep_ = 1.f / 60.f;
 
-    std::vector<glm::vec3> path_to_follow_;
+    // as we want the car to move from current to next command, and so on until
+    // the end.
+    glm::vec3 next_car_position_;
+    int next_path_index_ = 2;
+
+    inline float GetEuclideanDistance(glm::vec3 first, glm::vec3 second)
+    {
+        return sqrt(pow(first.x - second.x, 2) + pow(first.y - second.y, 2) +
+                    pow(first.z - second.z, 2));
+    }
 
   public:
     inline void SetGVehicle(DirectDriveVehicle& vehicle)

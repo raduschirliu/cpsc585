@@ -29,7 +29,7 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
         input_service_->IsKeyDown(GLFW_KEY_W))
     {
-        Command temp = {0.0f, 3.0f, 0.0f, timestep_};
+        Command temp = {0.0f, 1.0f, 0.0f, timestep_};
         executable_command_ = temp;
     }
     if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||

@@ -185,6 +185,7 @@ void GameApp::OnStart()
 
         // Making the controller which will guide the car on where to go next.
         auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
