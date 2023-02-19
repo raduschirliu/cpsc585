@@ -42,10 +42,10 @@ bool VehicleComponent::InitializeVehicle()
         g_vehicle_data_path_.c_str(), "DirectDrive.json",
         g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
 
-    ASSERT_MSG(g_vehicle_.initialize(*physicsService_->GetKPhysics(),
-                                     PxCookingParams(PxTolerancesScale()),
-                                     *physicsService_->GetKMaterial(), true),
-               "Vehicle must successfully initialize");
+    const bool vehicle_init_status = g_vehicle_.initialize(
+        *physicsService_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
+        *physicsService_->GetKMaterial(), true);
+    ASSERT_MSG(vehicle_init_status, "Vehicle must successfully initialize");
 
     g_vehicle_.mTransmissionCommandState.gear =
         PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
@@ -67,13 +67,19 @@ bool VehicleComponent::InitializeVehicle()
         PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
     PxRigidBody* rigidbody = g_vehicle_.mPhysXState.physxActor.rigidBody;
+    ASSERT_MSG(rigidbody, "Vehicle must have valid PhysX Actor RigidBody");
+
     rigidbody->userData = &GetEntity();
-    uint32_t num_shapes = rigidbody->getNbShapes();
+    const uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 
+    // First shape is the vehicle body, the next 4 should be the wheels.
+    // TODO: enabling collision for all shapes makes the vehicle get stuck in
+    // the floor?
     for (uint32_t i = 0; i < 1; i++)
     {
         rigidbody->getShapes(&shape, 1, i);
+        ASSERT_MSG(shape, "RigidBody Shape must be valid");
 
         shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
         shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
@@ -108,7 +114,8 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     ValidFileChecker();
 
     InitMaterialFrictionTable();
-    ASSERT_MSG(InitializeVehicle(), "Vehicle must initialize");
+    const bool init_status = InitializeVehicle();
+    ASSERT_MSG(init_status, "Vehicle must initialize");
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)

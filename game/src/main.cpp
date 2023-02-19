@@ -9,6 +9,7 @@
 
 #include <PxPhysicsAPI.h>
 
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <string>
