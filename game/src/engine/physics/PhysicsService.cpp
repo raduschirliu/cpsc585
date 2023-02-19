@@ -131,20 +131,17 @@ physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
 /* ---------- raycasting ---------- */
 std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
-    float max_distance /* = 100000 */)
+    float max_distance /* default = 100000 */)
 {
-    // convert coordinates
+    // convert coordinates to PhysX units
     PxVec3 px_origin = GlmToPx(origin);
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // setting up raycast object filtering
+    // set flags
     PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
-    PxQueryFlag::Enum query_flag = PxQueryFlag::ePOSTFILTER;
-    PxQueryFilterData filter_data = PxQueryFilterData(query_flag);
 
     PxRaycastBuffer raycast_result;
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
-                     hit_flags, filter_data);
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
 
     // check if hit successful
     if (!raycast_result.hasBlock)
@@ -168,18 +165,9 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
-    Log::debug("[Raycast]: Hit something");  // pog
+    Log::debug("[Raycast]: Hit something");
 
     return result;
-}
-
-PxQueryHitType::Enum postFilter(const PxFilterData& filter_data,
-                                const PxQueryHit& hit, const PxShape* shape,
-                                const PxRigidActor* actor,
-                                PxHitFlags& query_flags)
-{
-    // if (actor == the actor that shot the raycast)
-    return PxQueryHitType::Enum::eNONE;  // i.e only registers blocking hits
 }
 
 /* ---------- PhysX ----------*/

@@ -23,8 +23,7 @@ using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
 class PhysicsService final : public Service,
-                             public physx::PxSimulationEventCallback,
-                             public physx::PxQueryFilterCallback
+                             public physx::PxSimulationEventCallback
 {
   private:
     void initPhysX();
@@ -95,21 +94,6 @@ class PhysicsService final : public Service,
     std::optional<RaycastData> Raycast(const glm::vec3& origin,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
-
-    /**
-     * (from physx::PxQueryFilterCallback)
-     *
-     * Filters out the actor that called the raycast to prevent it
-     * from hitting itself
-     * @param filter_data
-     * @param hit data on the raycast hit
-     * @returns eTOUCH hit type (which is ignored by the raycast)
-     */
-    PxQueryHitType::Enum postFilter(const PxFilterData& filter_data,
-                                    const PxQueryHit& hit, const PxShape* shape,
-                                    const PxRigidActor* actor) override;
-
-    PxRigidActor get_self_actor();
 
     /*
      * Function to make a plane based on
