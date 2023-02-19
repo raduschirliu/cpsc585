@@ -32,17 +32,22 @@ void AIService::OnInit()
 void AIService::OnStart(ServiceProvider& service_provider)
 {
     // auto node1 = *navMesh_->nodes_->find(1)->second;
-    bool valid = pathfinder_->Search(navMesh_->nodes_->find(0)->second,
-                                     navMesh_->nodes_->find(5)->second);
-    if(valid)
-    Log::debug("Path Found");
+    if (pathfinder_ && navMesh_)
+        pathfinder_->Search(navMesh_->nodes_->find(0)->second,
+                            navMesh_->nodes_->find(23)->second);
 
-    // while (!this->pathfinder_->path_->empty())
-    // {
-    //     std::cout << *this->pathfinder_->path_;
-    //     this->pathfinder_->path_->pop();
-    // }
-    // std::cout << *navMesh_->nodes_->find(1)->second << std::endl;
+    else
+    {
+        Log::error("Could not start the game, issue: AIService.cpp");
+    }
+
+    // points from one corner to other defined above.
+    while (!this->pathfinder_->path_->empty())
+    {
+        final_smooth_points_.push_back(this->pathfinder_->path_->top());
+        //std::cout << this->pathfinder_->path_->top() << std::endl;
+        this->pathfinder_->path_->pop();
+    }
 }
 
 void AIService::OnUpdate()
@@ -179,49 +184,49 @@ NavMesh::NavMesh()
     n1->connections_->emplace_back(std::make_pair(cost(n1, n2), n2));
 
     n2->connections_->emplace_back(std::make_pair(cost(n2, n3), n3));
-    //n2->connections_->emplace_back(std::make_pair(cost(n2, n1), n1));
+    // n2->connections_->emplace_back(std::make_pair(cost(n2, n1), n1));
 
     n3->connections_->emplace_back(std::make_pair(cost(n3, n4), n4));
-    //n3->connections_->emplace_back(std::make_pair(cost(n3, n2), n2));
+    // n3->connections_->emplace_back(std::make_pair(cost(n3, n2), n2));
 
     n4->connections_->emplace_back(std::make_pair(cost(n4, n5), n5));
-    //n4->connections_->emplace_back(std::make_pair(cost(n4, n3), n3));
+    // n4->connections_->emplace_back(std::make_pair(cost(n4, n3), n3));
 
     n5->connections_->emplace_back(std::make_pair(cost(n5, n6), n6));
-    //n5->connections_->emplace_back(std::make_pair(cost(n5, n4), n4));
+    // n5->connections_->emplace_back(std::make_pair(cost(n5, n4), n4));
 
     n6->connections_->emplace_back(std::make_pair(cost(n6, n7), n7));
-    //n6->connections_->emplace_back(std::make_pair(cost(n6, n5), n5));
+    // n6->connections_->emplace_back(std::make_pair(cost(n6, n5), n5));
 
     n7->connections_->emplace_back(std::make_pair(cost(n7, n14), n14));
-    //n7->connections_->emplace_back(std::make_pair(cost(n7, n6), n6));
+    // n7->connections_->emplace_back(std::make_pair(cost(n7, n6), n6));
 
     n14->connections_->emplace_back(std::make_pair(cost(n14, n13), n13));
-    //n14->connections_->emplace_back(std::make_pair(cost(n14, n7), n7));
+    // n14->connections_->emplace_back(std::make_pair(cost(n14, n7), n7));
 
     n13->connections_->emplace_back(std::make_pair(cost(n13, n22), n22));
-    //n13->connections_->emplace_back(std::make_pair(cost(n13, n14), n14));
+    // n13->connections_->emplace_back(std::make_pair(cost(n13, n14), n14));
 
     n22->connections_->emplace_back(std::make_pair(cost(n22, n21), n21));
-    //n22->connections_->emplace_back(std::make_pair(cost(n22, n13), n13));
+    // n22->connections_->emplace_back(std::make_pair(cost(n22, n13), n13));
 
     n21->connections_->emplace_back(std::make_pair(cost(n21, n20), n20));
-    //n21->connections_->emplace_back(std::make_pair(cost(n21, n22), n22));
+    // n21->connections_->emplace_back(std::make_pair(cost(n21, n22), n22));
 
     n20->connections_->emplace_back(std::make_pair(cost(n20, n11), n11));
-    //n20->connections_->emplace_back(std::make_pair(cost(n20, n21), n21));
+    // n20->connections_->emplace_back(std::make_pair(cost(n20, n21), n21));
 
     n11->connections_->emplace_back(std::make_pair(cost(n11, n12), n12));
-   // n11->connections_->emplace_back(std::make_pair(cost(n11, n20), n20));
+    // n11->connections_->emplace_back(std::make_pair(cost(n11, n20), n20));
 
     n12->connections_->emplace_back(std::make_pair(cost(n12, n13), n13));
-    //n12->connections_->emplace_back(std::make_pair(cost(n12, n11), n11));
+    // n12->connections_->emplace_back(std::make_pair(cost(n12, n11), n11));
 
     n13->connections_->emplace_back(std::make_pair(cost(n13, n23), n23));
-   // n13->connections_->emplace_back(std::make_pair(cost(n13, n12), n12));
+    // n13->connections_->emplace_back(std::make_pair(cost(n13, n12), n12));
 
     n23->connections_->emplace_back(std::make_pair(cost(n23, n24), n24));
-   // n23->connections_->emplace_back(std::make_pair(cost(n23, n13), n13));
+    // n23->connections_->emplace_back(std::make_pair(cost(n23, n13), n13));
 }
 
 float NavMesh::cost(Node* src, Node* dest)
@@ -368,15 +373,19 @@ void Pathfinder::TracePath(Node* src, Node* dest,
     }
     bPath.push_back(this->navMesh_->nodes_->find(temp)->second->centroid_);
 
+    // smotth down this path.
+    std::vector<glm::vec3> smoothPath;
+    smoothPath = SmoothPath(bPath);
+
     // storing everything in path
-    for (auto& i : bPath) this->path_->push(i);
+    for (auto& i : smoothPath) this->path_->push(i);
 }
 
-void Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
+std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
 {
     // do not care about smoothing the path if size is less than 3 points
     if (cPoints.size() < 3)
-        return;
+        return {};
     std::vector<glm::vec3> iVerts;
     int degree = cPoints.size();
 
@@ -408,6 +417,7 @@ void Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
         iVerts.clear();
         degree = cPoints.size();
     }
+    return cPoints;
 }
 
 glm::vec3 Node::Get_Centroid(Node* node)

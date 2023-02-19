@@ -26,6 +26,7 @@
 #include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/BasicComponent.h"
+#include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FinishLineComponent.h"
@@ -181,6 +182,9 @@ void GameApp::OnStart()
             {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
              .shininess = 64.0f});
+
+        // Making the controller which will guide the car on where to go next.
+        auto& ai_controller = entity.AddComponent<AIController>();
     }
 
     {

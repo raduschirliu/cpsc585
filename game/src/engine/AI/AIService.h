@@ -72,7 +72,7 @@ class Pathfinder
     float CalculateHCost(Node* src, Node* dest);
     void TracePath(Node* src, Node* dest,
                    std::map<unsigned int, unsigned int> parents);
-    void SmoothPath(std::vector<vec3> cPoints);
+    std::vector<glm::vec3> SmoothPath(std::vector<vec3> cPoints);
 };
 
 class AIService final : public Service
@@ -87,8 +87,12 @@ class AIService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
 
+    // getters
+    const std::vector<glm::vec3>& GetPath() { return final_smooth_points_;}
+
   private:
     NavMesh* navMesh_;
     Pathfinder* pathfinder_;
+    std::vector<glm::vec3> final_smooth_points_;
 };
 
