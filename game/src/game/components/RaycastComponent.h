@@ -26,8 +26,4 @@ class RaycastComponent final : public Component,
 
     // component dependencies
     jss::object_ptr<Transform> transform_;
-    // jss::object_ptr<BoxRigidBody> box_rigid_body_;
-
-    // the shape of the currernt entity
-    // physx::PxShape* self_shape_;
 };
