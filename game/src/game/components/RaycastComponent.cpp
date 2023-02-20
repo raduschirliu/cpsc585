@@ -43,7 +43,7 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
     glm::vec3 direction = transform_->GetForwardDirection();
     glm::vec3 origin = transform_->GetPosition();
 
-    std::cout << "forward direction: " << direction << std::endl; 
+    std::cout << "forward direction: " << direction << std::endl;
 
     // no raycast data == no hit
     if (!physics_service_->Raycast(origin, direction).has_value())
@@ -57,7 +57,7 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
 
     // raycast ignores own entity
     // if (actor == self_actor)
-        // return;
+    // return;
 
     float distance = raycast.distance;
     glm::vec3 normal = raycast.normal;
@@ -66,8 +66,7 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
     std::cout << "distance: " << distance << "\t"
               << "normal: " << normal << "\t"
               << "position: " << position << "\t"
-              << "actor: " << actor << "\t"
-              << std::endl;
+              << "actor: " << actor << "\t" << std::endl;
 }
 
 std::string_view RaycastComponent::GetName() const
