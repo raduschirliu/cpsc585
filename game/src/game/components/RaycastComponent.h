@@ -22,13 +22,12 @@ class RaycastComponent final : public Component,
 
   private:
     // service dependencies
-    jss::object_ptr<InputService> input_service_;
     jss::object_ptr<PhysicsService> physics_service_;
 
     // component dependencies
     jss::object_ptr<Transform> transform_;
-    jss::object_ptr<BoxRigidBody> box_rigid_body_;
+    // jss::object_ptr<BoxRigidBody> box_rigid_body_;
 
     // the shape of the currernt entity
-    physx::PxShape* self_shape_;
+    // physx::PxShape* self_shape_;
 };
