@@ -129,16 +129,18 @@ physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
 }
 
 /* ---------- raycasting ---------- */
-
 std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
-    float max_distance /* = 100000 */)
+    float max_distance /* default = 100000 */)
 {
-    physx::PxVec3 px_origin = GlmToPx(origin);
-    physx::PxVec3 px_unit_dir = GlmToPx(unit_dir);
-    physx::PxRaycastBuffer raycast_result;
+    // convert coordinates to PhysX units
+    PxVec3 px_origin = GlmToPx(origin);
+    PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // raycast against all static & dynamic objects in scene (with no filtering)
+    // set flags
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
+
+    PxRaycastBuffer raycast_result;
     kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
 
     // check if hit successful
@@ -149,21 +151,15 @@ std::optional<RaycastData> PhysicsService::Raycast(
     }
 
     // data validity guard checks; ensure that data is available:
-    if (!physx::PxHitFlag::ePOSITION)
+    if (!PxHitFlag::ePOSITION)
     {
         Log::debug("[Raycast]: Invalid Position");
         return std::nullopt;
     }
 
-    if (!physx::PxHitFlag::eNORMAL)
+    if (!PxHitFlag::eNORMAL)
     {
         Log::debug("[Raycast]: Invalid Normal");
-        return std::nullopt;
-    }
-
-    if (!physx::PxHitFlag::eUV)  // UV barycentric coords
-    {
-        Log::debug("[Raycast]: Invalid UV Coordinates");
         return std::nullopt;
     }
 

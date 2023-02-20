@@ -88,8 +88,8 @@ class PhysicsService final : public Service,
      * @param OPTIONAL max_distance furthest reach of the ray : float
      *
      * @returns raycast_result data on the object hit by cast when a cast
-     *    is successful (i.e something was hit) : RaycastData
-     * @returns nothing when a cast is unsuccessful : std::nullopt
+     *      is successful (i.e something was hit)
+     *      or nothing when a cast is unsuccessful
      */
     std::optional<RaycastData> Raycast(const glm::vec3& origin,
                                        const glm::vec3& unit_dir,

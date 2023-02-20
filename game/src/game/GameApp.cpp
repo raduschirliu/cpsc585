@@ -109,8 +109,6 @@ void GameApp::OnStart()
         auto& rigidbody = entity.AddComponent<BoxRigidBody>();
         rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
-        entity.AddComponent<RaycastComponent>();
-
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
@@ -145,6 +143,8 @@ void GameApp::OnStart()
         vehicle.SetVehicleName("PlayerVehicle");
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
+
+        auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");

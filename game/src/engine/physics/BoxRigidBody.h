@@ -5,11 +5,12 @@
 class BoxRigidBody final : public RigidBodyComponent
 {
   public:
-    void SetSize(const glm::vec3& size);
-
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
+
+    void SetSize(const glm::vec3& size);
+    physx::PxShape* GetShape();
 
   private:
     physx::PxShape* shape_;
