@@ -349,6 +349,8 @@ void AssetService::OnInit()
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
     LoadMesh("resources/models/car.obj", "car");
+    LoadMesh("resources/models/kart2-2.obj", "kart");
+    LoadMesh("resources/models/track3-3.obj", "track");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
