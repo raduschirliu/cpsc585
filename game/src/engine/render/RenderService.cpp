@@ -99,6 +99,13 @@ void RenderService::OnStart(ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
+void RenderService::OnSceneLoaded(Scene& scene)
+{
+    render_list_.clear();
+    lights_.clear();
+    cameras_.clear();
+}
+
 void RenderService::OnUpdate()
 {
     // Debug menu

@@ -25,13 +25,11 @@ using namespace snippetvehicle2;
 class PhysicsService final : public Service,
                              public physx::PxSimulationEventCallback
 {
-  private:
-    void initPhysX();
-
   public:
     // From Service
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
+    void OnSceneLoaded(Scene& scene) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
@@ -52,6 +50,8 @@ class PhysicsService final : public Service,
     const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
 
     const PxF32 timestep = 1.f / 60.f;
+
+    void InitPhysX();
 
   public:
     void RegisterActor(physx::PxActor* actor);

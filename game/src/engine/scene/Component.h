@@ -27,7 +27,7 @@ class Component
 
     virtual void OnInit(const ServiceProvider& service_provider) = 0;
     virtual void OnStart();
-    virtual void OnCleanup();
+    virtual void OnDestroy();
     virtual void OnTriggerEnter(const OnTriggerEvent& data);
     virtual void OnTriggerExit(const OnTriggerEvent& data);
     virtual void OnDebugGui();

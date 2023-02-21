@@ -13,8 +13,14 @@ void Service::Init(ServiceInitializer& initializer)
     OnInit();
 }
 
-void Service::UpdateActiveScene(Scene& scene)
+void Service::OnSceneLoaded(Scene& scene)
 {
+    // To be overridden
+}
+
+void Service::OnSceneUnloaded(Scene& scene)
+{
+    // To be overridden
 }
 
 void Service::OnInit()

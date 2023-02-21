@@ -51,6 +51,16 @@ void App::OnCleanup()
     // To be overridden if needed
 }
 
+void App::OnSceneLoaded(Scene& scene)
+{
+    // To be overridden
+}
+
+void App::OnSceneUnloaded(Scene& scene)
+{
+    // To be overridden
+}
+
 Scene& App::AddScene(const string& name)
 {
     auto scene = make_unique<Scene>(name, service_provider_);
@@ -59,11 +69,25 @@ Scene& App::AddScene(const string& name)
 
 void App::SetActiveScene(const string& name)
 {
-    Log::info("Scene changed to: {}", name);
+    if (scene_list_.HasActiveScene())
+    {
+        Scene& old_scene = scene_list_.GetActiveScene();
+        Log::info("Unloading scene: {}", old_scene.GetName());
 
+        old_scene.Unload();
+        service_provider_.DispatchSceneUnloaded(old_scene);
+        OnSceneUnloaded(old_scene);
+    }
+
+    Log::info("Loading scene: {}", name);
     scene_list_.SetActiveScene(name);
-    event_bus_.SetDownstream(&scene_list_.GetActiveScene().GetEventBus());
-    service_provider_.DispatchSceneChange(scene_list_.GetActiveScene());
+    Scene& new_scene = scene_list_.GetActiveScene();
+
+    event_bus_.SetDownstream(&new_scene.GetEventBus());
+    service_provider_.DispatchSceneLoaded(new_scene);
+    OnSceneLoaded(new_scene);
+    
+    Log::info("Active scene set to: {}", name);
 }
 
 SceneList& App::GetSceneList()

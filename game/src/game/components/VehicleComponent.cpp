@@ -108,14 +108,6 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-    if (input_service_->IsKeyPressed(GLFW_KEY_F4))
-    {
-        // TODO(radu): Doesn't use new params...
-        Log::info("Reloading vehicle parameters from JSON files...");
-        LoadParams();
-        Log::info("Done");
-    }
-
     g_vehicle_.step(physics_service_->GetTimeStep(),
                     g_vehicle_simulation_context_);
 
@@ -124,6 +116,11 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
+}
+
+void VehicleComponent::OnDestroy()
+{
+    g_vehicle_.destroy();
 }
 
 std::string_view VehicleComponent::GetName() const

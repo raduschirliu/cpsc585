@@ -36,6 +36,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     // From Service
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
+    void OnSceneLoaded(Scene& scene) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;

@@ -17,6 +17,7 @@ class RigidBodyComponent : public Component,
     // From Component
     virtual void OnInit(const ServiceProvider& service_provider) override;
     virtual void OnUpdate(const Timestep& delta_time) override;
+    virtual void OnDestroy() override;
 
   protected:
     jss::object_ptr<Transform> transform_;

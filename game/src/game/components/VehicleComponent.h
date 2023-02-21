@@ -24,6 +24,7 @@ class VehicleComponent final : public Component,
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
+    void OnDestroy() override;
     std::string_view GetName() const override;
 
   private:

@@ -27,7 +27,7 @@ void Component::OnStart()
 {
 }
 
-void Component::OnCleanup()
+void Component::OnDestroy()
 {
 }
 
