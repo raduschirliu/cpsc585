@@ -142,7 +142,8 @@ void GameApp::OnStart()
         Entity& car_entity = scene.AddEntity("PlayerVehicle");
 
         auto& transform = car_entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
+        transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
+
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
@@ -171,7 +172,9 @@ void GameApp::OnStart()
         Entity& entity = scene.AddEntity("AiVehicle1");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
+        transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
+        transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
+//        transform.SetOrientation(glm::normalize(glm::quat(1.f, 0.f, 1.f, 0.f)));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");

@@ -59,21 +59,23 @@ void AIController::OnUpdate(const Timestep& delta_time)
             glm::cross(current_forward_dir, normalized_target);
         if (cross_product.x < 0)
         {
-            vehicle_reference_->mCommandState.steer = 0.4f;
+            vehicle_reference_->mCommandState.steer = -0.2f;
         }
         else
         {
-            vehicle_reference_->mCommandState.steer = -0.4f;
+            vehicle_reference_->mCommandState.steer = 0.2f;
         }
     }
 
     // calculate the euclidean distance to see if the car is near the next
     // position, if yes then update the next position to be the next index in
     // the path array
-    if (GetEuclideanDistance(transform_->GetPosition(),
-                             path_to_follow_[next_path_index_]) < 2.f)
+    float e = GetEuclideanDistance(transform_->GetPosition(),
+                             path_to_follow_[next_path_index_]);
+    if (e < 7.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_++];
+        Log::debug("{}", next_path_index_);
     }
 }
 

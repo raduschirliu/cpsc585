@@ -130,9 +130,19 @@ std::string_view VehicleComponent::GetName() const
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
 {
-    PxTransform pose(GlmToPx(transform_->GetPosition()), PxQuat(PxIdentity));
+    physx::PxQuat quat(
+        transform_->GetOrientation().x, transform_->GetOrientation().y,
+        transform_->GetOrientation().z, transform_->GetOrientation().w);
+
+    PxTransform pose(GlmToPx(transform_->GetPosition()), quat);
 
     g_vehicle_name_ = vehicle_name;
     g_vehicle_.setUpActor(*physicsService_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
+
+    const physx::PxVec3 pose_transform =
+        g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+
+    g_vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
+        physx::PxTransform(pose_transform, quat));
 }
