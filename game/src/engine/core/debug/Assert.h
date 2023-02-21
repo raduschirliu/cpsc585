@@ -5,6 +5,7 @@
 
 #define UNUSED(x) (void)(x)
 
+#define ASSERT(condition) assert(condition)
 #define ASSERT_MSG(condition, msg) assert((condition) && msg)
 
 #define STATIC_ASSERT_INTERFACE(type)       \
