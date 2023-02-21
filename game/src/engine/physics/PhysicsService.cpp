@@ -39,7 +39,8 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
     physx::PxSceneDesc scene_desc(kPhysics_->getTolerancesScale());
     scene_desc.gravity = gGravity;
     scene_desc.cpuDispatcher = kDispatcher_;
-    scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;;
+    scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;
+    ;
 
     kScene_ = kPhysics_->createScene(scene_desc);
     kScene_->setSimulationEventCallback(this);

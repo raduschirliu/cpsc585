@@ -86,7 +86,7 @@ void App::SetActiveScene(const string& name)
     event_bus_.SetDownstream(&new_scene.GetEventBus());
     service_provider_.DispatchSceneLoaded(new_scene);
     OnSceneLoaded(new_scene);
-    
+
     Log::info("Active scene set to: {}", name);
 }
 

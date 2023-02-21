@@ -23,7 +23,7 @@ void Scene::DestroyEntity(uint32_t id)
     while (iter != entities_.end())
     {
         Entity* entity = iter->get();
-        
+
         if (entity->GetId() == id)
         {
             entity->OnDestroy();
@@ -66,8 +66,8 @@ void Scene::Unload()
 
     for (auto& entity : entities_)
     {
-        // Call the OnDestroy callback instead of Destroy, as Destroy will call Scene again
-        // to remove the entity and cause nullptr issues
+        // Call the OnDestroy callback instead of Destroy, as Destroy will call
+        // Scene again to remove the entity and cause nullptr issues
         entity->OnDestroy();
     }
 

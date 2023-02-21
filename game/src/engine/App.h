@@ -43,7 +43,7 @@ class App : public std::enable_shared_from_this<App>,
     }
 
     Scene& AddScene(const std::string& name);
-    
+
   private:
     bool running_;
     Window window_;
