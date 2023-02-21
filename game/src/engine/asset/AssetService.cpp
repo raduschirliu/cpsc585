@@ -18,7 +18,8 @@ void AssetService::LoadMesh(const string &path, const string &name)
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)
     {
-        ASSERT_MSG(false, importer.GetErrorString());
+        Log::error("Failed to import: {}", importer.GetErrorString());
+        ASSERT_MSG(false, "Import must be successful");
     }
 
     ProcessNode(path, name, scene->mRootNode, scene);
@@ -347,6 +348,7 @@ void AssetService::OnInit()
     LoadMesh("resources/models/cube.obj", "cube");
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
+    LoadMesh("resources/models/car.obj", "car");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

@@ -17,8 +17,6 @@ ConfigService::ConfigService() : config_files(), path("resources/config/")
 
 void ConfigService::OnInit()
 {
-    Log::info("[ConfigService] Initializing");
-
     // add all files in "config/" folder to a vector
     for (const fs::directory_entry& entry : fs::directory_iterator(path))
     {

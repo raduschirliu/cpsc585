@@ -1,12 +1,8 @@
 #pragma once
 
-#include "engine/physics/PhysicsService.h"
-#include "engine/scene/Component.h"
-#include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
+#include "engine/physics/RigidBodyComponent.h"
 
-class SphereRigidbody final : public Component,
-                              public IEventSubscriber<OnUpdateEvent>
+class SphereRigidBody final : public RigidBodyComponent
 {
   public:
     void SetRadius(float radius);
@@ -15,12 +11,9 @@ class SphereRigidbody final : public Component,
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
 
-    // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate(const Timestep& delta_time) override;
-
   private:
     jss::object_ptr<Transform> transform_;
-    jss::object_ptr<PhysicsService> physicsService_;
-    physx::PxRigidDynamic* dynamic_;
+    jss::object_ptr<PhysicsService> physics_service_;
     physx::PxShape* shape_;
+    float radius_;
 };

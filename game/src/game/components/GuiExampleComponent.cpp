@@ -10,8 +10,6 @@ using std::string_view;
 
 void GuiExampleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("GuiExampleComponent - Init");
-
     // Dependencies
     input_service_ = &service_provider.GetService<InputService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
@@ -35,12 +33,6 @@ void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
     {
         Log::info("shaaaaaaauun");
         transform_->Translate(glm::vec3(0.0f, 0.25f, 0.0f));
-    }
-
-    if (input_service_->IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
-    {
-        physics_service_->CreateRaycastFromOrigin(
-            transform_->GetPosition(), transform_->GetForwardDirection());
     }
 }
 

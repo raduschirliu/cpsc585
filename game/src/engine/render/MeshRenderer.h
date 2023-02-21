@@ -5,7 +5,7 @@
 #include <string>
 
 #include "engine/asset/AssetService.h"
-#include "engine/render/Renderable.h"
+#include "engine/render/Material.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
 
@@ -17,13 +17,16 @@ class MeshRenderer final : public Component
     MeshRenderer() = default;
 
     void SetMesh(const std::string& name);
+    void SetMaterialProperties(const MaterialProperties& material_properties);
+    void SetMaterial(const std::string& name);
 
-    // From RenderableComponent
     const Mesh& GetMesh() const;
-    // const glm::mat4& GetModelMatrix() const override;
+    const MaterialProperties& GetMaterialProperties() const;
+    const Material& GetMaterial() const;
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui();
     std::string_view GetName() const override;
 
   private:
@@ -32,4 +35,6 @@ class MeshRenderer final : public Component
     jss::object_ptr<Transform> transform_;
 
     std::optional<std::string> mesh_name_;
+    MaterialProperties material_properties_;
+    jss::object_ptr<Material> material_;
 };

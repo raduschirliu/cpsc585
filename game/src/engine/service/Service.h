@@ -9,11 +9,13 @@
 class ServiceProvider;
 class Window;
 class Scene;
+class App;
 
 struct ServiceInitializer
 {
     Window& window;
     ServiceProvider& service_provider;
+    App& app;
 };
 
 class Service
@@ -32,8 +34,10 @@ class Service
   protected:
     Window& GetWindow();
     EventBus& GetEventBus();
+    App& GetApp();
 
   private:
     jss::object_ptr<Window> window_;
     jss::object_ptr<EventBus> event_bus_;
+    jss::object_ptr<App> app_;
 };

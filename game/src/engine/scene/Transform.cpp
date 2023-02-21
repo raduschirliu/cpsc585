@@ -1,5 +1,9 @@
 #include "engine/scene/Transform.h"
 
+#include <imgui.h>
+
+#include "engine/core/gui/PropertyWidgets.h"
+
 using glm::mat4;
 using glm::quat;
 using glm::vec3;
@@ -78,6 +82,11 @@ const vec3& Transform::GetPosition() const
     return position_;
 }
 
+const quat& Transform::GetOrientation() const
+{
+    return orientation_;
+}
+
 const vec3& Transform::GetForwardDirection() const
 {
     return forward_dir_;
@@ -105,6 +114,26 @@ const mat4& Transform::GetNormalMatrix() const
 
 void Transform::OnInit(const ServiceProvider& service_provider)
 {
+}
+
+void Transform::OnDebugGui()
+{
+    bool dirty = false;
+
+    dirty |= gui::EditProperty("Position", position_);
+    ImGui::Spacing();
+
+    const vec3& orientation = glm::degrees(glm::eulerAngles(orientation_));
+    gui::ViewProperty("Orientation (Euler, Degrees)", orientation);
+    ImGui::Spacing();
+
+    ImGui::Text("Scale");
+    dirty |= gui::EditProperty("Scale", scale_);
+
+    if (dirty)
+    {
+        UpdateMatrices();
+    }
 }
 
 std::string_view Transform::GetName() const

@@ -14,7 +14,7 @@
 #include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
 #include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
 
-#include "engine/physics/HelperUtils.h"
+#include "engine/physics/VehicleCommands.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,
@@ -51,9 +51,6 @@ class VehicleComponent final : public Component,
 
     std::string g_vehicle_name_;
 
-    // for the car to be spawned.
-    PxTransform pose;
-
     // commands the car has to follow.
     std::vector<Command> gCommands;
 
@@ -63,8 +60,15 @@ class VehicleComponent final : public Component,
     bool InitializeVehicle();
     void InitMaterialFrictionTable();
 
+    bool b_can_control_ = false;
+
   public:
     // Getters
+
+    inline DirectDriveVehicle& GetVehicle()
+    {
+        return g_vehicle_;
+    }
 
     // Setters
     inline void SetVehicleDataPath(const std::string& data_path)
@@ -72,10 +76,5 @@ class VehicleComponent final : public Component,
         g_vehicle_data_path_ = data_path;
     }
 
-    inline void SetVehicleName(const std::string& vehicle_name)
-    {
-        g_vehicle_name_ = vehicle_name;
-        g_vehicle_.setUpActor(*physicsService_->GetKScene(), pose,
-                              g_vehicle_name_.c_str());
-    }
+    void SetVehicleName(const std::string& vehicle_name);
 };

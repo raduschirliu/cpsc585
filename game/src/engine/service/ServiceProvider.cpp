@@ -3,11 +3,12 @@
 #include "engine/App.h"
 #include "engine/core/debug/Log.h"
 
-void ServiceProvider::DispatchInit(Window& window)
+void ServiceProvider::DispatchInit(App& app)
 {
     Log::debug("[ServiceProvider] Initializing services");
 
-    ServiceInitializer initializer{.window = window, .service_provider = *this};
+    ServiceInitializer initializer{
+        .window = app.GetWindow(), .service_provider = *this, .app = app};
 
     for (auto& pair : services_)
     {
