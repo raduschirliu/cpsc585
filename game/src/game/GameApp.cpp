@@ -151,7 +151,7 @@ void GameApp::OnStart()
         controller.SetGVehicle(vehicle.GetVehicle());
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("coin");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
@@ -173,14 +173,14 @@ void GameApp::OnStart()
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
-        transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
+        //transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
 //        transform.SetOrientation(glm::normalize(glm::quat(1.f, 0.f, 1.f, 0.f)));
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("energy");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
