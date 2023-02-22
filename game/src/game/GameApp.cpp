@@ -13,6 +13,7 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/BoxTrigger.h"
+#include "engine/physics/Hitbox.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
@@ -141,6 +142,12 @@ void GameApp::OnStart()
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
+
+        Entity& player_hitbox = scene.AddEntity("PlayerHitbox");
+        auto& hitbox_transform = player_hitbox.AddComponent<Transform>();
+        auto& hitbox_component = player_hitbox.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(20.f));
+
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
 
@@ -152,6 +159,14 @@ void GameApp::OnStart()
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
+
+        // for debugging
+        // auto& hitbox_renderer = player_hitbox.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(0.1f, 0.3f, 0.3f),
+        //      .specular = vec3(0.3f, 0.3f, 0.3f),
+        //      .shininess = 64.0f});
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
