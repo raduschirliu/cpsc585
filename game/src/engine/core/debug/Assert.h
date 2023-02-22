@@ -5,7 +5,9 @@
 
 #define UNUSED(x) (void)(x)
 
+#define ASSERT(condition) assert(condition)
 #define ASSERT_MSG(condition, msg) assert((condition) && msg)
+#define ASSERT_ALWAYS(msg) assert(false && msg)
 
 #define STATIC_ASSERT_INTERFACE(type)       \
     static_assert(std::is_abstract<type>(), \

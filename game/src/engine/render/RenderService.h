@@ -31,11 +31,14 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void RegisterRenderable(const Entity& entity);
     void UnregisterRenderable(const Entity& entity);
     void RegisterCamera(Camera& camera);
+    void UnregisterCamera(Camera& camera);
     void RegisterLight(Entity& entity);
+    void UnregisterLight(Entity& entity);
 
     // From Service
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
+    void OnSceneLoaded(Scene& scene) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;

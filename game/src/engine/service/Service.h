@@ -22,9 +22,10 @@ class Service
 {
   public:
     void Init(ServiceInitializer& initializer);
-    void UpdateActiveScene(Scene& scene);
 
     virtual void OnInit();
+    virtual void OnSceneLoaded(Scene& scene);
+    virtual void OnSceneUnloaded(Scene& scene);
     virtual void OnStart(ServiceProvider& service_provider);
     virtual void OnUpdate() = 0;
     virtual void OnCleanup();

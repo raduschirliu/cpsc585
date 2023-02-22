@@ -16,13 +16,19 @@ void ServiceProvider::DispatchInit(App& app)
     }
 }
 
-void ServiceProvider::DispatchSceneChange(Scene& scene)
+void ServiceProvider::DispatchSceneLoaded(Scene& scene)
 {
-    Log::debug("[ServiceProvider] Changing scene");
-
     for (auto& pair : services_)
     {
-        pair.service->UpdateActiveScene(scene);
+        pair.service->OnSceneLoaded(scene);
+    }
+}
+
+void ServiceProvider::DispatchSceneUnloaded(Scene& scene)
+{
+    for (auto& pair : services_)
+    {
+        pair.service->OnSceneUnloaded(scene);
     }
 }
 

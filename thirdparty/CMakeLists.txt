@@ -97,6 +97,7 @@ set(INCLUDES ${INCLUDES} object_ptr/)
 # RapidJSON
 # -------------------------
 set(INCLUDES ${INCLUDES} includes)
+set(DEFINITIONS ${DEFINITIONS} RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseTrailingCommasFlag|kParseCommentsFlag)
 
 # -------------------------
 # Thirdparty combination library

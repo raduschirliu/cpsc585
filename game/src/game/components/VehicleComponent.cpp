@@ -9,42 +9,35 @@ using std::string;
 using std::string_view;
 using namespace physx;
 
-void VehicleComponent::ValidFileChecker()
-{
-    // Check that we can read from the json file before continuing.
-    BaseVehicleParams base_params;
-    if (!readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(), "Base.json",
-                                    base_params))
-        ASSERT_MSG(false,
-                   "Cannot open Base.json file, error in VehicleComponent.");
+static constexpr PxReal kDefaultMaterialFriction = 1.0f;
+static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
+static constexpr const char* kBaseParamFileName = "Base.jsonc";
+static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
 
-    // Check that we can read from the json file before continuing.
-    DirectDrivetrainParams direct_drivetrain_params;
-    if (!readDirectDrivetrainParamsFromJsonFile(
-            g_vehicle_data_path_.c_str(), "DirectDrive.json",
-            base_params.axleDescription, direct_drivetrain_params))
-    {
-        ASSERT_MSG(
-            false,
-            "Cannot open DirectDrive.json file, error in VehicleComponent.");
-    }
-}
-
-bool VehicleComponent::InitializeVehicle()
+void VehicleComponent::LoadParams()
 {
-    readBaseParamsFromJsonFile(g_vehicle_data_path_.c_str(), "Base.json",
-                               g_vehicle_.mBaseParams);
+    const bool success_base = readBaseParamsFromJsonFile(
+        kVehicleDataPath, kBaseParamFileName, g_vehicle_.mBaseParams);
+    ASSERT_MSG(success_base,
+               "Must be able to load vehicle base params from JSON file");
+
+    const bool success_drivertrain = readDirectDrivetrainParamsFromJsonFile(
+        kVehicleDataPath, kDirectDriveParamFileName,
+        g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
+    ASSERT_MSG(success_drivertrain,
+               "Must be able to load vehicle drivetrain params from JSON file");
+
     setPhysXIntegrationParams(
         g_vehicle_.mBaseParams.axleDescription, gPhysXMaterialFrictions_,
-        gNbPhysXMaterialFrictions_, gPhysXDefaultMaterialFriction_,
+        gNbPhysXMaterialFrictions_, kDefaultMaterialFriction,
         g_vehicle_.mPhysXParams);
-    readDirectDrivetrainParamsFromJsonFile(
-        g_vehicle_data_path_.c_str(), "DirectDrive.json",
-        g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
+}
 
+void VehicleComponent::InitVehicle()
+{
     const bool vehicle_init_status = g_vehicle_.initialize(
-        *physicsService_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
-        *physicsService_->GetKMaterial(), true);
+        *physics_service_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
+        *physics_service_->GetKMaterial(), true);
     ASSERT_MSG(vehicle_init_status, "Vehicle must successfully initialize");
 
     g_vehicle_.mTransmissionCommandState.gear =
@@ -61,8 +54,8 @@ bool VehicleComponent::InitializeVehicle()
     g_vehicle_simulation_context_.frame.latAxis = PxVehicleAxes::eNegX;
     g_vehicle_simulation_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
     g_vehicle_simulation_context_.scale.scale = 1.0f;
-    g_vehicle_simulation_context_.gravity = physicsService_->GetGravity();
-    g_vehicle_simulation_context_.physxScene = physicsService_->GetKScene();
+    g_vehicle_simulation_context_.gravity = physics_service_->GetGravity();
+    g_vehicle_simulation_context_.physxScene = physics_service_->GetKScene();
     g_vehicle_simulation_context_.physxActorUpdateMode =
         PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
@@ -85,8 +78,6 @@ bool VehicleComponent::InitializeVehicle()
         shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
         shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
     }
-
-    return true;
 }
 
 void VehicleComponent::InitMaterialFrictionTable()
@@ -98,29 +89,31 @@ void VehicleComponent::InitMaterialFrictionTable()
     // mapping between material and friction. In this snippet the same mapping
     // is used by all tires.
     gPhysXMaterialFrictions_[0].friction = 1.0f;
-    gPhysXMaterialFrictions_[0].material = physicsService_->GetKMaterial();
-    gPhysXDefaultMaterialFriction_ = 1.0f;
+    gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
 }
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    physicsService_ = &service_provider.GetService<PhysicsService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    ValidFileChecker();
-
     InitMaterialFrictionTable();
-    const bool init_status = InitializeVehicle();
-    ASSERT_MSG(init_status, "Vehicle must initialize");
+    LoadParams();
+    InitVehicle();
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-    g_vehicle_.step(physicsService_->GetTimeStep(),
+    if (input_service_->IsKeyPressed(GLFW_KEY_F10))
+    {
+        LoadParams();
+    }
+
+    g_vehicle_.step(physics_service_->GetTimeStep(),
                     g_vehicle_simulation_context_);
 
     const PxTransform& pose =
@@ -130,6 +123,11 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     transform_->SetOrientation(transform.orientation);
 }
 
+void VehicleComponent::OnDestroy()
+{
+    g_vehicle_.destroy();
+}
+
 std::string_view VehicleComponent::GetName() const
 {
     return "Vehicle";
@@ -137,9 +135,10 @@ std::string_view VehicleComponent::GetName() const
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
 {
-    PxTransform pose(GlmToPx(transform_->GetPosition()), PxQuat(PxIdentity));
+    const PxTransform pose(GlmToPx(transform_->GetPosition()),
+                           PxQuat(PxIdentity));
 
     g_vehicle_name_ = vehicle_name;
-    g_vehicle_.setUpActor(*physicsService_->GetKScene(), pose,
+    g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
 }
