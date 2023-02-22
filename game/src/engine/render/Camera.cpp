@@ -29,16 +29,18 @@ Camera::Camera()
 
 void Camera::OnInit(const ServiceProvider& service_provider)
 {
-    // Get services
+    // Services
     input_service_ = &service_provider.GetService<InputService>();
     render_service_ = &service_provider.GetService<RenderService>();
-    render_service_->RegisterCamera(*this);
 
+    // Components
     transform_ = &GetEntity().GetComponent<Transform>();
 
     // Event subscriptions
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
+    // Init logic
+    render_service_->RegisterCamera(*this);
     UpdateProjectionMatrix();
     UpdateViewMatrix();
 }
@@ -55,6 +57,11 @@ void Camera::OnDebugGui()
     {
         UpdateProjectionMatrix();
     }
+}
+
+void Camera::OnDestroy()
+{
+    render_service_->UnregisterCamera(*this);
 }
 
 std::string_view Camera::GetName() const

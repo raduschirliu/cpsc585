@@ -10,11 +10,18 @@ void PointLight::OnInit(const ServiceProvider& service_provider)
     render_service_ = &service_provider.GetService<RenderService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
+
+    render_service_->RegisterLight(GetEntity());
 }
 
 void PointLight::OnDebugGui()
 {
     gui::EditColorProperty("Diffuse", diffuse_);
+}
+
+void PointLight::OnDestroy()
+{
+    render_service_->UnregisterLight(GetEntity());
 }
 
 std::string_view PointLight::GetName() const

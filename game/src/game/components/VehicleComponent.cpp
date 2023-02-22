@@ -26,15 +26,15 @@ void VehicleComponent::LoadParams()
         g_vehicle_.mBaseParams.axleDescription, g_vehicle_.mDirectDriveParams);
     ASSERT_MSG(success_drivertrain,
                "Must be able to load vehicle drivetrain params from JSON file");
-}
 
-void VehicleComponent::InitVehicle()
-{
     setPhysXIntegrationParams(
         g_vehicle_.mBaseParams.axleDescription, gPhysXMaterialFrictions_,
         gNbPhysXMaterialFrictions_, kDefaultMaterialFriction,
         g_vehicle_.mPhysXParams);
+}
 
+void VehicleComponent::InitVehicle()
+{
     const bool vehicle_init_status = g_vehicle_.initialize(
         *physics_service_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
         *physics_service_->GetKMaterial(), true);
@@ -108,6 +108,11 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
+    if (input_service_->IsKeyPressed(GLFW_KEY_F10))
+    {
+        LoadParams();
+    }
+
     g_vehicle_.step(physics_service_->GetTimeStep(),
                     g_vehicle_simulation_context_);
 

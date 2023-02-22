@@ -22,6 +22,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnDebugGui() override;
+    void OnDestroy() override;
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>

@@ -31,7 +31,9 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void RegisterRenderable(const Entity& entity);
     void UnregisterRenderable(const Entity& entity);
     void RegisterCamera(Camera& camera);
+    void UnregisterCamera(Camera& camera);
     void RegisterLight(Entity& entity);
+    void UnregisterLight(Entity& entity);
 
     // From Service
     void OnInit() override;
