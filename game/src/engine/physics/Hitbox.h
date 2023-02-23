@@ -16,12 +16,15 @@ class Hitbox final : public RigidBodyComponent
     std::string_view GetName() const override;
     void OnUpdate(const Timestep& delta_time) override;
 
-    // setters
+    // getters + setters
+    physx::PxShape* GetShape();
+    glm::vec3 GetSize();
     void SetSize(const glm::vec3& size);
-    // void SetFollow(Entity& entity);
 
   private:
     // component dependencies
     jss::object_ptr<VehicleComponent> vehicle_;
+    
     physx::PxShape* shape_;
+    glm::vec3 size_;
 };
