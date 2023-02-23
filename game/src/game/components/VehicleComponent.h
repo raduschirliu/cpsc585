@@ -64,6 +64,8 @@ class VehicleComponent final : public Component,
 
   public:
     // Getters
+    glm::vec3 GetPosition();
+    glm::quat GetOrientation();
 
     inline DirectDriveVehicle& GetVehicle()
     {
