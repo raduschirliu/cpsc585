@@ -4,6 +4,7 @@
 
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
+#include "engine/physics/Hitbox.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -20,6 +21,7 @@ class RaycastComponent final : public Component,
     // from IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
+
   private:
     // service dependencies
     jss::object_ptr<PhysicsService> physics_service_;
@@ -27,4 +29,7 @@ class RaycastComponent final : public Component,
 
     // component dependencies
     jss::object_ptr<Transform> transform_;
+    jss::object_ptr<Hitbox> hitbox_;
+
+    physx::PxActor* self_hitbox_actor;
 };
