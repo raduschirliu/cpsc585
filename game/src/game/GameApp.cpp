@@ -31,7 +31,10 @@
 #include "game/components/DebugCameraController.h"
 #include "game/components/FinishLineComponent.h"
 #include "game/components/GuiExampleComponent.h"
-#include "game/components/Pickups/PickupEveryoneSlower.h"
+#include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
+#include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
+#include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
+#include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
 
@@ -151,7 +154,7 @@ void GameApp::OnStart()
         controller.SetGVehicle(vehicle.GetVehicle());
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("coin");
+        mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
@@ -249,12 +252,29 @@ void GameApp::OnStart()
              .shininess = 64.0f});
     }
 
+    // Make everyone slower pickup
     {
         Entity& entity = scene.AddEntity("Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 10.0f, -10.0f));
-        auto& pickup = entity.AddComponent<PickupEveryoneSlower>();
+        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("energy");
+        // as it spawns way too big lol
+        transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    }
+
+    // Disable Handling pickup
+    {
+        Entity& entity = scene.AddEntity("Disable Handling");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0f, 5.0f, -100.0f));
+        auto& pickup = entity.AddComponent<DisableHandlingPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("defence");
         // as it spawns way too big lol
@@ -263,4 +283,36 @@ void GameApp::OnStart()
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
+
+    // // Increase the size of aimbox 
+    // {
+    //     Entity& entity = scene.AddEntity("Aimbox increase");
+
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
+    //     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("coin");
+    //     // as it spawns way too big lol
+    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    //     auto& trigger = entity.AddComponent<BoxTrigger>();
+    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    // }
+
+    // // Kill the abilities pickup 
+    // {
+    //     Entity& entity = scene.AddEntity("Kill abilities");
+
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0f, 5.0f, -10.0f));
+    //     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("defence_shield");
+    //     // as it spawns way too big lol
+    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    //     auto& trigger = entity.AddComponent<BoxTrigger>();
+    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    // }
 }
