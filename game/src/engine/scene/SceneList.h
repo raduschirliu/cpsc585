@@ -16,6 +16,7 @@ class SceneList
     void SetActiveScene(std::string_view name);
 
     bool HasActiveScene() const;
+    const std::vector<std::unique_ptr<Scene>>& GetAllScenes() const;
 
   private:
     std::vector<std::unique_ptr<Scene>> scenes_;

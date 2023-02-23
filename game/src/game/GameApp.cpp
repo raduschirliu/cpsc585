@@ -67,16 +67,23 @@ void GameApp::OnInit()
  */
 void GameApp::OnStart()
 {
-    AddScene("TestScene");
+    AddScene("Test");
+    AddScene("Track1");
 
-    SetActiveScene("TestScene");
+    SetActiveScene("Test");
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
 {
-    if (scene.GetName() == "TestScene")
+    const auto& scene_name = scene.GetName();
+
+    if (scene_name == "Test")
     {
         LoadTestScene(scene);
+    }
+    else if (scene_name == "Track1")
+    {
+        LoadTrack1Scene(scene);
     }
 }
 
@@ -240,5 +247,36 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
+    }
+}
+
+void GameApp::LoadTrack1Scene(Scene& scene)
+{
+    Log::info("Loading entities for Track1 scene...");
+
+    {
+        // Track
+        auto& entity = scene.AddEntity("Track");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+        transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track1");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 32.0f});
+    }
+    {
+        // Camera
+        Entity& entity = scene.AddEntity("Camera");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, -5.0f));
+
+        auto& camera = entity.AddComponent<Camera>();
+        auto& controller = entity.AddComponent<DebugCameraController>();
     }
 }

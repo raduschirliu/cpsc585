@@ -21,12 +21,13 @@ void AssetService::LoadMesh(const string &path, const string &name)
         Log::error("Failed to import: {}", importer.GetErrorString());
         ASSERT_MSG(false, "Import must be successful");
     }
-
     ProcessNode(path, name, scene->mRootNode, scene);
 }
 
 const Mesh &AssetService::GetMesh(const std::string &name)
 {
+    ASSERT_MSG(meshes_.find(name) != meshes_.end(),
+               "Mesh with given name must exist");
     return meshes_[name];
 }
 
@@ -109,7 +110,7 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
     // Index information: May vary depending on the value of the Winding flag
     for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
     {
-        aiFace face = mesh->mFaces[i];
+        const aiFace &face = mesh->mFaces[i];
         for (uint32_t j = 0; j < face.mNumIndices; ++j)
         {
             localMesh.indices.emplace_back(face.mIndices[j]);
@@ -373,6 +374,7 @@ void AssetService::OnInit()
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
     LoadMesh("resources/models/car.obj", "car");
+    LoadMesh("resources/models/track1.obj", "track1");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

@@ -56,6 +56,8 @@ void RenderService::RegisterRenderable(const Entity& entity)
     data->vertex_buffer.Upload(mesh.vertices, GL_STATIC_DRAW);
     data->element_buffer.Upload(mesh.indices, GL_STATIC_DRAW);
 
+    Log::info("Uploaded {} vertices, {} indices", mesh.vertices.size(), mesh.indices.size());
+
     // TODO(radu): Unbind vertex array?
 
     // Add to render list

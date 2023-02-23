@@ -26,5 +26,7 @@ class SceneDebugService final : public Service,
     double prev_time_;
     int frame_count_;
 
-    void DrawEntityList();
+    void DrawGeneralTab();
+    void DrawEntityTab();
+    void DrawSceneTab();
 };
