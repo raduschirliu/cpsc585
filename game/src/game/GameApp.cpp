@@ -31,6 +31,7 @@
 #include "game/components/DebugCameraController.h"
 #include "game/components/FinishLineComponent.h"
 #include "game/components/GuiExampleComponent.h"
+#include "game/components/Pickups/PickupEveryoneSlower.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
 
@@ -101,41 +102,41 @@ void GameApp::OnStart()
              .shininess = 32.0f});
     }
 
-    {
-        // Cube
-        Entity& entity = scene.AddEntity("red cube");
+    // {
+    //     // Cube
+    //     Entity& entity = scene.AddEntity("red cube");
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
-        transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
+    //     Transform& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+    //     transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
+    //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+    //     rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
-        entity.AddComponent<RaycastComponent>();
+    //     entity.AddComponent<RaycastComponent>();
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
-             .specular = vec3(0.4f, 0.1f, 0.1f),
-             .shininess = 128.0f});
-    }
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("cube");
+    //     mesh_renderer.SetMaterialProperties(
+    //         {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+    //          .specular = vec3(0.4f, 0.1f, 0.1f),
+    //          .shininess = 128.0f});
+    // }
 
-    {
-        // Cube 2
-        Entity& entity = scene.AddEntity("white cube");
+    // {
+    //     // Cube 2
+    //     Entity& entity = scene.AddEntity("white cube");
 
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
-        transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
+    //     transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
+    //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+    //     rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-    }
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("cube");
+    // }
 
     {
         // Player car
@@ -143,7 +144,6 @@ void GameApp::OnStart()
 
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
-
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
@@ -167,65 +167,66 @@ void GameApp::OnStart()
         follow_camera_entity.AddComponent<Camera>();
     }
 
-    {
-        // AI 1
-        Entity& entity = scene.AddEntity("AiVehicle1");
+    // {
+    //     // AI 1
+    //     Entity& entity = scene.AddEntity("AiVehicle1");
 
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
-        //transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
-//        transform.SetOrientation(glm::normalize(glm::quat(1.f, 0.f, 1.f, 0.f)));
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
+    //     // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
+    //     //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
+    //     //        0.f, 1.f, 0.f)));
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI1");
+    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    //     bunny_vehicle.SetVehicleName("AI1");
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("energy");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
-             .specular = vec3(1.0f, 0.0f, 0.0f),
-             .shininess = 64.0f});
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("car");
+    //     mesh_renderer.SetMaterialProperties(
+    //         {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
+    //          .specular = vec3(1.0f, 0.0f, 0.0f),
+    //          .shininess = 64.0f});
 
-        // Making the controller which will guide the car on where to go next.
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
-    }
+    //     // Making the controller which will guide the car on where to go
+    //     next. auto& ai_controller = entity.AddComponent<AIController>();
+    //     ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+    // }
 
-    {
-        // AI 2
-        Entity& entity = scene.AddEntity("AiVehicle2");
+    // {
+    //     // AI 2
+    //     Entity& entity = scene.AddEntity("AiVehicle2");
 
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI2");
+    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    //     bunny_vehicle.SetVehicleName("AI2");
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
-             .specular = vec3(0.0f, 1.0f, 0.0f),
-             .shininess = 64.0f});
-    }
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("car");
+    //     mesh_renderer.SetMaterialProperties(
+    //         {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
+    //          .specular = vec3(0.0f, 1.0f, 0.0f),
+    //          .shininess = 64.0f});
+    // }
 
-    {
-        // AI 3
-        Entity& entity = scene.AddEntity("AiVehicle3");
+    // {
+    //     // AI 3
+    //     Entity& entity = scene.AddEntity("AiVehicle3");
 
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI3");
+    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    //     bunny_vehicle.SetVehicleName("AI3");
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
-             .specular = vec3(0.0f, 0.0f, 1.0f),
-             .shininess = 64.0f});
-    }
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("car");
+    //     mesh_renderer.SetMaterialProperties(
+    //         {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
+    //          .specular = vec3(0.0f, 0.0f, 1.0f),
+    //          .shininess = 64.0f});
+    // }
 
     {
         // Alleged finish line
@@ -246,5 +247,20 @@ void GameApp::OnStart()
             {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
+    }
+
+    {
+        Entity& entity = scene.AddEntity("Slow Down Enemies");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(5.0f, 10.0f, -10.0f));
+        auto& pickup = entity.AddComponent<PickupEveryoneSlower>();
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("defence");
+        // as it spawns way too big lol
+        transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 }
