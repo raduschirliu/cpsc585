@@ -28,8 +28,6 @@ void RaycastComponent::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
 
-    self_hitbox_actor = hitbox_->GetShape()->getActor();
-
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 

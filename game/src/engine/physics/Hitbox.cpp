@@ -59,12 +59,3 @@ physx::PxShape* Hitbox::GetShape()
 {
     return shape_;
 }
-
-// void Hitbox::SetFollow(Entity& entity)
-// {
-//     vehicle_ = &entity.GetComponent<VehicleComponent>();
-
-//     // "transform_" from RigidBodyComponent
-//     transform_->SetPosition(vehicle_->GetPosition());
-//     transform_->SetOrientation(vehicle_->GetOrientation());
-// }

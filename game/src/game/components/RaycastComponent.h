@@ -29,6 +29,4 @@ class RaycastComponent final : public Component,
     // component dependencies
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<Hitbox> hitbox_;
-
-    physx::PxActor* self_hitbox_actor;
 };
