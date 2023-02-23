@@ -101,21 +101,21 @@ void GameApp::OnStart()
 
     {
         // Cube
-        Entity& entity = scene.AddEntity("red cube");
+        // Entity& entity = scene.AddEntity("red cube");
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
-        transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
+        // Transform& transform = entity.AddComponent<Transform>();
+        // transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        // transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
+        // auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        // rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
-             .specular = vec3(0.4f, 0.1f, 0.1f),
-             .shininess = 128.0f});
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+        //      .specular = vec3(0.4f, 0.1f, 0.1f),
+        //      .shininess = 128.0f});
     }
 
     {
@@ -143,11 +143,6 @@ void GameApp::OnStart()
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
 
-        Entity& player_hitbox = scene.AddEntity("PlayerHitbox");
-        auto& hitbox_transform = player_hitbox.AddComponent<Transform>();
-        auto& hitbox_component = player_hitbox.AddComponent<Hitbox>();
-        hitbox_component.SetSize(vec3(20.f));
-
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
 
@@ -160,13 +155,12 @@ void GameApp::OnStart()
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
 
-        // for debugging
-        // auto& hitbox_renderer = player_hitbox.AddComponent<MeshRenderer>();
-        // mesh_renderer.SetMesh("cube");
-        // mesh_renderer.SetMaterialProperties(
-        //     {.albedo_color = vec3(0.1f, 0.3f, 0.3f),
-        //      .specular = vec3(0.3f, 0.3f, 0.3f),
-        //      .shininess = 64.0f});
+        Entity& player_hitbox = scene.AddEntity();
+        auto& hitbox_transform = player_hitbox.AddComponent<Transform>();
+        hitbox_transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
+        auto& hitbox_component = player_hitbox.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(10.f));
+        hitbox_component.SetFollow(car_entity);
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
