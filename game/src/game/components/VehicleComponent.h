@@ -24,18 +24,15 @@ class VehicleComponent final : public Component,
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
+    void OnDestroy() override;
     std::string_view GetName() const override;
 
   private:
     jss::object_ptr<Transform> transform_;
-    jss::object_ptr<PhysicsService> physicsService_;
+    jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
 
     /* variables for vehicle */
-
-    // Where to retreat the data from for the vehicle.
-    std::string g_vehicle_data_path_ = "resources/vehicle_data/";
-    // std::string g_vehicle_data_path_ = "resources/config/";
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
@@ -47,7 +44,6 @@ class VehicleComponent final : public Component,
     // The mapping between PxMaterial and friction.
     PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions_[16];
     PxU32 gNbPhysXMaterialFrictions_ = 0;
-    PxReal gPhysXDefaultMaterialFriction_ = 1.0f;
 
     std::string g_vehicle_name_;
 
@@ -56,11 +52,9 @@ class VehicleComponent final : public Component,
 
     // for functions.
   private:
-    void ValidFileChecker();
-    bool InitializeVehicle();
+    void InitVehicle();
     void InitMaterialFrictionTable();
-
-    bool b_can_control_ = false;
+    void LoadParams();
 
   public:
     // Getters
@@ -70,12 +64,6 @@ class VehicleComponent final : public Component,
     inline DirectDriveVehicle& GetVehicle()
     {
         return g_vehicle_;
-    }
-
-    // Setters
-    inline void SetVehicleDataPath(const std::string& data_path)
-    {
-        g_vehicle_data_path_ = data_path;
     }
 
     void SetVehicleName(const std::string& vehicle_name);

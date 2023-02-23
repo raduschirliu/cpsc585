@@ -52,6 +52,11 @@ class EventBus
         subscribers_[key].push_back(std::move(subscriber));
     }
 
+    void ClearSubscribers()
+    {
+        subscribers_.clear();
+    }
+
     void SetDownstream(EventBus* event_bus)
     {
         downstream_ = event_bus;

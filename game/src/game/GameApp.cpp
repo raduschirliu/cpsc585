@@ -68,18 +68,22 @@ void GameApp::OnInit()
  */
 void GameApp::OnStart()
 {
-    Scene& scene = AddScene("TestScene");
+    AddScene("TestScene");
+
     SetActiveScene("TestScene");
+}
 
-    // {
-    //     // Camera
-    //     Entity& entity = scene.AddEntity("Camera");
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+void GameApp::OnSceneLoaded(Scene& scene)
+{
+    if (scene.GetName() == "TestScene")
+    {
+        LoadTestScene(scene);
+    }
+}
 
-    //     entity.AddComponent<Camera>();
-    //     entity.AddComponent<DebugCameraController>();
-    // }
+void GameApp::LoadTestScene(Scene& scene)
+{
+    Log::info("Loading entities for TestScene...");
 
     {
         // Floor

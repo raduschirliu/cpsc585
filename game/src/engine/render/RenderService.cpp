@@ -83,9 +83,42 @@ void RenderService::RegisterCamera(Camera& camera)
     cameras_.push_back(&camera);
 }
 
+void RenderService::UnregisterCamera(Camera& camera)
+{
+    const uint32_t camera_entity_id = camera.GetEntity().GetId();
+    auto iter = cameras_.begin();
+
+    while (iter != cameras_.end())
+    {
+        if (iter->get()->GetEntity().GetId() == camera_entity_id)
+        {
+            cameras_.erase(iter);
+            break;
+        }
+
+        iter++;
+    }
+}
+
 void RenderService::RegisterLight(Entity& entity)
 {
     lights_.push_back(&entity);
+}
+
+void RenderService::UnregisterLight(Entity& entity)
+{
+    auto iter = lights_.begin();
+
+    while (iter != lights_.end())
+    {
+        if (iter->get()->GetId() == entity.GetId())
+        {
+            lights_.erase(iter);
+            break;
+        }
+
+        iter++;
+    }
 }
 
 void RenderService::OnInit()
@@ -97,6 +130,13 @@ void RenderService::OnStart(ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
+}
+
+void RenderService::OnSceneLoaded(Scene& scene)
+{
+    render_list_.clear();
+    lights_.clear();
+    cameras_.clear();
 }
 
 void RenderService::OnUpdate()

@@ -15,6 +15,7 @@ class App : public std::enable_shared_from_this<App>,
     App();
 
     void Run();
+    void SetActiveScene(const std::string& name);
 
     // From IWindowEventListener
     void OnKeyEvent(int key, int scancode, int action, int mods) override;
@@ -31,6 +32,8 @@ class App : public std::enable_shared_from_this<App>,
     virtual void OnInit();
     virtual void OnStart();
     virtual void OnCleanup();
+    virtual void OnSceneLoaded(Scene& scene);
+    virtual void OnSceneUnloaded(Scene& scene);
 
     template <class ServiceType>
         requires std::derived_from<ServiceType, Service>
@@ -40,7 +43,6 @@ class App : public std::enable_shared_from_this<App>,
     }
 
     Scene& AddScene(const std::string& name);
-    void SetActiveScene(const std::string& name);
 
   private:
     bool running_;

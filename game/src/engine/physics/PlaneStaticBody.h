@@ -8,6 +8,7 @@ class PlaneStaticBody final : public Component
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDestroy() override;
     std::string_view GetName() const override;
 
   private:

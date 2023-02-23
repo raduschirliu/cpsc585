@@ -48,6 +48,14 @@ void MeshRenderer::OnDebugGui()
                      512.0f);
 }
 
+void MeshRenderer::OnDestroy()
+{
+    if (mesh_name_)
+    {
+        render_service_->UnregisterRenderable(GetEntity());
+    }
+}
+
 std::string_view MeshRenderer::GetName() const
 {
     return "MeshRenderer";

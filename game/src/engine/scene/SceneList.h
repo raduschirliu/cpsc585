@@ -15,6 +15,8 @@ class SceneList
     Scene& AddScene(std::unique_ptr<Scene> scene);
     void SetActiveScene(std::string_view name);
 
+    bool HasActiveScene() const;
+
   private:
     std::vector<std::unique_ptr<Scene>> scenes_;
     jss::object_ptr<Scene> active_scene_;

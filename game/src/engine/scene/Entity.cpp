@@ -28,6 +28,20 @@ void Entity::SetName(const string& name)
     name_ = name;
 }
 
+void Entity::Destroy()
+{
+    ASSERT_MSG(scene_, "Entity must have valid scene");
+    scene_->DestroyEntity(id_);
+}
+
+void Entity::OnDestroy()
+{
+    for (auto& entry : components_)
+    {
+        entry.component->OnDestroy();
+    }
+}
+
 void Entity::SetScene(object_ptr<Scene> scene)
 {
     scene_ = scene;

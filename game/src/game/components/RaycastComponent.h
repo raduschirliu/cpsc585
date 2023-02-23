@@ -23,6 +23,7 @@ class RaycastComponent final : public Component,
   private:
     // service dependencies
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<InputService> input_service_;
 
     // component dependencies
     jss::object_ptr<Transform> transform_;
