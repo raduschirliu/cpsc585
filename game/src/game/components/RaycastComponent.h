@@ -21,7 +21,6 @@ class RaycastComponent final : public Component,
     // from IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
-
   private:
     // service dependencies
     jss::object_ptr<PhysicsService> physics_service_;

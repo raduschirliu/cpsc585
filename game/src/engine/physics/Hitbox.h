@@ -24,7 +24,7 @@ class Hitbox final : public RigidBodyComponent
   private:
     // component dependencies
     jss::object_ptr<VehicleComponent> vehicle_;
-    
+
     physx::PxShape* shape_;
     glm::vec3 size_;
 };
