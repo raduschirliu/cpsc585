@@ -18,11 +18,10 @@ class Hitbox final : public RigidBodyComponent
 
     // setters
     void SetSize(const glm::vec3& size);
-    void SetFollow(Entity& entity);
+    // void SetFollow(Entity& entity);
 
   private:
     // component dependencies
-    // jss::object_ptr<Entity> entity_;
     jss::object_ptr<VehicleComponent> vehicle_;
     physx::PxShape* shape_;
 };

@@ -18,6 +18,7 @@ static constexpr float kDefaultDenisty = 10.0f;
 void Hitbox::OnInit(const ServiceProvider& service_provider)
 {
     RigidBodyComponent::OnInit(service_provider);
+    vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     SetSize(kDefaultSize);
 }
 
@@ -48,11 +49,11 @@ void Hitbox::SetSize(const vec3& size)
     dynamic_->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 }
 
-void Hitbox::SetFollow(Entity& entity)
-{
-    vehicle_ = &entity.GetComponent<VehicleComponent>();
+// void Hitbox::SetFollow(Entity& entity)
+// {
+//     vehicle_ = &entity.GetComponent<VehicleComponent>();
 
-    // "transform_" from RigidBodyComponent
-    transform_->SetPosition(vehicle_->GetPosition());
-    transform_->SetOrientation(vehicle_->GetOrientation());
-}
+//     // "transform_" from RigidBodyComponent
+//     transform_->SetPosition(vehicle_->GetPosition());
+//     transform_->SetOrientation(vehicle_->GetOrientation());
+// }

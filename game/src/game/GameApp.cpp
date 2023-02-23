@@ -159,12 +159,11 @@ void GameApp::LoadTestScene(Scene& scene)
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
 
-        Entity& player_hitbox = scene.AddEntity();
-        auto& hitbox_transform = player_hitbox.AddComponent<Transform>();
-        hitbox_transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        auto& hitbox_component = player_hitbox.AddComponent<Hitbox>();
+        // Entity& player_hitbox = scene.AddEntity();
+        // auto& hitbox_transform = player_hitbox.AddComponent<Transform>();
+        // hitbox_transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
+        auto& hitbox_component = car_entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
-        hitbox_component.SetFollow(car_entity);
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
