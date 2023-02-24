@@ -6,7 +6,10 @@
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
+using physx::PxBoxGeometry;
 using physx::PxTransform;
+using physx::PxShapeFlag;
+using physx::PxActorFlag;
 using std::string_view;
 
 static constexpr vec3 kDefaultSize(5.0f, 5.0f, 5.0f);
@@ -30,7 +33,8 @@ void BoxTrigger::SetSize(const vec3& size)
         dynamic_->detachShape(*shape_);
     }
 
-    shape_ = physics_service_->CreateShapeCube(size.x, size.y, size.z);
+    PxBoxGeometry geometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f);
+    shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape_->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
     dynamic_->attachShape(*shape_);

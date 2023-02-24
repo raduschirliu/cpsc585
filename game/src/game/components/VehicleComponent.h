@@ -35,15 +35,17 @@ class VehicleComponent final : public Component,
     /* variables for vehicle */
 
     // The vehicle with direct drivetrain
-    DirectDriveVehicle g_vehicle_;
+    snippetvehicle2::DirectDriveVehicle g_vehicle_;
 
     // Vehicle simulation needs a simulation context to store global parameters
     // of the simulation such as gravitational acceleration.
-    PxVehiclePhysXSimulationContext g_vehicle_simulation_context_;
+    physx::vehicle2::PxVehiclePhysXSimulationContext
+        g_vehicle_simulation_context_;
 
     // The mapping between PxMaterial and friction.
-    PxVehiclePhysXMaterialFriction gPhysXMaterialFrictions_[16];
-    PxU32 gNbPhysXMaterialFrictions_ = 0;
+    physx::vehicle2::PxVehiclePhysXMaterialFriction
+        gPhysXMaterialFrictions_[16];
+    physx::PxU32 gNbPhysXMaterialFrictions_ = 0;
 
     std::string g_vehicle_name_;
 
@@ -59,7 +61,7 @@ class VehicleComponent final : public Component,
   public:
     // Getters
 
-    inline DirectDriveVehicle& GetVehicle()
+    inline snippetvehicle2::DirectDriveVehicle& GetVehicle()
     {
         return g_vehicle_;
     }

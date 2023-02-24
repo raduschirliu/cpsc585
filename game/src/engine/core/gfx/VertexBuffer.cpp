@@ -15,3 +15,13 @@ void VertexBuffer::ConfigureAttribute(GLuint index, GLint size,
                           reinterpret_cast<GLvoid*>(offset));
     glEnableVertexAttribArray(index);
 }
+
+void VertexBuffer::ConfigureAttribute(GLuint index, GLint size,
+                                      GLenum data_type, bool normalize,
+                                      GLsizei stride, GLsizei offset)
+{
+    Bind();
+    glVertexAttribPointer(index, size, data_type, normalize ? 1 : 0, stride,
+                          reinterpret_cast<GLvoid*>(offset));
+    glEnableVertexAttribArray(index);
+}

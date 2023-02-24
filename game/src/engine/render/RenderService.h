@@ -14,6 +14,7 @@
 
 class Camera;
 class InputService;
+class PhysicsService;
 
 struct RenderData
 {
@@ -48,11 +49,14 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
+
     std::vector<std::unique_ptr<RenderData>> render_list_;
     std::vector<jss::object_ptr<Camera>> cameras_;
     std::vector<jss::object_ptr<Entity>> lights_;
     std::vector<std::unique_ptr<Material>> materials_;
-    ShaderProgram shader_;
+    ShaderProgram shader_, debug_shader_;
+    bool physics_debug_draw_;
     bool wireframe_;
     bool menu_open_;
 

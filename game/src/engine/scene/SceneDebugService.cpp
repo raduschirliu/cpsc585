@@ -102,6 +102,12 @@ void SceneDebugService::DrawGeneralTab()
         Log::info("Reloading scene...");
         GetApp().SetActiveScene(active_scene_->GetName());
     }
+
+    ImGui::Checkbox("Show ImGui demo", &show_demo_menu_);
+    if (show_demo_menu_)
+    {
+        ImGui::ShowDemoWindow();
+    }
 }
 
 void SceneDebugService::DrawEntityTab()

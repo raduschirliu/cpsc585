@@ -6,6 +6,7 @@
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
+using physx::PxRigidBodyExt;
 using physx::PxTransform;
 using std::string_view;
 
@@ -18,10 +19,11 @@ void RigidBodyComponent::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    PxTransform pose = CreatePxTransform(transform_->GetPosition(),
-                                         transform_->GetOrientation());
-    dynamic_ = physics_service_->GetKPhysics()->createRigidDynamic(pose);
+    dynamic_ = physics_service_->CreateRigidDynamic(
+        transform_->GetPosition(), transform_->GetOrientation());
     dynamic_->userData = &GetEntity();
+    dynamic_->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
+
     PxRigidBodyExt::updateMassAndInertia(*dynamic_, kDefaultDenisty);
 
     physics_service_->RegisterActor(dynamic_);

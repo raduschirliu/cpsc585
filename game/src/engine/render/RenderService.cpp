@@ -6,6 +6,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/PointLight.h"
@@ -16,6 +17,9 @@ using glm::vec3;
 using std::make_unique;
 using std::unique_ptr;
 
+static VertexArray* kDebugVertexArray = nullptr;
+static VertexBuffer* kDebugVertexBuffer = nullptr;
+
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
@@ -23,6 +27,9 @@ RenderService::RenderService()
       materials_{},
       shader_("resources/shaders/default.vert",
               "resources/shaders/blinnphong.frag"),
+      debug_shader_("resources/shaders/debug.vert",
+                    "resources/shaders/debug.frag"),
+      physics_debug_draw_(false),
       wireframe_(false),
       menu_open_(false)
 {
@@ -55,8 +62,6 @@ void RenderService::RegisterRenderable(const Entity& entity)
     const Mesh& mesh = entity.GetComponent<MeshRenderer>().GetMesh();
     data->vertex_buffer.Upload(mesh.vertices, GL_STATIC_DRAW);
     data->element_buffer.Upload(mesh.indices, GL_STATIC_DRAW);
-
-    Log::info("Uploaded {} vertices, {} indices", mesh.vertices.size(), mesh.indices.size());
 
     // TODO(radu): Unbind vertex array?
 
@@ -125,11 +130,26 @@ void RenderService::UnregisterLight(Entity& entity)
 
 void RenderService::OnInit()
 {
+    // TODO: temp physics debug code
+    kDebugVertexArray = new VertexArray();
+    kDebugVertexBuffer = new VertexBuffer();
+
+    GLsizei stride = sizeof(physx::PxVec3) + sizeof(physx::PxU32);
+    GLsizei pos_offset = offsetof(physx::PxDebugLine, pos0);
+    GLsizei col_offset = offsetof(physx::PxDebugLine, color0);
+
+    kDebugVertexArray->Bind();
+    kDebugVertexBuffer->Bind();
+    kDebugVertexBuffer->ConfigureAttribute(0, 3, GL_FLOAT, stride,
+                                           pos_offset);  // Pos
+    kDebugVertexBuffer->ConfigureAttribute(1, 4, GL_UNSIGNED_BYTE, true, stride,
+                                           col_offset);  // Color
 }
 
 void RenderService::OnStart(ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
@@ -174,6 +194,8 @@ void RenderService::OnUpdate()
 
 void RenderService::OnCleanup()
 {
+    delete kDebugVertexArray;
+    delete kDebugVertexBuffer;
 }
 
 std::string_view RenderService::GetName() const
@@ -200,6 +222,26 @@ void RenderService::OnGui()
 
     ImGui::Checkbox("Wireframe", &wireframe_);
 
+    if (ImGui::Checkbox("Physics Debug", &physics_debug_draw_))
+    {
+        physx::PxScene* scene = physics_service_->GetKScene();
+        if (physics_debug_draw_)
+        {
+            bool status = scene->setVisualizationParameter(
+                physx::PxVisualizationParameter::eSCALE, 1.0f);
+            status |= scene->setVisualizationParameter(
+                physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+            // status |= scene->setVisualizationParameter(
+            //     physx::PxVisualizationParameter::eCOLLISION_COMPOUNDS, 1.0f);
+            Log::info("Enabled physics debug, success: {}", status);
+        }
+        else
+        {
+            scene->setVisualizationParameter(
+                physx::PxVisualizationParameter::eSCALE, 0.0f);
+        }
+    }
+
     ImGui::End();
 }
 
@@ -220,6 +262,9 @@ void RenderService::RenderCameraView(Camera& camera)
     // auto light_entity = lights_[0];
     // PointLight& light = light_entity->GetComponent<PointLight>();
 
+    shader_.Use();
+    shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+
     // Render each object
     for (const auto& obj : render_list_)
     {
@@ -236,11 +281,9 @@ void RenderService::RenderCameraView(Camera& camera)
             renderer.GetMaterialProperties();
 
         // TODO(radu): Move this logic to Material
-        shader_.Use();
 
         // Vert shader vars
         shader_.SetUniform("uModelMatrix", model_matrix);
-        shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
         shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         // Frags shader vars
@@ -263,6 +306,25 @@ void RenderService::RenderCameraView(Camera& camera)
             static_cast<GLsizei>(renderer.GetMesh().indices.size());
 
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+    }
+
+    // TODO: TEMP, draw physics debug info
+    if (physics_debug_draw_)
+    {
+        physx::PxPhysics* physics = physics_service_->GetKPhysics();
+        physx::PxScene* scene = physics_service_->GetKScene();
+
+        const auto& render_buffer = scene->getRenderBuffer();
+        const physx::PxDebugLine* lines = render_buffer.getLines();
+        const size_t num_lines = render_buffer.getNbLines();
+        const size_t lines_size = sizeof(physx::PxDebugLine) * num_lines;
+
+        kDebugVertexBuffer->Upload(lines, lines_size, GL_STATIC_DRAW);
+
+        debug_shader_.Use();
+        debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+        kDebugVertexArray->Bind();
+        glDrawArrays(GL_LINES, 0, num_lines);
     }
 }
 

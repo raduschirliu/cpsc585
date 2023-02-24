@@ -4,19 +4,27 @@
 
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
+using std::string;
 using std::string_view;
+using std::vector;
 using namespace physx;
+using namespace physx::vehicle2;
 
 static constexpr uint32_t kPhysxCpuThreads = 2;
 static constexpr const char* kPvdHost = "127.0.0.1";
 static constexpr int kPvdPort = 5425;
 static constexpr uint32_t kPvdTimeoutMillis = 10;
+
+static const PxTolerancesScale kDefaultTolerancesScale = PxTolerancesScale();
+static const PxCookingParams kDefaultPxCookingParams =
+    PxCookingParams(kDefaultTolerancesScale);
 
 /* ---------- from Service ---------- */
 void PhysicsService::OnInit()
@@ -26,6 +34,8 @@ void PhysicsService::OnInit()
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
 {
+    asset_service_ = &service_provider.GetService<AssetService>();
+    input_service_ = &service_provider.GetService<InputService>();
 }
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
@@ -68,12 +78,10 @@ void PhysicsService::OnCleanup()
 {
     PxCloseVehicleExtension();
 
+    PX_RELEASE(kScene_);
     PX_RELEASE(kMaterial_);
-    if (kScene_)
-    {
-        PX_RELEASE(kScene_);
-    }
     PX_RELEASE(kDispatcher_);
+    PX_RELEASE(cooking_);
     PX_RELEASE(kPhysics_);
 
     if (kPvd_)
@@ -91,39 +99,69 @@ string_view PhysicsService::GetName() const
     return "PhysicsService";
 }
 
-PxRigidStatic* PhysicsService::CreatePlaneRigidStatic(PxPlane plane_dimensions)
+PxRigidStatic* PhysicsService::CreatePlaneRigidStatic(const PxPlane& dimensions)
 {
-    return physx::PxCreatePlane(*kPhysics_, plane_dimensions, *kMaterial_);
+    return physx::PxCreatePlane(*kPhysics_, dimensions, *kMaterial_);
 }
 
-PxRigidDynamic* PhysicsService::CreateSphereRigidBody(
-    PxReal radius, PxTransform transform_location, PxReal density,
-    PxVec3 velocity, PxReal angularDamping)
+PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
 {
-    physx::PxSphereGeometry sphere = physx::PxSphereGeometry(radius);
-    PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform_location);
-    PxShape* shape = kPhysics_->createShape(sphere, *kMaterial_);
-    dynamic->attachShape(*shape);
+    // Converting our Mesh to a Px Mesh description
+    const Mesh& mesh = asset_service_->GetMesh(mesh_name);
 
-    // physx::PxRigidDynamic* dynamic = physx::PxCreateDynamic(*kPhysics_,
-    // transform_location, sphere, *kMaterial_, density);
-    if (dynamic)
+    PxTriangleMeshDesc mesh_desc;
+    mesh_desc.setToDefault();
+
+    vector<PxVec3> vertices;
+
+    for (auto& vertex : mesh.vertices)
     {
-        dynamic->setAngularDamping(angularDamping);
-        dynamic->setLinearVelocity(velocity);
-        kScene_->addActor(*dynamic);
-    }
-    else
-    {
-        Log::error("Error occured while creating the sphere.");
+        vertices.push_back(GlmToPx(vertex.position));
     }
 
-    PxSphereGeometry bigger_sphere(10.0f);
-    PxShape* bigger_shape = kPhysics_->createShape(bigger_sphere, *kMaterial_);
-    dynamic->detachShape(*shape);
-    dynamic->attachShape(*bigger_shape);
+    mesh_desc.triangles.count = static_cast<PxU32>(mesh.indices.size()) / 3;
+    mesh_desc.triangles.data = mesh.indices.data();
+    mesh_desc.triangles.stride = sizeof(uint32_t) * 3;
 
-    return dynamic;
+    mesh_desc.points.count = static_cast<PxU32>(vertices.size());
+    mesh_desc.points.data = vertices.data();
+    mesh_desc.points.stride = sizeof(PxVec3);
+
+    // Cook and build a TriangleMesh
+    PxDefaultMemoryOutputStream cooking_out_buffer;
+    PxTriangleMeshCookingResult::Enum result;
+
+    const bool status =
+        cooking_->cookTriangleMesh(mesh_desc, cooking_out_buffer, &result);
+    ASSERT_MSG(status, "Mesh cooking must succeeed");
+
+    PxDefaultMemoryInputData mesh_in_buffer(cooking_out_buffer.getData(),
+                                            cooking_out_buffer.getSize());
+    PxTriangleMesh* triangle_mesh =
+        kPhysics_->createTriangleMesh(mesh_in_buffer);
+    ASSERT_MSG(triangle_mesh, "Mesh creation must succeed");
+
+    return triangle_mesh;
+}
+
+PxRigidDynamic* PhysicsService::CreateRigidDynamic(const glm::vec3& position,
+                                                   const glm::quat& orientation)
+{
+    const PxTransform pose = CreatePxTransform(position, orientation);
+    PxRigidDynamic* rigid_dynamic = kPhysics_->createRigidDynamic(pose);
+    ASSERT(rigid_dynamic);
+
+    return rigid_dynamic;
+}
+
+PxRigidStatic* PhysicsService::CreateRigidStatic(const glm::vec3& position,
+                                                 const glm::quat& orientation)
+{
+    const PxTransform pose = CreatePxTransform(position, orientation);
+    PxRigidStatic* rigid_static = kPhysics_->createRigidStatic(pose);
+    ASSERT(rigid_static);
+
+    return rigid_static;
 }
 
 void PhysicsService::RegisterActor(PxActor* actor)
@@ -136,31 +174,9 @@ void PhysicsService::UnregisterActor(PxActor* actor)
     kScene_->removeActor(*actor);
 }
 
-physx::PxRigidDynamic* PhysicsService::CreateRigidDynamic(
-    const glm::vec3& position, const glm::quat& orientation, PxShape* shape)
-{
-    physx::PxTransform transform = CreatePxTransform(position, orientation);
-    physx::PxRigidDynamic* dynamic = kPhysics_->createRigidDynamic(transform);
-    if (shape)
-    {
-        dynamic->attachShape(*shape);
-        PxRigidBodyExt::updateMassAndInertia(*dynamic, 10.f);
-    }
-    kScene_->addActor(*dynamic);
-
-    return dynamic;
-}
-
 physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
 {
     return kPhysics_->createShape(geometry, *kMaterial_);
-}
-
-physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
-                                                float half_z)
-{
-    return kPhysics_->createShape(PxBoxGeometry(half_x, half_y, half_z),
-                                  *kMaterial_);
 }
 
 /* ---------- raycasting ---------- */
@@ -208,8 +224,6 @@ std::optional<RaycastData> PhysicsService::Raycast(
 /* ---------- PhysX ----------*/
 void PhysicsService::InitPhysX()
 {
-    // PhysX init
-    // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
                                       kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
@@ -222,18 +236,26 @@ void PhysicsService::InitPhysX()
 
     physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(
         kPvdHost, kPvdPort, kPvdTimeoutMillis);
-    ASSERT_MSG(transport, "Error connecting to PhysX Visual Debugger");
+    ASSERT_MSG(transport, "Error creating PvdTransport Socket");
 
-    kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+    const bool pvd_status =
+        kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+    if (pvd_status)
+    {
+        Log::info("PhysX SDK connected to PVD");
+    }
 
     // Physics initlaization
     bool recordMemoryAllocations = true;
     kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
-                                physx::PxTolerancesScale(),
+                                kDefaultTolerancesScale,
                                 recordMemoryAllocations, kPvd_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
+
+    cooking_ = PxCreateCooking(PX_PHYSICS_VERSION, *kFoundation_,
+                               kDefaultPxCookingParams);
 
     // setting up the vehicle physics
     PxInitVehicleExtension(*kFoundation_);

@@ -13,14 +13,12 @@
 
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
-#include "VehicleCommands.h"  // to get enums and structures.
-#include "engine/input/InputService.h"
+#include "VehicleCommands.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
-using namespace physx;
-using namespace physx::vehicle2;
-using namespace snippetvehicle2;
+class AssetService;
+class InputService;
 
 class PhysicsService final : public Service,
                              public physx::PxSimulationEventCallback
@@ -35,6 +33,9 @@ class PhysicsService final : public Service,
     std::string_view GetName() const override;
 
   private:
+    jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<InputService> input_service_;
+
     physx::PxDefaultAllocator kDefaultAllocator_;
     physx::PxDefaultErrorCallback kDefaultErrorCallback_;
     physx::PxFoundation* kFoundation_ = nullptr;
@@ -43,13 +44,14 @@ class PhysicsService final : public Service,
     physx::PxMaterial* kMaterial_ = nullptr;
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
+    physx::PxCooking* cooking_ = nullptr;
 
     std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
 
     // Gravitational acceleration
-    const PxVec3 gGravity = PxVec3(0.0f, -9.81f, 0.0f);
+    const physx::PxVec3 gGravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
 
-    const PxF32 timestep = 1.f / 60.f;
+    const physx::PxF32 timestep = 1.0f / 60.0f;
 
     void InitPhysX();
 
@@ -58,27 +60,17 @@ class PhysicsService final : public Service,
     void UnregisterActor(physx::PxActor* actor);
 
     /* From PxSimulationEventCallback */
-    void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override;
-    void onWake(PxActor** actors, PxU32 count) override;
-    void onSleep(PxActor** actors, PxU32 count) override;
-    void onContact(const PxContactPairHeader& pairHeader,
-                   const PxContactPair* pairs, PxU32 nbPairs) override;
-    void onTrigger(PxTriggerPair* pairs, PxU32 count) override;
-    void onAdvance(const PxRigidBody* const* bodyBuffer,
-                   const PxTransform* poseBuffer, const PxU32 count) override;
-
-    /*
-     * Function to make a sphere collider.
-     * @param radius : PxReal type
-     * @param location to spawn the sphere at : PxTransform
-     * @param density : PxReal
-     * @param velocity : PxVec3
-     * @param OPTIONAL angularDamping : PxReal
-     */
-    physx::PxRigidDynamic* CreateSphereRigidBody(
-        physx::PxReal radius, physx::PxTransform transform_location,
-        physx::PxReal density, physx::PxVec3 velocity,
-        physx::PxReal angularDamping = 0.5f);
+    void onConstraintBreak(physx::PxConstraintInfo* constraints,
+                           physx::PxU32 count) override;
+    void onWake(physx::PxActor** actors, physx::PxU32 count) override;
+    void onSleep(physx::PxActor** actors, physx::PxU32 count) override;
+    void onContact(const physx::PxContactPairHeader& pairHeader,
+                   const physx::PxContactPair* pairs,
+                   physx::PxU32 nbPairs) override;
+    void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override;
+    void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
+                   const physx::PxTransform* poseBuffer,
+                   const physx::PxU32 count) override;
 
     /*
      * Casts a ray until the nearest object or no object is hit.
@@ -95,20 +87,14 @@ class PhysicsService final : public Service,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
 
-    /*
-     * Function to make a plane based on
-     * @param dimension : PxPlane
-     */
+    physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
     physx::PxRigidStatic* CreatePlaneRigidStatic(
-        physx::PxPlane plane_dimensions);
+        const physx::PxPlane& dimensions);
+    physx::PxTriangleMesh* CreateTriangleMesh(const std::string& mesh_name);
 
     physx::PxRigidDynamic* CreateRigidDynamic(const glm::vec3& position,
-                                              const glm::quat& orientation,
-                                              physx::PxShape* shape = nullptr);
-
-    physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
-
-    physx::PxShape* CreateShapeCube(float half_x, float half_y, float half_z);
+                                                 const glm::quat& orientation);
+    physx::PxRigidStatic* CreateRigidStatic(const glm::vec3& position, const glm::quat& orientation);
 
     inline physx::PxPhysics* GetKPhysics()
     {
@@ -125,12 +111,12 @@ class PhysicsService final : public Service,
         return kScene_;
     }
 
-    inline PxVec3 GetGravity()
+    inline physx::PxVec3 GetGravity()
     {
         return gGravity;
     }
 
-    inline PxF32 GetTimeStep()
+    inline physx::PxF32 GetTimeStep()
     {
         return timestep;
     }

@@ -8,6 +8,8 @@
 using std::string;
 using std::string_view;
 using namespace physx;
+using namespace physx::vehicle2;
+using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
@@ -63,20 +65,26 @@ void VehicleComponent::InitVehicle()
     ASSERT_MSG(rigidbody, "Vehicle must have valid PhysX Actor RigidBody");
 
     rigidbody->userData = &GetEntity();
+    rigidbody->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
     const uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 
     // First shape is the vehicle body, the next 4 should be the wheels.
-    // TODO: enabling collision for all shapes makes the vehicle get stuck in
-    // the floor?
-    for (uint32_t i = 0; i < 1; i++)
+    for (uint32_t i = 0; i < num_shapes; i++)
     {
         rigidbody->getShapes(&shape, 1, i);
         ASSERT_MSG(shape, "RigidBody Shape must be valid");
 
-        shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        if (i == 0)
+        {
+            // TODO: enabling collision for all shapes makes the vehicle get
+            // stuck in the floor?
+            shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+            shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        }
+
         shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+        shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
     }
 }
 
