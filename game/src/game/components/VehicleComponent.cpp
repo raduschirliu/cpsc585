@@ -148,7 +148,6 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
 
     PxTransform pose(GlmToPx(transform_->GetPosition()), quat);
 
-
     g_vehicle_name_ = vehicle_name;
     g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());

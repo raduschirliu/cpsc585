@@ -123,7 +123,6 @@ void GameApp::LoadTestScene(Scene& scene)
     //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
     //     rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
-
     //     entity.AddComponent<RaycastComponent>();
 
     //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -134,240 +133,231 @@ void GameApp::LoadTestScene(Scene& scene)
     //          .shininess = 128.0f});
     // }
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
-             .specular = vec3(0.4f, 0.1f, 0.1f),
-             .shininess = 128.0f});
-    }
-
-
-    // {
-    //     // Cube 2
-    //     Entity& entity = scene.AddEntity("white cube");
-
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
-    //     transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
-
-    //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-    //     rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
-
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("cube");
-    // }
-
-    {
-        // Player car
-        Entity& car_entity = scene.AddEntity("PlayerVehicle");
-
-        auto& transform = car_entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
-
-        // making this pointer here as we plan to keep track of it in the
-        // playerstate. we send this same pointer to the vehicle component so
-        // that it can store the speed of the car in it then we use the same
-        // pointer in the playerstate component to have the speed of player in
-        // there.
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-
-        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
-        vehicle.SetVehicleName("PlayerVehicle");
-        vehicle.SetSpeed(speed);
-
-        auto& controller = car_entity.AddComponent<PlayerController>();
-        controller.SetGVehicle(vehicle.GetVehicle());
-
-        auto& raycast = car_entity.AddComponent<RaycastComponent>();
-
-        auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
-             .specular = vec3(0.3f, 0.3f, 0.3f),
-             .shininess = 64.0f});
-
-        auto& player_state = car_entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(car_entity);
-
-        // Camera following car
-        Entity& follow_camera_entity = scene.AddEntity();
-        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
-        auto& follow_camera_comp =
-            follow_camera_entity.AddComponent<FollowCamera>();
-        follow_camera_comp.SetFollowingTransform(car_entity);
-
-        follow_camera_entity.AddComponent<Camera>();
-    }
-
-    {
-        // AI 1
-        Entity& entity = scene.AddEntity("AiVehicle1");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
-        // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
-        //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
-        //        0.f, 1.f, 0.f)));
-
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI1");
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
-             .specular = vec3(1.0f, 0.0f, 0.0f),
-             .shininess = 64.0f});
-
-        // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
-    }
-
-    {
-        // AI 2
-        Entity& entity = scene.AddEntity("AiVehicle2");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
-
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI2");
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
-             .specular = vec3(0.0f, 1.0f, 0.0f),
-             .shininess = 64.0f});
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
-    }
-
-    {
-        // AI 3
-        Entity& entity = scene.AddEntity("AiVehicle3");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
-
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-        bunny_vehicle.SetVehicleName("AI3");
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
-             .specular = vec3(0.0f, 0.0f, 1.0f),
-             .shininess = 64.0f});
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
-    }
-
-    {
-        // Alleged finish line
-        Entity& entity = scene.AddEntity("Finish Line");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(50.0, 4.0f, 20.0f));
-        transform.SetScale(vec3(10.0f, 4.0f, 10.0f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
-
-        entity.AddComponent<FinishLineComponent>();
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
-             .specular = vec3(1.0f, 1.0f, 1.0f),
-             .shininess = 64.0f});
-    }
-
-    // Make everyone slower pickup
-    {
-        Entity& entity = scene.AddEntity("Slow Down Enemies");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(5.0f, 10.0f, -10.0f));
-        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("energy");
-        // as it spawns way too big lol
-        transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
-
-    // Disable Handling pickup
-    {
-        Entity& entity = scene.AddEntity("Disable Handling");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 5.0f, -100.0f));
-        auto& pickup = entity.AddComponent<DisableHandlingPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("defence");
-        // as it spawns way too big lol
-        transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
-
-    // // Increase the size of aimbox
-    // {
-    //     Entity& entity = scene.AddEntity("Aimbox increase");
-
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
-    //     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("coin");
-    //     // as it spawns way too big lol
-    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-    //     auto& trigger = entity.AddComponent<BoxTrigger>();
-    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    // }
-
-    // // Kill the abilities pickup
-    // {
-    //     Entity& entity = scene.AddEntity("Kill abilities");
-
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(0.0f, 5.0f, -10.0f));
-    //     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("defence_shield");
-    //     // as it spawns way too big lol
-    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-    //     auto& trigger = entity.AddComponent<BoxTrigger>();
-    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    // }
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("cube");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+                                         .specular = vec3(0.4f, 0.1f, 0.1f),
+                                         .shininess = 128.0f});
 }
 
+// {
+//     // Cube 2
+//     Entity& entity = scene.AddEntity("white cube");
 
+//     auto& transform = entity.AddComponent<Transform>();
+//     transform.SetPosition(vec3(10.0, 35.0f, 0.0f));
+//     transform.SetScale(vec3(1.0f, 3.0f, 1.0f));
+
+//     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+//     rigidbody.SetSize(vec3(1.0f, 3.0f, 1.0f));
+
+//     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+//     mesh_renderer.SetMesh("cube");
+// }
+
+{
+    // Player car
+    Entity& car_entity = scene.AddEntity("PlayerVehicle");
+
+    auto& transform = car_entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
+
+    // making this pointer here as we plan to keep track of it in the
+    // playerstate. we send this same pointer to the vehicle component so
+    // that it can store the speed of the car in it then we use the same
+    // pointer in the playerstate component to have the speed of player in
+    // there.
+    std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+
+    auto& vehicle = car_entity.AddComponent<VehicleComponent>();
+    vehicle.SetVehicleName("PlayerVehicle");
+    vehicle.SetSpeed(speed);
+
+    auto& controller = car_entity.AddComponent<PlayerController>();
+    controller.SetGVehicle(vehicle.GetVehicle());
+
+    auto& raycast = car_entity.AddComponent<RaycastComponent>();
+
+    auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("car");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+                                         .specular = vec3(0.3f, 0.3f, 0.3f),
+                                         .shininess = 64.0f});
+
+    auto& player_state = car_entity.AddComponent<PlayerState>();
+    player_state.SetSpeed(speed);
+    player_state.SetEntity(car_entity);
+
+    // Camera following car
+    Entity& follow_camera_entity = scene.AddEntity();
+    auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
+    auto& follow_camera_comp =
+        follow_camera_entity.AddComponent<FollowCamera>();
+    follow_camera_comp.SetFollowingTransform(car_entity);
+
+    follow_camera_entity.AddComponent<Camera>();
+}
+
+{
+    // AI 1
+    Entity& entity = scene.AddEntity("AiVehicle1");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
+    // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
+    //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
+    //        0.f, 1.f, 0.f)));
+
+    auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    bunny_vehicle.SetVehicleName("AI1");
+
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("car");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(1.0f, 0.0f, 0.0f),
+                                         .specular = vec3(1.0f, 0.0f, 0.0f),
+                                         .shininess = 64.0f});
+
+    // Making the controller which will guide the car on where to go
+    auto& ai_controller = entity.AddComponent<AIController>();
+    ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+
+    std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+    bunny_vehicle.SetSpeed(speed);
+
+    auto& player_state = entity.AddComponent<PlayerState>();
+    player_state.SetSpeed(speed);
+    player_state.SetEntity(entity);
+}
+
+{
+    // AI 2
+    Entity& entity = scene.AddEntity("AiVehicle2");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
+
+    auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    bunny_vehicle.SetVehicleName("AI2");
+
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("car");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(1.0f, 1.0f, 0.0f),
+                                         .specular = vec3(0.0f, 1.0f, 0.0f),
+                                         .shininess = 64.0f});
+
+    std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+    bunny_vehicle.SetSpeed(speed);
+
+    auto& player_state = entity.AddComponent<PlayerState>();
+    player_state.SetSpeed(speed);
+    player_state.SetEntity(entity);
+}
+
+{
+    // AI 3
+    Entity& entity = scene.AddEntity("AiVehicle3");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+
+    auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+    bunny_vehicle.SetVehicleName("AI3");
+
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("car");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(0.0f, 0.0f, 1.0f),
+                                         .specular = vec3(0.0f, 0.0f, 1.0f),
+                                         .shininess = 64.0f});
+
+    std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+    bunny_vehicle.SetSpeed(speed);
+
+    auto& player_state = entity.AddComponent<PlayerState>();
+    player_state.SetSpeed(speed);
+    player_state.SetEntity(entity);
+}
+
+{
+    // Alleged finish line
+    Entity& entity = scene.AddEntity("Finish Line");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(50.0, 4.0f, 20.0f));
+    transform.SetScale(vec3(10.0f, 4.0f, 10.0f));
+
+    auto& trigger = entity.AddComponent<BoxTrigger>();
+    trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
+
+    entity.AddComponent<FinishLineComponent>();
+
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("cube");
+    mesh_renderer.SetMaterialProperties({.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+                                         .specular = vec3(1.0f, 1.0f, 1.0f),
+                                         .shininess = 64.0f});
+}
+
+// Make everyone slower pickup
+{
+    Entity& entity = scene.AddEntity("Slow Down Enemies");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(5.0f, 10.0f, -10.0f));
+    auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("energy");
+    // as it spawns way too big lol
+    transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    auto& trigger = entity.AddComponent<BoxTrigger>();
+    trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+}
+
+// Disable Handling pickup
+{
+    Entity& entity = scene.AddEntity("Disable Handling");
+
+    auto& transform = entity.AddComponent<Transform>();
+    transform.SetPosition(vec3(10.0f, 5.0f, -100.0f));
+    auto& pickup = entity.AddComponent<DisableHandlingPickup>();
+    auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    mesh_renderer.SetMesh("defence");
+    // as it spawns way too big lol
+    transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    auto& trigger = entity.AddComponent<BoxTrigger>();
+    trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+}
+
+// // Increase the size of aimbox
+// {
+//     Entity& entity = scene.AddEntity("Aimbox increase");
+
+//     auto& transform = entity.AddComponent<Transform>();
+//     transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
+//     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
+//     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+//     mesh_renderer.SetMesh("coin");
+//     // as it spawns way too big lol
+//     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+//     auto& trigger = entity.AddComponent<BoxTrigger>();
+//     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+// }
+
+// // Kill the abilities pickup
+// {
+//     Entity& entity = scene.AddEntity("Kill abilities");
+
+//     auto& transform = entity.AddComponent<Transform>();
+//     transform.SetPosition(vec3(0.0f, 5.0f, -10.0f));
+//     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
+//     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+//     mesh_renderer.SetMesh("defence_shield");
+//     // as it spawns way too big lol
+//     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+//     auto& trigger = entity.AddComponent<BoxTrigger>();
+//     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+// }
+}
