@@ -38,6 +38,7 @@ class VehicleComponent final : public Component,
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
+    std::string g_vehicle_data_path_ = "resources/vehicle_data/";
 
     // Vehicle simulation needs a simulation context to store global parameters
     // of the simulation such as gravitational acceleration.
