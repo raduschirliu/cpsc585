@@ -37,7 +37,7 @@ class AIController final : public Component,
     glm::vec3 next_car_position_;
     int next_path_index_ = 2;
 
-    inline float GetEuclideanDistance(glm::vec3 first, glm::vec3 second)
+    inline double GetEuclideanDistance(glm::vec3 first, glm::vec3 second)
     {
         return sqrt(pow(first.x - second.x, 2) + pow(first.y - second.y, 2) +
                     pow(first.z - second.z, 2));

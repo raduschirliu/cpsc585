@@ -26,5 +26,6 @@ struct PlayerStateStruct
         time_elapsed = 0.f;
         nemesis = nullptr;
         bullied = nullptr;
+        accuracy = 0.f;
     }
 };

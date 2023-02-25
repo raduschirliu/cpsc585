@@ -4,17 +4,25 @@
 #include "PlayerStateStruct.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "engine/game_state/GameStateService.h"
+#include "engine/scene/Entity.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnStart() override;
     void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
 
   private:
     PlayerStateStruct player_state_;
+    jss::object_ptr<GameStateService> game_state_service_;
+
+    Entity* attached_entity_;
+
+    bool game_state_assigned_ = false;
 
   public:
     // getters
@@ -68,5 +76,10 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     {
         if(speed)
             player_state_.speed = speed;
+    }
+
+    void SetEntity(Entity& entity)
+    {
+        attached_entity_ = &entity;
     }
 };

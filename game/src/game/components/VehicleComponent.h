@@ -2,6 +2,7 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
@@ -30,6 +31,7 @@ class VehicleComponent final : public Component,
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physicsService_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
 
     /* variables for vehicle */
 

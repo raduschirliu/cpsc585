@@ -10,6 +10,7 @@
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/game_state/GameStateService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
@@ -67,6 +68,7 @@ void GameApp::OnInit()
     AddService<RenderService>();
     AddService<GuiService>();
     AddService<AIService>();
+    AddService<GameStateService>();
 }
 
 /**
@@ -149,9 +151,11 @@ void GameApp::OnStart()
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
 
-        // making this pointer here as we plan to keep track of it in the playerstate.
-        // we send this same pointer to the vehicle component so that it can store the speed of the car in it
-        // then we use the same pointer in the playerstate component to have the speed of player in there.
+        // making this pointer here as we plan to keep track of it in the
+        // playerstate. we send this same pointer to the vehicle component so
+        // that it can store the speed of the car in it then we use the same
+        // pointer in the playerstate component to have the speed of player in
+        // there.
         std::shared_ptr<double> speed = std::make_shared<double>(0.f);
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
@@ -170,6 +174,7 @@ void GameApp::OnStart()
 
         auto& player_state = car_entity.AddComponent<PlayerState>();
         player_state.SetSpeed(speed);
+        player_state.SetEntity(car_entity);
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
@@ -181,66 +186,87 @@ void GameApp::OnStart()
         follow_camera_entity.AddComponent<Camera>();
     }
 
-    // {
-    //     // AI 1
-    //     Entity& entity = scene.AddEntity("AiVehicle1");
+    {
+        // AI 1
+        Entity& entity = scene.AddEntity("AiVehicle1");
 
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
-    //     // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
-    //     //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
-    //     //        0.f, 1.f, 0.f)));
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
+        // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
+        //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
+        //        0.f, 1.f, 0.f)));
 
-    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-    //     bunny_vehicle.SetVehicleName("AI1");
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI1");
 
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("car");
-    //     mesh_renderer.SetMaterialProperties(
-    //         {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
-    //          .specular = vec3(1.0f, 0.0f, 0.0f),
-    //          .shininess = 64.0f});
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
+             .specular = vec3(1.0f, 0.0f, 0.0f),
+             .shininess = 64.0f});
 
-    //     // Making the controller which will guide the car on where to go
-    //     next. auto& ai_controller = entity.AddComponent<AIController>();
-    //     ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
-    // }
+        // Making the controller which will guide the car on where to go
+        auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
 
-    // {
-    //     // AI 2
-    //     Entity& entity = scene.AddEntity("AiVehicle2");
+        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+        bunny_vehicle.SetSpeed(speed);
 
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
+        auto& player_state = entity.AddComponent<PlayerState>();
+        player_state.SetSpeed(speed);
+        player_state.SetEntity(entity);
+    }
 
-    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-    //     bunny_vehicle.SetVehicleName("AI2");
+    {
+        // AI 2
+        Entity& entity = scene.AddEntity("AiVehicle2");
 
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("car");
-    //     mesh_renderer.SetMaterialProperties(
-    //         {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
-    //          .specular = vec3(0.0f, 1.0f, 0.0f),
-    //          .shininess = 64.0f});
-    // }
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
 
-    // {
-    //     // AI 3
-    //     Entity& entity = scene.AddEntity("AiVehicle3");
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI2");
 
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
+             .specular = vec3(0.0f, 1.0f, 0.0f),
+             .shininess = 64.0f});
 
-    //     auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
-    //     bunny_vehicle.SetVehicleName("AI3");
+        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+        bunny_vehicle.SetSpeed(speed);
 
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("car");
-    //     mesh_renderer.SetMaterialProperties(
-    //         {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
-    //          .specular = vec3(0.0f, 0.0f, 1.0f),
-    //          .shininess = 64.0f});
-    // }
+        auto& player_state = entity.AddComponent<PlayerState>();
+        player_state.SetSpeed(speed);
+        player_state.SetEntity(entity);
+    }
+
+    {
+        // AI 3
+        Entity& entity = scene.AddEntity("AiVehicle3");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        bunny_vehicle.SetVehicleName("AI3");
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
+             .specular = vec3(0.0f, 0.0f, 1.0f),
+             .shininess = 64.0f});
+
+        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+        bunny_vehicle.SetSpeed(speed);
+
+        auto& player_state = entity.AddComponent<PlayerState>();
+        player_state.SetSpeed(speed);
+        player_state.SetEntity(entity);
+    }
 
     {
         // Alleged finish line
