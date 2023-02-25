@@ -35,6 +35,11 @@ void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
     transform_->SetOrientation(transform.orientation);
 }
 
+void RigidBodyComponent::OnDestroy()
+{
+    physics_service_->UnregisterActor(dynamic_);
+}
+
 void RigidBodyComponent::SetMass(float mass)
 {
     dynamic_->setMass(mass);

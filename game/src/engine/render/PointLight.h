@@ -12,7 +12,8 @@ class PointLight final : public Component
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
-    void OnDebugGui();
+    void OnDebugGui() override;
+    void OnDestroy() override;
     std::string_view GetName() const override;
 
   private:

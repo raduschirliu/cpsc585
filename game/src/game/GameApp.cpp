@@ -77,18 +77,22 @@ void GameApp::OnInit()
  */
 void GameApp::OnStart()
 {
-    Scene& scene = AddScene("TestScene");
+    AddScene("TestScene");
+
     SetActiveScene("TestScene");
+}
 
-    // {
-    //     // Camera
-    //     Entity& entity = scene.AddEntity("Camera");
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(0.0f, 10.0f, 15.0f));
+void GameApp::OnSceneLoaded(Scene& scene)
+{
+    if (scene.GetName() == "TestScene")
+    {
+        LoadTestScene(scene);
+    }
+}
 
-    //     entity.AddComponent<Camera>();
-    //     entity.AddComponent<DebugCameraController>();
-    // }
+void GameApp::LoadTestScene(Scene& scene)
+{
+    Log::info("Loading entities for TestScene...");
 
     {
         // Floor
@@ -119,6 +123,7 @@ void GameApp::OnStart()
     //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
     //     rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
+
     //     entity.AddComponent<RaycastComponent>();
 
     //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -128,6 +133,15 @@ void GameApp::OnStart()
     //          .specular = vec3(0.4f, 0.1f, 0.1f),
     //          .shininess = 128.0f});
     // }
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+             .specular = vec3(0.4f, 0.1f, 0.1f),
+             .shininess = 128.0f});
+    }
+
 
     // {
     //     // Cube 2
@@ -164,6 +178,8 @@ void GameApp::OnStart()
 
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
+
+        auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -353,3 +369,5 @@ void GameApp::OnStart()
     //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     // }
 }
+
+

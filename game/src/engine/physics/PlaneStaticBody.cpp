@@ -19,6 +19,11 @@ void PlaneStaticBody::OnInit(const ServiceProvider& service_provider)
     physics_service_->RegisterActor(static_);
 }
 
+void PlaneStaticBody::OnDestroy()
+{
+    physics_service_->UnregisterActor(static_);
+}
+
 string_view PlaneStaticBody::GetName() const
 {
     return "PlaneStaticBody";

@@ -10,26 +10,58 @@
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
-#define PVD_HOST "127.0.0.1"
-
 using std::string_view;
 using namespace physx;
+
+static constexpr uint32_t kPhysxCpuThreads = 2;
+static constexpr const char* kPvdHost = "127.0.0.1";
+static constexpr int kPvdPort = 5425;
+static constexpr uint32_t kPvdTimeoutMillis = 10;
 
 /* ---------- from Service ---------- */
 void PhysicsService::OnInit()
 {
-    // initializing all the physx objects for use later.
-    initPhysX();
+    InitPhysX();
 }
 
 void PhysicsService::OnStart(ServiceProvider& service_provider)
 {
 }
 
+void PhysicsService::OnSceneLoaded(Scene& scene)
+{
+    if (kScene_)
+    {
+        kScene_->release();
+        kScene_ = nullptr;
+    }
+
+    physx::PxSceneDesc scene_desc(kPhysics_->getTolerancesScale());
+    scene_desc.gravity = gGravity;
+    scene_desc.cpuDispatcher = kDispatcher_;
+    scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;
+
+    kScene_ = kPhysics_->createScene(scene_desc);
+    kScene_->setSimulationEventCallback(this);
+
+    PxPvdSceneClient* pvd_client = kScene_->getScenePvdClient();
+    if (pvd_client)
+    {
+        pvd_client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS,
+                                    true);
+        pvd_client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+        pvd_client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
+                                    true);
+    }
+}
+
 void PhysicsService::OnUpdate()
 {
-    kScene_->simulate(timestep);
-    kScene_->fetchResults(true);
+    if (kScene_)
+    {
+        kScene_->simulate(timestep);
+        kScene_->fetchResults(true);
+    }
 }
 
 void PhysicsService::OnCleanup()
@@ -37,7 +69,10 @@ void PhysicsService::OnCleanup()
     PxCloseVehicleExtension();
 
     PX_RELEASE(kMaterial_);
-    PX_RELEASE(kScene_);
+    if (kScene_)
+    {
+        PX_RELEASE(kScene_);
+    }
     PX_RELEASE(kDispatcher_);
     PX_RELEASE(kPhysics_);
 
@@ -129,16 +164,18 @@ physx::PxShape* PhysicsService::CreateShapeCube(float half_x, float half_y,
 }
 
 /* ---------- raycasting ---------- */
-
 std::optional<RaycastData> PhysicsService::Raycast(
     const glm::vec3& origin, const glm::vec3& unit_dir,
-    float max_distance /* = 100000 */)
+    float max_distance /* default = 100000 */)
 {
-    physx::PxVec3 px_origin = GlmToPx(origin);
-    physx::PxVec3 px_unit_dir = GlmToPx(unit_dir);
-    physx::PxRaycastBuffer raycast_result;
+    // convert coordinates to PhysX units
+    PxVec3 px_origin = GlmToPx(origin);
+    PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // raycast against all static & dynamic objects in scene (with no filtering)
+    // set flags
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
+
+    PxRaycastBuffer raycast_result;
     kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
 
     // check if hit successful
@@ -149,21 +186,15 @@ std::optional<RaycastData> PhysicsService::Raycast(
     }
 
     // data validity guard checks; ensure that data is available:
-    if (!physx::PxHitFlag::ePOSITION)
+    if (!PxHitFlag::ePOSITION)
     {
         Log::debug("[Raycast]: Invalid Position");
         return std::nullopt;
     }
 
-    if (!physx::PxHitFlag::eNORMAL)
+    if (!PxHitFlag::eNORMAL)
     {
         Log::debug("[Raycast]: Invalid Normal");
-        return std::nullopt;
-    }
-
-    if (!physx::PxHitFlag::eUV)  // UV barycentric coords
-    {
-        Log::debug("[Raycast]: Invalid UV Coordinates");
         return std::nullopt;
     }
 
@@ -175,21 +206,22 @@ std::optional<RaycastData> PhysicsService::Raycast(
 }
 
 /* ---------- PhysX ----------*/
-void PhysicsService::initPhysX()
+void PhysicsService::InitPhysX()
 {
     // PhysX init
     // Log::debug("Initializing PhysX object kFoundation");
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
                                       kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
+    kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(kPhysxCpuThreads);
 
     //// For debugging purposes, initializing the physx visual debugger
     ///(download: https://developer.nvidia.com/gameworksdownload#)
     kPvd_ = PxCreatePvd(*kFoundation_);  // create the instance of pvd
     ASSERT_MSG(kPvd_, "Error initializing PhysX Visual Debugger");
 
-    physx::PxPvdTransport* transport =
-        physx::PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+    physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(
+        kPvdHost, kPvdPort, kPvdTimeoutMillis);
     ASSERT_MSG(transport, "Error connecting to PhysX Visual Debugger");
 
     kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
@@ -203,21 +235,6 @@ void PhysicsService::initPhysX()
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
 
-    physx::PxSceneDesc sceneDesc(kPhysics_->getTolerancesScale());
-    sceneDesc.gravity = gGravity;  // change the gravity here.
-    kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(2);
-    sceneDesc.cpuDispatcher = kDispatcher_;
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
-    kScene_ = kPhysics_->createScene(sceneDesc);
-    kScene_->setSimulationEventCallback(this);
-    PxPvdSceneClient* pvdClient = kScene_->getScenePvdClient();
-    if (pvdClient)
-    {
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-        pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
-                                   true);
-    }
     // setting up the vehicle physics
     PxInitVehicleExtension(*kFoundation_);
 }

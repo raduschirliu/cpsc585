@@ -3,6 +3,7 @@
 #include <object_ptr.hpp>
 
 #include "engine/input/InputService.h"
+#include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -20,7 +21,10 @@ class RaycastComponent final : public Component,
     void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    jss::object_ptr<Transform> transform_;
-    jss::object_ptr<InputService> input_service_;
+    // service dependencies
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<InputService> input_service_;
+
+    // component dependencies
+    jss::object_ptr<Transform> transform_;
 };
