@@ -89,6 +89,8 @@ class Entity
     std::vector<ComponentEntry>& GetComponents();
     void SetScene(jss::object_ptr<Scene> scene);
     void SetName(const std::string& name);
+    void Destroy();
+    void OnDestroy();
 
     const uint32_t& GetId() const;
     const std::string& GetName() const;

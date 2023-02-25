@@ -71,6 +71,12 @@ void SceneDebugService::OnGui()
     ImGui::Text("FPS: %d", framerate_);
     ImGui::Text("Active scene: %s", active_scene_->GetName().c_str());
 
+    if (ImGui::Button("Reload Scene"))
+    {
+        Log::info("Reloading scene...");
+        GetApp().SetActiveScene(active_scene_->GetName());
+    }
+
     if (ImGui::CollapsingHeader("Entities"))
     {
         DrawEntityList();

@@ -11,4 +11,8 @@ class GameApp : public App
     // From App
     void OnInit() override;
     void OnStart() override;
+    void OnSceneLoaded(Scene& scene) override;
+
+  private:
+    void LoadTestScene(Scene& scene);
 };

@@ -13,5 +13,27 @@
       "environment": [],
       "console": "externalTerminal"
     },
+    {
+      "name": "Release Game",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/build/bin/Release",
+      "program": "game.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "environment": [],
+      "console": "externalTerminal"
+    },
+    {
+      "name": "RelWithDebInfo Game",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/build/bin/RelWithDebInfo",
+      "program": "game.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "environment": [],
+      "console": "externalTerminal"
+    },
   ]
 }

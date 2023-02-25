@@ -17,6 +17,12 @@
       "configuration": "Release",
       "configurePreset": "VS2019",
       "targets": ["game"]
+    },
+    {
+      "name": "RelWithDebInfo",
+      "configuration": "RelWithDebInfo",
+      "configurePreset": "VS2019",
+      "targets": ["game"]
     }
   ],
   "configurePresets": [

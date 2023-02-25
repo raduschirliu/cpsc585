@@ -60,7 +60,8 @@ class ServiceProvider
 
     void DispatchInit(App& app);
     void DispatchStart();
-    void DispatchSceneChange(Scene& scene);
+    void DispatchSceneLoaded(Scene& scene);
+    void DispatchSceneUnloaded(Scene& scene);
     void DispatchUpdate();
     void DispatchCleanup();
 
