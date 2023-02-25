@@ -9,8 +9,8 @@ using physx::PxVec3;
 PxTransform CreatePxTransform(const vec3& position, const quat& orientation)
 {
     PxVec3 px_position = GlmToPx(position);
-    PxQuat px_orientation(orientation.w, orientation.x, orientation.y,
-                          orientation.z);
+    PxQuat px_orientation(orientation.x, orientation.y, orientation.z,
+                          orientation.w);
 
     return PxTransform(px_position, px_orientation);
 }

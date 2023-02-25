@@ -231,9 +231,8 @@ void RenderService::OnGui()
                 physx::PxVisualizationParameter::eSCALE, 1.0f);
             status |= scene->setVisualizationParameter(
                 physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
-            // status |= scene->setVisualizationParameter(
-            //     physx::PxVisualizationParameter::eCOLLISION_COMPOUNDS, 1.0f);
-            Log::info("Enabled physics debug, success: {}", status);
+            status |= scene->setVisualizationParameter(
+                physx::PxVisualizationParameter::eACTOR_AXES, 4.0f);
         }
         else
         {
@@ -317,6 +316,7 @@ void RenderService::RenderCameraView(Camera& camera)
         const auto& render_buffer = scene->getRenderBuffer();
         const physx::PxDebugLine* lines = render_buffer.getLines();
         const size_t num_lines = render_buffer.getNbLines();
+        const size_t num_vertices = num_lines * 2; // 2 vertices per line
         const size_t lines_size = sizeof(physx::PxDebugLine) * num_lines;
 
         kDebugVertexBuffer->Upload(lines, lines_size, GL_STATIC_DRAW);
@@ -324,7 +324,7 @@ void RenderService::RenderCameraView(Camera& camera)
         debug_shader_.Use();
         debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
         kDebugVertexArray->Bind();
-        glDrawArrays(GL_LINES, 0, num_lines);
+        glDrawArrays(GL_LINES, 0, num_vertices);
     }
 }
 

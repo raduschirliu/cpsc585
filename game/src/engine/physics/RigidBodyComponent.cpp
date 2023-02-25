@@ -8,6 +8,7 @@
 using glm::vec3;
 using physx::PxRigidBodyExt;
 using physx::PxTransform;
+using physx::PxActorFlag;
 using std::string_view;
 
 static constexpr float kDefaultDenisty = 10.0f;
@@ -40,6 +41,7 @@ void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
 void RigidBodyComponent::OnDestroy()
 {
     physics_service_->UnregisterActor(dynamic_);
+    PX_RELEASE(dynamic_);
 }
 
 void RigidBodyComponent::SetMass(float mass)
@@ -50,6 +52,11 @@ void RigidBodyComponent::SetMass(float mass)
 float RigidBodyComponent::GetMass() const
 {
     return dynamic_->getMass();
+}
+
+void RigidBodyComponent::SetGravityEnabled(bool enabled)
+{
+    dynamic_->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !enabled);
 }
 
 void RigidBodyComponent::SyncTransform()

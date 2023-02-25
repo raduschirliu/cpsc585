@@ -260,11 +260,11 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& entity = scene.AddEntity("Track");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
-        transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
+        transform.SetPosition(vec3(10.0f, 5.0f, 0.0f));
+        // transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
 
         auto& static_body = entity.AddComponent<MeshStaticBody>();
-        static_body.SetMesh("track1", 50.0f);
+        static_body.SetMesh("track1", 1.0f);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("track1");
@@ -273,12 +273,12 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 32.0f});
     }
-    /*{
+/*     {
         // Player car
         Entity& car_entity = scene.AddEntity("PlayerVehicle");
 
         auto& transform = car_entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(190.0, 65.0f, 50.0f));
+        transform.SetPosition(vec3(3.7f, 3.26f, 1.78f));
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
@@ -301,12 +301,25 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& follow_camera = camera_entity.AddComponent<FollowCamera>();
         follow_camera.SetFollowingTransform(car_entity);
-    }*/
+    } */
     {
         // Debug camera
         Entity& entity = scene.AddEntity("DebugCamera");
         entity.AddComponent<Transform>();
         entity.AddComponent<Camera>();
         entity.AddComponent<DebugCameraController>();
+    }
+    {
+        // Test cube
+        Entity& entity = scene.AddEntity("TestCube");
+
+        entity.AddComponent<Transform>();
+
+        auto& renderer = entity.AddComponent<MeshRenderer>();
+        renderer.SetMesh("cube");
+
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
+        rigidbody.SetGravityEnabled(false);
     }
 }

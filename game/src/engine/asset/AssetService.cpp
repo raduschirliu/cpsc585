@@ -9,9 +9,7 @@ void AssetService::LoadMesh(const string &path, const string &name)
 {
     Assimp::Importer importer;
 
-    unsigned int flags = aiProcess_Triangulate |
-                         aiProcess_JoinIdenticalVertices |
-                         aiProcess_CalcTangentSpace | aiProcess_GenNormals;
+    unsigned int flags = aiProcessPreset_TargetRealtime_Fast;
 
     const aiScene *scene = importer.ReadFile(path, flags);
 

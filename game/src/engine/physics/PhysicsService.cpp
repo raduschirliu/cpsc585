@@ -17,12 +17,15 @@ using std::vector;
 using namespace physx;
 using namespace physx::vehicle2;
 
+static constexpr bool kPhysxRecordAllocations = true;
 static constexpr uint32_t kPhysxCpuThreads = 2;
 static constexpr const char* kPvdHost = "127.0.0.1";
 static constexpr int kPvdPort = 5425;
 static constexpr uint32_t kPvdTimeoutMillis = 10;
 
-static const PxTolerancesScale kDefaultTolerancesScale = PxTolerancesScale();
+static const PxVec3 kGravity(0.0f, -9.81f, 0.0f);
+// Typically speed tolerance should be gravity acceleration * 1 sec
+static const PxTolerancesScale kDefaultTolerancesScale(1.0f, 9.81f);
 static const PxCookingParams kDefaultPxCookingParams =
     PxCookingParams(kDefaultTolerancesScale);
 
@@ -42,12 +45,11 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 {
     if (kScene_)
     {
-        kScene_->release();
-        kScene_ = nullptr;
+        PX_RELEASE(kScene_);
     }
 
-    physx::PxSceneDesc scene_desc(kPhysics_->getTolerancesScale());
-    scene_desc.gravity = gGravity;
+    PxSceneDesc scene_desc(kPhysics_->getTolerancesScale());
+    scene_desc.gravity = kGravity;
     scene_desc.cpuDispatcher = kDispatcher_;
     scene_desc.filterShader = physx::PxDefaultSimulationFilterShader;
 
@@ -134,6 +136,8 @@ PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
     const bool status =
         cooking_->cookTriangleMesh(mesh_desc, cooking_out_buffer, &result);
     ASSERT_MSG(status, "Mesh cooking must succeeed");
+    ASSERT_MSG(result == PxTriangleMeshCookingResult::Enum::eSUCCESS,
+               "Mesh cooking must not cause warnings or errors");
 
     PxDefaultMemoryInputData mesh_in_buffer(cooking_out_buffer.getData(),
                                             cooking_out_buffer.getSize());
@@ -166,17 +170,22 @@ PxRigidStatic* PhysicsService::CreateRigidStatic(const glm::vec3& position,
 
 void PhysicsService::RegisterActor(PxActor* actor)
 {
+    ASSERT_MSG(actor, "Actor must be valid");
     kScene_->addActor(*actor);
 }
 
 void PhysicsService::UnregisterActor(PxActor* actor)
 {
+    ASSERT_MSG(actor, "Actor must be valid");
     kScene_->removeActor(*actor);
 }
 
-physx::PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
+PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
 {
-    return kPhysics_->createShape(geometry, *kMaterial_);
+    PxShape* shape = kPhysics_->createShape(geometry, *kMaterial_, true);
+    ASSERT(shape);
+
+    return shape;
 }
 
 /* ---------- raycasting ---------- */
@@ -227,7 +236,9 @@ void PhysicsService::InitPhysX()
     kFoundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, kDefaultAllocator_,
                                       kDefaultErrorCallback_);
     ASSERT_MSG(kFoundation_, "PhysX must be initialized");
+
     kDispatcher_ = physx::PxDefaultCpuDispatcherCreate(kPhysxCpuThreads);
+    ASSERT(kDispatcher_);
 
     //// For debugging purposes, initializing the physx visual debugger
     ///(download: https://developer.nvidia.com/gameworksdownload#)
@@ -246,19 +257,27 @@ void PhysicsService::InitPhysX()
     }
 
     // Physics initlaization
-    bool recordMemoryAllocations = true;
     kPhysics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *kFoundation_,
                                 kDefaultTolerancesScale,
-                                recordMemoryAllocations, kPvd_);
+                                kPhysxRecordAllocations, kPvd_);
+    ASSERT(kPhysics_);
 
     // create default material
     kMaterial_ = kPhysics_->createMaterial(0.5f, 0.5f, 0.6f);
+    ASSERT(kMaterial_);
 
     cooking_ = PxCreateCooking(PX_PHYSICS_VERSION, *kFoundation_,
                                kDefaultPxCookingParams);
+    ASSERT(cooking_);
 
     // setting up the vehicle physics
-    PxInitVehicleExtension(*kFoundation_);
+    const bool vehicle_init_status = PxInitVehicleExtension(*kFoundation_);
+    ASSERT(vehicle_init_status);
+}
+
+const PxVec3& PhysicsService::GetGravity() const
+{
+    return kGravity;
 }
 
 /* From PxSimulationEventCallback */

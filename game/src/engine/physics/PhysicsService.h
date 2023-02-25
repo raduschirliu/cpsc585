@@ -48,9 +48,6 @@ class PhysicsService final : public Service,
 
     std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
 
-    // Gravitational acceleration
-    const physx::PxVec3 gGravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
-
     const physx::PxF32 timestep = 1.0f / 60.0f;
 
     void InitPhysX();
@@ -111,13 +108,10 @@ class PhysicsService final : public Service,
         return kScene_;
     }
 
-    inline physx::PxVec3 GetGravity()
-    {
-        return gGravity;
-    }
-
     inline physx::PxF32 GetTimeStep()
     {
         return timestep;
     }
+
+    const physx::PxVec3& GetGravity() const;
 };

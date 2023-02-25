@@ -15,11 +15,19 @@ void MeshStaticBody::OnInit(const ServiceProvider& service_provider)
     physics_service_ = &service_provider.GetService<PhysicsService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
+
+    static_ = physics_service_->CreateRigidStatic(transform_->GetPosition(),
+                                                  transform_->GetOrientation());
+    static_->userData = &GetEntity();
+    physics_service_->RegisterActor(static_);
 }
 
 void MeshStaticBody::OnDestroy()
 {
     physics_service_->UnregisterActor(static_);
+
+    PX_RELEASE(shape_);
+    PX_RELEASE(static_);
 }
 
 string_view MeshStaticBody::GetName() const
@@ -29,21 +37,17 @@ string_view MeshStaticBody::GetName() const
 
 void MeshStaticBody::SetMesh(const string& name, float scale)
 {
-    ASSERT_MSG(!static_, "Static rigidbody already exists");
     mesh_name_ = name;
 
+    // TODO: Keep track of mesh pointer and release when all of its
+    // shapes are also released
     PxTriangleMesh* mesh = physics_service_->CreateTriangleMesh(name);
-    ASSERT(mesh);
 
     PxTriangleMeshGeometry geometry(mesh, PxMeshScale(scale));
     shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
     shape_->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+    shape_->setFlag(PxShapeFlag::eVISUALIZATION, true);
 
-    static_ = physics_service_->CreateRigidStatic(transform_->GetPosition(),
-                                                  transform_->GetOrientation());
-    static_->userData = &GetEntity();
     static_->attachShape(*shape_);
-
-    physics_service_->RegisterActor(static_);
 }
