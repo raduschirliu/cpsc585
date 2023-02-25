@@ -118,6 +118,12 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     const PxTransform& pose =
         g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+    // get the speed of the car and store it in our variable which is also being
+    // used by PlayerState class.
+    *speed_ = g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
+                  .magnitude();
+
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);

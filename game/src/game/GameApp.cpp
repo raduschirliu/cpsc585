@@ -37,6 +37,7 @@
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/state/PlayerState.h"
 
 using glm::ivec2;
 using glm::vec3;
@@ -148,8 +149,15 @@ void GameApp::OnStart()
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
 
+        // making this pointer here as we plan to keep track of it in the playerstate.
+        // we send this same pointer to the vehicle component so that it can store the speed of the car in it
+        // then we use the same pointer in the playerstate component to have the speed of player in there.
+        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
+
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
+        vehicle.SetSpeed(speed);
+
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
 
@@ -159,6 +167,9 @@ void GameApp::OnStart()
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
+
+        auto& player_state = car_entity.AddComponent<PlayerState>();
+        player_state.SetSpeed(speed);
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
@@ -284,7 +295,7 @@ void GameApp::OnStart()
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 
-    // // Increase the size of aimbox 
+    // // Increase the size of aimbox
     // {
     //     Entity& entity = scene.AddEntity("Aimbox increase");
 
@@ -300,7 +311,7 @@ void GameApp::OnStart()
     //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     // }
 
-    // // Kill the abilities pickup 
+    // // Kill the abilities pickup
     // {
     //     Entity& entity = scene.AddEntity("Kill abilities");
 

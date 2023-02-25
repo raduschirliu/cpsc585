@@ -54,6 +54,8 @@ class VehicleComponent final : public Component,
     // commands the car has to follow.
     std::vector<Command> gCommands;
 
+    std::shared_ptr<double> speed_;
+
     // for functions.
   private:
     void ValidFileChecker();
@@ -76,5 +78,15 @@ class VehicleComponent final : public Component,
         g_vehicle_data_path_ = data_path;
     }
 
+    inline std::shared_ptr<double> GetSpeed()
+    {
+        return speed_;
+    }
+
     void SetVehicleName(const std::string& vehicle_name);
+
+    inline void SetSpeed(std::shared_ptr<double> speed)
+    {
+        speed_ = speed;
+    }
 };

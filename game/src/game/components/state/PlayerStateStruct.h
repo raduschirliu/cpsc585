@@ -1,30 +1,30 @@
 #pragma once
 #include "../../../engine/scene/Entity.h"
-
+#include <memory>
 struct PlayerStateStruct
 {
-    float speed;
+    std::shared_ptr<double> speed;
     int number_kills;
     int number_deaths;
     int laps_completed;
     int current_lap;
     Entity* nemesis;
     Entity* bullied;
-    float time_elapsed;
+    double time_elapsed;
     int current_powerup;  // will be decided by the enum defined for every
                           // powerup.
-    float accuracy;
+    double accuracy;
 
     PlayerStateStruct()
     {
-        speed = 0.f;
+        speed = nullptr;
         number_deaths = 0;
         number_kills = 0;
         laps_completed = 0;
         current_lap = 0;
+        current_powerup = 0;
+        time_elapsed = 0.f;
         nemesis = nullptr;
         bullied = nullptr;
-        time_elapsed = 0.f;
-        current_powerup = 0;
     }
 };
