@@ -10,21 +10,21 @@
 
 enum PowerupPickupType
 {
-  kDefaultPowerup = 0,
-  kDisableHandling,
-  kEveryoneSlower,
-  kIncreaseAimBox,
-  kKillAbilities
+    kDefaultPowerup = 0,
+    kDisableHandling,
+    kEveryoneSlower,
+    kIncreaseAimBox,
+    kKillAbilities
 };
 
 enum Ammo_Pickup_Type
 {
-  kDefaultAmmo = 0,
-  kBuckshot, 
-  kDoubleDamage,
-  kExploadingBullet,
-  kIncreaseFireRate,
-  kVampireBullet
+    kDefaultAmmo = 0,
+    kBuckshot,
+    kDoubleDamage,
+    kExploadingBullet,
+    kIncreaseFireRate,
+    kVampireBullet
 };
 
 class Pickup : public Component

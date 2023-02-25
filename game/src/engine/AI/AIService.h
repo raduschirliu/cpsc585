@@ -88,11 +88,13 @@ class AIService final : public Service
     std::string_view GetName() const override;
 
     // getters
-    const std::vector<glm::vec3>& GetPath() { return final_smooth_points_;}
+    const std::vector<glm::vec3>& GetPath()
+    {
+        return final_smooth_points_;
+    }
 
   private:
     NavMesh* navMesh_;
     Pathfinder* pathfinder_;
     std::vector<glm::vec3> final_smooth_points_;
 };
-

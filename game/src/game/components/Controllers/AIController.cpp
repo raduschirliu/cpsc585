@@ -71,7 +71,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // position, if yes then update the next position to be the next index in
     // the path array
     float e = GetEuclideanDistance(transform_->GetPosition(),
-                             path_to_follow_[next_path_index_]);
+                                   path_to_follow_[next_path_index_]);
     if (e < 7.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_++];

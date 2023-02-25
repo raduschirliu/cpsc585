@@ -4,8 +4,8 @@
 #pragma once
 
 #include <object_ptr.hpp>
-#include "../Pickup.h"
 
+#include "../Pickup.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
 

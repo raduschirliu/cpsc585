@@ -45,7 +45,7 @@ void AIService::OnStart(ServiceProvider& service_provider)
     while (!this->pathfinder_->path_->empty())
     {
         final_smooth_points_.push_back(this->pathfinder_->path_->top());
-        //std::cout << this->pathfinder_->path_->top() << std::endl;
+        // std::cout << this->pathfinder_->path_->top() << std::endl;
         this->pathfinder_->path_->pop();
     }
 }

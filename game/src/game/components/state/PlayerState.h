@@ -2,10 +2,10 @@
 #include <memory>
 
 #include "PlayerStateStruct.h"
-#include "engine/scene/Component.h"
-#include "engine/scene/OnUpdateEvent.h"
 #include "engine/game_state/GameStateService.h"
+#include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
+#include "engine/scene/OnUpdateEvent.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -74,7 +74,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     // setters
     void SetSpeed(std::shared_ptr<double> speed)
     {
-        if(speed)
+        if (speed)
             player_state_.speed = speed;
     }
 

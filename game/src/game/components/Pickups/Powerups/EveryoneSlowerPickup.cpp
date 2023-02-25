@@ -14,7 +14,6 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
     Pickup::OnTriggerEnter(data);
     if (data.other->GetName() == "PlayerVehicle" && power_activated_)
     {
-
         power_activated_ = false;
         Log::debug("everyone slow for 5 seconds");
     }

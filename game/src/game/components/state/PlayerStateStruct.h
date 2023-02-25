@@ -1,6 +1,8 @@
 #pragma once
-#include "../../../engine/scene/Entity.h"
 #include <memory>
+
+#include "../../../engine/scene/Entity.h"
+
 struct PlayerStateStruct
 {
     std::shared_ptr<double> speed;
