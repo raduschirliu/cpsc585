@@ -13,6 +13,7 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/BoxTrigger.h"
+#include "engine/physics/Hitbox.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
@@ -104,21 +105,21 @@ void GameApp::LoadTestScene(Scene& scene)
 
     {
         // Cube
-        Entity& entity = scene.AddEntity("red cube");
+        // Entity& entity = scene.AddEntity("red cube");
 
-        Transform& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
-        transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
+        // Transform& transform = entity.AddComponent<Transform>();
+        // transform.SetPosition(vec3(0.0, 5.0f, 0.0f));
+        // transform.SetScale(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
+        // auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        // rigidbody.SetSize(vec3(5.0f, 5.0f, 5.0f));
 
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("cube");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
-             .specular = vec3(0.4f, 0.1f, 0.1f),
-             .shininess = 128.0f});
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+        //      .specular = vec3(0.4f, 0.1f, 0.1f),
+        //      .shininess = 128.0f});
     }
 
     {
@@ -145,6 +146,10 @@ void GameApp::LoadTestScene(Scene& scene)
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
+
+        auto& hitbox_component = car_entity.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(10.f));
+
         auto& controller = car_entity.AddComponent<PlayerController>();
         controller.SetGVehicle(vehicle.GetVehicle());
 

@@ -142,3 +142,13 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
     g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
 }
+
+glm::vec3 VehicleComponent::GetPosition()
+{
+    return transform_->GetPosition();
+}
+
+glm::quat VehicleComponent::GetOrientation()
+{
+    return transform_->GetOrientation();
+}
