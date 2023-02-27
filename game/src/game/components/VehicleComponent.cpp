@@ -151,22 +151,24 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
                           g_vehicle_name_.c_str());
 }
 
+
 DirectDriveVehicle& VehicleComponent::GetVehicle()
 {
     return g_vehicle_;
 }
 
-std::shared_ptr<double> VehicleComponent::GetSpeed()
-{
-    return speed_;
-}
-
-void VehicleComponent::SetSpeed(std::shared_ptr<double> speed)
-{
-    speed_ = speed;
-}
 
 void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
 {
     player_data_ = &data;
+
+glm::vec3 VehicleComponent::GetPosition()
+{
+    return transform_->GetPosition();
+}
+
+glm::quat VehicleComponent::GetOrientation()
+{
+    return transform_->GetOrientation();
+
 }

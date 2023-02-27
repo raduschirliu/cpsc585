@@ -52,8 +52,6 @@ class VehicleComponent final : public Component,
     // commands the car has to follow.
     std::vector<Command> gCommands;
 
-    std::shared_ptr<double> speed_;
-
     PlayerStateData* player_data_;
 
     // for functions.
@@ -66,7 +64,15 @@ class VehicleComponent final : public Component,
     // Getters
     DirectDriveVehicle& GetVehicle();
     std::shared_ptr<double> GetSpeed();
-    void SetSpeed(std::shared_ptr<double> speed);
+
+    glm::vec3 GetPosition();
+    glm::quat GetOrientation();
+
+    inline DirectDriveVehicle& GetVehicle()
+    {
+        return g_vehicle_;
+    }
+
     void SetVehicleName(const std::string& vehicle_name);
 
     void SetPlayerStateData(PlayerStateData& data);

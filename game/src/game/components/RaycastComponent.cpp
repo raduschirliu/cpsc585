@@ -26,6 +26,7 @@ void RaycastComponent::OnInit(const ServiceProvider& service_provider)
 
     // component dependencies
     transform_ = &GetEntity().GetComponent<Transform>();
+    hitbox_ = &GetEntity().GetComponent<Hitbox>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -36,7 +37,8 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
     {
         // origin and direction of the raycast from this entity
         glm::vec3 direction = transform_->GetForwardDirection();
-        glm::vec3 origin = transform_->GetPosition();
+        glm::vec3 offset = 15.f * direction;
+        glm::vec3 origin = transform_->GetPosition() + offset;
 
         // no raycast data == no hit
         if (!physics_service_->Raycast(origin, direction).has_value())
@@ -48,12 +50,13 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
         RaycastData raycast =
             physics_service_->Raycast(origin, direction).value();
 
-        physx::PxActor* actor = raycast.actor;
         float distance = raycast.distance;
+
+        physx::PxActor* target_actor = raycast.actor;
         glm::vec3 normal = raycast.normal;
         glm::vec3 position = raycast.position;
 
-        std::cout << "target actor: " << actor << "\n"
+        std::cout << "target actor: " << target_actor << "\n"
                   << "target position: " << position << "\t"
                   << "distance from target: " << distance << "\t"
                   << "normal of raycast hit: " << normal << "\t" << std::endl;
