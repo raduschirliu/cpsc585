@@ -5,6 +5,8 @@
 struct MaterialProperties
 {
     glm::vec3 albedo_color;
+    glm::vec3 diffuse;
+    glm::vec3 ambient;
     glm::vec3 specular;
     float shininess;
 };

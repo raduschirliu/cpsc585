@@ -25,6 +25,7 @@ class Texture
 
     static void Unbind();
 
+    Texture();
     Texture(std::string path, InterpolationMode interpolation_mode);
 
     // Although uint (i.e. uvec2) might make more sense here, went with int
