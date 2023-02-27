@@ -17,69 +17,30 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     std::string_view GetName() const override;
 
   private:
-    PlayerStateStruct player_state_;
+    PlayerStateData player_state_;
     jss::object_ptr<GameStateService> game_state_service_;
-
-    Entity* attached_entity_;
 
     bool game_state_assigned_ = false;
 
   public:
     // getters
-    inline std::shared_ptr<double> GetSpeed()
-    {
-        return player_state_.speed;
-    }
+    float GetSpeedMultiplier();
 
-    inline int GetKills()
-    {
-        return player_state_.number_kills;
-    }
+    int GetKills();
 
-    inline int GetDeaths()
-    {
-        return player_state_.number_deaths;
-    }
+    int GetDeaths();
 
-    inline int GetLapsCompleted()
-    {
-        return player_state_.laps_completed;
-    }
+    int GetLapsCompleted();
 
-    inline int GetCurrentLap()
-    {
-        return player_state_.current_lap;
-    }
+    int GetCurrentLap();
 
-    inline Entity* GetNemesis()
-    {
-        return player_state_.nemesis;
-    }
+    Entity* GetNemesis();
 
-    inline Entity* GetBullied()
-    {
-        return player_state_.bullied;
-    }
+    Entity* GetBullied();
 
-    inline double GetTimeElapsed()
-    {
-        return player_state_.time_elapsed;
-    }
+    double GetTimeElapsed();
 
-    inline int GetCurrentPowerup()
-    {
-        return player_state_.current_powerup;
-    }
+    int GetCurrentPowerup();
 
-    // setters
-    void SetSpeed(std::shared_ptr<double> speed)
-    {
-        if (speed)
-            player_state_.speed = speed;
-    }
-
-    void SetEntity(Entity& entity)
-    {
-        attached_entity_ = &entity;
-    }
+    PlayerStateData* GetStateData();
 };

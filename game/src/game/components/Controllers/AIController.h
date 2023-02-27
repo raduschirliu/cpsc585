@@ -18,6 +18,7 @@ class AIController final : public Component,
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
+    void SetGVehicle(DirectDriveVehicle& vehicle);
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -36,16 +37,4 @@ class AIController final : public Component,
     // the end.
     glm::vec3 next_car_position_;
     int next_path_index_ = 2;
-
-    inline double GetEuclideanDistance(glm::vec3 first, glm::vec3 second)
-    {
-        return sqrt(pow(first.x - second.x, 2) + pow(first.y - second.y, 2) +
-                    pow(first.z - second.z, 2));
-    }
-
-  public:
-    inline void SetGVehicle(DirectDriveVehicle& vehicle)
-    {
-        vehicle_reference_ = &vehicle;
-    }
 };

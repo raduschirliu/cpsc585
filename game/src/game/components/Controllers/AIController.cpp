@@ -18,11 +18,8 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    if (ai_service_)
-    {
-        // store the path in a local variable.
-        path_to_follow_ = ai_service_->GetPath();
-    }
+    // store the path in a local variable.
+    path_to_follow_ = ai_service_->GetPath();
 
     // storing the initial variables.
     if (path_to_follow_.size() > 2)
@@ -45,9 +42,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // producting it
     glm::vec3 normalized_target = glm::normalize(target);
     glm::vec3 current_forward_dir = transform_->GetForwardDirection();
-    float dot_product = (normalized_target.x * current_forward_dir.x +
-                         normalized_target.y * current_forward_dir.y +
-                         normalized_target.z * current_forward_dir.z);
+    float dot_product = glm::dot(normalized_target, current_forward_dir);
 
     if (sqrt(dot_product * dot_product) > 0.95f)
     {
@@ -70,9 +65,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // calculate the euclidean distance to see if the car is near the next
     // position, if yes then update the next position to be the next index in
     // the path array
-    float e = GetEuclideanDistance(transform_->GetPosition(),
+    float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    if (e < 7.f)
+    if (distance < 7.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_++];
         Log::debug("{}", next_path_index_);
@@ -82,4 +77,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
 std::string_view AIController::GetName() const
 {
     return "AI Controller";
+}
+
+void AIController::SetGVehicle(DirectDriveVehicle& vehicle)
+{
+    vehicle_reference_ = &vehicle;
 }

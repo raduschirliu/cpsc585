@@ -120,10 +120,8 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     const PxTransform& pose =
         g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
 
-    // get the speed of the car and store it in our variable which is also being
-    // used by PlayerState class.
-    *speed_ = g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
-                  .magnitude();
+    // g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
+    //               .magnitude();
 
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
@@ -151,10 +149,24 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
     g_vehicle_name_ = vehicle_name;
     g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
+}
 
-    const physx::PxVec3 pose_transform =
-        g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose().p;
+DirectDriveVehicle& VehicleComponent::GetVehicle()
+{
+    return g_vehicle_;
+}
 
-    g_vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
-        physx::PxTransform(pose_transform, quat));
+std::shared_ptr<double> VehicleComponent::GetSpeed()
+{
+    return speed_;
+}
+
+void VehicleComponent::SetSpeed(std::shared_ptr<double> speed)
+{
+    speed_ = speed;
+}
+
+void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
+{
+    player_data_ = &data;
 }

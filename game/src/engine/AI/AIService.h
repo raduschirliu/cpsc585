@@ -9,27 +9,6 @@
 
 #include "../service/Service.h"
 
-//----------------
-// Node
-//----------------
-
-class Node
-{
-  public:
-    Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
-    ~Node();
-
-    glm::vec3 Get_Centroid(Node* node);
-
-    unsigned int id_;                    // used to define every triangle
-    glm::vec3 v0_, v1_, v2_, centroid_;  // to define every point we need for
-                                         // our navmesh algorithm to work
-
-    std::vector<std::pair<float, Node*>>* connections_;
-
-  private:
-};
-
 // -----------------------------
 //          NAV MESH
 // -----------------------------
@@ -40,6 +19,28 @@ using glm::vec3;
 class NavMesh
 {
   public:
+    //----------------
+    // Node
+    //----------------
+
+    class Node
+    {
+      public:
+        Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
+        ~Node();
+
+        glm::vec3 Get_Centroid(Node* node);
+
+        unsigned int id_;  // used to define every triangle
+        glm::vec3 v0_, v1_, v2_,
+            centroid_;  // to define every point we need for
+                        // our navmesh algorithm to work
+
+        std::vector<std::pair<float, Node*>>* connections_;
+
+      private:
+    };
+
     std::map<unsigned int, Node*>* nodes_;
 
     NavMesh();
@@ -48,7 +49,7 @@ class NavMesh
     Node* FindEntity(glm::vec3 pos);
 
   private:
-    float cost(Node* src, Node* dest);
+    float Cost(Node* src, Node* dest);
 };
 
 //-----------------
@@ -63,14 +64,14 @@ class Pathfinder
 
     Pathfinder(NavMesh* navMesh);
 
-    bool Search(Node* src, Node* dest);
+    bool Search(NavMesh::Node* src, NavMesh::Node* dest);
     vec3 GetNextWaypoint();
     bool PathEmpty();
 
   private:
-    bool IsDestination(Node* src, Node* dest);
-    float CalculateHCost(Node* src, Node* dest);
-    void TracePath(Node* src, Node* dest,
+    bool IsDestination(NavMesh::Node* src, NavMesh::Node* dest);
+    float CalculateHCost(NavMesh::Node* src, NavMesh::Node* dest);
+    void TracePath(NavMesh::Node* src, NavMesh::Node* dest,
                    std::map<unsigned int, unsigned int> parents);
     std::vector<glm::vec3> SmoothPath(std::vector<vec3> cPoints);
 };

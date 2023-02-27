@@ -3,9 +3,9 @@
 
 #include "../../../engine/scene/Entity.h"
 
-struct PlayerStateStruct
+struct PlayerStateData
 {
-    std::shared_ptr<double> speed;
+    float speed_multiplier;
     int number_kills;
     int number_deaths;
     int laps_completed;
@@ -17,9 +17,9 @@ struct PlayerStateStruct
                           // powerup.
     double accuracy;
 
-    PlayerStateStruct()
+    PlayerStateData()
     {
-        speed = nullptr;
+        speed_multiplier = 1.f;
         number_deaths = 0;
         number_kills = 0;
         laps_completed = 0;

@@ -29,3 +29,8 @@ std::string_view GameStateService::GetName() const
 {
     return "Game State Service";
 }
+
+void GameStateService::AddPlayerDetails(uint32_t id, PlayerStateData details)
+{
+    player_details_.insert_or_assign(id, details);
+}

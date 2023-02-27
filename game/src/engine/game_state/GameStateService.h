@@ -22,12 +22,9 @@ class GameStateService : public Service
     std::string_view GetName() const override;
 
   private:
-    std::map<Entity*, PlayerStateStruct> player_details_;
+    std::map<uint32_t, PlayerStateData> player_details_;
 
   public:
     // setters
-    inline void AddPlayerDetails(Entity* entity, PlayerStateStruct details)
-    {
-        player_details_.insert_or_assign(entity, details);
-    }
+    void AddPlayerDetails(uint32_t id, PlayerStateData details);
 };

@@ -8,7 +8,7 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
 
-enum PowerupPickupType
+enum class PowerupPickupType
 {
     kDefaultPowerup = 0,
     kDisableHandling,
@@ -17,7 +17,7 @@ enum PowerupPickupType
     kKillAbilities
 };
 
-enum Ammo_Pickup_Type
+enum class AmmoPickupType
 {
     kDefaultAmmo = 0,
     kBuckshot,
@@ -39,10 +39,7 @@ class Pickup : public Component
   private:
     jss::object_ptr<Transform> transform_;
 
-    inline void SetPowerActivated(bool bValue)
-    {
-        power_activated_ = false;
-    }
+    void SetPowerActivated(bool bValue);
 
   protected:
     bool power_activated_ = true;

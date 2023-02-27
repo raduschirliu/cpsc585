@@ -7,7 +7,7 @@
 //-------------------
 // Custom overloads
 //-------------------
-std::ostream& operator<<(std::ostream& os, const Node& node)
+std::ostream& operator<<(std::ostream& os, const NavMesh::Node& node)
 {
     os << "node id: " << node.id_ << std::endl
        << node.v0_ << " " << node.v1_ << " " << node.v2_;
@@ -66,7 +66,7 @@ std::string_view AIService::GetName() const
 //--------------------
 // Node
 //--------------------
-Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
+NavMesh::Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
 {
     this->id_ = id;
     this->v0_ = v0;
@@ -181,55 +181,55 @@ NavMesh::NavMesh()
     this->nodes_->insert({n23->id_, n23});
     this->nodes_->insert({n24->id_, n24});
 
-    n1->connections_->emplace_back(std::make_pair(cost(n1, n2), n2));
+    n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
 
-    n2->connections_->emplace_back(std::make_pair(cost(n2, n3), n3));
-    // n2->connections_->emplace_back(std::make_pair(cost(n2, n1), n1));
+    n2->connections_->emplace_back(std::make_pair(Cost(n2, n3), n3));
+    // n2->connections_->emplace_back(std::make_pair(  Cost(n2, n1), n1));
 
-    n3->connections_->emplace_back(std::make_pair(cost(n3, n4), n4));
-    // n3->connections_->emplace_back(std::make_pair(cost(n3, n2), n2));
+    n3->connections_->emplace_back(std::make_pair(Cost(n3, n4), n4));
+    // n3->connections_->emplace_back(std::make_pair(  Cost(n3, n2), n2));
 
-    n4->connections_->emplace_back(std::make_pair(cost(n4, n5), n5));
-    // n4->connections_->emplace_back(std::make_pair(cost(n4, n3), n3));
+    n4->connections_->emplace_back(std::make_pair(Cost(n4, n5), n5));
+    // n4->connections_->emplace_back(std::make_pair(  Cost(n4, n3), n3));
 
-    n5->connections_->emplace_back(std::make_pair(cost(n5, n6), n6));
-    // n5->connections_->emplace_back(std::make_pair(cost(n5, n4), n4));
+    n5->connections_->emplace_back(std::make_pair(Cost(n5, n6), n6));
+    // n5->connections_->emplace_back(std::make_pair(  Cost(n5, n4), n4));
 
-    n6->connections_->emplace_back(std::make_pair(cost(n6, n7), n7));
-    // n6->connections_->emplace_back(std::make_pair(cost(n6, n5), n5));
+    n6->connections_->emplace_back(std::make_pair(Cost(n6, n7), n7));
+    // n6->connections_->emplace_back(std::make_pair(  Cost(n6, n5), n5));
 
-    n7->connections_->emplace_back(std::make_pair(cost(n7, n14), n14));
-    // n7->connections_->emplace_back(std::make_pair(cost(n7, n6), n6));
+    n7->connections_->emplace_back(std::make_pair(Cost(n7, n14), n14));
+    // n7->connections_->emplace_back(std::make_pair(  Cost(n7, n6), n6));
 
-    n14->connections_->emplace_back(std::make_pair(cost(n14, n13), n13));
-    // n14->connections_->emplace_back(std::make_pair(cost(n14, n7), n7));
+    n14->connections_->emplace_back(std::make_pair(Cost(n14, n13), n13));
+    // n14->connections_->emplace_back(std::make_pair(  Cost(n14, n7), n7));
 
-    n13->connections_->emplace_back(std::make_pair(cost(n13, n22), n22));
-    // n13->connections_->emplace_back(std::make_pair(cost(n13, n14), n14));
+    n13->connections_->emplace_back(std::make_pair(Cost(n13, n22), n22));
+    // n13->connections_->emplace_back(std::make_pair(  Cost(n13, n14), n14));
 
-    n22->connections_->emplace_back(std::make_pair(cost(n22, n21), n21));
-    // n22->connections_->emplace_back(std::make_pair(cost(n22, n13), n13));
+    n22->connections_->emplace_back(std::make_pair(Cost(n22, n21), n21));
+    // n22->connections_->emplace_back(std::make_pair(  Cost(n22, n13), n13));
 
-    n21->connections_->emplace_back(std::make_pair(cost(n21, n20), n20));
-    // n21->connections_->emplace_back(std::make_pair(cost(n21, n22), n22));
+    n21->connections_->emplace_back(std::make_pair(Cost(n21, n20), n20));
+    // n21->connections_->emplace_back(std::make_pair(  Cost(n21, n22), n22));
 
-    n20->connections_->emplace_back(std::make_pair(cost(n20, n11), n11));
-    // n20->connections_->emplace_back(std::make_pair(cost(n20, n21), n21));
+    n20->connections_->emplace_back(std::make_pair(Cost(n20, n11), n11));
+    // n20->connections_->emplace_back(std::make_pair(  Cost(n20, n21), n21));
 
-    n11->connections_->emplace_back(std::make_pair(cost(n11, n12), n12));
-    // n11->connections_->emplace_back(std::make_pair(cost(n11, n20), n20));
+    n11->connections_->emplace_back(std::make_pair(Cost(n11, n12), n12));
+    // n11->connections_->emplace_back(std::make_pair(  Cost(n11, n20), n20));
 
-    n12->connections_->emplace_back(std::make_pair(cost(n12, n13), n13));
-    // n12->connections_->emplace_back(std::make_pair(cost(n12, n11), n11));
+    n12->connections_->emplace_back(std::make_pair(Cost(n12, n13), n13));
+    // n12->connections_->emplace_back(std::make_pair(  Cost(n12, n11), n11));
 
-    n13->connections_->emplace_back(std::make_pair(cost(n13, n23), n23));
-    // n13->connections_->emplace_back(std::make_pair(cost(n13, n12), n12));
+    n13->connections_->emplace_back(std::make_pair(Cost(n13, n23), n23));
+    // n13->connections_->emplace_back(std::make_pair(  Cost(n13, n12), n12));
 
-    n23->connections_->emplace_back(std::make_pair(cost(n23, n24), n24));
-    // n23->connections_->emplace_back(std::make_pair(cost(n23, n13), n13));
+    n23->connections_->emplace_back(std::make_pair(Cost(n23, n24), n24));
+    // n23->connections_->emplace_back(std::make_pair(  Cost(n23, n13), n13));
 }
 
-float NavMesh::cost(Node* src, Node* dest)
+float NavMesh::Cost(Node* src, Node* dest)
 {
     // Get the centroid of the nodes
     glm::vec3 srcCenter = src->Get_Centroid(src);
@@ -243,7 +243,7 @@ float NavMesh::cost(Node* src, Node* dest)
     return glm::sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-bool Pathfinder::Search(Node* src, Node* dest)
+bool Pathfinder::Search(NavMesh::Node* src, NavMesh::Node* dest)
 {
     if (!src)
     {
@@ -263,10 +263,10 @@ bool Pathfinder::Search(Node* src, Node* dest)
 
     // declare data structures
     std::map<unsigned int, bool> explored;  // visited nodes
-    std::set<std::pair<float, Node*>> frontier;
+    std::set<std::pair<float, NavMesh::Node*>> frontier;
     std::map<unsigned int, unsigned int> parents;
 
-    // start by adding the src node to the fronteier with 0 cost
+    // start by adding the src node to the fronteier with 0   Cost
     frontier.insert(std::make_pair(0.f, src));
 
     // also add it to the explored list as false
@@ -279,7 +279,7 @@ bool Pathfinder::Search(Node* src, Node* dest)
     while (!frontier.empty())
     {
         // save a reference to the first entry in the frontier and remove it
-        std::pair<float, Node*> p = *frontier.begin();
+        std::pair<float, NavMesh::Node*> p = *frontier.begin();
         frontier.erase(frontier.begin());
 
         // Add that to the explored list
@@ -302,7 +302,8 @@ bool Pathfinder::Search(Node* src, Node* dest)
 
         for (unsigned i = 0; i < p.second->connections_->size(); i++)
         {
-            std::pair<float, Node*> test = p.second->connections_->at(i);
+            std::pair<float, NavMesh::Node*> test =
+                p.second->connections_->at(i);
 
             // check if this is the destination
             if (IsDestination(test.second, dest))
@@ -313,9 +314,9 @@ bool Pathfinder::Search(Node* src, Node* dest)
             }
             else if (!explored.find(test.second->id_)->second)
             {
-                // update cost,
-                gNew = p.first + test.first;               // Actual cost
-                hNew = CalculateHCost(test.second, dest);  // Heuristic cost
+                // update   Cost,
+                gNew = p.first + test.first;               // Actual   Cost
+                hNew = CalculateHCost(test.second, dest);  // Heuristic   Cost
                 fNew = gNew + hNew;
             }
 
@@ -334,7 +335,7 @@ Pathfinder::Pathfinder(NavMesh* navMesh)
     this->path_ = new std::stack<vec3>;
 }
 
-bool Pathfinder::IsDestination(Node* src, Node* dest)
+bool Pathfinder::IsDestination(NavMesh::Node* src, NavMesh::Node* dest)
 {
     if (src->id_ == dest->id_)
         return true;
@@ -342,7 +343,7 @@ bool Pathfinder::IsDestination(Node* src, Node* dest)
         return false;
 }
 
-float Pathfinder::CalculateHCost(Node* src, Node* dest)
+float Pathfinder::CalculateHCost(NavMesh::Node* src, NavMesh::Node* dest)
 {
     // Get the centroid of the nodes
     glm::vec3 srcCenter = src->Get_Centroid(src);
@@ -356,7 +357,7 @@ float Pathfinder::CalculateHCost(Node* src, Node* dest)
     return glm::sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-void Pathfinder::TracePath(Node* src, Node* dest,
+void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
                            std::map<unsigned int, unsigned int> parents)
 {
     std::vector<glm::vec3> bPath;
@@ -420,7 +421,7 @@ std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
     return cPoints;
 }
 
-glm::vec3 Node::Get_Centroid(Node* node)
+glm::vec3 NavMesh::Node::Get_Centroid(NavMesh::Node* node)
 {
     return (node->v0_ + node->v1_ + node->v2_) / 3.f;
 }

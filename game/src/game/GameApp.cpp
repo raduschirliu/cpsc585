@@ -162,33 +162,6 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
 
-        // making this pointer here as we plan to keep track of it in the
-        // playerstate. we send this same pointer to the vehicle component so
-        // that it can store the speed of the car in it then we use the same
-        // pointer in the playerstate component to have the speed of player in
-        // there.
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-
-        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
-        vehicle.SetVehicleName("PlayerVehicle");
-        vehicle.SetSpeed(speed);
-
-        auto& controller = car_entity.AddComponent<PlayerController>();
-        controller.SetGVehicle(vehicle.GetVehicle());
-
-        auto& raycast = car_entity.AddComponent<RaycastComponent>();
-
-        auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
-             .specular = vec3(0.3f, 0.3f, 0.3f),
-             .shininess = 64.0f});
-
-        auto& player_state = car_entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(car_entity);
-
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();
         auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
@@ -197,6 +170,22 @@ void GameApp::LoadTestScene(Scene& scene)
         follow_camera_comp.SetFollowingTransform(car_entity);
 
         follow_camera_entity.AddComponent<Camera>();
+
+        auto& player_state = car_entity.AddComponent<PlayerState>();
+
+        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
+        vehicle.SetVehicleName("PlayerVehicle");
+        vehicle.SetPlayerStateData(*player_state.GetStateData());
+        auto& controller = car_entity.AddComponent<PlayerController>();
+        controller.SetGVehicle(vehicle.GetVehicle());
+        auto& raycast = car_entity.AddComponent<RaycastComponent>();
+
+        auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+             .specular = vec3(0.3f, 0.3f, 0.3f),
+             .shininess = 64.0f});
     }
 
     {
@@ -208,9 +197,11 @@ void GameApp::LoadTestScene(Scene& scene)
         // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
         //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
         //        0.f, 1.f, 0.f)));
+        auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");
+        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -225,10 +216,6 @@ void GameApp::LoadTestScene(Scene& scene)
 
         std::shared_ptr<double> speed = std::make_shared<double>(0.f);
         bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
     }
 
     {
@@ -238,8 +225,11 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
 
+        auto& player_state = entity.AddComponent<PlayerState>();
+
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI2");
+        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -250,10 +240,6 @@ void GameApp::LoadTestScene(Scene& scene)
 
         std::shared_ptr<double> speed = std::make_shared<double>(0.f);
         bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
     }
 
     {
@@ -263,8 +249,11 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
 
+        auto& player_state = entity.AddComponent<PlayerState>();
+
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
+        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -275,10 +264,6 @@ void GameApp::LoadTestScene(Scene& scene)
 
         std::shared_ptr<double> speed = std::make_shared<double>(0.f);
         bunny_vehicle.SetSpeed(speed);
-
-        auto& player_state = entity.AddComponent<PlayerState>();
-        player_state.SetSpeed(speed);
-        player_state.SetEntity(entity);
     }
 
     {
@@ -307,7 +292,8 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& entity = scene.AddEntity("Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(5.0f, 10.0f, -10.0f));
+        transform.SetPosition(vec3(0.0, 10.0f, 0.0f));
+
         auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("energy");

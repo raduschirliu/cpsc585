@@ -26,5 +26,5 @@ void EveryoneSlowerPickup::OnTriggerExit(const OnTriggerEvent& data)
 
 std::string_view EveryoneSlowerPickup::GetName() const
 {
-    return "Slow down everyone";
+    return "Everyone Slower Pickup";
 }

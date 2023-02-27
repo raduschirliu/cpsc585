@@ -25,3 +25,8 @@ std::string_view Pickup::GetName() const
 void Pickup::OnTriggerExit(const OnTriggerEvent& data)
 {
 }
+
+void Pickup::SetPowerActivated(bool bValue)
+{
+    power_activated_ = false;
+}

@@ -38,7 +38,6 @@ class VehicleComponent final : public Component,
 
     // The vehicle with direct drivetrain
     DirectDriveVehicle g_vehicle_;
-    std::string g_vehicle_data_path_ = "resources/vehicle_data/";
 
     // Vehicle simulation needs a simulation context to store global parameters
     // of the simulation such as gravitational acceleration.
@@ -55,6 +54,8 @@ class VehicleComponent final : public Component,
 
     std::shared_ptr<double> speed_;
 
+    PlayerStateData* player_data_;
+
     // for functions.
   private:
     void InitVehicle();
@@ -63,27 +64,10 @@ class VehicleComponent final : public Component,
 
   public:
     // Getters
-
-    inline DirectDriveVehicle& GetVehicle()
-    {
-        return g_vehicle_;
-    }
-
-    // Setters
-    inline void SetVehicleDataPath(const std::string& data_path)
-    {
-        g_vehicle_data_path_ = data_path;
-    }
-
-    inline std::shared_ptr<double> GetSpeed()
-    {
-        return speed_;
-    }
-
+    DirectDriveVehicle& GetVehicle();
+    std::shared_ptr<double> GetSpeed();
+    void SetSpeed(std::shared_ptr<double> speed);
     void SetVehicleName(const std::string& vehicle_name);
 
-    inline void SetSpeed(std::shared_ptr<double> speed)
-    {
-        speed_ = speed;
-    }
+    void SetPlayerStateData(PlayerStateData& data);
 };
