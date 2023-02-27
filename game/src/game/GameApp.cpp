@@ -148,10 +148,10 @@ void GameApp::OnStart()
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.3f, 0.3f, 0.3f),
-             .specular = vec3(0.3f, 0.3f, 0.3f),
-             .shininess = 64.0f});
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+        //      .specular = vec3(0.3f, 0.3f, 0.3f),
+        //      .shininess = 64.0f});
 
         // Camera following car
         Entity& follow_camera_entity = scene.AddEntity();

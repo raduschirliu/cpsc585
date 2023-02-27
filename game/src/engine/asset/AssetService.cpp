@@ -30,10 +30,111 @@ const Mesh &AssetService::GetMesh(const string &name)
     return meshes_[name];
 }
 
-void AssetService::LoadTexture(const string &path, aiMesh *mesh,
-                               const string &name, const aiScene *scene)
+/*
+ * .  : Directly access the members of the class
+ * -> : Approach the member through a pointer
+ */
+void AssetService::ProcessNode(const string &path, const string &name,
+                               aiNode *node, const aiScene *scene)
+{
+    for (uint32_t i = 0; i < node->mNumMeshes; ++i)
+    {
+        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+        meshes_[name] = ProcessMesh(node, mesh, scene);
+    }
+
+    // Do the same for each of its children
+    for (uint32_t i = 0; i < node->mNumChildren; ++i)
+    {
+        ProcessNode(path, name, node->mChildren[i], scene);
+    }
+}
+
+/*
+ * push_back()      : No internal constructor (Create a temporary object from
+ *                    the outside)
+ * emplace_back()   : Create its own objects internally using the
+ *                    constructor
+ */
+Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
+{
+    Mesh localMesh;
+
+    // Vertex information
+    for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
+    {
+        Vertex vertex(glm::vec3(0.f));
+        glm::vec3 vector;
+
+        // Position
+        vector.x = mesh->mVertices[i].x;
+        vector.y = mesh->mVertices[i].y;
+        vector.z = mesh->mVertices[i].z;
+        vertex.position = vector;
+
+        // Normal
+        if (mesh->HasNormals())
+        {
+            vector.x = mesh->mNormals[i].x;
+            vector.y = mesh->mNormals[i].y;
+            vector.z = mesh->mNormals[i].z;
+            vertex.normal = vector;
+        }
+
+        // TextureCoord: Maximum 8 texture
+        if (mesh->mTextureCoords[0])
+        {
+            glm::vec2 vec;
+            vec.x = mesh->mTextureCoords[0][i].x;
+            vec.y = mesh->mTextureCoords[0][i].y;
+            vertex.uv = vec;
+        }
+
+        if (scene->mNumMaterials > mesh->mMaterialIndex)
+        {
+            const auto &mat = scene->mMaterials[mesh->mMaterialIndex];
+            aiColor4D diffuse;
+            if (AI_SUCCESS ==
+                aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+            {
+                // ...
+            }
+        }
+
+        // Tangent
+        // vector.x = mesh->mTangents[i].x;
+        // vector.y = mesh->mTangents[i].y;
+        // vector.z = mesh->mTangents[i].z;
+        // vertex.tangent = vector;
+
+        // BiTangent
+        // vector.x = mesh->mBitangents[i].x;
+        // vector.y = mesh->mBitangents[i].y;
+        // vector.z = mesh->mBitangents[i].z;
+        // vertex.bitangent = vector;
+
+        localMesh.vertices.emplace_back(vertex);
+    }
+
+    // Index information: May vary depending on the value of the Winding flag
+    for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
+    {
+        aiFace face = mesh->mFaces[i];
+        for (uint32_t j = 0; j < face.mNumIndices; ++j)
+        {
+            localMesh.indices.emplace_back(face.mIndices[j]);
+        }
+    }
+
+    return localMesh;
+}
+
+void AssetService::LoadTexture(const string &p, aiMesh *mesh,
+                               const string &name)
 {
     // Texture (Material) information
+    Assimp::Importer importer;
+    const aiScene *scene = importer.ReadFile(p, 0);
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
 
     // Diffuse Texture: combined with the result of the diffuse lighting
@@ -231,94 +332,6 @@ const Texture &AssetService::GetTexture(const string &name)
     return texturesLoaded_[name];
 }
 
-/*
- * .  : Directly access the members of the class
- * -> : Approach the member through a pointer
- */
-void AssetService::ProcessNode(const string &path, const string &name,
-                               aiNode *node, const aiScene *scene)
-{
-    for (uint32_t i = 0; i < node->mNumMeshes; ++i)
-    {
-        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes_[name] = ProcessMesh(node, mesh, scene);
-    }
-
-    // Do the same for each of its children
-    for (uint32_t i = 0; i < node->mNumChildren; ++i)
-    {
-        ProcessNode(path, name, node->mChildren[i], scene);
-    }
-}
-
-/*
- * push_back()      : No internal constructor (Create a temporary object from
- *                    the outside)
- * emplace_back()   : Create its own objects internally using the
- *                    constructor
- */
-Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
-{
-    Mesh localMesh;
-
-    // Vertex information
-    for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
-    {
-        Vertex vertex(glm::vec3(0.f));
-        glm::vec3 vector;
-
-        // Position
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
-
-        // Normal
-        if (mesh->HasNormals())
-        {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
-        }
-
-        // TextureCoord: Maximum 8 texture
-        if (mesh->mTextureCoords[0])
-        {
-            glm::vec2 vec;
-            vec.x = mesh->mTextureCoords[0][i].x;
-            vec.y = mesh->mTextureCoords[0][i].y;
-            vertex.uv = vec;
-        }
-
-        // Tangent
-        // vector.x = mesh->mTangents[i].x;
-        // vector.y = mesh->mTangents[i].y;
-        // vector.z = mesh->mTangents[i].z;
-        // vertex.tangent = vector;
-
-        // BiTangent
-        // vector.x = mesh->mBitangents[i].x;
-        // vector.y = mesh->mBitangents[i].y;
-        // vector.z = mesh->mBitangents[i].z;
-        // vertex.bitangent = vector;
-
-        localMesh.vertices.emplace_back(vertex);
-    }
-
-    // Index information: May vary depending on the value of the Winding flag
-    for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
-    {
-        aiFace face = mesh->mFaces[i];
-        for (uint32_t j = 0; j < face.mNumIndices; ++j)
-        {
-            localMesh.indices.emplace_back(face.mIndices[j]);
-        }
-    }
-
-    return localMesh;
-}
-
 void AssetService::ProcessTexture(const string &path, const string &name,
                                   aiMaterial *mat, aiTextureType type)
 {
@@ -343,13 +356,101 @@ void AssetService::ProcessTexture(const string &path, const string &name,
     }
 }
 
+// MaterialProperties AssetService::LoadMaterial(aiMesh *mesh, const aiScene
+// *scene)
+// {
+//     MaterialProperties property;
+
+//     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+//     aiColor3D color(0.f, 0.f, 0.f);
+//     float shininess;
+
+//     if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+//     {
+//         property.diffuse = glm::vec3(color.r, color.b, color.g);
+//     }
+
+//     if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_AMBIENT, color))
+//     {
+//         property.ambient = glm::vec3(color.r, color.b, color.g);
+//     }
+
+//     if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_SPECULAR, color))
+//     {
+//         property.specular = glm::vec3(color.r, color.b, color.g);
+//     }
+
+//     if (AI_SUCCESS == material->Get(AI_MATKEY_SHININESS, shininess))
+//     {
+//         property.shininess = shininess;
+//     }
+
+//     return property;
+// }
+
+void AssetService::LoadMaterial(const string &path, aiMesh *mesh,
+                                const string &name)
+{
+    Assimp::Importer importer;
+    MaterialProperties property;
+    const aiScene *scene = importer.ReadFile(path, 0);
+
+    aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+    aiColor3D color(0.f, 0.f, 0.f);
+    float shininess;
+
+    if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color) ||
+        AI_SUCCESS == material->Get(AI_MATKEY_COLOR_AMBIENT, color) ||
+        AI_SUCCESS == material->Get(AI_MATKEY_COLOR_SPECULAR, color))
+    {
+        ProcessMaterial(color, name, material);
+    }
+
+    if (AI_SUCCESS == material->Get(AI_MATKEY_SHININESS, shininess))
+    {
+        materials_[name].shininess = shininess;
+    }
+}
+
+void AssetService::ProcessMaterial(aiColor3D color, const string &name,
+                                   aiMaterial *mat)
+{
+    bool skip = false;
+    if (materials_.find(name) != materials_.end())
+    {
+        skip = true;
+    }
+
+    if (!skip)
+    {
+        MaterialProperties property;
+
+        if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+        {
+            property.diffuse = glm::vec3(color.r, color.g, color.b);
+        }
+
+        if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_AMBIENT, color))
+        {
+            property.ambient = glm::vec3(color.r, color.g, color.b);
+        }
+
+        if (AI_SUCCESS == mat->Get(AI_MATKEY_COLOR_SPECULAR, color))
+        {
+            property.specular = glm::vec3(color.r, color.g, color.b);
+        }
+
+        materials_[name] = property;
+    }
+}
+
 void AssetService::OnInit()
 {
     LoadMesh("resources/models/cube.obj", "cube");
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
     LoadMesh("resources/models/car.obj", "car");
-    LoadMesh("resources/models/kart2-2.obj", "kart");
+    LoadMesh("resources/models/kart2-3.obj", "kart");
     LoadMesh("resources/models/track3-3.obj", "track");
 }
 
