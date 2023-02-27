@@ -63,15 +63,9 @@ class VehicleComponent final : public Component,
   public:
     // Getters
     DirectDriveVehicle& GetVehicle();
-    std::shared_ptr<double> GetSpeed();
 
     glm::vec3 GetPosition();
     glm::quat GetOrientation();
-
-    inline DirectDriveVehicle& GetVehicle()
-    {
-        return g_vehicle_;
-    }
 
     void SetVehicleName(const std::string& vehicle_name);
 

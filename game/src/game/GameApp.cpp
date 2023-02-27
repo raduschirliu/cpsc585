@@ -113,7 +113,6 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 32.0f});
     }
 
-
     {
         // Cube
         // Entity& entity = scene.AddEntity("red cube");
@@ -186,7 +185,6 @@ void GameApp::LoadTestScene(Scene& scene)
 
         vehicle.SetPlayerStateData(*player_state.GetStateData());
 
-
         auto& hitbox_component = car_entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
 
@@ -227,9 +225,6 @@ void GameApp::LoadTestScene(Scene& scene)
         // Making the controller which will guide the car on where to go
         auto& ai_controller = entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
     }
 
     {
@@ -251,9 +246,6 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
              .shininess = 64.0f});
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
     }
 
     {
@@ -275,9 +267,6 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
              .shininess = 64.0f});
-
-        std::shared_ptr<double> speed = std::make_shared<double>(0.f);
-        bunny_vehicle.SetSpeed(speed);
     }
 
     {
