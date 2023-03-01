@@ -56,7 +56,8 @@ class PhysicsService final : public Service,
 
     std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
     bool show_debug_menu_ = false;
-    bool debug_draw_ = false;
+    bool debug_draw_scene_ = false;
+    bool debug_draw_raycast_ = false;
 
     const physx::PxF32 timestep = 1.0f / 60.0f;
 

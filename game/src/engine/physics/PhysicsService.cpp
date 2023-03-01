@@ -71,7 +71,7 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
                                     true);
     }
 
-    debug_draw_ = false;
+    debug_draw_scene_ = false;
     kScene_->setVisualizationParameter(PxVisualizationParameter::eSCALE, 0.0f);
     kScene_->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES,
                                        1.0f);
@@ -92,7 +92,7 @@ void PhysicsService::OnUpdate()
         show_debug_menu_ = !show_debug_menu_;
     }
 
-    if (debug_draw_)
+    if (debug_draw_scene_)
     {
         const auto& render_buffer = kScene_->getRenderBuffer();
         const PxDebugLine* lines = render_buffer.getLines();
@@ -164,22 +164,26 @@ void PhysicsService::OnGui()
     ImGui::Text("Visualization");
     ImGui::Spacing();
 
-    if (ImGui::Checkbox("Debug Drawing", &debug_draw_))
+    ImGui::Checkbox("Draw Raycasts", &debug_draw_raycast_);
+
+    if (ImGui::Checkbox("Scene Debug Drawing", &debug_draw_scene_))
     {
         kScene_->setVisualizationParameter(PxVisualizationParameter::eSCALE,
-                                           debug_draw_ ? 1.0f : 0.0f);
+                                           debug_draw_scene_ ? 1.0f : 0.0f);
     }
 
-    if (!debug_draw_)
+    if (!debug_draw_scene_)
     {
         ImGui::BeginDisabled();
     }
 
+    ImGui::Indent(6.0f);
     DrawDebugParamWidget("Collision shapes",
                          PxVisualizationParameter::eCOLLISION_SHAPES);
     DrawDebugParamWidget("Actor axes", PxVisualizationParameter::eACTOR_AXES);
+    ImGui::Unindent(6.0f);
 
-    if (!debug_draw_)
+    if (!debug_draw_scene_)
     {
         ImGui::EndDisabled();
     }
@@ -305,6 +309,14 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     PxRaycastBuffer raycast_result;
     kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
+
+    if (debug_draw_raycast_)
+    {
+        LineVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
+        LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                       Color4u(255, 0, 0, 255));
+        render_service_->GetDebugDrawList().AddLine(start, end);
+    }
 
     // check if hit successful
     if (!raycast_result.hasBlock)
