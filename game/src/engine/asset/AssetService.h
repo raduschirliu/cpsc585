@@ -21,7 +21,7 @@ class AssetService final : public Service
     void LoadTexture(const std::string &path, aiMesh *mesh,
                      const std::string &name);
     const Texture &GetTexture(const std::string &name);
-    void LoadMaterial(const std::string &path, aiMesh *mesh,
+    void LoadMaterial(const std::string &path, const aiScene *scene, aiMesh *mesh,
                       const std::string &name);
 
     // From Service
