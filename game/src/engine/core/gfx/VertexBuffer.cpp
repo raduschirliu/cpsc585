@@ -21,7 +21,8 @@ void VertexBuffer::ConfigureAttribute(GLuint index, GLint size,
                                       GLsizei stride, GLsizei offset)
 {
     Bind();
-    glVertexAttribPointer(index, size, data_type, normalize ? 1 : 0, stride,
+    glVertexAttribPointer(index, size, data_type,
+                          normalize ? GL_TRUE : GL_FALSE, stride,
                           reinterpret_cast<GLvoid*>(offset));
     glEnableVertexAttribArray(index);
 }

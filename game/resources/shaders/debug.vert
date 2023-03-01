@@ -11,8 +11,7 @@ uniform mat4 uViewProjMatrix;
 void main()
 {
 	aPos = inPos;
-    // PhysX colors are a u32, with components in order: argb
-	aColor = vec3(inColor.y, inColor.z, inColor.w);
+	aColor = vec3(inColor.rgb);
 
 	gl_Position = uViewProjMatrix * vec4(inPos, 1.0f);
 }

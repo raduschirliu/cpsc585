@@ -6,7 +6,6 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
-#include "engine/physics/PhysicsService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/PointLight.h"
@@ -29,9 +28,9 @@ RenderService::RenderService()
               "resources/shaders/blinnphong.frag"),
       debug_shader_("resources/shaders/debug.vert",
                     "resources/shaders/debug.frag"),
-      physics_debug_draw_(false),
+      debug_draw_list_(),
       wireframe_(false),
-      menu_open_(false)
+      show_debug_menu_(false)
 {
 }
 
@@ -130,26 +129,11 @@ void RenderService::UnregisterLight(Entity& entity)
 
 void RenderService::OnInit()
 {
-    // TODO: temp physics debug code
-    kDebugVertexArray = new VertexArray();
-    kDebugVertexBuffer = new VertexBuffer();
-
-    GLsizei stride = sizeof(physx::PxVec3) + sizeof(physx::PxU32);
-    GLsizei pos_offset = offsetof(physx::PxDebugLine, pos0);
-    GLsizei col_offset = offsetof(physx::PxDebugLine, color0);
-
-    kDebugVertexArray->Bind();
-    kDebugVertexBuffer->Bind();
-    kDebugVertexBuffer->ConfigureAttribute(0, 3, GL_FLOAT, stride,
-                                           pos_offset);  // Pos
-    kDebugVertexBuffer->ConfigureAttribute(1, 4, GL_UNSIGNED_BYTE, true, stride,
-                                           col_offset);  // Color
 }
 
 void RenderService::OnStart(ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
-    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
@@ -166,7 +150,7 @@ void RenderService::OnUpdate()
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
-        menu_open_ = !menu_open_;
+        show_debug_menu_ = !show_debug_menu_;
     }
 
     // Rendering
@@ -190,6 +174,9 @@ void RenderService::OnUpdate()
     {
         RenderCameraView(*camera);
     }
+
+    // Post-render cleanup
+    debug_draw_list_.Clear();
 }
 
 void RenderService::OnCleanup()
@@ -205,12 +192,12 @@ std::string_view RenderService::GetName() const
 
 void RenderService::OnGui()
 {
-    if (!menu_open_)
+    if (!show_debug_menu_)
     {
         return;
     }
 
-    if (!ImGui::Begin("RenderService", &menu_open_))
+    if (!ImGui::Begin("RenderService Debug", &show_debug_menu_))
     {
         ImGui::End();
         return;
@@ -222,30 +209,17 @@ void RenderService::OnGui()
 
     ImGui::Checkbox("Wireframe", &wireframe_);
 
-    if (ImGui::Checkbox("Physics Debug", &physics_debug_draw_))
-    {
-        physx::PxScene* scene = physics_service_->GetKScene();
-        if (physics_debug_draw_)
-        {
-            bool status = scene->setVisualizationParameter(
-                physx::PxVisualizationParameter::eSCALE, 1.0f);
-            status |= scene->setVisualizationParameter(
-                physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
-            status |= scene->setVisualizationParameter(
-                physx::PxVisualizationParameter::eACTOR_AXES, 4.0f);
-        }
-        else
-        {
-            scene->setVisualizationParameter(
-                physx::PxVisualizationParameter::eSCALE, 0.0f);
-        }
-    }
-
     ImGui::End();
+}
+
+DebugDrawList& RenderService::GetDebugDrawList()
+{
+    return debug_draw_list_;
 }
 
 void RenderService::RenderPrepare()
 {
+    debug_draw_list_.Prepare();
 }
 
 void RenderService::RenderCameraView(Camera& camera)
@@ -307,24 +281,11 @@ void RenderService::RenderCameraView(Camera& camera)
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
     }
 
-    // TODO: TEMP, draw physics debug info
-    if (physics_debug_draw_)
+    if (debug_draw_list_.HasItems())
     {
-        physx::PxPhysics* physics = physics_service_->GetKPhysics();
-        physx::PxScene* scene = physics_service_->GetKScene();
-
-        const auto& render_buffer = scene->getRenderBuffer();
-        const physx::PxDebugLine* lines = render_buffer.getLines();
-        const size_t num_lines = render_buffer.getNbLines();
-        const size_t num_vertices = num_lines * 2; // 2 vertices per line
-        const size_t lines_size = sizeof(physx::PxDebugLine) * num_lines;
-
-        kDebugVertexBuffer->Upload(lines, lines_size, GL_STATIC_DRAW);
-
         debug_shader_.Use();
         debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
-        kDebugVertexArray->Bind();
-        glDrawArrays(GL_LINES, 0, num_vertices);
+        debug_draw_list_.Draw();
     }
 }
 

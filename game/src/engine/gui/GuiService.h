@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
 #include "engine/core/gfx/Window.h"

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <ctype.h>
 #include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
@@ -14,13 +15,16 @@
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/gui/OnGuiEvent.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class AssetService;
 class InputService;
+class RenderService;
 
 class PhysicsService final : public Service,
+                             public IEventSubscriber<OnGuiEvent>,
                              public physx::PxSimulationEventCallback
 {
   public:
@@ -32,9 +36,13 @@ class PhysicsService final : public Service,
     void OnCleanup() override;
     std::string_view GetName() const override;
 
+    // From IEventSubscriber<OnGuiEvent>
+    void OnGui() override;
+
   private:
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<RenderService> render_service_;
 
     physx::PxDefaultAllocator kDefaultAllocator_;
     physx::PxDefaultErrorCallback kDefaultErrorCallback_;
@@ -47,10 +55,14 @@ class PhysicsService final : public Service,
     physx::PxCooking* cooking_ = nullptr;
 
     std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
+    bool show_debug_menu_ = false;
+    bool debug_draw_ = false;
 
     const physx::PxF32 timestep = 1.0f / 60.0f;
 
     void InitPhysX();
+    void DrawDebugParamWidget(const std::string& name,
+                              physx::PxVisualizationParameter::Enum parameter);
 
   public:
     void RegisterActor(physx::PxActor* actor);
@@ -90,8 +102,9 @@ class PhysicsService final : public Service,
     physx::PxTriangleMesh* CreateTriangleMesh(const std::string& mesh_name);
 
     physx::PxRigidDynamic* CreateRigidDynamic(const glm::vec3& position,
-                                                 const glm::quat& orientation);
-    physx::PxRigidStatic* CreateRigidStatic(const glm::vec3& position, const glm::quat& orientation);
+                                              const glm::quat& orientation);
+    physx::PxRigidStatic* CreateRigidStatic(const glm::vec3& position,
+                                            const glm::quat& orientation);
 
     inline physx::PxPhysics* GetKPhysics()
     {

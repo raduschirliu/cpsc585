@@ -7,7 +7,9 @@
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
@@ -32,6 +34,8 @@ static const PxCookingParams kDefaultPxCookingParams =
 /* ---------- from Service ---------- */
 void PhysicsService::OnInit()
 {
+    GetEventBus().Subscribe<OnGuiEvent>(this);
+
     InitPhysX();
 }
 
@@ -39,6 +43,7 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
 {
     asset_service_ = &service_provider.GetService<AssetService>();
     input_service_ = &service_provider.GetService<InputService>();
+    render_service_ = &service_provider.GetService<RenderService>();
 }
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
@@ -65,6 +70,13 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
         pvd_client->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
                                     true);
     }
+
+    debug_draw_ = false;
+    kScene_->setVisualizationParameter(PxVisualizationParameter::eSCALE, 0.0f);
+    kScene_->setVisualizationParameter(PxVisualizationParameter::eACTOR_AXES,
+                                       1.0f);
+    kScene_->setVisualizationParameter(
+        PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
 }
 
 void PhysicsService::OnUpdate()
@@ -73,6 +85,30 @@ void PhysicsService::OnUpdate()
     {
         kScene_->simulate(timestep);
         kScene_->fetchResults(true);
+    }
+
+    if (input_service_->IsKeyPressed(GLFW_KEY_F3))
+    {
+        show_debug_menu_ = !show_debug_menu_;
+    }
+
+    if (debug_draw_)
+    {
+        const auto& render_buffer = kScene_->getRenderBuffer();
+        const PxDebugLine* lines = render_buffer.getLines();
+        const size_t num_lines = render_buffer.getNbLines();
+
+        DebugDrawList& draw_list = render_service_->GetDebugDrawList();
+
+        for (size_t i = 0; i < num_lines; i++)
+        {
+            const PxDebugLine& line = lines[i];
+
+            const LineVertex start(PxToGlm(line.pos0),
+                                   PxColorToVec(line.color0));
+            const LineVertex end(PxToGlm(line.pos1), PxColorToVec(line.color1));
+            draw_list.AddLine(start, end);
+        }
     }
 }
 
@@ -94,6 +130,61 @@ void PhysicsService::OnCleanup()
     }
 
     PX_RELEASE(kFoundation_);
+}
+
+void PhysicsService::OnGui()
+{
+    if (!show_debug_menu_)
+    {
+        return;
+    }
+
+    if (!ImGui::Begin("PhysicsService Debug", &show_debug_menu_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    // Simulation stats
+    ImGui::Text("Simulation stats");
+    ImGui::Spacing();
+
+    PxSimulationStatistics stats;
+    kScene_->getSimulationStatistics(stats);
+
+    ImGui::Text("Static Bodies: %u", stats.nbStaticBodies);
+    ImGui::Text("Dynamic Bodies: %u", stats.nbDynamicBodies);
+    ImGui::Text("Active Dynamic Bodies: %u", stats.nbActiveDynamicBodies);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // Visualization
+    ImGui::Text("Visualization");
+    ImGui::Spacing();
+
+    if (ImGui::Checkbox("Debug Drawing", &debug_draw_))
+    {
+        kScene_->setVisualizationParameter(PxVisualizationParameter::eSCALE,
+                                           debug_draw_ ? 1.0f : 0.0f);
+    }
+
+    if (!debug_draw_)
+    {
+        ImGui::BeginDisabled();
+    }
+
+    DrawDebugParamWidget("Collision shapes",
+                         PxVisualizationParameter::eCOLLISION_SHAPES);
+    DrawDebugParamWidget("Actor axes", PxVisualizationParameter::eACTOR_AXES);
+
+    if (!debug_draw_)
+    {
+        ImGui::EndDisabled();
+    }
+
+    ImGui::End();
 }
 
 string_view PhysicsService::GetName() const
@@ -186,6 +277,18 @@ PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
     ASSERT(shape);
 
     return shape;
+}
+
+void PhysicsService::DrawDebugParamWidget(
+    const string& name, PxVisualizationParameter::Enum parameter)
+{
+    const float value = kScene_->getVisualizationParameter(parameter);
+    bool state = value != 0.0f;
+
+    if (ImGui::Checkbox(name.c_str(), &state))
+    {
+        kScene_->setVisualizationParameter(parameter, state ? 1.0f : 0.0f);
+    }
 }
 
 /* ---------- raycasting ---------- */
