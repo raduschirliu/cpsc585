@@ -16,6 +16,13 @@ struct GameData
     float time_elapsed;
     float fastest_lap;
 
+    int num_laps;
+
+    int player_1_laps_finished;
+    int player_2_laps_finished;
+    int player_3_laps_finished;
+    int player_4_laps_finished;
+
     int player_1_kills;
     int player_2_kills;
     int player_3_kills;
@@ -35,4 +42,8 @@ class GameService final : public Service
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
+
+    double UpdateTime();
+    void Countdown();
+    void GameOver();
 };
