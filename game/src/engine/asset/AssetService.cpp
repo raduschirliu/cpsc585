@@ -373,6 +373,11 @@ void AssetService::OnInit()
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
     LoadMesh("resources/models/car.obj", "car");
+    LoadMesh("resources/models/coin_1.obj", "coin");
+    LoadMesh("resources/models/energy_1.obj", "energy");
+    LoadMesh("resources/models/pickup_defence_2.obj", "defence_ring");
+    LoadMesh("resources/models/pickup_defence_3.obj", "defence");
+    LoadMesh("resources/models/pickup_defence.obj", "defence_shield");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

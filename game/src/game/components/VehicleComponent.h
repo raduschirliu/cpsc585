@@ -2,6 +2,7 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
@@ -31,6 +32,7 @@ class VehicleComponent final : public Component,
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
 
     /* variables for vehicle */
 
@@ -50,6 +52,8 @@ class VehicleComponent final : public Component,
     // commands the car has to follow.
     std::vector<Command> gCommands;
 
+    PlayerStateData* player_data_;
+
     // for functions.
   private:
     void InitVehicle();
@@ -58,13 +62,12 @@ class VehicleComponent final : public Component,
 
   public:
     // Getters
+    DirectDriveVehicle& GetVehicle();
+
     glm::vec3 GetPosition();
     glm::quat GetOrientation();
 
-    inline DirectDriveVehicle& GetVehicle()
-    {
-        return g_vehicle_;
-    }
-
     void SetVehicleName(const std::string& vehicle_name);
+
+    void SetPlayerStateData(PlayerStateData& data);
 };
