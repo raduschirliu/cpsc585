@@ -6,9 +6,9 @@
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
+using physx::PxActorFlag;
 using physx::PxRigidBodyExt;
 using physx::PxTransform;
-using physx::PxActorFlag;
 using std::string_view;
 
 static constexpr float kDefaultDenisty = 10.0f;
