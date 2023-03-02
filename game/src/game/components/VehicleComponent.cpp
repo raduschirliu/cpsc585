@@ -106,6 +106,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
@@ -126,6 +127,10 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     const PxTransform& pose =
         g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+    // g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
+    //               .magnitude();
+
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
@@ -143,10 +148,33 @@ std::string_view VehicleComponent::GetName() const
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
 {
-    const PxTransform pose(GlmToPx(transform_->GetPosition()),
-                           PxQuat(PxIdentity));
+    physx::PxQuat quat(
+        transform_->GetOrientation().x, transform_->GetOrientation().y,
+        transform_->GetOrientation().z, transform_->GetOrientation().w);
+
+    PxTransform pose(GlmToPx(transform_->GetPosition()), quat);
 
     g_vehicle_name_ = vehicle_name;
     g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
+}
+
+DirectDriveVehicle& VehicleComponent::GetVehicle()
+{
+    return g_vehicle_;
+}
+
+void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
+{
+    player_data_ = &data;
+}
+
+glm::vec3 VehicleComponent::GetPosition()
+{
+    return transform_->GetPosition();
+}
+
+glm::quat VehicleComponent::GetOrientation()
+{
+    return transform_->GetOrientation();
 }
