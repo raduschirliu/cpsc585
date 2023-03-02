@@ -11,6 +11,7 @@ class RigidBodyComponent : public Component,
   public:
     void SetMass(float mass);
     float GetMass() const;
+    void SetGravityEnabled(bool enabled);
 
     void SyncTransform();
 
@@ -22,5 +23,6 @@ class RigidBodyComponent : public Component,
   protected:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;
+
     physx::PxRigidDynamic* dynamic_;
 };

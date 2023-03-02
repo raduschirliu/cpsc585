@@ -6,6 +6,9 @@
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
+using physx::PxActorFlag;
+using physx::PxBoxGeometry;
+using physx::PxShapeFlag;
 using physx::PxTransform;
 using std::string_view;
 
@@ -16,6 +19,16 @@ void BoxTrigger::OnInit(const ServiceProvider& service_provider)
     RigidBodyComponent::OnInit(service_provider);
 
     SetSize(kDefaultSize);
+    SetGravityEnabled(false);
+}
+
+void BoxTrigger::OnDestroy()
+{
+    PX_RELEASE(shape_);
+
+    // Parent OnDestroy releases the RigidDynamic, and we must release our
+    // shape first
+    RigidBodyComponent::OnDestroy();
 }
 
 string_view BoxTrigger::GetName() const
@@ -28,11 +41,13 @@ void BoxTrigger::SetSize(const vec3& size)
     if (shape_)
     {
         dynamic_->detachShape(*shape_);
+        PX_RELEASE(shape_);
     }
 
-    shape_ = physics_service_->CreateShapeCube(size.x, size.y, size.z);
+    PxBoxGeometry geometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f);
+    shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape_->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+
     dynamic_->attachShape(*shape_);
-    dynamic_->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 }

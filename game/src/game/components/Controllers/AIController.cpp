@@ -79,7 +79,7 @@ std::string_view AIController::GetName() const
     return "AI Controller";
 }
 
-void AIController::SetGVehicle(DirectDriveVehicle& vehicle)
+void AIController::SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
 {
     vehicle_reference_ = &vehicle;
 }

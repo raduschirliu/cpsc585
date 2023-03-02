@@ -16,6 +16,9 @@ using glm::vec3;
 using std::make_unique;
 using std::unique_ptr;
 
+static VertexArray* kDebugVertexArray = nullptr;
+static VertexBuffer* kDebugVertexBuffer = nullptr;
+
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
@@ -23,8 +26,11 @@ RenderService::RenderService()
       materials_{},
       shader_("resources/shaders/default.vert",
               "resources/shaders/blinnphong.frag"),
+      debug_shader_("resources/shaders/debug.vert",
+                    "resources/shaders/debug.frag"),
+      debug_draw_list_(),
       wireframe_(false),
-      menu_open_(false)
+      show_debug_menu_(false)
 {
 }
 
@@ -144,7 +150,7 @@ void RenderService::OnUpdate()
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
-        menu_open_ = !menu_open_;
+        show_debug_menu_ = !show_debug_menu_;
     }
 
     // Rendering
@@ -168,10 +174,15 @@ void RenderService::OnUpdate()
     {
         RenderCameraView(*camera);
     }
+
+    // Post-render cleanup
+    debug_draw_list_.Clear();
 }
 
 void RenderService::OnCleanup()
 {
+    delete kDebugVertexArray;
+    delete kDebugVertexBuffer;
 }
 
 std::string_view RenderService::GetName() const
@@ -181,12 +192,12 @@ std::string_view RenderService::GetName() const
 
 void RenderService::OnGui()
 {
-    if (!menu_open_)
+    if (!show_debug_menu_)
     {
         return;
     }
 
-    if (!ImGui::Begin("RenderService", &menu_open_))
+    if (!ImGui::Begin("RenderService Debug", &show_debug_menu_))
     {
         ImGui::End();
         return;
@@ -201,8 +212,14 @@ void RenderService::OnGui()
     ImGui::End();
 }
 
+DebugDrawList& RenderService::GetDebugDrawList()
+{
+    return debug_draw_list_;
+}
+
 void RenderService::RenderPrepare()
 {
+    debug_draw_list_.Prepare();
 }
 
 void RenderService::RenderCameraView(Camera& camera)
@@ -217,6 +234,9 @@ void RenderService::RenderCameraView(Camera& camera)
     // TODO(radu): Allow for more than one light, and actually use light props
     // auto light_entity = lights_[0];
     // PointLight& light = light_entity->GetComponent<PointLight>();
+
+    shader_.Use();
+    shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
 
     // Render each object
     for (const auto& obj : render_list_)
@@ -234,11 +254,9 @@ void RenderService::RenderCameraView(Camera& camera)
             renderer.GetMaterialProperties();
 
         // TODO(radu): Move this logic to Material
-        shader_.Use();
 
         // Vert shader vars
         shader_.SetUniform("uModelMatrix", model_matrix);
-        shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
         shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         // Frags shader vars
@@ -261,6 +279,13 @@ void RenderService::RenderCameraView(Camera& camera)
             static_cast<GLsizei>(renderer.GetMesh().indices.size());
 
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+    }
+
+    if (debug_draw_list_.HasItems())
+    {
+        debug_shader_.Use();
+        debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+        debug_draw_list_.Draw();
     }
 }
 

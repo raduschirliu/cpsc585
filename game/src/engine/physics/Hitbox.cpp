@@ -9,6 +9,9 @@
 #include "game/components/VehicleComponent.h"
 
 using glm::vec3;
+using physx::PxActorFlag;
+using physx::PxBoxGeometry;
+using physx::PxShapeFlag;
 using physx::PxTransform;
 using std::string_view;
 
@@ -41,11 +44,15 @@ void Hitbox::SetSize(const vec3& size)
 {
     size_ = size;
     if (shape_)
+    {
         dynamic_->detachShape(*shape_);
+    }
 
-    shape_ = physics_service_->CreateShapeCube(size.x, size.y, size.z);
+    PxBoxGeometry geometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f);
+    shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape_->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+
     dynamic_->attachShape(*shape_);
     dynamic_->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 }

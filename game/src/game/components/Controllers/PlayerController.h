@@ -23,14 +23,14 @@ class PlayerController final : public Component,
     jss::object_ptr<InputService> input_service_;
 
     // We get this using the vehiclecomponent.
-    DirectDriveVehicle* vehicle_reference_;
+    snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
     Command executable_command_;
 
     float timestep_ = 1.f / 60.f;
 
   public:
-    inline void SetGVehicle(DirectDriveVehicle& vehicle)
+    inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
     {
         vehicle_reference_ = &vehicle;
     }

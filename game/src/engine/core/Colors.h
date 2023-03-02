@@ -1,6 +1,12 @@
 #pragma once
 
+#include <cstdint>
 #include <glm/glm.hpp>
+
+using Color3u = glm::u8vec3;
+using Color4u = glm::u8vec4;
+using Color3 = glm::vec3;
+using Color4 = glm::vec4;
 
 namespace colors
 {

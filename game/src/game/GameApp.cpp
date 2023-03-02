@@ -16,6 +16,7 @@
 #include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/BoxTrigger.h"
 #include "engine/physics/Hitbox.h"
+#include "engine/physics/MeshStaticBody.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
@@ -78,16 +79,23 @@ void GameApp::OnInit()
  */
 void GameApp::OnStart()
 {
-    AddScene("TestScene");
+    AddScene("Test");
+    AddScene("Track1");
 
-    SetActiveScene("TestScene");
+    SetActiveScene("Test");
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
 {
-    if (scene.GetName() == "TestScene")
+    const auto& scene_name = scene.GetName();
+
+    if (scene_name == "Test")
     {
         LoadTestScene(scene);
+    }
+    else if (scene_name == "Track1")
+    {
+        LoadTrack1Scene(scene);
     }
 }
 
@@ -354,4 +362,77 @@ void GameApp::LoadTestScene(Scene& scene)
     //     auto& trigger = entity.AddComponent<BoxTrigger>();
     //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     // }
+}
+
+void GameApp::LoadTrack1Scene(Scene& scene)
+{
+    Log::info("Loading entities for Track1 scene...");
+
+    {
+        // Track
+        auto& entity = scene.AddEntity("Track");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0f, 5.0f, 0.0f));
+        // transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
+
+        auto& static_body = entity.AddComponent<MeshStaticBody>();
+        static_body.SetMesh("track1", 1.0f);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track1");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 32.0f});
+    }
+    /*     {
+            // Player car
+            Entity& car_entity = scene.AddEntity("PlayerVehicle");
+
+            auto& transform = car_entity.AddComponent<Transform>();
+            transform.SetPosition(vec3(3.7f, 3.26f, 1.78f));
+
+            auto& vehicle = car_entity.AddComponent<VehicleComponent>();
+            vehicle.SetVehicleName("PlayerVehicle");
+            auto& controller = car_entity.AddComponent<PlayerController>();
+            controller.SetGVehicle(vehicle.GetVehicle());
+
+            auto& raycast = car_entity.AddComponent<RaycastComponent>();
+
+            auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
+            mesh_renderer.SetMesh("car");
+            mesh_renderer.SetMaterialProperties(
+                {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+                 .specular = vec3(0.3f, 0.3f, 0.3f),
+                 .shininess = 64.0f});
+
+            // Camera following car
+            Entity& camera_entity = scene.AddEntity("Camera");
+            camera_entity.AddComponent<Transform>();
+            camera_entity.AddComponent<Camera>();
+
+            auto& follow_camera = camera_entity.AddComponent<FollowCamera>();
+            follow_camera.SetFollowingTransform(car_entity);
+        } */
+    {
+        // Debug camera
+        Entity& entity = scene.AddEntity("DebugCamera");
+        entity.AddComponent<Transform>();
+        entity.AddComponent<Camera>();
+        entity.AddComponent<DebugCameraController>();
+    }
+    {
+        // Test cube
+        Entity& entity = scene.AddEntity("TestCube");
+
+        entity.AddComponent<Transform>();
+
+        auto& renderer = entity.AddComponent<MeshRenderer>();
+        renderer.SetMesh("cube");
+
+        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+        rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
+        rigidbody.SetGravityEnabled(false);
+    }
 }

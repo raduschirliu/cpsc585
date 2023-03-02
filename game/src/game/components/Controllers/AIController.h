@@ -18,7 +18,7 @@ class AIController final : public Component,
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
-    void SetGVehicle(DirectDriveVehicle& vehicle);
+    void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle);
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -28,7 +28,7 @@ class AIController final : public Component,
     // variables for car
 
     std::vector<glm::vec3> path_to_follow_;
-    DirectDriveVehicle* vehicle_reference_;
+    snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
     Command executable_command_;
     float timestep_ = 1.f / 60.f;

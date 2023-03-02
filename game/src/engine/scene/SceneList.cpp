@@ -3,6 +3,7 @@
 using std::make_unique;
 using std::string_view;
 using std::unique_ptr;
+using std::vector;
 
 SceneList::SceneList() : scenes_{}, active_scene_(nullptr)
 {
@@ -38,4 +39,9 @@ void SceneList::SetActiveScene(string_view name)
 bool SceneList::HasActiveScene() const
 {
     return active_scene_ != nullptr;
+}
+
+const vector<unique_ptr<Scene>>& SceneList::GetAllScenes() const
+{
+    return scenes_;
 }
