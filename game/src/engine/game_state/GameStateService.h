@@ -8,7 +8,7 @@
 #include "../../game/components/state/PlayerStateStruct.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
-#include "../../game/components/Pickups/Pickup.h"
+#include "../../game/components/Pickups/PickupType.h"
 
 class GameStateService : public Service
 {

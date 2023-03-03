@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
-#include "../Pickups/Pickup.h"
+
+#include "../Pickups/PickupType.h"
 
 #include "../../../engine/scene/Entity.h"
 

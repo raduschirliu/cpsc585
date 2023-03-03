@@ -10,27 +10,10 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/state/PlayerState.h"
+#include "PickupType.h"
 
 class PlayerState;
 
-enum class PowerupPickupType
-{
-    kDefaultPowerup = 0,
-    kDisableHandling,
-    kEveryoneSlower,
-    kIncreaseAimBox,
-    kKillAbilities
-};
-
-enum class AmmoPickupType
-{
-    kDefaultAmmo = 0,
-    kBuckshot,
-    kDoubleDamage,
-    kExploadingBullet,
-    kIncreaseFireRate,
-    kVampireBullet
-};
 
 class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
