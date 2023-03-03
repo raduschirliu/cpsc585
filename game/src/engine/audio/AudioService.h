@@ -37,6 +37,10 @@ class AudioService final : public Service
     /// @param file_path 
     void PlayOneShot(std::string file_path);
 
+    /// @brief gets the format of the file (mono/stereo, 8/16 bit)
+    /// @param audio_file 
     ALenum GetAudioFileFormat(AudioFile audio_file);
+    /// @brief gets the audio file's raw data 
+    /// @param audio_file 
     double GetAudioFileData(AudioFile audio_file);
 };

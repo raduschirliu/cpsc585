@@ -98,6 +98,7 @@ void AudioService::PlayOneShot(std::string file_name)
                  audio_file_.getSampleRate());
     alSourcePlay(source);
 
+    // don't destroy source until done playing
     ALint state = AL_PLAYING;
     while (state == AL_PLAYING)
     {
