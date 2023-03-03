@@ -7,6 +7,7 @@
 
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
+#include "engine/audio/AudioService.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
@@ -68,6 +69,7 @@ void GameApp::OnInit()
     AddService<PhysicsService>();
     AddService<ComponentUpdateService>();
     AddService<RenderService>();
+    AddService<AudioService>();
     AddService<GuiService>();
     AddService<AIService>();
     AddService<GameStateService>();
