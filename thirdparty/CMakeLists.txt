@@ -98,7 +98,7 @@ FetchContent_Declare(
 	GIT_TAG fde74453a62a1ce4b5efaac0ec1835b9f5731e25
 )
 FetchContent_MakeAvailable(openAL)
-set(INCLUDES ${INCLUDES} fetched/openal-src/include)
+set(INCLUDES ${INCLUDES} fetched/openal-src/include/AL)
 set(LIBRARIES ${LIBRARIES} OpenAL::OpenAL)
 
 # -------------------------
