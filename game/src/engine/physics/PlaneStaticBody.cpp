@@ -13,15 +13,19 @@ void PlaneStaticBody::OnInit(const ServiceProvider& service_provider)
 {
     physics_service_ = &service_provider.GetService<PhysicsService>();
 
-    static_ = physics_service_->CreatePlaneRigidStatic(
-        PxPlane(0.0f, 1.0f, 0.0f, 0.0f));
+    // Infinite plane in XY
+    PxPlane plane_dimensions(0.0f, 1.0f, 0.0f, 0.0f);
+    static_ = physics_service_->CreatePlaneRigidStatic(plane_dimensions);
     static_->userData = &GetEntity();
+
     physics_service_->RegisterActor(static_);
 }
 
 void PlaneStaticBody::OnDestroy()
 {
     physics_service_->UnregisterActor(static_);
+
+    PX_RELEASE(static_);
 }
 
 string_view PlaneStaticBody::GetName() const

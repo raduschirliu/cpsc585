@@ -8,6 +8,8 @@
 using std::string;
 using std::string_view;
 using namespace physx;
+using namespace physx::vehicle2;
+using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
@@ -63,20 +65,26 @@ void VehicleComponent::InitVehicle()
     ASSERT_MSG(rigidbody, "Vehicle must have valid PhysX Actor RigidBody");
 
     rigidbody->userData = &GetEntity();
+    rigidbody->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
     const uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 
     // First shape is the vehicle body, the next 4 should be the wheels.
-    // TODO: enabling collision for all shapes makes the vehicle get stuck in
-    // the floor?
-    for (uint32_t i = 0; i < 1; i++)
+    for (uint32_t i = 0; i < num_shapes; i++)
     {
         rigidbody->getShapes(&shape, 1, i);
         ASSERT_MSG(shape, "RigidBody Shape must be valid");
 
-        shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
-        shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        if (i == 0)
+        {
+            // TODO: enabling collision for all shapes makes the vehicle get
+            // stuck in the floor?
+            shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
+            shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+        }
+
         shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
+        shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
     }
 }
 
@@ -98,6 +106,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
@@ -118,6 +127,10 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     const PxTransform& pose =
         g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+    // g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
+    //               .magnitude();
+
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
@@ -135,10 +148,33 @@ std::string_view VehicleComponent::GetName() const
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
 {
-    const PxTransform pose(GlmToPx(transform_->GetPosition()),
-                           PxQuat(PxIdentity));
+    physx::PxQuat quat(
+        transform_->GetOrientation().x, transform_->GetOrientation().y,
+        transform_->GetOrientation().z, transform_->GetOrientation().w);
+
+    PxTransform pose(GlmToPx(transform_->GetPosition()), quat);
 
     g_vehicle_name_ = vehicle_name;
     g_vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                           g_vehicle_name_.c_str());
+}
+
+DirectDriveVehicle& VehicleComponent::GetVehicle()
+{
+    return g_vehicle_;
+}
+
+void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
+{
+    player_data_ = &data;
+}
+
+glm::vec3 VehicleComponent::GetPosition()
+{
+    return transform_->GetPosition();
+}
+
+glm::quat VehicleComponent::GetOrientation()
+{
+    return transform_->GetOrientation();
 }

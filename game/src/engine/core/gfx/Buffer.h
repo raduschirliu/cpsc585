@@ -28,10 +28,16 @@ class Buffer
     template <class T>
     void Upload(const std::vector<T>& data, GLenum usage)
     {
-        GLsizei size = static_cast<GLsizei>(sizeof(T) * data.size());
+        const GLsizei size = static_cast<GLsizei>(sizeof(T) * data.size());
 
         Bind();
         glBufferData(type_, size, data.data(), usage);
+    }
+
+    void Upload(const void* data, size_t size, GLenum usage)
+    {
+        Bind();
+        glBufferData(type_, size, data, usage);
     }
 
   private:

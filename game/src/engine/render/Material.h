@@ -12,8 +12,5 @@ struct MaterialProperties
 class Material
 {
   public:
-    void DrawMesh();  // TODO(radu): what should this look like?
-
-  private:
-    ShaderProgram shader_;
+    virtual void Draw();
 };

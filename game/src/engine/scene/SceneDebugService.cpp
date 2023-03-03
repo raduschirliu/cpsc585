@@ -62,12 +62,38 @@ void SceneDebugService::OnGui()
         return;
     }
 
-    if (!ImGui::Begin("Scene", &show_menu_))
+    if (!ImGui::Begin("Inspector", &show_menu_))
     {
         ImGui::End();
         return;
     }
 
+    ImGui::BeginTabBar("##Inspector Tabs");
+
+    if (ImGui::BeginTabItem("General"))
+    {
+        DrawGeneralTab();
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Scenes"))
+    {
+        DrawSceneTab();
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Entities"))
+    {
+        DrawEntityTab();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::EndTabBar();
+    ImGui::End();
+}
+
+void SceneDebugService::DrawGeneralTab()
+{
     ImGui::Text("FPS: %d", framerate_);
     ImGui::Text("Active scene: %s", active_scene_->GetName().c_str());
 
@@ -77,15 +103,14 @@ void SceneDebugService::OnGui()
         GetApp().SetActiveScene(active_scene_->GetName());
     }
 
-    if (ImGui::CollapsingHeader("Entities"))
+    ImGui::Checkbox("Show ImGui demo", &show_demo_menu_);
+    if (show_demo_menu_)
     {
-        DrawEntityList();
+        ImGui::ShowDemoWindow();
     }
-
-    ImGui::End();
 }
 
-void SceneDebugService::DrawEntityList()
+void SceneDebugService::DrawEntityTab()
 {
     for (auto& entity : active_scene_->GetEntities())
     {
@@ -114,5 +139,26 @@ void SceneDebugService::DrawEntityList()
 
             ImGui::TreePop();
         }
+    }
+}
+
+void SceneDebugService::DrawSceneTab()
+{
+    auto& scenes = GetApp().GetSceneList().GetAllScenes();
+
+    for (auto& scene : scenes)
+    {
+        ImGui::PushID(scene->GetName().c_str());
+
+        if (ImGui::Button("Load"))
+        {
+            Log::info("Changing scene: {}", scene->GetName());
+            GetApp().SetActiveScene(scene->GetName());
+        }
+
+        ImGui::SameLine();
+        ImGui::Text("%s", scene->GetName().c_str());
+
+        ImGui::PopID();
     }
 }

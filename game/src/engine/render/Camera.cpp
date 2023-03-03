@@ -14,12 +14,13 @@ using glm::mat4;
 using glm::vec3;
 
 static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
+static constexpr float kDefaultFarPlane = 5000.0f;
 
 Camera::Camera()
     : fov_degrees_(90.0f),
       aspect_ratio_(1.0f),
       near_plane_(1.0f),
-      far_plane_(200.0f),
+      far_plane_(kDefaultFarPlane),
       projection_matrix_(1.0f),
       view_matrix_(1.0f),
       render_service_(nullptr),
@@ -50,8 +51,8 @@ void Camera::OnDebugGui()
     bool dirty = false;
 
     dirty |= ImGui::DragFloat("FoV (deg)", &fov_degrees_, 1.0f, 0.0f, 120.0f);
-    dirty |= ImGui::DragFloat("Near Plane", &near_plane_, 1.0f, 1000.0f);
-    dirty |= ImGui::DragFloat("Far Plane", &far_plane_, 1.0f, 1000.0f);
+    dirty |= ImGui::DragFloat("Near Plane", &near_plane_, 1.0f, 50000.0f);
+    dirty |= ImGui::DragFloat("Far Plane", &far_plane_, 1.0f, 50000.0f);
 
     if (dirty)
     {

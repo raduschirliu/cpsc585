@@ -6,6 +6,8 @@
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
+using physx::PxActorFlag;
+using physx::PxRigidBodyExt;
 using physx::PxTransform;
 using std::string_view;
 
@@ -18,10 +20,11 @@ void RigidBodyComponent::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    PxTransform pose = CreatePxTransform(transform_->GetPosition(),
-                                         transform_->GetOrientation());
-    dynamic_ = physics_service_->GetKPhysics()->createRigidDynamic(pose);
+    dynamic_ = physics_service_->CreateRigidDynamic(
+        transform_->GetPosition(), transform_->GetOrientation());
     dynamic_->userData = &GetEntity();
+    dynamic_->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
+
     PxRigidBodyExt::updateMassAndInertia(*dynamic_, kDefaultDenisty);
 
     physics_service_->RegisterActor(dynamic_);
@@ -38,6 +41,7 @@ void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
 void RigidBodyComponent::OnDestroy()
 {
     physics_service_->UnregisterActor(dynamic_);
+    PX_RELEASE(dynamic_);
 }
 
 void RigidBodyComponent::SetMass(float mass)
@@ -48,6 +52,11 @@ void RigidBodyComponent::SetMass(float mass)
 float RigidBodyComponent::GetMass() const
 {
     return dynamic_->getMass();
+}
+
+void RigidBodyComponent::SetGravityEnabled(bool enabled)
+{
+    dynamic_->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !enabled);
 }
 
 void RigidBodyComponent::SyncTransform()

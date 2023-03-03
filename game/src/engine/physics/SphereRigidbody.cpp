@@ -17,6 +17,15 @@ void SphereRigidBody::OnInit(const ServiceProvider& service_provider)
     SetRadius(kDefaultRadius);
 }
 
+void SphereRigidBody::OnDestroy()
+{
+    PX_RELEASE(shape_);
+
+    // Parent OnDestroy releases the RigidDynamic, and we must release our
+    // shape first
+    RigidBodyComponent::OnDestroy();
+}
+
 string_view SphereRigidBody::GetName() const
 {
     return "SphereRigidBody";
@@ -29,9 +38,10 @@ void SphereRigidBody::SetRadius(float radius)
     if (shape_)
     {
         dynamic_->detachShape(*shape_);
+        PX_RELEASE(shape_);
     }
 
-    physx::PxSphereGeometry geometry(radius);
+    PxSphereGeometry geometry(radius);
     shape_ = physics_service_->CreateShape(geometry);
     dynamic_->attachShape(*shape_);
 }

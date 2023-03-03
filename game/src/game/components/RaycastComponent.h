@@ -4,6 +4,7 @@
 
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
+#include "engine/physics/Hitbox.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -27,4 +28,5 @@ class RaycastComponent final : public Component,
 
     // component dependencies
     jss::object_ptr<Transform> transform_;
+    jss::object_ptr<Hitbox> hitbox_;
 };

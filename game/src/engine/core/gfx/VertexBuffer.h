@@ -9,4 +9,6 @@ class VertexBuffer final : public Buffer<BufferType::kVertexArray>
 
     void ConfigureAttribute(GLuint index, GLint size, GLenum data_type,
                             GLsizei stride, GLsizei offset);
+    void ConfigureAttribute(GLuint index, GLint size, GLenum data_type,
+                            bool normalize, GLsizei stride, GLsizei offset);
 };
