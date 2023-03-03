@@ -89,6 +89,31 @@ set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
 
 # -------------------------
+# OpenAL
+# -------------------------
+
+FetchContent_Declare(
+	openAL	
+	GIT_REPOSITORY https://github.com/kcat/openal-soft
+	GIT_TAG fde74453a62a1ce4b5efaac0ec1835b9f5731e25
+)
+FetchContent_MakeAvailable(openAL)
+set(INCLUDES ${INCLUDES} fetched/openal-src/include)
+set(LIBRARIES ${LIBRARIES} OpenAL::OpenAL)
+
+# -------------------------
+# AudioFile
+# -------------------------
+
+FetchContent_Declare(
+	audiofile	
+	GIT_REPOSITORY https://github.com/adamstark/AudioFile
+	GIT_TAG 004065d01e9b7338580390d4fdbfbaa46adede4e
+)
+FetchContent_MakeAvailable(audiofile)
+set(INCLUDES ${INCLUDES} fetched/audiofile-src)
+
+# -------------------------
 # object_ptr - https://github.com/anthonywilliams/object_ptr
 # -------------------------
 set(INCLUDES ${INCLUDES} object_ptr/)
