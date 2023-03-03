@@ -23,6 +23,10 @@ class AudioService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
 
+    /// @brief  plays a soundfile just once
+    /// @param file_path 
+    void PlayOneShot(std::string file_path);
+
   private:
     jss::object_ptr<InputService> input_service_;
 
@@ -31,11 +35,7 @@ class AudioService final : public Service
     /// @brief it's like an openGL context.
     ALCcontext* audio_context_; 
     ALuint buffer_;
-    AudioFile<float> audio_file_;
-
-    /// @brief  plays a soundfile just once
-    /// @param file_path 
-    void PlayOneShot(std::string file_path);
+    
 
     /// @brief gets the format of the file (mono/stereo, 8/16 bit)
     /// @param audio_file 
