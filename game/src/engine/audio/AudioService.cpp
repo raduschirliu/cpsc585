@@ -44,7 +44,7 @@ void AudioService::OnUpdate()
 {
     // test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
-        /* todo: play sound */Log::debug("SPACE was pressed.");
+        /* todo: play sound */ Log::debug("SPACE was pressed.");
 }
 
 void AudioService::OnCleanup()
