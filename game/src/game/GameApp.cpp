@@ -379,10 +379,10 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
 
         auto& static_body = entity.AddComponent<MeshStaticBody>();
-        static_body.SetMesh("track1", 1.0f);
+        static_body.SetMesh("track3", 1.0f);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("track1");
+        mesh_renderer.SetMesh("track3");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
