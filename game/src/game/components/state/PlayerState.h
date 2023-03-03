@@ -44,5 +44,6 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 
     PlayerStateData* GetStateData();
 
-    float SetSpeedMultiplier(float value);
+    void SetSpeedMultiplier(float value);
+    void SetCurrentPowerup(PowerupPickupType type);    
 };

@@ -23,16 +23,26 @@ class PlayerController final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
-
     // We get this using the vehiclecomponent.
     snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
-    PlayerState* vehicle_component_;
+    bool execute_powerup_ = false;
 
-    // making this a pointer as we want to use it later in the vehicle data structure for changes to speed. 
+    PlayerState* player_data_ = nullptr;
+
+    float speed_multiplier_ = 1.f; 
+
+    // making this a pointer as we want to use it later in the vehicle data
+    // structure for changes to speed.
     Command* executable_command_;
 
     float timestep_ = 1.f / 60.f;
+
+    void CarController(const Timestep& delta_time);
+
+    float timer_ = 0.f;
+    void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
+
 
   public:
     inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)

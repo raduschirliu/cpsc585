@@ -20,11 +20,11 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        PlayerState* v = &data.other->GetComponent<PlayerState>();
-        if (v)
+        player_state_ = &data.other->GetComponent<PlayerState>();
+        if (player_state_)
         {
             // changing the speed of car.
-            v->SetSpeedMultiplier(0.2f);
+            player_state_->SetCurrentPowerup(PowerupPickupType::kEveryoneSlower);
         }
     }
 }

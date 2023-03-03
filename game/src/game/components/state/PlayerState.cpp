@@ -79,7 +79,12 @@ PlayerStateData* PlayerState::GetStateData()
     return &player_state_;
 }
 
-float PlayerState::SetSpeedMultiplier(float value)
+void PlayerState::SetSpeedMultiplier(float value)
 {
-    return player_state_.speed_multiplier = value;
+    player_state_.speed_multiplier = value;
+}
+
+void PlayerState::SetCurrentPowerup(PowerupPickupType type)
+{
+    player_state_.current_powerup = type;
 }

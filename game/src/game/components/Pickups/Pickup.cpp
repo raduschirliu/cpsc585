@@ -17,6 +17,12 @@ void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+void Pickup::OnUpdate(const Timestep& delta_time)
+{
+}
+
+
+
 std::string_view Pickup::GetName() const
 {
     return "";

@@ -6,7 +6,10 @@
 #include <object_ptr.hpp>
 
 #include "engine/scene/Component.h"
+#include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
+
+class PlayerState;
 
 enum class PowerupPickupType
 {
@@ -27,7 +30,7 @@ enum class AmmoPickupType
     kVampireBullet
 };
 
-class Pickup : public Component
+class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     // From Component
@@ -35,12 +38,17 @@ class Pickup : public Component
     virtual void OnTriggerEnter(const OnTriggerEvent& data) override;
     virtual void OnTriggerExit(const OnTriggerEvent& data) override;
     virtual std::string_view GetName() const override;
+    virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
     jss::object_ptr<Transform> transform_;
+    bool powerup_executed_ = false;
 
 
   protected:
-    void SetPowerVisibility(bool bValue);
     bool power_visible_ = true;
+
+    PlayerState* player_state_ = nullptr;
+
+    void SetPowerVisibility(bool bValue);
 };
