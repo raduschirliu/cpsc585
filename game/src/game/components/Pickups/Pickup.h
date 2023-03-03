@@ -5,9 +5,11 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/game_state/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
+#include "game/components/state/PlayerState.h"
 
 class PlayerState;
 
@@ -42,8 +44,9 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
   private:
     jss::object_ptr<Transform> transform_;
-    bool powerup_executed_ = false;
+    jss::object_ptr<GameStateService> game_state_;
 
+    bool powerup_executed_ = false;
 
   protected:
     bool power_visible_ = true;

@@ -6,6 +6,7 @@
 void Pickup::OnInit(const ServiceProvider& service_provider)
 {
     transform_ = &GetEntity().GetComponent<Transform>();
+    game_state_ = &service_provider.GetService<GameStateService>();
 }
 
 void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -20,8 +21,6 @@ void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
 void Pickup::OnUpdate(const Timestep& delta_time)
 {
 }
-
-
 
 std::string_view Pickup::GetName() const
 {

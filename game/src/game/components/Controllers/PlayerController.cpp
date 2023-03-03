@@ -14,6 +14,7 @@ PlayerController::PlayerController() : vehicle_reference_(nullptr)
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
+    game_state_ = &service_provider.GetService<GameStateService>();
     transform_ = &GetEntity().GetComponent<Transform>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -42,6 +43,9 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
             {
                 // Now we can do the logic for different powerups
                 execute_powerup_ = true;
+
+                // power executed, so add it to the map in game service.
+                game_state_->AddPlayerPowerup(GetEntity().GetId(), PowerupPickupType::kEveryoneSlower);
 
                 if (player_data_->GetCurrentPowerup() ==
                     PowerupPickupType::kEveryoneSlower)
@@ -73,6 +77,7 @@ void PlayerController::CheckTimer(double timer_limit,
             timer_ = 0.f;
             if (pickup_type == PowerupPickupType::kEveryoneSlower)
             {
+                game_state_->RemovePlayerPowerup(GetEntity().GetId());
                 player_data_->SetCurrentPowerup(
                     PowerupPickupType::kDefaultPowerup);
                 speed_multiplier_ = kSpeedMultiplier;
