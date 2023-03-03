@@ -1,6 +1,8 @@
 #pragma once
 
 #include <AL/alc.h>
+#include <AL/al.h>
+#include <AudioFile.h>
 
 #include <object_ptr.hpp>
 
@@ -22,9 +24,19 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
+    jss::object_ptr<InputService> input_service_;
+
     /// @brief the sound device to output game audio to.
     ALCdevice* audio_device_;
     /// @brief it's like an openGL context.
-    ALCcontext* audio_context_;
-    jss::object_ptr<InputService> input_service_;
+    ALCcontext* audio_context_; 
+    ALuint buffer_;
+    AudioFile<float> audio_file_;
+
+    /// @brief  plays a soundfile just once
+    /// @param file_path 
+    void PlayOneShot(std::string file_path);
+
+    ALenum GetAudioFileFormat(AudioFile audio_file);
+    double GetAudioFileData(AudioFile audio_file);
 };
