@@ -141,3 +141,8 @@ void App::OnScroll(double xoffset, double yoffset)
 void App::OnWindowSizeChanged(int width, int height)
 {
 }
+
+void App::OnJoystickChangedEvent(int joystick_id, int event)
+{
+    InputService::OnJoystickChangedEvent(joystick_id, event);
+}

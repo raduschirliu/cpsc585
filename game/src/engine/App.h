@@ -23,6 +23,7 @@ class App : public std::enable_shared_from_this<App>,
     void OnCursorMove(double xpos, double ypos) override;
     void OnScroll(double xoffset, double yoffset) override;
     void OnWindowSizeChanged(int width, int height) override;
+    void OnJoystickChangedEvent(int joystick_id, int event) override;
 
     Window& GetWindow();
     EventBus& GetEventBus();

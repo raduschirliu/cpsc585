@@ -8,6 +8,8 @@
 
 using std::shared_ptr;
 
+static GLFWwindow* kJoystickWindow = nullptr;
+
 // ---------------------------
 // static function definitions
 // ---------------------------
@@ -67,6 +69,21 @@ void Window::WindowSizeMetaCallback(GLFWwindow* window, int width, int height)
     }
 }
 
+void Window::JoystickChangedMetaCallback(int joystick_id, int event)
+{
+    if (!kJoystickWindow)
+    {
+        return;
+    }
+
+    IWindowEventListener* callbacks = static_cast<IWindowEventListener*>(
+        glfwGetWindowUserPointer(kJoystickWindow));
+    if (callbacks)
+    {
+        callbacks->OnJoystickChangedEvent(joystick_id, event);
+    }
+}
+
 // ----------------------
 // non-static definitions
 // ----------------------
@@ -116,6 +133,7 @@ void Window::ConnectCallbacks()
     glfwSetCursorPosCallback(handle_.get(), CursorPosMetaCallback);
     glfwSetScrollCallback(handle_.get(), ScrollMetaCallback);
     glfwSetWindowSizeCallback(handle_.get(), WindowSizeMetaCallback);
+    glfwSetJoystickCallback(JoystickChangedMetaCallback);
 }
 
 void Window::SetCallbacks(shared_ptr<IWindowEventListener> callbacks)
@@ -123,6 +141,7 @@ void Window::SetCallbacks(shared_ptr<IWindowEventListener> callbacks)
     // set userdata of window to point to the object that carries out the
     // callbacks
     callbacks_ = callbacks;
+    kJoystickWindow = handle_.get();
     glfwSetWindowUserPointer(handle_.get(), callbacks_.get());
 }
 

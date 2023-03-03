@@ -138,6 +138,27 @@ void InputService::OnMouseButtonEvent(int button, int action, int mods)
     }
 }
 
+void InputService::OnJoystickChangedEvent(int joystick_id, int event)
+{
+    if (event == GLFW_CONNECTED)
+    {
+        Log::info("Joystick connected: {}", joystick_id);
+
+        if (!glfwJoystickIsGamepad(joystick_id))
+        {
+            Log::info("Connected joystick that is NOT a gamepad - ignoring");
+            return;
+        }
+
+        // TODO: Create gamepad state
+    }
+    else if (event == GLFW_DISCONNECTED)
+    {
+        // TODO: Cleanup gamepad state
+        Log::info("Joystick disconnected: {}", joystick_id);
+    }
+}
+
 void InputService::OnInit()
 {
 }

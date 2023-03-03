@@ -59,6 +59,11 @@ class InputService final : public Service
      */
     static void OnMouseButtonEvent(int button, int action, int mods);
 
+    /**
+     * Callback from GLFW to track when a joystick connects/disconnects
+    */
+    static void OnJoystickChangedEvent(int joystick_id, int event);
+
     // From Service
     void OnInit() override;
     void OnUpdate() override;
