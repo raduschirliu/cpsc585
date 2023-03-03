@@ -24,9 +24,13 @@ void AudioService::OnInit()
 {
     // check audio device
     if (!audio_device_)
+    {
         Log::warning("[AudioService] couldn't open audio device.");
+    }
     else
+    {
         Log::debug("[AudioService] opened audio device successfully!");
+    }
 
     alcMakeContextCurrent(audio_context_);
 }
@@ -44,7 +48,9 @@ void AudioService::OnUpdate()
 {
     // test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
+    {
         /* todo: play sound */ Log::debug("SPACE was pressed.");
+    }
 }
 
 void AudioService::OnCleanup()
