@@ -2,7 +2,11 @@
 
 #include <AL/alc.h>
 
+#include <object_ptr.hpp>
+
+#include "engine/input/InputService.h"
 #include "engine/service/Service.h"
+#include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {
@@ -19,5 +23,8 @@ class AudioService final : public Service
 
   private:
     /// @brief the sound device to output game audio to.
-    ALCdevice* alc_device_;
+    ALCdevice* audio_device_;
+    /// @brief it's like an openGL context.
+    ALCcontext* audio_context_;
+    jss::object_ptr<InputService> input_service_;
 };
