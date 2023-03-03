@@ -4,6 +4,7 @@
 
 #include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
+#include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -19,14 +20,18 @@
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,
-                               public IEventSubscriber<OnUpdateEvent>
+                               public IEventSubscriber<OnUpdateEvent>,
+                               public IEventSubscriber<OnPhysicsUpdateEvent>
 {
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
-    void OnUpdate(const Timestep& delta_time) override;
     void OnDestroy() override;
     std::string_view GetName() const override;
+
+    // Event subscribers
+    void OnUpdate(const Timestep& delta_time) override;
+    void OnPhysicsUpdate(const Timestep& step) override;
 
   private:
     jss::object_ptr<Transform> transform_;

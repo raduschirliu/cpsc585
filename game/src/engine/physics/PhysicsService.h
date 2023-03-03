@@ -15,7 +15,9 @@
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/core/math/Timestep.h"
 #include "engine/gui/OnGuiEvent.h"
+#include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
@@ -59,9 +61,10 @@ class PhysicsService final : public Service,
     bool debug_draw_scene_ = false;
     bool debug_draw_raycast_ = false;
 
-    const physx::PxF32 timestep = 1.0f / 60.0f;
+    Timestep time_accumulator_;
 
     void InitPhysX();
+    void StepPhysics();
     void DrawDebugParamWidget(const std::string& name,
                               physx::PxVisualizationParameter::Enum parameter);
 
@@ -120,11 +123,6 @@ class PhysicsService final : public Service,
     inline physx::PxScene* GetKScene()
     {
         return kScene_;
-    }
-
-    inline physx::PxF32 GetTimeStep()
-    {
-        return timestep;
     }
 
     const physx::PxVec3& GetGravity() const;

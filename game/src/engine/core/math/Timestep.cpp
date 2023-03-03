@@ -56,3 +56,40 @@ Timestep operator-(const Timestep& lhs, const Timestep& rhs)
     result.SetMilliseconds(lhs.GetMillis() - rhs.GetMillis());
     return result;
 }
+
+bool Timestep::operator==(const Timestep& rhs)
+{
+    return milliseconds_ == rhs.milliseconds_;
+}
+
+bool Timestep::operator>(const Timestep& rhs)
+{
+    return milliseconds_ > rhs.milliseconds_;
+}
+
+bool Timestep::operator<(const Timestep& rhs)
+{
+    return milliseconds_ < rhs.milliseconds_;
+}
+
+bool Timestep::operator>=(const Timestep& rhs)
+{
+    return milliseconds_ >= rhs.milliseconds_;
+}
+
+bool Timestep::operator<=(const Timestep& rhs)
+{
+    return milliseconds_ <= rhs.milliseconds_;
+}
+
+Timestep& Timestep::operator+=(const Timestep& rhs)
+{
+    milliseconds_ += rhs.milliseconds_;
+    return *this;
+}
+
+Timestep& Timestep::operator-=(const Timestep& rhs)
+{
+    milliseconds_ -= rhs.milliseconds_;
+    return *this;
+}

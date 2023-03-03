@@ -109,6 +109,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
+    GetEventBus().Subscribe<OnPhysicsUpdateEvent>(this);
 
     InitMaterialFrictionTable();
     LoadParams();
@@ -122,18 +123,19 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         LoadParams();
     }
 
-    g_vehicle_.step(physics_service_->GetTimeStep(),
-                    g_vehicle_simulation_context_);
-
     const PxTransform& pose =
         g_vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
-
-    // g_vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity()
-    //               .magnitude();
 
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
+}
+
+void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
+{
+    // TODO: Move to PhysicsService
+    const float step_sec = static_cast<float>(step.GetSeconds());
+    g_vehicle_.step(step_sec, g_vehicle_simulation_context_);
 }
 
 void VehicleComponent::OnDestroy()

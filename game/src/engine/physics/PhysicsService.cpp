@@ -4,6 +4,7 @@
 
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
@@ -24,6 +25,9 @@ static constexpr uint32_t kPhysxCpuThreads = 2;
 static constexpr const char* kPvdHost = "127.0.0.1";
 static constexpr int kPvdPort = 5425;
 static constexpr uint32_t kPvdTimeoutMillis = 10;
+static const Timestep kPhysxTimestep = Timestep::Seconds(1.0f / 60.0f);
+static const OnPhysicsUpdateEvent kPhysicsUpdateEventData{.step =
+                                                              kPhysxTimestep};
 
 static const PxVec3 kGravity(0.0f, -9.81f, 0.0f);
 // Typically speed tolerance should be gravity acceleration * 1 sec
@@ -36,6 +40,7 @@ void PhysicsService::OnInit()
 {
     GetEventBus().Subscribe<OnGuiEvent>(this);
 
+    time_accumulator_.SetSeconds(0.0f);
     InitPhysX();
 }
 
@@ -52,6 +57,8 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
     {
         PX_RELEASE(kScene_);
     }
+
+    time_accumulator_.SetSeconds(0.0f);
 
     PxSceneDesc scene_desc(kPhysics_->getTolerancesScale());
     scene_desc.gravity = kGravity;
@@ -81,11 +88,10 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 
 void PhysicsService::OnUpdate()
 {
-    if (kScene_)
-    {
-        kScene_->simulate(timestep);
-        kScene_->fetchResults(true);
-    }
+    const Timestep& delta = GetApp().GetDeltaTime();
+    time_accumulator_ += delta;
+
+    StepPhysics();
 
     if (input_service_->IsKeyPressed(GLFW_KEY_F3))
     {
@@ -388,6 +394,25 @@ void PhysicsService::InitPhysX()
     // setting up the vehicle physics
     const bool vehicle_init_status = PxInitVehicleExtension(*kFoundation_);
     ASSERT(vehicle_init_status);
+}
+
+void PhysicsService::StepPhysics()
+{
+    if (kScene_)
+    {
+        while (time_accumulator_ >= kPhysxTimestep)
+        {
+            const float timestep_sec =
+                static_cast<float>(kPhysxTimestep.GetSeconds());
+
+            GetEventBus().Publish<OnPhysicsUpdateEvent>(&kPhysicsUpdateEventData);
+
+            kScene_->simulate(timestep_sec);
+            kScene_->fetchResults(true);
+
+            time_accumulator_ -= kPhysxTimestep;
+        }
+    }
 }
 
 const PxVec3& PhysicsService::GetGravity() const
