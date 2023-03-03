@@ -1,8 +1,9 @@
 #pragma once
 
-#include <AL/alc.h>
 #include <AL/al.h>
+#include <AL/alc.h>
 #include <AudioFile.h>
+#include <string>
 
 #include <object_ptr.hpp>
 
@@ -23,9 +24,18 @@ class AudioService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
 
-    /// @brief  plays a soundfile just once
-    /// @param file_path 
-    void PlayOneShot(std::string file_path);
+    /// @brief plays a soundfile fully just once.
+    /// @param file_path
+    /// @param gain optionally set the gain compensation. default: 0
+    void PlayOneShot(std::string file_path, float gain = 0.f);
+
+    /// @brief loops a soundfile indefinitely (until stopped by other function).
+    /// @param file_path
+    /// @param gain optionally set the gain compensation. default: 0
+    void PlayLoop(std::string file_path, float gain = 0.f);
+
+    /// @brief stops all currently playing sounds
+    void StopAll();
 
   private:
     jss::object_ptr<InputService> input_service_;
@@ -33,14 +43,20 @@ class AudioService final : public Service
     /// @brief the sound device to output game audio to.
     ALCdevice* audio_device_;
     /// @brief it's like an openGL context.
-    ALCcontext* audio_context_; 
+    ALCcontext* audio_context_;
     ALuint buffer_;
-    
 
+    enum class AudioType
+    {
+        ONESHOT,
+        LOOP
+    };
+
+    /// @brief loads file from the directory corresponding to the audio_type
+    /// @param audio_type either a ONESHOT or a LOOP
+    AudioFile<float> LoadAudioFile(std::string file_name, AudioType audio_type);
     /// @brief gets the format of the file (mono/stereo, 8/16 bit)
-    /// @param audio_file 
     ALenum GetAudioFileFormat(AudioFile audio_file);
-    /// @brief gets the audio file's raw data 
-    /// @param audio_file 
-    double GetAudioFileData(AudioFile audio_file);
+    /// @brief gets the audio file's raw data
+    float GetAudioFileData(AudioFile audio_file);
 };

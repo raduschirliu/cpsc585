@@ -17,8 +17,8 @@ const ALCchar* kDefaultDevice = nullptr;
 ALCint kContextAttributes = 0;
 
 // audio directories
-const std::string kSfxDirectory = "game/resources/audio/sfx/";
-const std::string kMusicDirectory = "game/resources/audio/music/";
+const std::string kOneShotDirectory = "game/resources/audio/oneshot/";
+const std::string kLoopDirectory = "game/resources/audio/loop/";
 const std::string kTestFile = "professional_test_audio.wav";
 
 AudioService::AudioService()
@@ -28,20 +28,15 @@ AudioService::AudioService()
 {
 }
 
-void AudioService::PlayOneShot(std::string file_name)
+void AudioService::PlayOneShot(std::string file_name, float gain = 0.f)
 {
-    // load audio file
-    std::string file_path = kSfxDirectory.append(file_name);
-    AudioFile<float> audio_file;
-    audio_file.load(file_path);
+    AudioFile<float> audio_file = LoadAudioFile(file_name, AudioType::ONESHOT);
 
     // create source, set to to not loop
     ALuint source;
     alGenSources(1, &source);
     alSourcei(sourcel AL_LOOPING, AL_FALSE);
 
-    // load file, add to buffer, play to source
-    audio_file.load(file_name);
     alBufferData(buffer_, GetAudioFileFormat(audio_file),
                  GetAudioFileData(audio_file), audio_file.size(),
                  audio_file.getSampleRate());
@@ -58,22 +53,43 @@ void AudioService::PlayOneShot(std::string file_name)
     alDeleteSources(1, &source);
 }
 
+void AudioService::PlayLoop(std::string file_path, float gain = 0.f)
+{
+    AudioFile<float> audio_file = LoadAudioFile(file_name, AudioType::LOOP);
+
+    // create source, set to to loop
+    ALuint source;
+    alGenSources(1, &source);
+    alSourcei(sourcel AL_LOOPING, AL_TRUE);
+
+    alBufferData(buffer_, GetAudioFileFormat(audio_file),
+                 GetAudioFileData(audio_file), audio_file.size(),
+                 audio_file.getSampleRate());
+    alSourcePlay(source);
+}
+
+void AudioService::StopAll()
+{
+}
+
 /* ----- getters / setters / helpers ----- */
+
+AudioFile<float> AudioService::LoadAudioFile(std::string file_name,
+                                             AudioType audio_type)
+{
+    if (audio_type == AudioType::LOOP)
+        std::string file_path = kLoopDirectory.append(file_name);
+    else
+        std::string file_path = kOneShotDirectory.append(file_name);
+
+    AudioFile<float> audio_file;
+    audio_file.load(file_path);
+    return audio_file;
+}
 
 ALenum AudioService::GetAudioFileFormat(AudioFile audio_file)
 {
-    if (audio_file.isMono()
-    {
-        if (audio_file.getBitDepth() == 8)
-        {
-            return AL_FORMAT_MONO8;
-        }
-        else if (audio_file.getBitDepth() == 16)
-        {
-            return AL_FORMAT_MONO16;
-        }
-    }
-    else if (audio_file.isStereo())
+    if (audio_file.isStereo())
     {
         if (audio_file.getBitDepth() == 8)
         {
@@ -84,18 +100,27 @@ ALenum AudioService::GetAudioFileFormat(AudioFile audio_file)
             return AL_FORMAT_STEREO16;
         }
     }
+    else /* if (audio_file.isMono()) */
+    {
+        if (audio_file.getBitDepth() == 8)
+        {
+            return AL_FORMAT_MONO8;
+        }
+        else if (audio_file.getBitDepth() == 16)
+        {
+            return AL_FORMAT_MONO16;
+        }
+    }
 }
 
-double AudioService::GetAudioFileData(AudioFile audio_file)
+float AudioService::GetAudioFileData(AudioFile audio_file)
 {
     int numSamples = audio_file.getNumSamplesPerChannel();
-    double samples;
+    float samples;
 
     // iterate through each sample's data
     for (int i = 0; i < numSamples; i++)
-    {
         samples += audio_file.samples[0][i];
-    }
 
     return samples;
 }
