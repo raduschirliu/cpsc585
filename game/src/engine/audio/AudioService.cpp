@@ -120,7 +120,9 @@ float AudioService::GetAudioFileData(AudioFile audio_file)
 
     // iterate through each sample's data
     for (int i = 0; i < numSamples; i++)
+    {
         samples += audio_file.samples[0][i];
+    }
 
     return samples;
 }

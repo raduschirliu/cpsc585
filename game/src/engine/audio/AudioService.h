@@ -3,9 +3,9 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AudioFile.h>
-#include <string>
 
 #include <object_ptr.hpp>
+#include <string>
 
 #include "engine/input/InputService.h"
 #include "engine/service/Service.h"
