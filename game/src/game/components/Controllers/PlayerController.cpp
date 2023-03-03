@@ -50,6 +50,12 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         Command temp = {1.0f, 0.0f, 0.0f, timestep_};
         executable_command_ = temp;
     }
+    if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
+        input_service_->IsKeyDown(GLFW_KEY_S))
+    {
+        Command temp = {0.0f, -3.0f, 0.0f, timestep_};
+        executable_command_ = temp;
+    }
 
     vehicle_reference_->mCommandState.brakes[0] = executable_command_.brake;
     vehicle_reference_->mCommandState.nbBrakes = 1;
