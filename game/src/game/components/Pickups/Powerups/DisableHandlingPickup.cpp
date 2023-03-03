@@ -15,10 +15,10 @@ void DisableHandlingPickup::OnTriggerEnter(const OnTriggerEvent& data)
 
     // make sure to check that the data is not floor or any other object. it
     // should be only a player.
-    if (data.other->GetName() == "PlayerVehicle" && power_activated_)
+    if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         Log::debug("everyone handling disabled");
-        power_activated_ = false;
+        SetPowerVisibility(false);
     }
 }
 

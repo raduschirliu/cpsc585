@@ -39,8 +39,8 @@ class Pickup : public Component
   private:
     jss::object_ptr<Transform> transform_;
 
-    void SetPowerActivated(bool bValue);
 
   protected:
-    bool power_activated_ = true;
+    void SetPowerVisibility(bool bValue);
+    bool power_visible_ = true;
 };

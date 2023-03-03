@@ -178,3 +178,10 @@ glm::quat VehicleComponent::GetOrientation()
 {
     return transform_->GetOrientation();
 }
+
+PlayerStateData* VehicleComponent::GetPlayerStateData()
+{
+    if (player_data_)
+        return player_data_;
+    return nullptr;
+}

@@ -11,7 +11,7 @@ void Pickup::OnInit(const ServiceProvider& service_provider)
 void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
     // add the clause for AI here as well.
-    if (power_activated_ && data.other->GetName() == "PlayerVehicle")
+    if (power_visible_ && data.other->GetName() == "PlayerVehicle")
     {
         transform_->SetScale(glm::vec3(0.f, 0.f, 0.f));
     }
@@ -26,7 +26,7 @@ void Pickup::OnTriggerExit(const OnTriggerEvent& data)
 {
 }
 
-void Pickup::SetPowerActivated(bool bValue)
+void Pickup::SetPowerVisibility(bool bValue)
 {
-    power_activated_ = false;
+    power_visible_ = bValue;
 }

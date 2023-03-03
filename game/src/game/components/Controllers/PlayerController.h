@@ -8,6 +8,8 @@
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
 
+class PlayerState;
+
 class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
 {
@@ -25,7 +27,10 @@ class PlayerController final : public Component,
     // We get this using the vehiclecomponent.
     snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
-    Command executable_command_;
+    PlayerState* vehicle_component_;
+
+    // making this a pointer as we want to use it later in the vehicle data structure for changes to speed. 
+    Command* executable_command_;
 
     float timestep_ = 1.f / 60.f;
 

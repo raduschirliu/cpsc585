@@ -303,7 +303,7 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& entity = scene.AddEntity("Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 10.0f, 0.0f));
+        transform.SetPosition(vec3(0.0, 2.0f, 0.0f));
 
         auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();

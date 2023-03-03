@@ -69,7 +69,7 @@ double PlayerState::GetTimeElapsed()
     return player_state_.time_elapsed;
 }
 
-int PlayerState::GetCurrentPowerup()
+PowerupPickupType PlayerState::GetCurrentPowerup()
 {
     return player_state_.current_powerup;
 }
@@ -77,4 +77,9 @@ int PlayerState::GetCurrentPowerup()
 PlayerStateData* PlayerState::GetStateData()
 {
     return &player_state_;
+}
+
+float PlayerState::SetSpeedMultiplier(float value)
+{
+    return player_state_.speed_multiplier = value;
 }
