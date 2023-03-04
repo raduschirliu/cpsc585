@@ -33,6 +33,7 @@ class PlayerController final : public Component,
     PlayerState* player_data_ = nullptr;
 
     float speed_multiplier_ = 1.f;
+    float handling_multiplier_ = 1.f;
 
     // making this a pointer as we want to use it later in the vehicle data
     // structure for changes to speed.

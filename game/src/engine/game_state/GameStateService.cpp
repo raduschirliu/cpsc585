@@ -29,6 +29,7 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
     // increment all the timer values.
     for (auto& t : timer_)
     {
+        // Log::debug("{}", t.second);
         t.second += delta_time.GetSeconds();
     }
 
@@ -40,7 +41,7 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
 
 void GameStateService::OnUpdate()
 {
-
+    // Log::debug("{}", timer_.size());
 }
 
 void GameStateService::RemoveActivePowerup()
@@ -71,7 +72,53 @@ void GameStateService::RemoveActivePowerup()
                             // can pick up the new powerup now.
                             player_states_[a.first]->SetCurrentPowerup(
                                 PowerupPickupType::kDefaultPowerup);
+
+                            timer_.erase(a);
                         }
+                    }
+                }
+            }
+            else if (a.second == PowerupPickupType::kDisableHandling)
+            {
+                if (timer_[a] > 2.f)
+                {
+                    for (int i = 0; i < active_powerups_.size(); i++)
+                    {
+                        if (active_powerups_[i].second ==
+                            PowerupPickupType::kDisableHandling)
+                        {
+                            active_powerups_.erase(active_powerups_.begin() +
+                                                   i);
+                            same_powerup_.erase(a);
+                            player_powers_.erase(a.first);
+
+                            // to reset the powerup back to nothing. The player
+                            // can pick up the new powerup now.
+                            player_states_[a.first]->SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
+
+                            timer_.erase(a);
+                        }
+                    }
+                }
+            }
+            else if (a.second == PowerupPickupType::kKillAbilities)
+            {
+                for (int i = 0; i < active_powerups_.size(); i++)
+                {
+                    if (active_powerups_[i].second ==
+                        PowerupPickupType::kKillAbilities)
+                    {
+                        active_powerups_.clear();
+                        same_powerup_.erase(a);
+                        player_powers_.erase(a.first);
+
+                        // to reset the powerup back to nothing. The player
+                        // can pick up the new powerup now.
+                        player_states_[a.first]->SetCurrentPowerup(
+                            PowerupPickupType::kDefaultPowerup);
+
+                        timer_.erase(a);
                     }
                 }
             }
@@ -142,6 +189,17 @@ void GameStateService::AddPlayerPowerup(uint32_t id, PowerupPickupType power)
 void GameStateService::RemovePlayerPowerup(uint32_t id)
 {
     player_powers_.insert_or_assign(id, PowerupPickupType::kDefaultPowerup);
+}
+
+uint32_t GameStateService::GetDisableHandlingMultiplier()
+{
+    // just return the ID which executed this powerup
+    for (auto& a : active_powerups_)
+    {
+        if (a.second == PowerupPickupType::kDisableHandling)
+            return a.first;
+    }
+    return NULL;
 }
 
 uint32_t GameStateService::GetEveryoneSlowerSpeedMultiplier()

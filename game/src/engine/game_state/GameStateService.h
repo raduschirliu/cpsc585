@@ -52,6 +52,7 @@ class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
     std::vector<std::pair<uint32_t, PowerupPickupType>> GetActivePowerups();
 
     uint32_t GetEveryoneSlowerSpeedMultiplier();
+    uint32_t GetDisableHandlingMultiplier();
     void RemoveEveryoneSlowerSpeedMultiplier();
     void RemoveActivePowerup();
 };

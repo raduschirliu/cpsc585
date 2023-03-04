@@ -306,14 +306,31 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
     }
 
-    // Make everyone slower pickup
+    // // Make everyone slower pickup
+    // {
+    //     Entity& entity = scene.AddEntity("Slow Down Enemies");
+
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0, 2.0f, 0.0f));
+
+    //     auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("energy");
+    //     // as it spawns way too big lol
+    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    //     auto& trigger = entity.AddComponent<BoxTrigger>();
+    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    // }
+
+    // Kill the abilities.
     {
-        Entity& entity = scene.AddEntity("Slow Down Enemies");
+        Entity& entity = scene.AddEntity("Kill the abilities");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 2.0f, 0.0f));
 
-        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
+        auto& pickup = entity.AddComponent<KillAbilitiesPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("energy");
         // as it spawns way too big lol

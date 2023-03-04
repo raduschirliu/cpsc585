@@ -31,6 +31,8 @@ class AIController final : public Component,
     // variable which changes when the speed slower powerup is picked up.
     float speed_multiplier_ = 1.f;
 
+    float handling_multiplier_ = 1.f;
+
     // variables for car
 
     std::vector<glm::vec3> path_to_follow_;

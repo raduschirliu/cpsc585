@@ -6,6 +6,7 @@
 #include "game/components/state/PlayerState.h"
 
 float kSpeedMultiplier(1.f);
+float kHanldingMultiplier(1.f);
 
 PlayerController::PlayerController() : vehicle_reference_(nullptr)
 {
@@ -43,7 +44,7 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
             // so that this is not called every frame.
             else
             {
-                Log::debug("executing the powerup");
+                // Log::debug("executing the powerup");
                 // power executed, so add it to the map in game service.
                 game_state_service_->AddPlayerPowerup(
                     GetEntity().GetId(), player_data_->GetCurrentPowerup());
@@ -66,6 +67,28 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         else
         {
             // this is the entity which started the powerup, so do nothing.
+        }
+    }
+    else
+    {
+        speed_multiplier_ = kSpeedMultiplier;
+    }
+
+    if (uint32_t id =
+            game_state_service_->GetDisableHandlingMultiplier() != NULL)
+    {
+        // now except for the entity who launched it, all the entities should
+        // slow down.
+        if (GetEntity().GetId() != id)
+        {
+            // if any AI picked up the powerup then the player's speed should be
+            // reduced.
+            handling_multiplier_ = 0.0f;
+        }
+        else
+        {
+            // this is the entity which started the powerup, so do nothing.
+            handling_multiplier_ = kHanldingMultiplier;
         }
     }
     else
@@ -99,13 +122,13 @@ void PlayerController::CarController(const Timestep& delta_time)
         if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
             input_service_->IsKeyDown(GLFW_KEY_A))
         {
-            Command temp(0.0f, 0.1f, -0.4f, timestep_);
+            Command temp(0.0f, 0.1f, -0.4f * handling_multiplier_, timestep_);
             *executable_command_ = temp;
         }
         if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
             input_service_->IsKeyDown(GLFW_KEY_D))
         {
-            Command temp(0.0f, 0.1f, 0.4f, timestep_);
+            Command temp(0.0f, 0.1f, 0.4f * handling_multiplier_, timestep_);
             *executable_command_ = temp;
         }
         if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
