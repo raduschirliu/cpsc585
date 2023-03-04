@@ -7,6 +7,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "engine/game_state/GameStateService.h"
 
 class Hitbox final : public RigidBodyComponent
 {
@@ -24,6 +25,7 @@ class Hitbox final : public RigidBodyComponent
   private:
     // component dependencies
     jss::object_ptr<VehicleComponent> vehicle_;
+    jss::object_ptr<GameStateService> game_state_service_;
 
     physx::PxShape* shape_;
     glm::vec3 size_;

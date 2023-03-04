@@ -122,6 +122,30 @@ void GameStateService::RemoveActivePowerup()
                     }
                 }
             }
+            else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            {
+                if (timer_[a] > 4.f)
+                {
+                    for (int i = 0; i < active_powerups_.size(); i++)
+                    {
+                        if (active_powerups_[i].second ==
+                            PowerupPickupType::kIncreaseAimBox)
+                        {
+                            active_powerups_.erase(active_powerups_.begin() +
+                                                   i);
+                            same_powerup_.erase(a);
+                            player_powers_.erase(a.first);
+
+                            // to reset the powerup back to nothing. The player
+                            // can pick up the new powerup now.
+                            player_states_[a.first]->SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
+
+                            timer_.erase(a);
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -208,6 +232,17 @@ uint32_t GameStateService::GetEveryoneSlowerSpeedMultiplier()
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kEveryoneSlower)
+            return a.first;
+    }
+    return NULL;
+}
+
+uint32_t GameStateService::GetHitBoxMultiplier()
+{
+    // just return the ID which executed this powerup
+    for (auto& a : active_powerups_)
+    {
+        if (a.second == PowerupPickupType::kIncreaseAimBox)
             return a.first;
     }
     return NULL;

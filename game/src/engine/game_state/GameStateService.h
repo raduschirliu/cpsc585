@@ -53,6 +53,8 @@ class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
 
     uint32_t GetEveryoneSlowerSpeedMultiplier();
     uint32_t GetDisableHandlingMultiplier();
+    uint32_t GetHitBoxMultiplier();
+
     void RemoveEveryoneSlowerSpeedMultiplier();
     void RemoveActivePowerup();
 };

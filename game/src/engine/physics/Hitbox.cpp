@@ -20,6 +20,7 @@ static constexpr float kDefaultDenisty = 10.0f;
 
 void Hitbox::OnInit(const ServiceProvider& service_provider)
 {
+    game_state_service_ = &service_provider.GetService<GameStateService>();
     RigidBodyComponent::OnInit(service_provider);
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     SetSize(kDefaultSize);
@@ -29,6 +30,23 @@ void Hitbox::OnUpdate(const Timestep& delta_time)
 {
     if (vehicle_ /* is not null_ptr*/)
     {
+        if (uint32_t id = game_state_service_->GetHitBoxMultiplier() != NULL)
+        {
+            if (GetEntity().GetId() != id)
+            {
+                // setting the size of the hitbox for all the other cars.
+                SetSize(vec3(20.f, 20.f, 20.f));
+            }
+            else
+            {
+                // this is the entity which started the powerup, so do nothing.
+            }
+        }
+        else
+        {
+            SetSize(kDefaultSize);
+        }
+        Log::debug("{}, {}, {}", size_.x, size_.y, size_.z);
         transform_->SetPosition(vehicle_->GetPosition());
         transform_->SetOrientation(vehicle_->GetOrientation());
         SyncTransform();
