@@ -22,10 +22,6 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
 
 void PlayerController::OnUpdate(const Timestep& delta_time)
 {
-    // Log::debug("{}", game_state_service_->GetActivePowerups().size());
-    //  getting the player_data struct so that we can use it for different
-    //  stuff.
-
     // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
     // speed_multiplier_);
 
@@ -79,38 +75,10 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         speed_multiplier_ = kSpeedMultiplier;
     }
 
-    // // timer_ stuff.
-    // if (execute_powerup_)
-    // {
-    //     timer_ += delta_time.GetSeconds();
-    //     CheckTimer(5.f, player_data_->GetCurrentPowerup());
-    // }
 
     // Control the car.
     CarController(delta_time);
 }
-
-// void PlayerController::CheckTimer(double timer_limit,
-//                                   PowerupPickupType pickup_type)
-// {
-//     if (player_data_)
-//     {
-//         if (timer_ > timer_limit)
-//         {
-//             timer_ = 0.f;
-//             if (pickup_type == PowerupPickupType::kEveryoneSlower)
-//             {
-//                 game_state_service_->RemovePlayerPowerup(GetEntity().GetId());
-//                 player_data_->SetCurrentPowerup(
-//                     PowerupPickupType::kDefaultPowerup);
-//                 speed_multiplier_ = kSpeedMultiplier;
-//                 // as this is done now.
-//                 game_state_service_->RemoveEveryoneSlowerSpeedMultiplier();
-//             }
-//             execute_powerup_ = false;
-//         }
-//     }
-// }
 
 std::string_view PlayerController::GetName() const
 {

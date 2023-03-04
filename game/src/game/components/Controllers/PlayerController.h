@@ -42,8 +42,6 @@ class PlayerController final : public Component,
 
     void CarController(const Timestep& delta_time);
 
-    float timer_ = 0.f;
-    void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
 
   public:
     inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)

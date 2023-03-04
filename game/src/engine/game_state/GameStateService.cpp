@@ -33,6 +33,8 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
 
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
+
+    Log::debug("{}", same_powerup_.size());
 }
 
 void GameStateService::OnUpdate()
@@ -60,6 +62,8 @@ void GameStateService::RemoveActivePowerup()
                         {
                             active_powerups_.erase(active_powerups_.begin() +
                                                    i);
+                            same_powerup_.erase(a);
+                            player_powers_.erase(a.first);
                         }
                     }
                 }
