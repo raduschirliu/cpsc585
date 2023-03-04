@@ -17,7 +17,7 @@ static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
 
 FollowCamera::FollowCamera()
     : view_matrix_(1.0f),
-      camera_offset_(glm::vec3(0.f, 10.f, 30.f))
+      camera_offset_(glm::vec3(0.f, 20.f, 30.f))
 {
 }
 

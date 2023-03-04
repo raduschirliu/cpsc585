@@ -124,13 +124,13 @@ void PlayerController::CarController(const Timestep& delta_time)
         if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
             input_service_->IsKeyDown(GLFW_KEY_A))
         {
-            Command temp(0.0f, 0.1f, -0.4f * handling_multiplier_, timestep_);
+            Command temp(0.0f, 0.0f, -0.4f * handling_multiplier_, timestep_);
             *executable_command_ = temp;
         }
         if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
             input_service_->IsKeyDown(GLFW_KEY_D))
         {
-            Command temp(0.0f, 0.1f, 0.4f * handling_multiplier_, timestep_);
+            Command temp(0.0f, 0.0f, 0.4f * handling_multiplier_, timestep_);
             *executable_command_ = temp;
         }
         if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||

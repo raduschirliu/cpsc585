@@ -49,6 +49,10 @@ class NavMesh
     Node* FindEntity(glm::vec3 pos);
 
   private:
+    std::vector<glm::vec3> all_vertices_;
+    std::vector<Node*> all_nodes;
+    uint32_t node_index_ = 0;
+    void ReadVertices();
     float Cost(Node* src, Node* dest);
 };
 

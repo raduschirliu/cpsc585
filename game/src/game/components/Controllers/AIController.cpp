@@ -22,8 +22,15 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
+    Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,transform_->GetPosition().y,transform_->GetPosition().z);
+
     // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
+
+    transform_->SetPosition(ai_service_->GetPath()[0]);
+    Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,transform_->GetPosition().y,transform_->GetPosition().z);
+
+    
 
     // storing the initial variables.
     if (path_to_follow_.size() > 2)
@@ -79,7 +86,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
      * **/
 
     vehicle_reference_->mCommandState.throttle =
-        0.1f * speed_multiplier_;  // for the everyone slow down pickup.
+        1.f * speed_multiplier_;  // for the everyone slow down pickup.
     glm::vec3 target = transform_->GetPosition() - next_car_position_;
     // normalize the vector to find out its true position later by dot
     // producting it
@@ -115,10 +122,11 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    if (distance < 7.f)
+    Log::debug("Distance to the next point {}", distance);
+    if (distance < 10.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_++];
-        // Log::debug("{}", next_path_index_);
+        Log::debug("{}", next_path_index_);
     }
 }
 
