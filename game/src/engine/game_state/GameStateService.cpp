@@ -40,6 +40,7 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
 
 void GameStateService::OnUpdate()
 {
+
 }
 
 void GameStateService::RemoveActivePowerup()

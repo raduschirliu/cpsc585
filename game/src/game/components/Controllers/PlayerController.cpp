@@ -34,18 +34,16 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     {
         if (player_data_)
         {
-            if (!execute_powerup_ && player_data_->GetCurrentPowerup() ==
+            if (player_data_->GetCurrentPowerup() ==
                                          PowerupPickupType::kDefaultPowerup)
             {
                 Log::debug("You currently do not have any powerup.");
             }
 
             // so that this is not called every frame.
-            else if (!execute_powerup_)
+            else
             {
-                // Now we can do the logic for different powerups
-                execute_powerup_ = true;
-
+                Log::debug("executing the powerup");
                 // power executed, so add it to the map in game service.
                 game_state_service_->AddPlayerPowerup(
                     GetEntity().GetId(), player_data_->GetCurrentPowerup());

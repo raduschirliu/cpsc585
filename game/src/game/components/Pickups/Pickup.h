@@ -25,12 +25,12 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    jss::object_ptr<Transform> transform_;
     jss::object_ptr<GameStateService> game_state_;
 
     bool powerup_executed_ = false;
 
   protected:
+    jss::object_ptr<Transform> transform_;
     bool power_visible_ = true;
 
     PlayerState* player_state_ = nullptr;
