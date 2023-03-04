@@ -16,7 +16,7 @@ void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
     //     player_state_->GetCurrentPowerup() ==
     //         PowerupPickupType::kDefaultPowerup)
     // {
-        
+
     // }
 }
 

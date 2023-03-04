@@ -1,9 +1,8 @@
 #pragma once
 #include <memory>
 
-#include "../Pickups/PickupType.h"
-
 #include "../../../engine/scene/Entity.h"
+#include "../Pickups/PickupType.h"
 
 struct PlayerStateData
 {
@@ -15,8 +14,8 @@ struct PlayerStateData
     Entity* nemesis;
     Entity* bullied;
     double time_elapsed;
-    PowerupPickupType current_powerup;  // will be decided by the enum defined for every
-                          // powerup.
+    PowerupPickupType current_powerup;  // will be decided by the enum defined
+                                        // for every powerup.
     double accuracy;
 
     PlayerStateData()

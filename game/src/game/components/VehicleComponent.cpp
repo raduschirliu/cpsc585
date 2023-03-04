@@ -169,4 +169,3 @@ PlayerStateData* VehicleComponent::GetPlayerStateData()
         return player_data_;
     return nullptr;
 }
-

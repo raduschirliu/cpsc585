@@ -43,7 +43,6 @@ class PlayerController final : public Component,
 
     void CarController(const Timestep& delta_time);
 
-
   public:
     inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
     {

@@ -118,7 +118,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     if (distance < 7.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_++];
-        //Log::debug("{}", next_path_index_);
+        // Log::debug("{}", next_path_index_);
     }
 }
 

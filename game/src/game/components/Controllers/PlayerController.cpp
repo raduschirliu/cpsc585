@@ -36,7 +36,7 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         if (player_data_)
         {
             if (player_data_->GetCurrentPowerup() ==
-                                         PowerupPickupType::kDefaultPowerup)
+                PowerupPickupType::kDefaultPowerup)
             {
                 Log::debug("You currently do not have any powerup.");
             }
@@ -56,7 +56,6 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (uint32_t id =
             game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
     {
-
         // now except for the entity who launched it, all the entities should
         // slow down.
         if (GetEntity().GetId() != id)
@@ -69,18 +68,15 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         {
             // this is the entity which started the powerup, so do nothing.
         }
-
     }
     else
     {
         speed_multiplier_ = kSpeedMultiplier;
-
     }
 
     if (uint32_t id =
             game_state_service_->GetDisableHandlingMultiplier() != NULL)
     {
-
         // now except for the entity who launched it, all the entities should
         // slow down.
         if (GetEntity().GetId() != id)
@@ -98,9 +94,7 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     else
     {
         speed_multiplier_ = kSpeedMultiplier;
-
     }
-
 
     // Control the car.
     CarController(delta_time);
@@ -121,10 +115,11 @@ void PlayerController::CarController(const Timestep& delta_time)
         if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
             input_service_->IsKeyDown(GLFW_KEY_W))
         {
-            vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
-            PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
-        Command temp(0.0f, 1.0f * speed_multiplier_, 0.0f, timestep_);
-        *executable_command_ = temp;
+            vehicle_reference_->mTransmissionCommandState.gear =
+                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
+                    eFORWARD;
+            Command temp(0.0f, 1.0f * speed_multiplier_, 0.0f, timestep_);
+            *executable_command_ = temp;
         }
         if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
             input_service_->IsKeyDown(GLFW_KEY_A))
@@ -141,10 +136,11 @@ void PlayerController::CarController(const Timestep& delta_time)
         if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
             input_service_->IsKeyDown(GLFW_KEY_S))
         {
-        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
-            PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
-        Command temp(0.f, 1.f * speed_multiplier_, 0.f, timestep_);
-        *executable_command_ = temp;
+            vehicle_reference_->mTransmissionCommandState.gear =
+                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
+                    eREVERSE;
+            Command temp(0.f, 1.f * speed_multiplier_, 0.f, timestep_);
+            *executable_command_ = temp;
         }
 
         vehicle_reference_->mCommandState.brakes[0] =
