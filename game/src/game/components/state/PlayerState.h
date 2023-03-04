@@ -40,7 +40,10 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 
     double GetTimeElapsed();
 
-    int GetCurrentPowerup();
+    PowerupPickupType GetCurrentPowerup();
 
     PlayerStateData* GetStateData();
+
+    void SetSpeedMultiplier(float value);
+    void SetCurrentPowerup(PowerupPickupType type);
 };

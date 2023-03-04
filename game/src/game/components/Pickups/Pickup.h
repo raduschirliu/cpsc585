@@ -5,29 +5,16 @@
 
 #include <object_ptr.hpp>
 
+#include "PickupType.h"
+#include "engine/game_state/GameStateService.h"
 #include "engine/scene/Component.h"
+#include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
+#include "game/components/state/PlayerState.h"
 
-enum class PowerupPickupType
-{
-    kDefaultPowerup = 0,
-    kDisableHandling,
-    kEveryoneSlower,
-    kIncreaseAimBox,
-    kKillAbilities
-};
+class PlayerState;
 
-enum class AmmoPickupType
-{
-    kDefaultAmmo = 0,
-    kBuckshot,
-    kDoubleDamage,
-    kExploadingBullet,
-    kIncreaseFireRate,
-    kVampireBullet
-};
-
-class Pickup : public Component
+class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     // From Component
@@ -35,12 +22,19 @@ class Pickup : public Component
     virtual void OnTriggerEnter(const OnTriggerEvent& data) override;
     virtual void OnTriggerExit(const OnTriggerEvent& data) override;
     virtual std::string_view GetName() const override;
+    virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    jss::object_ptr<Transform> transform_;
+    jss::object_ptr<GameStateService> game_state_;
 
-    void SetPowerActivated(bool bValue);
+    bool powerup_executed_ = false;
 
   protected:
-    bool power_activated_ = true;
+    jss::object_ptr<Transform> transform_;
+    bool power_visible_ = true;
+
+    PlayerState* player_state_ = nullptr;
+
+    void SetPowerVisibility(bool bValue);
+    void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
 };

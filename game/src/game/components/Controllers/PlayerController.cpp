@@ -3,6 +3,10 @@
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
+#include "game/components/state/PlayerState.h"
+
+float kSpeedMultiplier(1.f);
+float kHanldingMultiplier(1.f);
 
 PlayerController::PlayerController() : vehicle_reference_(nullptr)
 {
@@ -11,6 +15,7 @@ PlayerController::PlayerController() : vehicle_reference_(nullptr)
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
     transform_ = &GetEntity().GetComponent<Transform>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -18,50 +23,132 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
 
 void PlayerController::OnUpdate(const Timestep& delta_time)
 {
-    // the command which results into slowly slowing down the car if nothing is
-    // pressed.
-    executable_command_ = {0.2f, 0.0f, 0.0f, 0.0f};
+    // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
+    // speed_multiplier_);
 
-    // TODO: replace all the keys and static numbers in the command to the axis
-    // value we get from the joystick / button value we get from how firmly we
-    // press the triggers.
-
-    if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
-        input_service_->IsKeyDown(GLFW_KEY_W))
+    if (!player_data_)
     {
-        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
-            PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
-        Command temp = {0.0f, 1.0f, 0.0f, timestep_};
-        executable_command_ = temp;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
-        input_service_->IsKeyDown(GLFW_KEY_A))
-    {
-        Command temp = {0.0f, 0.0f, -0.4f, timestep_};
-        executable_command_ = temp;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
-        input_service_->IsKeyDown(GLFW_KEY_D))
-    {
-        Command temp = {0.0f, 0.0f, 0.4f, timestep_};
-        executable_command_ = temp;
-    }
-    if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
-        input_service_->IsKeyDown(GLFW_KEY_S))
-    {
-        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
-            PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
-        Command temp = {0.f, 1.f, 0.f, timestep_};
-        executable_command_ = temp;
+        player_data_ = &GetEntity().GetComponent<PlayerState>();
     }
 
-    vehicle_reference_->mCommandState.brakes[0] = executable_command_.brake;
-    vehicle_reference_->mCommandState.nbBrakes = 1;
-    vehicle_reference_->mCommandState.throttle = executable_command_.throttle;
-    vehicle_reference_->mCommandState.steer = executable_command_.steer;
+    if (input_service_->IsKeyDown(GLFW_KEY_SPACE))
+    {
+        if (player_data_)
+        {
+            if (player_data_->GetCurrentPowerup() ==
+                PowerupPickupType::kDefaultPowerup)
+            {
+                Log::debug("You currently do not have any powerup.");
+            }
+
+            // so that this is not called every frame.
+            else
+            {
+                // Log::debug("executing the powerup");
+                // power executed, so add it to the map in game service.
+                game_state_service_->AddPlayerPowerup(
+                    GetEntity().GetId(), player_data_->GetCurrentPowerup());
+            }
+        }
+    }
+
+    // this means that the everyone slower pickup is active right now.
+    if (uint32_t id =
+            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
+    {
+        // now except for the entity who launched it, all the entities should
+        // slow down.
+        if (GetEntity().GetId() != id)
+        {
+            // if any AI picked up the powerup then the player's speed should be
+            // reduced.
+            speed_multiplier_ = 0.2f;
+        }
+        else
+        {
+            // this is the entity which started the powerup, so do nothing.
+        }
+    }
+    else
+    {
+        speed_multiplier_ = kSpeedMultiplier;
+    }
+
+    if (uint32_t id =
+            game_state_service_->GetDisableHandlingMultiplier() != NULL)
+    {
+        // now except for the entity who launched it, all the entities should
+        // slow down.
+        if (GetEntity().GetId() != id)
+        {
+            // if any AI picked up the powerup then the player's speed should be
+            // reduced.
+            handling_multiplier_ = 0.0f;
+        }
+        else
+        {
+            // this is the entity which started the powerup, so do nothing.
+            handling_multiplier_ = kHanldingMultiplier;
+        }
+    }
+    else
+    {
+        speed_multiplier_ = kSpeedMultiplier;
+    }
+
+    // Control the car.
+    CarController(delta_time);
 }
 
 std::string_view PlayerController::GetName() const
 {
     return "Player Controller";
+}
+
+void PlayerController::CarController(const Timestep& delta_time)
+{
+    executable_command_ =
+        new Command();  // the default Command slows down the car.
+
+    if (executable_command_)
+    {
+        if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
+            input_service_->IsKeyDown(GLFW_KEY_W))
+        {
+            vehicle_reference_->mTransmissionCommandState.gear =
+                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
+                    eFORWARD;
+            Command temp(0.0f, 1.0f * speed_multiplier_, 0.0f, timestep_);
+            *executable_command_ = temp;
+        }
+        if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
+            input_service_->IsKeyDown(GLFW_KEY_A))
+        {
+            Command temp(0.0f, 0.1f, -0.4f * handling_multiplier_, timestep_);
+            *executable_command_ = temp;
+        }
+        if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
+            input_service_->IsKeyDown(GLFW_KEY_D))
+        {
+            Command temp(0.0f, 0.1f, 0.4f * handling_multiplier_, timestep_);
+            *executable_command_ = temp;
+        }
+        if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
+            input_service_->IsKeyDown(GLFW_KEY_S))
+        {
+            vehicle_reference_->mTransmissionCommandState.gear =
+                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
+                    eREVERSE;
+            Command temp(0.f, 1.f * speed_multiplier_, 0.f, timestep_);
+            *executable_command_ = temp;
+        }
+
+        vehicle_reference_->mCommandState.brakes[0] =
+            executable_command_->brake;
+        vehicle_reference_->mCommandState.nbBrakes = 1;
+        vehicle_reference_->mCommandState.throttle =
+            executable_command_->throttle;
+        vehicle_reference_->mCommandState.steer = executable_command_->steer;
+    }
+    delete (executable_command_);
 }

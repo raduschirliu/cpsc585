@@ -2,6 +2,8 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
+#include "game/components/VehicleComponent.h"
+#include "game/components/state/PlayerState.h"
 
 void EveryoneSlowerPickup::OnInit(const ServiceProvider& service_provider)
 {
@@ -10,12 +12,23 @@ void EveryoneSlowerPickup::OnInit(const ServiceProvider& service_provider)
 
 void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    // do what the parent class does
-    Pickup::OnTriggerEnter(data);
-    if (data.other->GetName() == "PlayerVehicle" && power_activated_)
+    // the pickup always collides with floor, so avoid that first
+    if (data.other->GetName() == "PlayerVehicle")
     {
-        power_activated_ = false;
-        Log::debug("everyone slow for 5 seconds");
+        player_state_ = &data.other->GetComponent<PlayerState>();
+        if (player_state_)
+        {
+            // TODO: add the clause for AI here as well.
+            if (power_visible_ && player_state_->GetCurrentPowerup() ==
+                                      PowerupPickupType::kDefaultPowerup)
+            {
+                transform_->SetScale(glm::vec3(0.f, 0.f, 0.f));
+                SetPowerVisibility(false);
+
+                // Assigns this powerup to the player/AI who picked it up
+                SetVehiclePowerup(PowerupPickupType::kEveryoneSlower, data);
+            }
+        }
     }
 }
 

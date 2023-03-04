@@ -53,7 +53,6 @@ class VehicleComponent final : public Component,
     std::vector<Command> gCommands;
 
     PlayerStateData* player_data_;
-
     // for functions.
   private:
     void InitVehicle();
@@ -66,4 +65,10 @@ class VehicleComponent final : public Component,
 
     void SetVehicleName(const std::string& vehicle_name);
     void SetPlayerStateData(PlayerStateData& data);
+
+    PlayerStateData* GetPlayerStateData();
+
+    glm::vec3 GetPosition();
+
+    glm::quat GetOrientation();
 };

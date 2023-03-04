@@ -224,7 +224,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI1");
         bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
-
+        auto& hitbox_component = entity.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(10.f));
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
         mesh_renderer.SetMaterialProperties(
@@ -249,6 +250,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI2");
         bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
+        auto& hitbox_component = entity.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -256,6 +259,10 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
              .shininess = 64.0f});
+
+        // Making the controller which will guide the car on where to go
+        auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -270,6 +277,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
         bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
+        auto& hitbox_component = entity.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("car");
@@ -277,6 +286,10 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
              .shininess = 64.0f});
+
+        // Making the controller which will guide the car on where to go
+        auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -300,22 +313,39 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
     }
 
-    // Make everyone slower pickup
-    {
-        Entity& entity = scene.AddEntity("Slow Down Enemies");
+    // // Make everyone slower pickup
+    // {
+    //     Entity& entity = scene.AddEntity("Slow Down Enemies");
 
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 10.0f, 0.0f));
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0, 2.0f, 0.0f));
 
-        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("energy");
-        // as it spawns way too big lol
-        transform.SetScale(vec3(0.12, 0.12, 0.12));
+    //     auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("energy");
+    //     // as it spawns way too big lol
+    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
 
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
+    //     auto& trigger = entity.AddComponent<BoxTrigger>();
+    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    // }
+
+    // // Kill the abilities.
+    // {
+    //     Entity& entity = scene.AddEntity("Kill the abilities");
+
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(0.0, 2.0f, 0.0f));
+
+    //     auto& pickup = entity.AddComponent<KillAbilitiesPickup>();
+    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("energy");
+    //     // as it spawns way too big lol
+    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
+
+    //     auto& trigger = entity.AddComponent<BoxTrigger>();
+    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    // }
 
     // Disable Handling pickup
     {
@@ -333,21 +363,21 @@ void GameApp::LoadTestScene(Scene& scene)
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 
-    // // Increase the size of aimbox
-    // {
-    //     Entity& entity = scene.AddEntity("Aimbox increase");
+    // Increase the size of aimbox
+    {
+        Entity& entity = scene.AddEntity("Aimbox increase");
 
-    //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
-    //     auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
-    //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-    //     mesh_renderer.SetMesh("coin");
-    //     // as it spawns way too big lol
-    //     transform.SetScale(vec3(0.12, 0.12, 0.12));
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
+        auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("coin");
+        // as it spawns way too big lol
+        transform.SetScale(vec3(0.12, 0.12, 0.12));
 
-    //     auto& trigger = entity.AddComponent<BoxTrigger>();
-    //     trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    // }
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    }
 
     // // Kill the abilities pickup
     // {
