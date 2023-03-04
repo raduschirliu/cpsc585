@@ -50,7 +50,7 @@ void VehicleComponent::InitVehicle()
 
     rigidbody->userData = &GetEntity();
     rigidbody->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
-    //rigidbody->setCMassLocalPose();
+    // rigidbody->setCMassLocalPose();
     const uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 

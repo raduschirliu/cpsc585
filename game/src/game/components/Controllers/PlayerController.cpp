@@ -29,7 +29,8 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
         input_service_->IsKeyDown(GLFW_KEY_W))
     {
-        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
+        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
+            PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
         Command temp = {0.0f, 1.0f, 0.0f, timestep_};
         executable_command_ = temp;
     }
@@ -48,7 +49,8 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
         input_service_->IsKeyDown(GLFW_KEY_S))
     {
-        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
+        vehicle_reference_->mTransmissionCommandState.gear = physx::vehicle2::
+            PxVehicleDirectDriveTransmissionCommandState::eREVERSE;
         Command temp = {0.f, 1.f, 0.f, timestep_};
         executable_command_ = temp;
     }
