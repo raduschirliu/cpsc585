@@ -4,6 +4,7 @@
 #include <AL/alc.h>
 #include <AudioFile.h>
 
+#include <filesystem>
 #include <object_ptr.hpp>
 #include <string>
 
@@ -18,11 +19,11 @@ class AudioService final : public Service
 
     /// @brief plays a soundfile fully just once.
     /// @param gain optionally set the gain compensation. default: 0
-    void PlayOneShot(std::string file_name, float gain = 0.f);
+    void PlayOneShot(std::string file_name, int gain = 0);
 
     /// @brief loops a soundfile indefinitely (until stopped by other function).
     /// @param gain optionally set the gain compensation. default: 0
-    void PlayLoop(std::string file_name, float gain = 0.f);
+    void PlayLoop(std::string file_name, int gain = 0);
 
     /// @brief stops all currently playing sounds.
     /// @note not yet implemented.
@@ -55,8 +56,7 @@ class AudioService final : public Service
     AudioFile<float> LoadAudioFile(std::string file_name,
                                    PlaybackType audio_type);
     /// @brief gets the format of the file (mono/stereo, 8/16 bit).
-    ALenum GetFormat(AudioFile audio_file);
+    ALenum GetFormat(AudioFile<float> audio_file);
     /// @brief gets the audio file's raw data.
-    /// @param gain_adjust optionally set gain compensation. default = 0.
-    float GetData(AudioFile audio_file, float gain_adjust = 0.f);
+    std::vector<float> GetData(AudioFile<float> audio_file);
 };
