@@ -254,6 +254,10 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
              .shininess = 64.0f});
+
+        // Making the controller which will guide the car on where to go
+        auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -275,6 +279,10 @@ void GameApp::LoadTestScene(Scene& scene)
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
              .shininess = 64.0f});
+
+        // Making the controller which will guide the car on where to go
+        auto& ai_controller = entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {

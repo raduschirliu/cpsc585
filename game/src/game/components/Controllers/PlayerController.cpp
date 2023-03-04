@@ -14,7 +14,7 @@ PlayerController::PlayerController() : vehicle_reference_(nullptr)
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
-    game_state_ = &service_provider.GetService<GameStateService>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
     transform_ = &GetEntity().GetComponent<Transform>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -22,7 +22,13 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
 
 void PlayerController::OnUpdate(const Timestep& delta_time)
 {
-    // getting the player_data struct so that we can use it for different stuff.
+    // Log::debug("{}", game_state_service_->GetActivePowerups().size());
+    //  getting the player_data struct so that we can use it for different
+    //  stuff.
+
+    // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
+    // speed_multiplier_);
+
     if (!player_data_)
     {
         player_data_ = &GetEntity().GetComponent<PlayerState>();
@@ -45,47 +51,66 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
                 execute_powerup_ = true;
 
                 // power executed, so add it to the map in game service.
-                game_state_->AddPlayerPowerup(GetEntity().GetId(), PowerupPickupType::kEveryoneSlower);
-
-                if (player_data_->GetCurrentPowerup() ==
-                    PowerupPickupType::kEveryoneSlower)
-                {
-                    speed_multiplier_ = 0.2f;
-                }
+                game_state_service_->AddPlayerPowerup(
+                    GetEntity().GetId(), player_data_->GetCurrentPowerup());
             }
         }
     }
 
-    // timer_ stuff.
-    if (execute_powerup_)
+    // this means that the everyone slower pickup is active right now.
+    if (uint32_t id =
+            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
     {
-        timer_ += delta_time.GetSeconds();
-        CheckTimer(5.f, player_data_->GetCurrentPowerup());
+        // now except for the entity who launched it, all the entities should
+        // slow down.
+        if (GetEntity().GetId() != id)
+        {
+            // if any AI picked up the powerup then the player's speed should be
+            // reduced.
+            speed_multiplier_ = 0.2f;
+        }
+        else
+        {
+            // this is the entity which started the powerup, so do nothing.
+        }
     }
+    else
+    {
+        speed_multiplier_ = kSpeedMultiplier;
+    }
+
+    // // timer_ stuff.
+    // if (execute_powerup_)
+    // {
+    //     timer_ += delta_time.GetSeconds();
+    //     CheckTimer(5.f, player_data_->GetCurrentPowerup());
+    // }
 
     // Control the car.
     CarController(delta_time);
 }
 
-void PlayerController::CheckTimer(double timer_limit,
-                                  PowerupPickupType pickup_type)
-{
-    if (player_data_)
-    {
-        if (timer_ > timer_limit)
-        {
-            timer_ = 0.f;
-            if (pickup_type == PowerupPickupType::kEveryoneSlower)
-            {
-                game_state_->RemovePlayerPowerup(GetEntity().GetId());
-                player_data_->SetCurrentPowerup(
-                    PowerupPickupType::kDefaultPowerup);
-                speed_multiplier_ = kSpeedMultiplier;
-            }
-            execute_powerup_ = false;
-        }
-    }
-}
+// void PlayerController::CheckTimer(double timer_limit,
+//                                   PowerupPickupType pickup_type)
+// {
+//     if (player_data_)
+//     {
+//         if (timer_ > timer_limit)
+//         {
+//             timer_ = 0.f;
+//             if (pickup_type == PowerupPickupType::kEveryoneSlower)
+//             {
+//                 game_state_service_->RemovePlayerPowerup(GetEntity().GetId());
+//                 player_data_->SetCurrentPowerup(
+//                     PowerupPickupType::kDefaultPowerup);
+//                 speed_multiplier_ = kSpeedMultiplier;
+//                 // as this is done now.
+//                 game_state_service_->RemoveEveryoneSlowerSpeedMultiplier();
+//             }
+//             execute_powerup_ = false;
+//         }
+//     }
+// }
 
 std::string_view PlayerController::GetName() const
 {

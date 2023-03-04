@@ -23,7 +23,7 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)
         {
-            // changing the speed of car.
+            // storing the powerup in the playerstate struct
             player_state_->SetCurrentPowerup(PowerupPickupType::kEveryoneSlower);
         }
     }

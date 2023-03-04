@@ -24,7 +24,7 @@ class PlayerController final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
-    jss::object_ptr<GameStateService> game_state_;
+    jss::object_ptr<GameStateService> game_state_service_;
     // We get this using the vehiclecomponent.
     snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
