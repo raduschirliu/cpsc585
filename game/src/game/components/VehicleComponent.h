@@ -67,4 +67,8 @@ class VehicleComponent final : public Component,
     void SetPlayerStateData(PlayerStateData& data);
 
     PlayerStateData* GetPlayerStateData();
+
+    glm::vec3 GetPosition();
+
+    glm::quat GetOrientation();
 };
