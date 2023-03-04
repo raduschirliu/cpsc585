@@ -23,6 +23,7 @@ class AssetService final : public Service
     const Texture &GetTexture(const std::string &name);
     void LoadMaterial(const std::string &path, const aiScene *scene, aiMesh *mesh,
                       const std::string &name);
+    const MaterialProperties &GetMaterialProperty(const std::string &name);
 
     // From Service
     void OnInit() override;

@@ -90,8 +90,6 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
             vertex.uv = vec;
         }
 
-        LoadMaterial("resources/models/kart2-3.mtl", scene, mesh, "kartMaterial");
-
         if (scene->mNumMaterials > mesh->mMaterialIndex)
         {
             const auto &mat = scene->mMaterials[mesh->mMaterialIndex];
@@ -99,7 +97,19 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
             if (AI_SUCCESS ==
                 aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
             {
-                // ...
+                vertex.color = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
+            }
+            aiColor4D ambient;
+            if (AI_SUCCESS ==
+                aiGetMaterialColor(mat, AI_MATKEY_COLOR_AMBIENT, &ambient))
+            {
+                vertex.color = glm::vec3(ambient.r, ambient.g, ambient.b);
+            }
+            aiColor4D specular;
+            if (AI_SUCCESS ==
+                aiGetMaterialColor(mat, AI_MATKEY_COLOR_SPECULAR, &specular))
+            {
+                vertex.color = glm::vec3(specular.r, specular.g, specular.b);
             }
         }
 
@@ -390,12 +400,9 @@ void AssetService::ProcessTexture(const string &path, const string &name,
 //     return property;
 // }
 
-void AssetService::LoadMaterial(const string &path, const aiScene *scene, aiMesh *mesh,
-                                const string &name)
+void AssetService::LoadMaterial(const string &path, const aiScene *scene,
+                                aiMesh *mesh, const string &name)
 {
-    // Assimp::Importer importer;
-    // const aiScene *scene = importer.ReadFile(path, 0);
-
     aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
     aiColor3D color(0.f, 0.f, 0.f);
     float shininess;
@@ -445,13 +452,18 @@ void AssetService::ProcessMaterial(aiColor3D color, const string &name,
     }
 }
 
+const MaterialProperties &AssetService::GetMaterialProperty(const string &name)
+{
+    return materials_[name];
+}
+
 void AssetService::OnInit()
 {
     LoadMesh("resources/models/cube.obj", "cube");
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
     LoadMesh("resources/models/car.obj", "car");
-    LoadMesh("resources/models/kart2-2.obj", "kart");
+    LoadMesh("resources/models/kart2-3.obj", "kart");
     LoadMesh("resources/models/track3-3.obj", "track");
 }
 
