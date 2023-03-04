@@ -405,7 +405,8 @@ void PhysicsService::StepPhysics()
             const float timestep_sec =
                 static_cast<float>(kPhysxTimestep.GetSeconds());
 
-            GetEventBus().Publish<OnPhysicsUpdateEvent>(&kPhysicsUpdateEventData);
+            GetEventBus().Publish<OnPhysicsUpdateEvent>(
+                &kPhysicsUpdateEventData);
 
             kScene_->simulate(timestep_sec);
             kScene_->fetchResults(true);
