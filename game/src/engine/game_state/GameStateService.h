@@ -3,17 +3,19 @@
 #include <map>
 #include <memory>
 #include <object_ptr.hpp>
+#include <set>
 #include <utility>  // for pair
 #include <vector>
-#include <set>
 
 #include "engine/scene/Entity.h"
-#include "engine/service/Service.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
 #include "game/components/state/PlayerStateStruct.h"
 
-class GameStateService : public Service,public IEventSubscriber<OnUpdateEvent>
+class PlayerState;
+
+class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     GameStateService();
@@ -28,6 +30,7 @@ class GameStateService : public Service,public IEventSubscriber<OnUpdateEvent>
 
   private:
     std::map<uint32_t, PlayerStateData> player_details_;
+    std::map<uint32_t, PlayerState*> player_states_;
     std::map<uint32_t, PowerupPickupType> player_powers_;
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
@@ -37,12 +40,10 @@ class GameStateService : public Service,public IEventSubscriber<OnUpdateEvent>
 
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
 
-
-
   public:
     // setters
     void AddPlayerDetails(uint32_t id, PlayerStateData details);
-
+    void AddPlayerStates(uint32_t id, PlayerState* states);
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
 

@@ -8,6 +8,7 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
 
     game_state_service_->AddPlayerDetails(GetEntity().GetId(), player_state_);
+    game_state_service_->AddPlayerStates(GetEntity().GetId(), this);
     // so that next time we do not enter this loop and redundantly add
     // more in the player details
     game_state_assigned_ = true;

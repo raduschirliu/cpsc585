@@ -20,12 +20,9 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        player_state_ = &data.other->GetComponent<PlayerState>();
-        if (player_state_)
-        {
-            // storing the powerup in the playerstate struct
-            player_state_->SetCurrentPowerup(PowerupPickupType::kEveryoneSlower);
-        }
+
+        // Assigns this powerup to the player/AI who picked it up
+        SetVehiclePowerup(PowerupPickupType::kEveryoneSlower, data);
     }
 }
 

@@ -2,6 +2,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/components/state/PlayerState.h"
 
 float kSlowDownTimerLimit(5.f);  // so that as soon as 5 seconds are hit the
                                  // powerup is disabled and removed.
@@ -34,7 +35,7 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
 
-    Log::debug("{}", same_powerup_.size());
+    // Log::debug("{}", same_powerup_.size());
 }
 
 void GameStateService::OnUpdate()
@@ -64,6 +65,11 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+
+                            // to reset the powerup back to nothing. The player
+                            // can pick up the new powerup now.
+                            player_states_[a.first]->SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
                         }
                     }
                 }
@@ -101,7 +107,7 @@ GameStateService::PowerupsActive()
         if (p.second != PowerupPickupType::kDefaultPowerup)
         {
             powerups.push_back({p.first, p.second});
-            
+
             // to check if the same powerup's timer doesnt start from 0 again.
             if (same_powerup_.find(p) == same_powerup_.end())
             {
@@ -117,6 +123,14 @@ GameStateService::PowerupsActive()
 void GameStateService::AddPlayerDetails(uint32_t id, PlayerStateData details)
 {
     player_details_.insert_or_assign(id, details);
+}
+
+void GameStateService::AddPlayerStates(uint32_t id, PlayerState* states)
+{
+    if (states)
+    {
+        player_states_.insert_or_assign(id, states);
+    }
 }
 
 void GameStateService::AddPlayerPowerup(uint32_t id, PowerupPickupType power)

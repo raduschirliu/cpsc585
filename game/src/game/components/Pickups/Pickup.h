@@ -5,15 +5,14 @@
 
 #include <object_ptr.hpp>
 
+#include "PickupType.h"
 #include "engine/game_state/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/state/PlayerState.h"
-#include "PickupType.h"
 
 class PlayerState;
-
 
 class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -37,4 +36,5 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     PlayerState* player_state_ = nullptr;
 
     void SetPowerVisibility(bool bValue);
+    void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
 };
