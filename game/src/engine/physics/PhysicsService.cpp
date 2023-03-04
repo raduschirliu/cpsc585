@@ -14,6 +14,7 @@
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
 
+using snippetvehicle2::BaseVehicle;
 using std::string;
 using std::string_view;
 using std::vector;
@@ -39,6 +40,10 @@ static const PxCookingParams kDefaultPxCookingParams =
 void PhysicsService::OnInit()
 {
     GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    prev_time_ = 0.0;
+    tick_rate_ = 0;
+    tick_count_ = 0;
 
     time_accumulator_.SetSeconds(0.0f);
     InitPhysX();
@@ -84,6 +89,9 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
                                        1.0f);
     kScene_->setVisualizationParameter(
         PxVisualizationParameter::eCOLLISION_SHAPES, 1.0f);
+
+    vehicle_context_.gravity = kGravity;
+    vehicle_context_.physxScene = kScene_;
 }
 
 void PhysicsService::OnUpdate()
@@ -158,9 +166,11 @@ void PhysicsService::OnGui()
     PxSimulationStatistics stats;
     kScene_->getSimulationStatistics(stats);
 
+    ImGui::Text("Tick rate: %d", tick_rate_);
     ImGui::Text("Static Bodies: %u", stats.nbStaticBodies);
     ImGui::Text("Dynamic Bodies: %u", stats.nbDynamicBodies);
     ImGui::Text("Active Dynamic Bodies: %u", stats.nbActiveDynamicBodies);
+    ImGui::Text("Vehicles: %u", vehicles_.size());
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -275,10 +285,36 @@ void PhysicsService::RegisterActor(PxActor* actor)
     kScene_->addActor(*actor);
 }
 
+void PhysicsService::RegisterVehicle(BaseVehicle* vehicle)
+{
+    ASSERT_MSG(vehicle, "Vehicle must be valid");
+    vehicles_.push_back(vehicle);
+}
+
 void PhysicsService::UnregisterActor(PxActor* actor)
 {
     ASSERT_MSG(actor, "Actor must be valid");
     kScene_->removeActor(*actor);
+}
+
+void PhysicsService::UnregisterVehicle(BaseVehicle* vehicle)
+{
+    ASSERT_MSG(vehicle, "Vehicle must be valid");
+
+    auto iter = vehicles_.begin();
+
+    while (iter != vehicles_.end())
+    {
+        // TODO: This may be an issue if the address of a BaseVehicle ever
+        // changes
+        if (*iter == vehicle)
+        {
+            vehicles_.erase(iter);
+            return;
+        }
+
+        iter++;
+    }
 }
 
 PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
@@ -394,6 +430,20 @@ void PhysicsService::InitPhysX()
     // setting up the vehicle physics
     const bool vehicle_init_status = PxInitVehicleExtension(*kFoundation_);
     ASSERT(vehicle_init_status);
+
+    // Set up the simulation context.
+    // The snippet is set up with
+    // a) z as the longitudinal axis
+    // b) x as the lateral axis
+    // c) y as the vertical axis.
+    // d) metres  as the lengthscale.
+    vehicle_context_.setToDefault();
+    vehicle_context_.frame.lngAxis = PxVehicleAxes::ePosZ;
+    vehicle_context_.frame.latAxis = PxVehicleAxes::eNegX;
+    vehicle_context_.frame.vrtAxis = PxVehicleAxes::ePosY;
+    vehicle_context_.scale.scale = 1.0f;
+    vehicle_context_.physxActorUpdateMode =
+        PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 }
 
 void PhysicsService::StepPhysics()
@@ -408,11 +458,28 @@ void PhysicsService::StepPhysics()
             GetEventBus().Publish<OnPhysicsUpdateEvent>(
                 &kPhysicsUpdateEventData);
 
+            // Update vehicles
+            for (BaseVehicle* vehicle : vehicles_)
+            {
+                vehicle->step(timestep_sec, vehicle_context_);
+            }
+
+            // Update scene
             kScene_->simulate(timestep_sec);
             kScene_->fetchResults(true);
 
             time_accumulator_ -= kPhysxTimestep;
+            tick_count_ += 1;
         }
+    }
+
+    // Measure physics tick rate
+    const double cur_time = glfwGetTime();
+    if (cur_time - prev_time_ >= 1.0)
+    {
+        tick_rate_ = tick_count_;
+        tick_count_ = 0;
+        prev_time_ = cur_time;
     }
 }
 

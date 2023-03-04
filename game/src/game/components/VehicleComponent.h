@@ -39,15 +39,8 @@ class VehicleComponent final : public Component,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
-    /* variables for vehicle */
-
     // The vehicle with direct drivetrain
-    snippetvehicle2::DirectDriveVehicle g_vehicle_;
-
-    // Vehicle simulation needs a simulation context to store global parameters
-    // of the simulation such as gravitational acceleration.
-    physx::vehicle2::PxVehiclePhysXSimulationContext
-        g_vehicle_simulation_context_;
+    snippetvehicle2::DirectDriveVehicle vehicle_;
 
     // The mapping between PxMaterial and friction.
     physx::vehicle2::PxVehiclePhysXMaterialFriction
@@ -71,10 +64,6 @@ class VehicleComponent final : public Component,
     // Getters
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
 
-    glm::vec3 GetPosition();
-    glm::quat GetOrientation();
-
     void SetVehicleName(const std::string& vehicle_name);
-
     void SetPlayerStateData(PlayerStateData& data);
 };

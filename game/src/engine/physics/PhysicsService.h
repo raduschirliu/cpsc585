@@ -55,13 +55,17 @@ class PhysicsService final : public Service,
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
     physx::PxCooking* cooking_ = nullptr;
+    physx::vehicle2::PxVehiclePhysXSimulationContext vehicle_context_;
+    std::vector<snippetvehicle2::BaseVehicle*> vehicles_;
 
-    std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
+    Timestep time_accumulator_;
+
     bool show_debug_menu_ = false;
     bool debug_draw_scene_ = false;
     bool debug_draw_raycast_ = false;
-
-    Timestep time_accumulator_;
+    double prev_time_;
+    int tick_rate_;
+    int tick_count_;
 
     void InitPhysX();
     void StepPhysics();
@@ -70,7 +74,9 @@ class PhysicsService final : public Service,
 
   public:
     void RegisterActor(physx::PxActor* actor);
+    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
     void UnregisterActor(physx::PxActor* actor);
+    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
 
     /* From PxSimulationEventCallback */
     void onConstraintBreak(physx::PxConstraintInfo* constraints,
