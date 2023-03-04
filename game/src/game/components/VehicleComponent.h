@@ -4,6 +4,7 @@
 
 #include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
+#include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -19,14 +20,18 @@
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,
-                               public IEventSubscriber<OnUpdateEvent>
+                               public IEventSubscriber<OnUpdateEvent>,
+                               public IEventSubscriber<OnPhysicsUpdateEvent>
 {
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
-    void OnUpdate(const Timestep& delta_time) override;
     void OnDestroy() override;
     std::string_view GetName() const override;
+
+    // Event subscribers
+    void OnUpdate(const Timestep& delta_time) override;
+    void OnPhysicsUpdate(const Timestep& step) override;
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -34,15 +39,8 @@ class VehicleComponent final : public Component,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
-    /* variables for vehicle */
-
     // The vehicle with direct drivetrain
-    snippetvehicle2::DirectDriveVehicle g_vehicle_;
-
-    // Vehicle simulation needs a simulation context to store global parameters
-    // of the simulation such as gravitational acceleration.
-    physx::vehicle2::PxVehiclePhysXSimulationContext
-        g_vehicle_simulation_context_;
+    snippetvehicle2::DirectDriveVehicle vehicle_;
 
     // The mapping between PxMaterial and friction.
     physx::vehicle2::PxVehiclePhysXMaterialFriction
@@ -66,10 +64,6 @@ class VehicleComponent final : public Component,
     // Getters
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
 
-    glm::vec3 GetPosition();
-    glm::quat GetOrientation();
-
     void SetVehicleName(const std::string& vehicle_name);
-
     void SetPlayerStateData(PlayerStateData& data);
 };

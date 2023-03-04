@@ -27,10 +27,8 @@ void Hitbox::OnInit(const ServiceProvider& service_provider)
 
 void Hitbox::OnUpdate(const Timestep& delta_time)
 {
-    if (vehicle_ /* is not null_ptr*/)
+    if (vehicle_)
     {
-        transform_->SetPosition(vehicle_->GetPosition());
-        transform_->SetOrientation(vehicle_->GetOrientation());
         SyncTransform();
     }
 }
