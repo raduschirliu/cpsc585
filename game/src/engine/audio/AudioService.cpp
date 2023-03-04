@@ -24,22 +24,30 @@ const std::string kTestFile = "professional_test_audio.wav";
 AudioService::AudioService()
     : audio_device_(alcOpenDevice(kDefaultDevice)),
       audio_context_(alcCreateContext(audio_device_, 0)),
-      buffer_()
 {
 }
 
 void AudioService::PlayOneShot(std::string file_name, float gain = 0.f)
 {
-    AudioFile<float> audio_file = LoadAudioFile(file_name, AudioType::ONESHOT);
+    AudioFile<float> audio_file =
+        LoadAudioFile(file_name, PlaybackType::ONESHOT);
 
-    // create source, set to to not loop
+    // create buffer in memory
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
+
+    // create source, set to not loop
     ALuint source;
     alGenSources(1, &source);
     alSourcei(sourcel AL_LOOPING, AL_FALSE);
 
-    alBufferData(buffer_, GetAudioFileFormat(audio_file),
-                 GetAudioFileData(audio_file), audio_file.size(),
-                 audio_file.getSampleRate());
+    // fill buffer
+    ALenum format = GetFormat(audio_file);
+    float data = GetData(audio_file);
+    int file_size = audio_file.size();
+    int sample_rate = audio_file.getSampleRate();
+    alBufferData(buffer_, format, data, file_size, sample_rate);
+
     alSourcePlay(source);
 
     // don't destroy source until done playing
@@ -53,18 +61,28 @@ void AudioService::PlayOneShot(std::string file_name, float gain = 0.f)
     alDeleteSources(1, &source);
 }
 
+// need to implement streaming audio
+// instead buffering for longer files (i.e music, etc.)
 void AudioService::PlayLoop(std::string file_path, float gain = 0.f)
 {
-    AudioFile<float> audio_file = LoadAudioFile(file_name, AudioType::LOOP);
+    AudioFile<float> audio_file = LoadAudioFile(file_name, PlaybackType::LOOP);
+
+    // create buffer in memory
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
 
     // create source, set to to loop
     ALuint source;
     alGenSources(1, &source);
     alSourcei(sourcel AL_LOOPING, AL_TRUE);
 
-    alBufferData(buffer_, GetAudioFileFormat(audio_file),
-                 GetAudioFileData(audio_file), audio_file.size(),
-                 audio_file.getSampleRate());
+    // fill buffer
+    ALenum format = GetFormat(audio_file);
+    float data = GetData(audio_file);
+    int file_size = audio_file.size();
+    int sample_rate = audio_file.getSampleRate();
+    alBufferData(buffer_, format, data, file_size, sample_rate);
+
     alSourcePlay(source);
 }
 
@@ -75,9 +93,9 @@ void AudioService::StopAll()
 /* ----- getters / setters / helpers ----- */
 
 AudioFile<float> AudioService::LoadAudioFile(std::string file_name,
-                                             AudioType audio_type)
+                                             PlaybackType audio_type)
 {
-    if (audio_type == AudioType::LOOP)
+    if (audio_type == PlaybackType::LOOP)
         std::string file_path = kLoopDirectory.append(file_name);
     else
         std::string file_path = kOneShotDirectory.append(file_name);
@@ -87,7 +105,7 @@ AudioFile<float> AudioService::LoadAudioFile(std::string file_name,
     return audio_file;
 }
 
-ALenum AudioService::GetAudioFileFormat(AudioFile audio_file)
+ALenum AudioService::GetFormat(AudioFile audio_file)
 {
     if (audio_file.isStereo())
     {
@@ -113,21 +131,27 @@ ALenum AudioService::GetAudioFileFormat(AudioFile audio_file)
     }
 }
 
-float AudioService::GetAudioFileData(AudioFile audio_file)
+float AudioService::GetData(AudioFile audio_file, float gain_adjust = 0.f)
 {
-    int numSamples = audio_file.getNumSamplesPerChannel();
-    float samples;
+    int amount_of_channels = audio_file.getNumChannels();
+    int amount_of_samples = audio_file.getNumSamplesPerChannel();
 
-    // iterate through each sample's data
-    for (int i = 0; i < numSamples; i++)
+    float gain = 1.f;
+
+    // iterate through entire file data
+    float samples;
+    for (int i = 0; i < amount_of_channels; i++)
     {
-        samples += audio_file.samples[0][i];
+        for (int j = 0; j < amount_of_samples; j++)
+        {
+            audio_file.samples[0][i] * (gain + gain_adjust);
+        }
     }
 
     return samples;
 }
 
-/* ----- from service ------ */
+/* ----- from Service ------ */
 
 void AudioService::OnInit()
 {
@@ -143,7 +167,6 @@ void AudioService::OnInit()
     }
 
     alcMakeContextCurrent(audio_context_);
-    alGenBuffers(1, &buffer_)
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
@@ -166,7 +189,6 @@ void AudioService::OnUpdate()
 
 void AudioService::OnCleanup()
 {
-    alDeleteBuffers(1, buffer_);
     alcMakeContextCurrent(nullptr);  // clear context
     alcDestroyContext(audio_context_);
     alcCloseDevice(audio_device_);
