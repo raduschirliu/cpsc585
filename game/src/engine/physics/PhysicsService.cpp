@@ -247,8 +247,14 @@ PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
     const bool status =
         cooking_->cookTriangleMesh(mesh_desc, cooking_out_buffer, &result);
     ASSERT_MSG(status, "Mesh cooking must succeeed");
-    ASSERT_MSG(result == PxTriangleMeshCookingResult::Enum::eSUCCESS,
-               "Mesh cooking must not cause warnings or errors");
+    ASSERT_MSG(result != PxTriangleMeshCookingResult::Enum::eFAILURE,
+               "Mesh cooking must succeed");
+
+    if (result == PxTriangleMeshCookingResult::Enum::eLARGE_TRIANGLE)
+    {
+        Log::warn("Mesh '{}' is too large for cooking, may cause issues",
+                  mesh_name);
+    }
 
     PxDefaultMemoryInputData mesh_in_buffer(cooking_out_buffer.getData(),
                                             cooking_out_buffer.getSize());

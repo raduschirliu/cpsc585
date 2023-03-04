@@ -371,13 +371,16 @@ void AssetService::OnInit()
     LoadMesh("resources/models/cube.obj", "cube");
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
-    LoadMesh("resources/models/car.obj", "car");
+    LoadMesh("resources/models/kart/car.obj", "car");
     LoadMesh("resources/models/track/track1.obj", "track1");
-    LoadMesh("resources/models/coin_1.obj", "coin");
-    LoadMesh("resources/models/energy_1.obj", "energy");
-    LoadMesh("resources/models/pickup_defence_2.obj", "defence_ring");
-    LoadMesh("resources/models/pickup_defence_3.obj", "defence");
-    LoadMesh("resources/models/pickup_defence.obj", "defence_shield");
+    LoadMesh("resources/models/track/track3-3.obj", "track3");
+    LoadMesh("resources/models/track/track3-3(collision).obj",
+             "track3-collision");
+    LoadMesh("resources/models/pickups/coin_1.obj", "coin");
+    LoadMesh("resources/models/pickups/energy_1.obj", "energy");
+    LoadMesh("resources/models/pickups/pickup_defence_2.obj", "defence_ring");
+    LoadMesh("resources/models/pickups/pickup_defence_3.obj", "defence");
+    LoadMesh("resources/models/pickups/pickup_defence.obj", "defence_shield");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
