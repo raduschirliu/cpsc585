@@ -21,43 +21,40 @@ const ALCchar* kDefaultDevice = nullptr;
 ALCint kContextAttributes = 0;
 
 // audio directories
+// note: since diagetic sound (3d sound) can only be in mono
+// we'll want all sfx to be mono too (music is fine in stereo)
 const std::string kSfxDirectory = "resources/audio/sfx/";
 const std::string kMusicDirectory = "resources/audio/music/";
 
-// debugging
+// for debugging
 const std::string kTestFileName = "professional_test_audio.ogg";
-
-AudioService::AudioService() : audio_device_(alcOpenDevice(kDefaultDevice))
-{
-}
 
 void AudioService::PlayOneShot(std::string file_name, float gain)
 {
     // check if source already exists;
-    // we don't want to keep adding buffers
-    // for the same sound
+    // don't want to keep adding buffers for the same sound
     if (active_sources_.count(file_name) == 0)
         AddSource(file_name);
 
     ALuint source;
     source = active_sources_[file_name].first;
 
-    // set gain if provided
+    // set gain if provided (defaults to 1.f)
     alSourcef(source, AL_GAIN, gain);
+
+    Log::debug("Playing audio: {}", file_name);
 
     alSourcePlay(source);
 }
 
-/// @todo implement streaming audio
-/// instead buffering for longer files (i.e music, etc.)
 void AudioService::PlayLoop(std::string file_name, float gain)
 {
+    // TODO
 }
 
 void AudioService::StopPlayback(std::string file_name)
 {
     ALuint source = active_sources_[file_name].first;
-
     alSourceStop(source);
 }
 
@@ -129,31 +126,50 @@ void AudioService::AddSource(std::string file_name, bool is_looping)
     alGenSources(1, &source);
     alSourcei(source, AL_LOOPING, AL_FALSE);
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
- 
+
     if (alGetError() != AL_NO_ERROR)
         Log::warning("Couldn't buffer audio data.");
 
     active_sources_.insert({file_name, {source, buffer}});
 }
 
+bool AudioService::IsPlaying(std::string file_name)
+{
+
+    ALuint source = active_sources_[file_name].first;
+    ALint source_state;
+    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+
+    if (source_state != AL_PLAYING)
+        return false;
+
+    return true;
+}
+
 /* ----- from Service ------ */
 
 void AudioService::OnInit()
 {
-    // check audio device
-    if (!audio_device_)
-    {
-        Log::warning("[AudioService] couldn't open audio device.");
-    }
-    else
+    // open and verify audio device
+    audio_device_ = alcOpenDevice(kDefaultDevice);
+    if (audio_device_)
     {
         Log::debug("[AudioService] opened audio device successfully!");
     }
+    else
+    {
+        Log::warning("[AudioService] couldn't open audio device.");
+    }
 
+    // create audio context
     audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
+
     if (alGetError() != AL_NO_ERROR)
+    {
+        // i.e no audio at all
         Log::warning("Coudn't make audio context current.");
+    }
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
@@ -167,24 +183,18 @@ void AudioService::OnSceneLoaded(Scene& scene)
 
 void AudioService::OnUpdate()
 {
-    // test audio
+    // temp implementation to test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
         PlayOneShot(kTestFileName);
-        ALuint source = active_sources_[kTestFileName].first;
-        ALuint buffer = active_sources_[kTestFileName].second;
-        ALint source_state;
-        alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-        if (source_state == AL_PLAYING)
+    }
+
+    for (auto& pair : active_sources_)
+    {
+        if (!IsPlaying(pair.first))
         {
-            alGetSourcei(source, AL_SOURCE_STATE, &source_state);
-            Log::debug("Audio playing.");
-        }
-        else
-        {
-            alDeleteSources(1, &source);
-            alDeleteBuffers(1, &buffer);
-            Log::debug("Audio ended.");
+            alDeleteSources(1, &pair.second.first);
+            alDeleteBuffers(1, &pair.second.second);
         }
     }
 }

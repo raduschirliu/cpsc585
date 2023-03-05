@@ -16,25 +16,24 @@
 class AudioService final : public Service
 {
   public:
-    AudioService();
-
     /// @brief plays a soundfile fully just once.
     /// @param gain optionally set the gain compensation. default: 0
     void PlayOneShot(std::string file_name, float gain = 1.f);
 
-    /// @brief loops a soundfile indefinitely (until stopped).
-    /// @param gain optionally set the gain compensation. default: 0
+    /// @todo implement streaming audio
+    /// instead buffering for longer files (i.e music, etc.)
     void PlayLoop(std::string file_name, float gain = 1.f);
 
     /// @todo
-    /// @brief stops playback of a specified sound. 
+    /// stop playback of a specified sound.
     void StopPlayback(std::string file_name);
 
     /// @todo
-    /// @brief stops playback of all sounds.
+    /// stop playback of all sounds.
     void StopAllPlayback();
 
-    // from service:
+    /* ----- from service ----- */
+
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
     void OnSceneLoaded(Scene& scene) override;
@@ -43,19 +42,21 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
+    /// @note post-debugging we prob want to remove this
     jss::object_ptr<InputService> input_service_;
 
     /// @brief the sound device to output game audio to.
     ALCdevice* audio_device_;
     /// @brief it's like an openGL context.
     ALCcontext* audio_context_;
+
     /// @brief all of the currently active sources.
     /// @note <file_name, <source, buffer>>
     std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
 
     /// @brief loads file from the directory corresponding to the audio_type.
-    /// @param audio_type either a ONESHOT or a LOOP.
     AudioFile LoadAudioFile(std::string file_name, bool is_looping = false);
-
+    /// @brief creates and adds a source and buffer for the file given.
     void AddSource(std::string file_name, bool is_looping = false);
+    bool IsPlaying(std::string file_name);
 };
