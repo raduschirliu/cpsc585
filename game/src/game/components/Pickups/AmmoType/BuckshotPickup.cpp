@@ -12,9 +12,9 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
     // do what the parent class does
     Pickup::OnTriggerEnter(data);
-    if (data.other->GetName() == "PlayerVehicle" && power_activated_)
+    if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
-        power_activated_ = false;
+        SetPowerVisibility(false);
         Log::debug("Buckshot Ammo Type");
     }
 }

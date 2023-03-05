@@ -8,6 +8,7 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
 
     game_state_service_->AddPlayerDetails(GetEntity().GetId(), player_state_);
+    game_state_service_->AddPlayerStates(GetEntity().GetId(), this);
     // so that next time we do not enter this loop and redundantly add
     // more in the player details
     game_state_assigned_ = true;
@@ -69,7 +70,7 @@ double PlayerState::GetTimeElapsed()
     return player_state_.time_elapsed;
 }
 
-int PlayerState::GetCurrentPowerup()
+PowerupPickupType PlayerState::GetCurrentPowerup()
 {
     return player_state_.current_powerup;
 }
@@ -77,4 +78,14 @@ int PlayerState::GetCurrentPowerup()
 PlayerStateData* PlayerState::GetStateData()
 {
     return &player_state_;
+}
+
+void PlayerState::SetSpeedMultiplier(float value)
+{
+    player_state_.speed_multiplier = value;
+}
+
+void PlayerState::SetCurrentPowerup(PowerupPickupType type)
+{
+    player_state_.current_powerup = type;
 }

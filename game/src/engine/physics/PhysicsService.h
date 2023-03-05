@@ -15,7 +15,9 @@
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/core/math/Timestep.h"
 #include "engine/gui/OnGuiEvent.h"
+#include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
@@ -53,21 +55,28 @@ class PhysicsService final : public Service,
     physx::PxScene* kScene_ = nullptr;
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
     physx::PxCooking* cooking_ = nullptr;
+    physx::vehicle2::PxVehiclePhysXSimulationContext vehicle_context_;
+    std::vector<snippetvehicle2::BaseVehicle*> vehicles_;
 
-    std::vector<physx::PxRigidDynamic*> dynamic_actors_ = {};
+    Timestep time_accumulator_;
+
     bool show_debug_menu_ = false;
     bool debug_draw_scene_ = false;
     bool debug_draw_raycast_ = false;
-
-    const physx::PxF32 timestep = 1.0f / 60.0f;
+    double prev_time_;
+    int tick_rate_;
+    int tick_count_;
 
     void InitPhysX();
+    void StepPhysics();
     void DrawDebugParamWidget(const std::string& name,
                               physx::PxVisualizationParameter::Enum parameter);
 
   public:
     void RegisterActor(physx::PxActor* actor);
+    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
     void UnregisterActor(physx::PxActor* actor);
+    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
 
     /* From PxSimulationEventCallback */
     void onConstraintBreak(physx::PxConstraintInfo* constraints,
@@ -120,11 +129,6 @@ class PhysicsService final : public Service,
     inline physx::PxScene* GetKScene()
     {
         return kScene_;
-    }
-
-    inline physx::PxF32 GetTimeStep()
-    {
-        return timestep;
     }
 
     const physx::PxVec3& GetGravity() const;

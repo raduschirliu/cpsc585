@@ -90,6 +90,11 @@ void App::SetActiveScene(const string& name)
     Log::info("Active scene set to: {}", name);
 }
 
+const Timestep& App::GetDeltaTime() const
+{
+    return delta_time_;
+}
+
 SceneList& App::GetSceneList()
 {
     return scene_list_;
@@ -111,12 +116,20 @@ void App::PerformGameLoop()
 
     while (running_ && !window_.ShouldClose())
     {
+        CalculateDeltaTime();
         window_.PollEvents();
 
         service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();
     }
+}
+
+void App::CalculateDeltaTime()
+{
+    const Timestep current_frame = Timestep::Seconds(glfwGetTime());
+    delta_time_ = current_frame - last_frame_;
+    last_frame_ = current_frame;
 }
 
 void App::OnKeyEvent(int key, int scancode, int action, int mods)

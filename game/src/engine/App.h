@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "engine/core/gfx/Window.h"
+#include "engine/core/math/Timestep.h"
 #include "engine/scene/Scene.h"
 #include "engine/scene/SceneList.h"
 #include "engine/service/ServiceProvider.h"
@@ -25,6 +26,7 @@ class App : public std::enable_shared_from_this<App>,
     void OnWindowSizeChanged(int width, int height) override;
     void OnJoystickChangedEvent(int joystick_id, int event) override;
 
+    const Timestep& GetDeltaTime() const;
     Window& GetWindow();
     EventBus& GetEventBus();
     SceneList& GetSceneList();
@@ -51,6 +53,8 @@ class App : public std::enable_shared_from_this<App>,
     ServiceProvider service_provider_;
     SceneList scene_list_;
     EventBus event_bus_;
+    Timestep last_frame_, delta_time_;
 
     void PerformGameLoop();
+    void CalculateDeltaTime();
 };

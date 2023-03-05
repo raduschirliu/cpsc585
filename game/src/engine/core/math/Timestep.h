@@ -14,6 +14,15 @@ class Timestep
     const double GetSeconds() const;
     const double& GetMillis() const;
 
+    bool operator==(const Timestep& rhs);
+    bool operator>(const Timestep& rhs);
+    bool operator<(const Timestep& rhs);
+    bool operator>=(const Timestep& rhs);
+    bool operator<=(const Timestep& rhs);
+
+    Timestep& operator+=(const Timestep& rhs);
+    Timestep& operator-=(const Timestep& rhs);
+
   private:
     double milliseconds_;
 };

@@ -2,11 +2,14 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/game_state/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"  // to get the command struct
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+
+class PlayerState;
 
 class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
@@ -21,13 +24,24 @@ class PlayerController final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
-
+    jss::object_ptr<GameStateService> game_state_service_;
     // We get this using the vehiclecomponent.
     snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
-    Command executable_command_;
+    bool execute_powerup_ = false;
+
+    PlayerState* player_data_ = nullptr;
+
+    float speed_multiplier_ = 1.f;
+    float handling_multiplier_ = 1.f;
+
+    // making this a pointer as we want to use it later in the vehicle data
+    // structure for changes to speed.
+    Command* executable_command_;
 
     float timestep_ = 1.f / 60.f;
+
+    void CarController(const Timestep& delta_time);
 
   public:
     inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
