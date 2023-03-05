@@ -50,9 +50,21 @@ void Transform::SetPosition(const vec3& position)
     UpdateMatrices();
 }
 
+void Transform::LerpPosition(const vec3& target, float t)
+{
+    position_ = glm::mix(position_, target, t);
+    UpdateMatrices();
+}
+
 void Transform::SetOrientation(const quat& orientation)
 {
     orientation_ = orientation;
+    UpdateMatrices();
+}
+
+void Transform::SlerpOrientation(const quat& target, float t)
+{
+    orientation_ = glm::slerp(orientation_, target, t);
     UpdateMatrices();
 }
 

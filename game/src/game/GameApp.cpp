@@ -22,7 +22,6 @@
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
 #include "engine/render/Camera.h"
-#include "engine/render/FollowCamera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
@@ -34,6 +33,7 @@
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FinishLineComponent.h"
+#include "game/components/FollowCamera.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
@@ -180,7 +180,7 @@ void GameApp::LoadTestScene(Scene& scene)
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
 
         // Camera following car
-        Entity& follow_camera_entity = scene.AddEntity();
+        Entity& follow_camera_entity = scene.AddEntity("Camera");
         auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
         auto& follow_camera_comp =
             follow_camera_entity.AddComponent<FollowCamera>();

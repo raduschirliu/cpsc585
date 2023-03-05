@@ -17,6 +17,7 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
     // From IEventSubscriber<OnUpdateEvent>
@@ -24,20 +25,14 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // Set the entity from which we want to follow using this camera
     void SetFollowingTransform(Entity& entity);
-
-  protected:
-    glm::mat4 view_matrix_;
+    void SetCameraOffset(glm::vec3 offset);
 
   private:
     jss::object_ptr<Transform> transform_;
-    jss::object_ptr<Entity> car_entity_;
+    jss::object_ptr<Transform> target_transform_;
 
-    glm::vec3 camera_offset_;
-
-    // seperate public functions for getters and setters
-  public:
-    void SetCameraOffset(glm::vec3 offset)
-    {
-        camera_offset_ = offset;
-    }
+    glm::vec3 offset_;
+    float distance_;
+    float orientation_lerp_factor_;
+    float position_lerp_factor_;
 };
