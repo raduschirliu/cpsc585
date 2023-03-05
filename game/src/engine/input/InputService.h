@@ -46,6 +46,12 @@ class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
     bool IsMouseButtonDown(int button);
 
     /**
+     * Return true if a gamepad with given ID is connected & initialized, false
+     * otherwise
+     */
+    bool IsGamepadActive(size_t gamepad_id);
+
+    /**
      * Return a value in the range [-1.0f, 1.0f] representing a gamepad axis. If
      * the gamepad doesn't exist, return 0.0f
      */

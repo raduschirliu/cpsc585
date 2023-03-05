@@ -91,6 +91,11 @@ int Gamepad::GetId() const
     return id_;
 }
 
+bool Gamepad::GetActive() const
+{
+    return active_;
+}
+
 float Gamepad::GetAxis(int axis) const
 {
     if (axis >= kAxisCount || axis < 0)

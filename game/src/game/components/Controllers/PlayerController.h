@@ -37,8 +37,9 @@ class PlayerController final : public Component,
 
     void UpdatePowerupControls(const Timestep& delta_time);
     void UpdateCarControls(const Timestep& delta_time);
+    void UpdateGear();
     float GetSteerDirection();
     float GetThrottle();
     float GetFrontBrake();
-    void UpdateGear();
+    bool GetGearChangeButton();
 };

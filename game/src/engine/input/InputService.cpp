@@ -146,6 +146,17 @@ void InputService::OnJoystickChangedEvent(int joystick_id, int event)
     }
 }
 
+bool InputService::IsGamepadActive(size_t gamepad_id)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return false;
+    }
+
+    return kGamepads[gamepad_id].GetActive();
+}
+
 float InputService::GetGamepadAxis(size_t gamepad_id, int axis)
 {
     if (gamepad_id >= kGamepads.size())

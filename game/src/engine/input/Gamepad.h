@@ -26,6 +26,7 @@ class Gamepad
     void UpdateState();
 
     int GetId() const;
+    bool GetActive() const;
     float GetAxis(int axis) const;
     bool IsButtonDown(int button) const;
     bool IsButtonPressed(int button) const;

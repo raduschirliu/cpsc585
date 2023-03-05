@@ -115,14 +115,20 @@ float PlayerController::GetSteerDirection()
 {
     if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        return 1.0f;
+        return -1.0f;
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_D))
     {
-        return -1.0f;
+        return 1.0f;
     }
 
-    return input_service_->GetGamepadAxis(kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_X);
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        return input_service_->GetGamepadAxis(kGamepadId,
+                                              GLFW_GAMEPAD_AXIS_LEFT_X);
+    }
+
+    return 0.0f;
 }
 
 float PlayerController::GetThrottle()
@@ -136,16 +142,19 @@ float PlayerController::GetThrottle()
         return 0.0f;
     }
 
-    return math::Map(input_service_->GetGamepadAxis(
-                         kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
-                     -1.0f, 1.0f, 0.0f, 1.0f);
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        return math::Map(input_service_->GetGamepadAxis(
+                             kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                         -1.0f, 1.0f, 0.0f, 1.0f);
+    }
+
+    return 0.0f;
 }
 
 void PlayerController::UpdateGear()
 {
-    if (input_service_->IsKeyPressed(GLFW_KEY_X) ||
-        input_service_->IsGamepadButtonPressed(kGamepadId,
-                                               GLFW_GAMEPAD_BUTTON_X))
+    if (GetGearChangeButton())
     {
         forward_gear_ = !forward_gear_;
 
@@ -169,12 +178,17 @@ float PlayerController::GetFrontBrake()
         return 1.0f;
     }
 
-    const float gamepad_trigger =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        const float gamepad_trigger =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
 
-    return glm::max(gamepad_trigger, kDefaultBrake);
+        return glm::max(gamepad_trigger, kDefaultBrake);
+    }
+
+    return 0.0f;
 }
 
 void PlayerController::OnDebugGui()
@@ -184,4 +198,11 @@ void PlayerController::OnDebugGui()
     ImGui::Text("Throttle: %f", command_.throttle);
     ImGui::Text("Front Brake: %f", command_.front_brake);
     ImGui::Text("Rear Brake: %f", command_.rear_brake);
+}
+
+bool PlayerController::GetGearChangeButton()
+{
+    return input_service_->IsKeyPressed(GLFW_KEY_X) ||
+           input_service_->IsGamepadButtonPressed(kGamepadId,
+                                                  GLFW_GAMEPAD_BUTTON_X);
 }
