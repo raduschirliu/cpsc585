@@ -24,71 +24,42 @@ ALCint kContextAttributes = 0;
 const std::string kOneShotDirectory = "resources/audio/sfx/";
 const std::string kLoopDirectory = "resources/audio/music/";
 
+// debugging
+const std::string kTestFileName = "TestLaugh_44k.ogg";
+
 AudioService::AudioService() : audio_device_(alcOpenDevice(kDefaultDevice))
 {
 }
 
-void AudioService::PlayOneShot(std::string file_name, int gain)
+void AudioService::PlayOneShot(std::string file_name, float gain)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
-
-    // create buffer in memory
-    ALuint buffer;
-    alGenBuffers(1, &buffer);
-
-    // create source, set to not loop
-    ALuint source;
-    alGenSources(1, &source);
-    alSourcei(source, AL_LOOPING, AL_FALSE);
+    AddSource(file_name);
+    ALuint source = active_sources_[file_name].first;
 
     // set gain if provided
-    if (gain != 0)
-        alSourcei(source, AL_GAIN, gain);
-
-    // fill buffer
-    int number_of_samples =
-        audio_file.samples_per_channel * audio_file.number_of_channels_;
-    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
-                 number_of_samples * sizeof(ALshort), audio_file.sample_rate_);
-
-    if (alGetError() != AL_NO_ERROR)
-        Log::warning("AUDIO FUCKED UP");
-
-    sources_[file_name] = std::make_pair(source, buffer);
+    alSourcef(source, AL_GAIN, gain);
 
     alSourcePlay(source);
-
-    // don't destroy source until done playing
-    // ALint state = AL_PLAYING;
-    // while (state == AL_PLAYING)
-    // {
-    //     Log::debug("PLAYING AUDIO");
-    //     alGetSourcei(source, AL_SOURCE_STATE, &state);
-    // }
-    // Log::debug("AUDIO ENDED");
-
-    // sources_.erase(file_name);
-
-    // // kill the source when done
-    // alDeleteSources(1, &source);
-    // alDeleteBuffers(1, &buffer);
 }
 
 /// @todo implement streaming audio
 /// instead buffering for longer files (i.e music, etc.)
-void AudioService::PlayLoop(std::string file_name, int gain)
+void AudioService::PlayLoop(std::string file_name, float gain)
 {
 }
 
 void AudioService::StopPlayback(std::string file_name)
 {
+    ALuint source = active_sources_[file_name].first;
+
+    alSourceStop(source);
 }
 
 void AudioService::StopAllPlayback()
 {
-    for (auto& source : sources_)
+    for (auto& pair : active_sources_)
     {
-        alSourceStop(source.second.first);
+        alSourceStop(pair.second.first);
     }
 }
 
@@ -128,49 +99,35 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
     else
         audio_file.format_ = AL_FORMAT_MONO16;
 
-    // alGetError();
-    // if (!AL_NO_ERROR)
-    // if (audio_file.load(file_path))
-    // Log::debug("[AudioService] {} successfully loaded!", file_path);
-
     return audio_file;
 }
 
-// ALenum AudioService::GetFormat(AudioData* data)
-// {
-//     if (data->channelCount == 1)
-//     {
-//         switch (data->sourceFormat)
-//         {
-//             case PCM_U8:
-//                 return AL_FORMAT_MONO8;
-//             case PCM_16:
-//                 return AL_FORMAT_MONO16;
-//             default:
-//                 return -1;
-//         }
-//     }
-//     else if (data->channelCount == 2)
-//     {
-//         switch (data->sourceFormat)
-//         {
-//             case PCM_U8:
-//                 return AL_FORMAT_STEREO8;
-//             case PCM_16:
-//                 return AL_FORMAT_STEREO16;
-//             default:
-//                 return -1;
-//         }
-//     }
-//     else
-//     {
-//         return -1;
-//     }
-// }
+void AudioService::AddSource(std::string file_name, bool is_looping)
+{
+    AudioFile audio_file = LoadAudioFile(file_name, false);
 
-// std::vector<float> AudioService::GetData(AudioData* data)
-// {
-// }
+    // create buffer in memory
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
+
+    // create source, set to not loop
+    ALuint source;
+    alGenSources(1, &source);
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+
+    // fill buffer
+    int number_of_samples =
+        audio_file.samples_per_channel * audio_file.number_of_channels_;
+    int size_in_bytes = number_of_samples * sizeof(short);
+
+    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
+                 size_in_bytes, audio_file.sample_rate_);
+
+    if (alGetError() != AL_NO_ERROR)
+        Log::warning("Couldn't buffer audio data.");
+
+    active_sources_.insert({file_name, {source, buffer}});
+}
 
 /* ----- from Service ------ */
 
@@ -189,7 +146,7 @@ void AudioService::OnInit()
     audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
     if (alGetError() != AL_NO_ERROR)
-        Log::warning("AUDIO FUCKED UP");
+        Log::warning("Coudn't make audio context current.");
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
@@ -206,13 +163,21 @@ void AudioService::OnUpdate()
     // test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
-        PlayOneShot("professionalTestAudio.ogg");
+        PlayOneShot(kTestFileName);
+        ALuint source = active_sources_[kTestFileName].first;
+        ALint source_state = AL_PLAYING;
+        if (source_state == AL_PLAYING)
+        {
+            alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+            Log::debug("Audio playing.");
+        }
+        Log::debug("Audio ended.");
     }
 }
 
 void AudioService::OnCleanup()
 {
-    for (auto& source : sources_)
+    for (auto& source : active_sources_)
     {
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
