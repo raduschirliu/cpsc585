@@ -164,16 +164,6 @@ void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
     player_data_ = &data;
 }
 
-glm::vec3 VehicleComponent::GetPosition()
-{
-    return transform_->GetPosition();
-}
-
-glm::quat VehicleComponent::GetOrientation()
-{
-    return transform_->GetOrientation();
-}
-
 PlayerStateData* VehicleComponent::GetPlayerStateData()
 {
     if (player_data_)

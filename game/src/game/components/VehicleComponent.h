@@ -43,8 +43,6 @@ class VehicleComponent final : public Component,
 
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
     PlayerStateData* GetPlayerStateData();
-    glm::vec3 GetPosition();
-    glm::quat GetOrientation();
 
   private:
     jss::object_ptr<Transform> transform_;

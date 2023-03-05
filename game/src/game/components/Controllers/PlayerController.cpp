@@ -173,7 +173,7 @@ float PlayerController::GetFrontBrake()
                       kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
                   -1.0f, 1.0f, 0.0f, 1.0f);
 
-    return glm::min(gamepad_trigger, kDefaultBrake);
+    return glm::max(gamepad_trigger, kDefaultBrake);
 }
 
 void PlayerController::OnDebugGui()

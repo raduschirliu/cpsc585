@@ -241,7 +241,7 @@ void InputService::OnInit()
     GetEventBus().Subscribe<OnGuiEvent>(this);
 
     // Check if any gamepads are connected
-    for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+    for (int i = 0; i < kGamepads.size(); i++)
     {
         kGamepads[i].id = i;
         kGamepads[i].active = false;
@@ -380,6 +380,7 @@ void InputService::OnGui()
             }
             ImGui::Unindent(5.0f);
         }
+        ImGui::PopID();
     }
 
     ImGui::End();
