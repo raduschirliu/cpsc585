@@ -27,6 +27,7 @@ class VehicleComponent final : public Component,
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnDestroy() override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
     // Event subscribers

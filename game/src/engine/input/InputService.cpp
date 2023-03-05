@@ -62,6 +62,16 @@ struct Gamepad
     GLFWgamepadstate state;
 };
 
+// Gamepad axis values will be ignored if abs(val) < threshold
+static constexpr float kGamepadAxisThreshold = 0.1f;
+
+static constexpr array<int, 4> kGamepadThresholdAxes = {
+    GLFW_GAMEPAD_AXIS_LEFT_X,
+    GLFW_GAMEPAD_AXIS_LEFT_Y,
+    GLFW_GAMEPAD_AXIS_RIGHT_X,
+    GLFW_GAMEPAD_AXIS_RIGHT_Y,
+};
+
 // Gamepad axis names
 static const array<string, GLFW_GAMEPAD_AXIS_LAST + 1> kGamepadAxisNames = {
     "LeftX", "LeftY", "RightX", "RightY", "LeftTrigger", "RightTrigger"};
@@ -318,6 +328,15 @@ void InputService::OnUpdate()
     for (auto& controller : kGamepads)
     {
         glfwGetGamepadState(controller.id, &controller.state);
+
+        for (auto axis_idx : kGamepadThresholdAxes)
+        {
+            auto& axis_val = controller.state.axes[axis_idx];
+            if (abs(axis_val) < kGamepadAxisThreshold)
+            {
+                axis_val = 0.0f;
+            }
+        }
     }
 
     // Check for debug menu
@@ -340,6 +359,7 @@ void InputService::OnGui()
         return;
     }
 
+    ImGui::Text("Gamepad axis threshold: %f", kGamepadAxisThreshold);
     ImGui::Text("Gamepads:");
     ImGui::Spacing();
 

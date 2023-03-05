@@ -9,8 +9,9 @@
 #include "game/components/state/PlayerState.h"
 
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
-constexpr float kSpeedMultiplier = 1.0f;
-constexpr float kHanldingMultiplier = 1.0f;
+static constexpr float kDefaultBrake = -0.1f;
+static constexpr float kSpeedMultiplier = 1.0f;
+static constexpr float kHanldingMultiplier = 1.0f;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
@@ -100,6 +101,9 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 
 void PlayerController::UpdateCarControls(const Timestep& delta_time)
 {
+    // TODO: Need to take multipliers into account again
+    // (or move them into VehicleComponent instead)
+
     UpdateGear();
     command_.steer = GetSteerDirection();
     command_.throttle = GetThrottle();
@@ -164,9 +168,12 @@ float PlayerController::GetFrontBrake()
         return 1.0f;
     }
 
-    return math::Map(input_service_->GetGamepadAxis(
-                         kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                     -1.0f, 1.0f, 0.0f, 1.0f);
+    const float gamepad_trigger =
+        math::Map(input_service_->GetGamepadAxis(
+                      kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                  -1.0f, 1.0f, 0.0f, 1.0f);
+
+    return glm::min(gamepad_trigger, kDefaultBrake);
 }
 
 void PlayerController::OnDebugGui()

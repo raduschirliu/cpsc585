@@ -1,5 +1,7 @@
 #include "VehicleComponent.h"
 
+#include <imgui.h>
+
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
@@ -141,6 +143,15 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
     g_vehicle_name_ = vehicle_name;
     vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                         g_vehicle_name_.c_str());
+}
+
+void VehicleComponent::OnDebugGui()
+{
+    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
+    ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
+    ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
+    ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
+    ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
 }
 
 DirectDriveVehicle& VehicleComponent::GetVehicle()
