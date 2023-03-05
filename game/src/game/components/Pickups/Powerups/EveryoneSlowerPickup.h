@@ -1,6 +1,3 @@
-// this is the basic pickup class which will be inherited by the future children
-// classes in order to implement the functionality and add meshes to them
-
 #pragma once
 
 #include <object_ptr.hpp>
