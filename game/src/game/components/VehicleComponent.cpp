@@ -206,3 +206,23 @@ void VehicleComponent::SetCommand(VehicleCommand command)
     vehicle_.mCommandState.brakes[1] =
         glm::clamp(command.rear_brake, 0.0f, 1.0f);
 }
+
+VehicleGear VehicleComponent::GetGear() const
+{
+    switch (vehicle_.mTransmissionCommandState.gear)
+    {
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE:
+            return VehicleGear::kReverse;
+
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL:
+            return VehicleGear::kNeutral;
+
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD:
+            return VehicleGear::kForward;
+
+        default:
+            ASSERT_ALWAYS(
+                "Vehicle transmission should never be in an unkown state");
+            return VehicleGear::kNeutral;
+    }
+}

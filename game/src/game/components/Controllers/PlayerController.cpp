@@ -144,7 +144,8 @@ float PlayerController::GetThrottle()
 void PlayerController::UpdateGear()
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_X) ||
-        input_service_->IsGamepadButtonDown(kGamepadId, GLFW_GAMEPAD_BUTTON_X))
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_X))
     {
         forward_gear_ = !forward_gear_;
 

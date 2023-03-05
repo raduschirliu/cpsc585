@@ -44,6 +44,8 @@ class VehicleComponent final : public Component,
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
     PlayerStateData* GetPlayerStateData();
 
+    VehicleGear GetGear() const;
+
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;

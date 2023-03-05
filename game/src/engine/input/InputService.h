@@ -14,13 +14,13 @@ class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
     /**
-     * Return if the key was just pressed this frame
+     * Return if the key was just pressed. Will return true for only one frame
      */
     bool IsKeyPressed(int key);
 
     /**
-     * Return if the key is being held (was pressed the previous frame and not
-     * yet released)
+     * Return if the key is being held down (was pressed the previous frame and
+     * not yet released). Will return true as long as the button is depressed
      */
     bool IsKeyDown(int key);
 
@@ -52,9 +52,21 @@ class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
     float GetGamepadAxis(size_t gamepad_id, int axis);
 
     /**
-     * Checks if a gamepad button is currently pressed
-    */
+     * Return if the gamepad button is being held down (was pressed the previous
+     * frame and not yet released). Will return true as long as the button is
+     * depressed.
+     *
+     * If the gamepad doesn't exist, will return false.
+     */
     bool IsGamepadButtonDown(size_t gamepad_id, int button);
+
+    /**
+     * Return if the gamepad button was just pressed. Will return true for only
+     * one frame.
+     *
+     * If the gamepad doesn't exist, will return false.
+     */
+    bool IsGamepadButtonPressed(size_t gamepad_id, int button);
 
     /**
      * Callback from GLFW to track key events
@@ -88,5 +100,5 @@ class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
   private:
     bool show_debug_menu_ = false;
 
-    static bool TryRegisterController(int id);
+    void UpdateGamepads();
 };
