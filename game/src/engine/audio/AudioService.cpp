@@ -4,6 +4,7 @@
 #include <AL/alc.h>
 
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <object_ptr.hpp>
 #include <string>
@@ -135,15 +136,39 @@ void AudioService::AddSource(std::string file_name, bool is_looping)
 
 bool AudioService::IsPlaying(std::string file_name)
 {
-
     ALuint source = active_sources_[file_name].first;
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+
+    if (alGetError() != AL_NO_ERROR)
+        Log::warning("Couldn't get Source State from {}.", file_name);
 
     if (source_state != AL_PLAYING)
         return false;
 
     return true;
+}
+
+void AudioService::CullSources()
+{
+    for (auto pair = active_sources_.begin(),
+              next_pair = pair;          //
+         pair != active_sources_.end();  //
+         pair = next_pair)
+    {
+        next_pair++;
+        if (!IsPlaying(pair->first))
+        {
+            Log::debug("{} stopped playing.", pair->first);
+            alDeleteSources(1, &pair->second.first);
+            alDeleteBuffers(1, &pair->second.second);
+            
+            if (alGetError() != AL_NO_ERROR)
+                Log::error("While culling Sources for {}.", pair->first);
+           
+            active_sources_.erase(pair);
+        }
+    }
 }
 
 /* ----- from Service ------ */
@@ -189,14 +214,7 @@ void AudioService::OnUpdate()
         PlayOneShot(kTestFileName);
     }
 
-    for (auto& pair : active_sources_)
-    {
-        if (!IsPlaying(pair.first))
-        {
-            alDeleteSources(1, &pair.second.first);
-            alDeleteBuffers(1, &pair.second.second);
-        }
-    }
+    CullSources();
 }
 
 void AudioService::OnCleanup()
