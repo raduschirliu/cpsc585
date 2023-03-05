@@ -7,9 +7,10 @@
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
 #include "engine/core/gfx/Window.h"
+#include "engine/gui/OnGuiEvent.h"
 #include "engine/service/Service.h"
 
-class InputService final : public Service
+class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
     /**
@@ -61,7 +62,7 @@ class InputService final : public Service
 
     /**
      * Callback from GLFW to track when a joystick connects/disconnects
-    */
+     */
     static void OnJoystickChangedEvent(int joystick_id, int event);
 
     // From Service
@@ -69,4 +70,12 @@ class InputService final : public Service
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
+
+    // From Event subscribers
+    void OnGui() override;
+
+  private:
+    bool show_debug_menu_ = false;
+
+    static bool TryRegisterController(int id);
 };

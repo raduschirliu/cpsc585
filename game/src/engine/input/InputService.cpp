@@ -4,6 +4,7 @@
 #include <imgui.h>
 
 #include <array>
+#include <string>
 #include <vector>
 
 #include "engine/core/debug/Assert.h"
@@ -12,6 +13,7 @@
 using glm::ivec2;
 using glm::vec2;
 using std::array;
+using std::string;
 using std::vector;
 
 enum class KeyState : uint8_t
@@ -51,6 +53,20 @@ struct InputEvent
     {
     }
 };
+
+struct Gamepad
+{
+    int id;
+    string name;
+    GLFWgamepadstate state;
+};
+
+// Gamepad axis names
+static const array<string, GLFW_GAMEPAD_AXIS_LAST + 1> kGamepadAxisNames = {
+    "LeftX", "LeftY", "RightX", "RightY", "LeftTrigger", "RightTrigger"};
+
+// Keep track of all gamepads
+static vector<Gamepad> kGamepads;
 
 // Keeps track of key events to be processed on next update
 static vector<InputEvent> kInputEventQueue;
@@ -144,23 +160,44 @@ void InputService::OnJoystickChangedEvent(int joystick_id, int event)
     {
         Log::info("Joystick connected: {}", joystick_id);
 
-        if (!glfwJoystickIsGamepad(joystick_id))
+        if (!TryRegisterController(joystick_id))
         {
             Log::info("Connected joystick that is NOT a gamepad - ignoring");
-            return;
         }
-
-        // TODO: Create gamepad state
     }
     else if (event == GLFW_DISCONNECTED)
     {
-        // TODO: Cleanup gamepad state
         Log::info("Joystick disconnected: {}", joystick_id);
+
+        auto iter = kGamepads.begin();
+
+        while (iter != kGamepads.end())
+        {
+            if (iter->id == joystick_id)
+            {
+                kGamepads.erase(iter);
+                return;
+            }
+        }
+    }
+    else
+    {
+        ASSERT_ALWAYS("This should never happen");
     }
 }
 
 void InputService::OnInit()
 {
+    GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Check if any gamepads are connected
+    for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
+    {
+        if (TryRegisterController(i))
+        {
+            Log::info("Found controller, ID: {}", i);
+        }
+    }
 }
 
 void InputService::OnCleanup()
@@ -232,4 +269,70 @@ void InputService::OnUpdate()
 
         kInputEventQueue.erase(kInputEventQueue.begin());
     }
+
+    // Update gamepads
+    for (auto& controller : kGamepads)
+    {
+        glfwGetGamepadState(controller.id, &controller.state);
+    }
+
+    // Check for debug menu
+    if (IsKeyPressed(GLFW_KEY_F4))
+    {
+        show_debug_menu_ = !show_debug_menu_;
+    }
+}
+
+void InputService::OnGui()
+{
+    if (!show_debug_menu_)
+    {
+        return;
+    }
+
+    if (!ImGui::Begin("InputService Debug", &show_debug_menu_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Gamepads:");
+    ImGui::Spacing();
+
+    for (auto& gamepad : kGamepads)
+    {
+        const string name_label = fmt::format("Name: {}", gamepad.name);
+
+        if (ImGui::CollapsingHeader(name_label.c_str()))
+        {
+            ImGui::Text("Joystick ID: %d", gamepad.id);
+
+            ImGui::Text("Axes:");
+            ImGui::Indent(5.0f);
+            for (int i = 0; i <= GLFW_GAMEPAD_AXIS_LAST; i++)
+            {
+                ImGui::Text("%s: %f", kGamepadAxisNames[i].c_str(),
+                            gamepad.state.axes[i]);
+            }
+            ImGui::Unindent(5.0f);
+        }
+    }
+
+    ImGui::End();
+}
+
+bool InputService::TryRegisterController(int id)
+{
+    if (!glfwJoystickIsGamepad(id))
+    {
+        return false;
+    }
+
+    Gamepad gamepad;
+    gamepad.id = id;
+    gamepad.name = glfwGetGamepadName(id);
+
+    kGamepads.push_back(gamepad);
+
+    return true;
 }
