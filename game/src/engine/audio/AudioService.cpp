@@ -21,11 +21,11 @@ const ALCchar* kDefaultDevice = nullptr;
 ALCint kContextAttributes = 0;
 
 // audio directories
-const std::string kOneShotDirectory = "resources/audio/sfx/";
-const std::string kLoopDirectory = "resources/audio/music/";
+const std::string kSfxDirectory = "resources/audio/sfx/";
+const std::string kMusicDirectory = "resources/audio/music/";
 
 // debugging
-const std::string kTestFileName = "TestLaugh_44k.ogg";
+const std::string kTestFileName = "professional_test_audio.ogg";
 
 AudioService::AudioService() : audio_device_(alcOpenDevice(kDefaultDevice))
 {
@@ -33,8 +33,14 @@ AudioService::AudioService() : audio_device_(alcOpenDevice(kDefaultDevice))
 
 void AudioService::PlayOneShot(std::string file_name, float gain)
 {
-    AddSource(file_name);
-    ALuint source = active_sources_[file_name].first;
+    // check if source already exists;
+    // we don't want to keep adding buffers
+    // for the same sound
+    if (active_sources_.count(file_name) == 0)
+        AddSource(file_name);
+
+    ALuint source;
+    source = active_sources_[file_name].first;
 
     // set gain if provided
     alSourcef(source, AL_GAIN, gain);
@@ -70,9 +76,9 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
     std::string file_path;
 
     if (is_looping)
-        file_path = kLoopDirectory;
+        file_path = kMusicDirectory;
     else
-        file_path = kOneShotDirectory;
+        file_path = kSfxDirectory;
     file_path.append(file_name);
 
     // initialize AudioFile
@@ -110,12 +116,7 @@ void AudioService::AddSource(std::string file_name, bool is_looping)
     ALuint buffer;
     alGenBuffers(1, &buffer);
 
-    // create source, set to not loop
-    ALuint source;
-    alGenSources(1, &source);
-    alSourcei(source, AL_LOOPING, AL_FALSE);
-
-    // fill buffer
+    // initialise buffer for audio data
     int number_of_samples =
         audio_file.samples_per_channel * audio_file.number_of_channels_;
     int size_in_bytes = number_of_samples * sizeof(short);
@@ -123,6 +124,12 @@ void AudioService::AddSource(std::string file_name, bool is_looping)
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
                  size_in_bytes, audio_file.sample_rate_);
 
+    // create and initialise source
+    ALuint source;
+    alGenSources(1, &source);
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+ 
     if (alGetError() != AL_NO_ERROR)
         Log::warning("Couldn't buffer audio data.");
 
@@ -165,13 +172,20 @@ void AudioService::OnUpdate()
     {
         PlayOneShot(kTestFileName);
         ALuint source = active_sources_[kTestFileName].first;
-        ALint source_state = AL_PLAYING;
+        ALuint buffer = active_sources_[kTestFileName].second;
+        ALint source_state;
+        alGetSourcei(source, AL_SOURCE_STATE, &source_state);
         if (source_state == AL_PLAYING)
         {
             alGetSourcei(source, AL_SOURCE_STATE, &source_state);
             Log::debug("Audio playing.");
         }
-        Log::debug("Audio ended.");
+        else
+        {
+            alDeleteSources(1, &source);
+            alDeleteBuffers(1, &buffer);
+            Log::debug("Audio ended.");
+        }
     }
 }
 
