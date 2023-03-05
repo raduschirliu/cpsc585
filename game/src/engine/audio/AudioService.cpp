@@ -204,7 +204,7 @@ void AudioService::OnSceneLoaded(Scene& scene)
 void AudioService::OnUpdate()
 {
     // test audio
-    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
+    if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
         PlayOneShot("professionalTestAudio.ogg");
     }
