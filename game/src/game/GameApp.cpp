@@ -418,45 +418,45 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 32.0f});
     }
-    {
-        // Player car
-        Entity& car_entity = scene.AddEntity("PlayerVehicle");
+    // {
+    //     // Player car
+    //     Entity& car_entity = scene.AddEntity("PlayerVehicle");
 
-        auto& transform = car_entity.AddComponent<Transform>();
+    //     auto& transform = car_entity.AddComponent<Transform>();
 
-        // need a better way to do this
-        transform.SetPosition(vec3(-67.934f, 2.452f, 336.682f));
-        transform.RotateEulerDegrees(vec3(0.422f, 98.829f, 0.95f));
-        // Camera following car
-        Entity& follow_camera_entity = scene.AddEntity();
-        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
-        auto& follow_camera_comp =
-            follow_camera_entity.AddComponent<FollowCamera>();
-        follow_camera_comp.SetFollowingTransform(car_entity);
+    //     // need a better way to do this
+    //     transform.SetPosition(vec3( -19.651195, 5.730307, 89.52167));
+    //     transform.RotateEulerDegrees(vec3(0.422f, 98.829f, 0.95f));
+    //     // Camera following car
+    //     Entity& follow_camera_entity = scene.AddEntity();
+    //     auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
+    //     auto& follow_camera_comp =
+    //         follow_camera_entity.AddComponent<FollowCamera>();
+    //     follow_camera_comp.SetFollowingTransform(car_entity);
 
-        follow_camera_entity.AddComponent<Camera>();
+    //     follow_camera_entity.AddComponent<Camera>();
 
-        auto& player_state = car_entity.AddComponent<PlayerState>();
+    //     auto& player_state = car_entity.AddComponent<PlayerState>();
 
-        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
-        vehicle.SetVehicleName("PlayerVehicle");
+    //     auto& vehicle = car_entity.AddComponent<VehicleComponent>();
+    //     vehicle.SetVehicleName("PlayerVehicle");
 
-        vehicle.SetPlayerStateData(*player_state.GetStateData());
+    //     vehicle.SetPlayerStateData(*player_state.GetStateData());
 
-        auto& hitbox_component = car_entity.AddComponent<Hitbox>();
-        hitbox_component.SetSize(vec3(10.f));
+    //     auto& hitbox_component = car_entity.AddComponent<Hitbox>();
+    //     hitbox_component.SetSize(vec3(10.f));
 
-        auto& controller = car_entity.AddComponent<PlayerController>();
-        controller.SetGVehicle(vehicle.GetVehicle());
-        auto& raycast = car_entity.AddComponent<RaycastComponent>();
+    //     auto& controller = car_entity.AddComponent<PlayerController>();
+    //     controller.SetGVehicle(vehicle.GetVehicle());
+    //     auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
-        auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
-        mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
-             .specular = vec3(0.3f, 0.3f, 0.3f),
-             .shininess = 64.0f});
-    }
+    //     auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
+    //     mesh_renderer.SetMesh("car");
+    //     mesh_renderer.SetMaterialProperties(
+    //         {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+    //          .specular = vec3(0.3f, 0.3f, 0.3f),
+    //          .shininess = 64.0f});
+    // }
 
     {
         // AI 1
@@ -465,9 +465,15 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         // need a better way to do this
         // need a better way to do this
-        transform.SetPosition(vec3(-42.92937, 5.7076354, 356.26932));
-        transform.RotateEulerDegrees(vec3(0.422f, 98.829f, 0.95f));
+        transform.SetPosition(vec3(-505.22742, 5.071559, -457.23126));
+        transform.RotateEulerDegrees(vec3(0.422f, 9.829f, 0.95f));
+Entity& follow_camera_entity = scene.AddEntity();
+        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
+        auto& follow_camera_comp =
+            follow_camera_entity.AddComponent<FollowCamera>();
+        follow_camera_comp.SetFollowingTransform(entity);
 
+        follow_camera_entity.AddComponent<Camera>();
         auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
@@ -542,24 +548,27 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //     auto& ai_controller = entity.AddComponent<AIController>();
     //     ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     // }
-    // {
+    //  {
     //     // Debug camera
     //     Entity& entity = scene.AddEntity("DebugCamera");
-    //     entity.AddComponent<Transform>();
+    //     auto& transform = entity.AddComponent<Transform>();
+    //     transform.SetPosition(vec3(-20.651195, 30.730307, 83.52167));
+    //     transform.RotateEulerDegrees(vec3(0.422f, 189.829f, 0.95f));
+
     //     entity.AddComponent<Camera>();
     //     entity.AddComponent<DebugCameraController>();
     // }
-    {
-        // Test cube
-        Entity& entity = scene.AddEntity("TestCube");
+    // {
+    //     // Test cube
+    //     Entity& entity = scene.AddEntity("TestCube");
 
-        entity.AddComponent<Transform>();
+    //     entity.AddComponent<Transform>();
 
-        auto& renderer = entity.AddComponent<MeshRenderer>();
-        renderer.SetMesh("cube");
+    //     auto& renderer = entity.AddComponent<MeshRenderer>();
+    //     renderer.SetMesh("cube");
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
-        rigidbody.SetGravityEnabled(false);
-    }
+    //     auto& rigidbody = entity.AddComponent<BoxRigidBody>();
+    //     rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
+    //     rigidbody.SetGravityEnabled(false);
+    // }
 }

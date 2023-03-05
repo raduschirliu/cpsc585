@@ -50,6 +50,7 @@ class NavMesh
 
   private:
     std::vector<glm::vec3> all_vertices_;
+    std::vector<glm::vec3> face_positions_;
     std::vector<Node*> all_nodes;
     uint32_t node_index_ = 0;
     void ReadVertices();

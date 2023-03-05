@@ -34,10 +34,11 @@ void AIService::OnInit()
 
 void AIService::OnStart(ServiceProvider& service_provider)
 {
+    bool bvalue = false;
     // auto node1 = *navMesh_->nodes_->find(1)->second;
     if (pathfinder_ && navMesh_)
-        pathfinder_->Search(navMesh_->nodes_->find(13)->second,
-                            navMesh_->nodes_->find(23)->second);
+        bvalue = pathfinder_->Search(navMesh_->nodes_->find(0)->second,
+                                     navMesh_->nodes_->find(110)->second);
 
     else
     {
@@ -86,7 +87,7 @@ NavMesh::Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
 void NavMesh::ReadVertices()
 {
     std::fstream file;
-    file.open("resources/models/track/track3-4(navmesh).obj", std::ios::in);
+    file.open("resources/models/track/track3-4navmesh.obj", std::ios::in);
     if (!file)
     {
         Log::error("Cannot open the navmesh file.");
@@ -97,25 +98,48 @@ void NavMesh::ReadVertices()
         std::string s;
         while (std::getline(file, s))
         {
+            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm')
+                continue;
             std::vector<float>
                 temp_vertex;  // so that after all the points are read, we
                               // can add it to the main vertex
+            std::vector<int> temp_face;
             std::stringstream ss(s);
             std::string word;
+            int index = 0;
+            bool face_vertex_bool =
+                false;  // false means its vertex information and true means its
+                        // face information
             while (ss >> word)
             {
                 if (word == "v")
                 {
-                    // ignore
+                    face_vertex_bool = false;
                 }
-                else
+                else if (word == "f")
                 {
-                    temp_vertex.push_back(std::stof(word));
+                    face_vertex_bool = true;
+                }
+                if (word != "v" && !face_vertex_bool)
+                {
+                    if (index == 1)
+                        temp_vertex.push_back(std::stof(word) + 9.f);
+                    else
+                        temp_vertex.push_back(std::stof(word) + 0.f);
+                    index++;
+                }
+                else if (word != "f" && face_vertex_bool)
+                {
+                    temp_face.push_back(std::stoi(word));
                 }
             }
             // now add this to the overall vertices.
-            all_vertices_.push_back(
-                glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]));
+            if (!face_vertex_bool)
+                all_vertices_.push_back(
+                    glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]));
+            else
+                face_positions_.push_back(
+                    glm::vec3(temp_face[0], temp_face[1], temp_face[2]));
         }
     }
 
@@ -131,11 +155,12 @@ NavMesh::NavMesh()
     // to store the nodes there are in the map.
     this->nodes_ = new std::map<unsigned int, Node*>();
 
-    for (int i = 0; i < all_vertices_.size() - 2; i += 3)
+    // getting all the vertices first.
+    for (int i = 0; i < face_positions_.size(); i++)
     {
-        auto& v1 = all_vertices_[i];
-        auto& v2 = all_vertices_[i + 1];
-        auto& v3 = all_vertices_[i + 2];
+        auto& v1 = all_vertices_[static_cast<int>(face_positions_[i].x) - 1];
+        auto& v2 = all_vertices_[static_cast<int>(face_positions_[i].y) - 1];
+        auto& v3 = all_vertices_[static_cast<int>(face_positions_[i].z) - 1];
         Node* temp_node = new Node(node_index_, v1, v2, v3);
         all_nodes.push_back(temp_node);
 
@@ -151,7 +176,7 @@ NavMesh::NavMesh()
         Node* n1 = all_nodes[i];
         Node* n2 = all_nodes[i + 1];
         n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
-        //std::cout << i << " " << i+1 << std::endl;
+        // std::cout << i << " " << i+1 << std::endl;
     }
 
     {
@@ -457,8 +482,15 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     std::vector<glm::vec3> smoothPath;
     smoothPath = SmoothPath(bPath);
 
+    // std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
-    for (auto& i : smoothPath) this->path_->push(i);
+    for (auto& i : smoothPath)
+        // {
+        this->path_->push(i);
+    //     points_output << "v " << i.x << " " << i.y << " " << i.z <<
+    //     std::endl;
+    // }
+    // points_output.close();
 }
 
 std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)

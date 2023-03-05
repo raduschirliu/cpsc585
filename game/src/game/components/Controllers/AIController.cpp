@@ -27,7 +27,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
 
-    transform_->SetPosition(ai_service_->GetPath()[0]);
+    transform_->SetPosition(ai_service_->GetPath()[200]);
     Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,transform_->GetPosition().y,transform_->GetPosition().z);
 
     
@@ -35,7 +35,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     // storing the initial variables.
     if (path_to_follow_.size() > 2)
     {
-        next_car_position_ = path_to_follow_[1];
+        next_car_position_ = path_to_follow_[201];
     }
 }
 
@@ -96,6 +96,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
     // speed_multiplier_);
+        //vehicle_reference_->mCommandState.steer = 0.f;
 
     if (sqrt(dot_product * dot_product) > 0.95f)
     {
@@ -105,7 +106,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         glm::vec3 cross_product =
             glm::cross(current_forward_dir, normalized_target);
-        if (cross_product.x < 0)
+        if (cross_product.x > 0)
         {
             vehicle_reference_->mCommandState.steer =
                 -0.6f * handling_multiplier_;
@@ -123,9 +124,10 @@ void AIController::OnUpdate(const Timestep& delta_time)
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
     Log::debug("Distance to the next point {}", distance);
-    if (distance < 10.f)
+    if (distance < 20.f)
     {
-        next_car_position_ = path_to_follow_[next_path_index_++];
+        next_car_position_ = path_to_follow_[next_path_index_+=2];
+
         Log::debug("{}", next_path_index_);
     }
 }
