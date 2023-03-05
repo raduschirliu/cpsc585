@@ -6,11 +6,10 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-
-#include "engine/physics/VehicleCommands.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,
