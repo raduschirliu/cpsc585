@@ -88,7 +88,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
                       ->getLinearVelocity()
                       .magnitude();
     // Log::debug("{}", speed);
-    if (speed <= 30)
+    if (speed <= 20)
     {
         vehicle_reference_->mCommandState.throttle =
             1.f * speed_multiplier_;  // for the everyone slow down pickup.
@@ -108,7 +108,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     glm::vec3 cross_product =
         glm::cross(current_forward_dir, normalized_target);
-    Log::debug("{}, {}, {}", cross_product.x, cross_product.y, cross_product.z);
+    //Log::debug("{}, {}, {}", cross_product.x, cross_product.y, cross_product.z);
 
     if (sqrt(dot_product * dot_product) > 0.95f)
     {
@@ -133,12 +133,17 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    // Log::debug("Distance to the next point {}", distance);
-    if (distance < 25.f)
+    Log::debug("Distance to the next point {}", distance);
+    if (distance < 28.f)
     {
+        if(next_path_index_ >= 430 && next_path_index_ <= 440)
+        {
+            
+            next_path_index_ = 578;
+        }
         next_car_position_ = path_to_follow_[next_path_index_ += 1];
 
-        // Log::debug("{}", next_path_index_);
+        Log::debug("{}", next_path_index_);
     }
 }
 
