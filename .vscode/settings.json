@@ -107,6 +107,7 @@
     "valarray": "cpp",
     "coroutine": "cpp",
     "filesystem": "cpp",
-    "shared_mutex": "cpp"
+    "shared_mutex": "cpp",
+    "complex": "cpp"
   }
 }

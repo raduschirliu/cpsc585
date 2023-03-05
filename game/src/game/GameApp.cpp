@@ -199,7 +199,6 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& controller = car_entity.AddComponent<PlayerController>();
-        controller.SetGVehicle(vehicle.GetVehicle());
         auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();

@@ -37,7 +37,7 @@ class AIController final : public Component,
     std::vector<glm::vec3> path_to_follow_;
     snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
 
-    Command executable_command_;
+    VehicleCommand executable_command_;
     float timestep_ = 1.f / 60.f;
 
     // as we want the car to move from current to next command, and so on until

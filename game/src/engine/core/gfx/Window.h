@@ -18,6 +18,7 @@ class IWindowEventListener
     virtual void OnCursorMove(double xpos, double ypos) = 0;
     virtual void OnScroll(double xoffset, double yoffset) = 0;
     virtual void OnWindowSizeChanged(int width, int height) = 0;
+    virtual void OnJoystickChangedEvent(int joystick_id, int event) = 0;
 };
 
 // Functor for deleting a GLFW window.
@@ -71,4 +72,5 @@ class Window
                                    double yoffset);
     static void WindowSizeMetaCallback(GLFWwindow* window, int width,
                                        int height);
+    static void JoystickChangedMetaCallback(int joystick_id, int event);
 };

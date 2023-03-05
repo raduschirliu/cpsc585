@@ -46,9 +46,6 @@ void Hitbox::OnUpdate(const Timestep& delta_time)
         {
             SetSize(kDefaultSize);
         }
-        // Log::debug("{}, {}, {}", size_.x, size_.y, size_.z);
-        transform_->SetPosition(vehicle_->GetPosition());
-        transform_->SetOrientation(vehicle_->GetOrientation());
 
         SyncTransform();
     }
