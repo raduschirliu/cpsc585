@@ -113,6 +113,7 @@ target_sources(PhysX::PhysX
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.cpp
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/physxintegration/PhysXIntegration.cpp
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/BaseSerialization.cpp
+        ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/IntegrationSerialization.cpp
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.cpp
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/serialization/SerializationCommon.cpp
         ${PHYSX_COMMON}/physx/CommonVehicleFiles/SnippetVehicleHelpers.cpp

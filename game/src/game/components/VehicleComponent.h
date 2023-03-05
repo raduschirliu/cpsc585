@@ -10,12 +10,6 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-// Vehicle details
-#include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
-#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
-#include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
-#include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
-
 #include "engine/physics/VehicleCommands.h"
 #include "vehicle2/PxVehicleAPI.h"
 

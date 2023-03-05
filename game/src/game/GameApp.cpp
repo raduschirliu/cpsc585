@@ -177,7 +177,7 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& car_entity = scene.AddEntity("PlayerVehicle");
 
         auto& transform = car_entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
+        transform.SetPosition(vec3(10.0f, 5.0f, 10.0f));
 
         auto& player_state = car_entity.AddComponent<PlayerState>();
 
@@ -213,7 +213,7 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& entity = scene.AddEntity("AiVehicle1");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0, 0.0f, 10.0f));
+        transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
         //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
         //        0.f, 1.f, 0.f)));
@@ -225,7 +225,7 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("kart2-4");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
@@ -241,7 +241,7 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& entity = scene.AddEntity("AiVehicle2");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 0.0f, 10.0f));
+        transform.SetPosition(vec3(20.0f, 5.0f, 10.0f));
 
         auto& player_state = entity.AddComponent<PlayerState>();
 
@@ -252,7 +252,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("kart2-4");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
@@ -268,7 +268,7 @@ void GameApp::LoadTestScene(Scene& scene)
         Entity& entity = scene.AddEntity("AiVehicle3");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(15.0f, 0.0f, 10.0f));
+        transform.SetPosition(vec3(30.0f, 5.0f, 10.0f));
 
         auto& player_state = entity.AddComponent<PlayerState>();
 
@@ -279,7 +279,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("kart2-4");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
@@ -450,7 +450,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& camera_entity = scene.AddEntity("DebugCamera");
         camera_entity.AddComponent<Transform>();
         camera_entity.AddComponent<Camera>();
-        camera_entity.AddComponent<DebugCameraController>();
+
+        // camera_entity.AddComponent<DebugCameraController>();
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
