@@ -124,9 +124,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
     Log::debug("Distance to the next point {}", distance);
-    if (distance < 20.f)
+    if (distance < 30.f)
     {
-        next_car_position_ = path_to_follow_[next_path_index_+=2];
+        next_car_position_ = path_to_follow_[next_path_index_+=4];
 
         Log::debug("{}", next_path_index_);
     }
