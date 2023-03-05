@@ -3,8 +3,6 @@
 #include <ctype.h>
 #include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
-#include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
-#include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

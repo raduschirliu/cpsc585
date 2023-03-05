@@ -12,11 +12,13 @@ class Transform final : public Component
     Transform();
 
     void SetPosition(const glm::vec3& position);
+    void LerpPosition(const glm::vec3& target, float t);
     void Translate(const glm::vec3& delta);
 
     void SetScale(const glm::vec3& scale);
 
     void SetOrientation(const glm::quat& orientation);
+    void SlerpOrientation(const glm::quat& target, float t);
     void Rotate(const glm::quat& delta);
     void RotateEulerDegrees(const glm::vec3& delta_euler_degrees);
 

@@ -1,12 +1,21 @@
 #include "VehicleComponent.h"
 
 #include <imgui.h>
+#include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
+#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
+#include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
+#include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
+#include <physx/CommonVehicleFiles/serialization/IntegrationSerialization.h>
+
+#include <glm/geometric.hpp>
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
+using glm::vec3;
 using std::string;
 using std::string_view;
 using namespace physx;
@@ -17,6 +26,7 @@ static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
 static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
+static constexpr const char* kIntegrationParamFileName = "Integration.jsonc";
 
 void VehicleComponent::LoadParams()
 {
@@ -30,6 +40,12 @@ void VehicleComponent::LoadParams()
         vehicle_.mBaseParams.axleDescription, vehicle_.mDirectDriveParams);
     ASSERT_MSG(success_drivertrain,
                "Must be able to load vehicle drivetrain params from JSON file");
+
+    const bool success_integration = readPhysxIntegrationParamsFromJsonFile(
+        kVehicleDataPath, kIntegrationParamFileName, vehicle_.mPhysXParams);
+    ASSERT_MSG(
+        success_integration,
+        "Must be able to load vehicle integration params from JSON file");
 
     setPhysXIntegrationParams(vehicle_.mBaseParams.axleDescription,
                               gPhysXMaterialFrictions_,
@@ -110,6 +126,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
         LoadParams();
+        Log::info("Reloaded vehicle params from JSON files...");
     }
 
     const PxTransform& pose =
@@ -152,6 +169,26 @@ void VehicleComponent::OnDebugGui()
     ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
     ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
     ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
+
+    const vec3 linear_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.linearVelocity);
+    gui::ViewProperty("Linear Velocity", linear_velocity);
+
+    const float speed = glm::length(linear_velocity);
+    ImGui::Text("Speed: %f", speed);
+
+    auto vehicle_frame = vehicle_.mBaseParams.frame;
+    const float lat_speed =
+        vehicle_.mBaseState.rigidBodyState.getLateralSpeed(vehicle_frame);
+    const float long_speed =
+        vehicle_.mBaseState.rigidBodyState.getLongitudinalSpeed(vehicle_frame);
+
+    ImGui::Text("Lat Speed: %f", lat_speed);
+    ImGui::Text("Long Speed: %f", long_speed);
+
+    const vec3 angular_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.angularVelocity);
+    gui::ViewProperty("Angular Velocity", angular_velocity);
 }
 
 DirectDriveVehicle& VehicleComponent::GetVehicle()

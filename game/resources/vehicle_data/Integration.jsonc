@@ -1,0 +1,13 @@
+{
+    "ActorCMassLocalPose": {
+        "Pos": [0.0, 0.55, 1.594],
+        "Quat": [0.0, 0.0, 0.0, 1.0]
+    },
+    // Size of the vehicle's main collision box [width, height, length]
+    "ActorBoxShapeHalfExtents": [3.0, 1.0, 4.5],
+    "ActorBoxShapeLocalPose": {
+        //  [left/right, up/down, forward/back]
+        "Pos": [0.0, 1.2, -0.25],
+        "Quat": [0.0, 0.0, 0.0, 1.0]
+    }
+}
