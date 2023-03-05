@@ -35,7 +35,7 @@ class NavMesh
         glm::vec3 v0_, v1_, v2_,
             centroid_;  // to define every point we need for
                         // our navmesh algorithm to work
-
+        float size_;
         std::vector<std::pair<float, Node*>>* connections_;
 
       private:

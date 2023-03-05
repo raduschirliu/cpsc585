@@ -429,8 +429,9 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //     transform.RotateEulerDegrees(vec3(0.422f, 98.829f, 0.95f));
     //     // Camera following car
     //     Entity& follow_camera_entity = scene.AddEntity();
-    //     auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
-    //     auto& follow_camera_comp =
+    //     auto& transform_camera =
+    //     follow_camera_entity.AddComponent<Transform>(); auto&
+    //     follow_camera_comp =
     //         follow_camera_entity.AddComponent<FollowCamera>();
     //     follow_camera_comp.SetFollowingTransform(car_entity);
 
@@ -467,7 +468,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // need a better way to do this
         transform.SetPosition(vec3(-505.22742, 5.071559, -457.23126));
         transform.RotateEulerDegrees(vec3(0.422f, 9.829f, 0.95f));
-Entity& follow_camera_entity = scene.AddEntity();
+        Entity& follow_camera_entity = scene.AddEntity();
         auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
         auto& follow_camera_comp =
             follow_camera_entity.AddComponent<FollowCamera>();

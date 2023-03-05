@@ -22,15 +22,15 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,transform_->GetPosition().y,transform_->GetPosition().z);
+    Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,
+               transform_->GetPosition().y, transform_->GetPosition().z);
 
     // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
 
     transform_->SetPosition(ai_service_->GetPath()[200]);
-    Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,transform_->GetPosition().y,transform_->GetPosition().z);
-
-    
+    Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,
+               transform_->GetPosition().y, transform_->GetPosition().z);
 
     // storing the initial variables.
     if (path_to_follow_.size() > 2)
@@ -84,9 +84,21 @@ void AIController::OnUpdate(const Timestep& delta_time)
      * Here we have different criteria on how we want the car to move, the more
      * advanced this is, the better the car will move on the track
      * **/
+    float speed = vehicle_reference_->mPhysXState.physxActor.rigidBody
+                      ->getLinearVelocity()
+                      .magnitude();
+    // Log::debug("{}", speed);
+    if (speed <= 30)
+    {
+        vehicle_reference_->mCommandState.throttle =
+            1.f * speed_multiplier_;  // for the everyone slow down pickup.
+    }
+    else
+    {
+        vehicle_reference_->mCommandState.throttle =
+            0.f;  // for the everyone slow down pickup.
+    }
 
-    vehicle_reference_->mCommandState.throttle =
-        1.f * speed_multiplier_;  // for the everyone slow down pickup.
     glm::vec3 target = transform_->GetPosition() - next_car_position_;
     // normalize the vector to find out its true position later by dot
     // producting it
@@ -94,9 +106,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
     glm::vec3 current_forward_dir = transform_->GetForwardDirection();
     float dot_product = glm::dot(normalized_target, current_forward_dir);
 
-    // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
-    // speed_multiplier_);
-        //vehicle_reference_->mCommandState.steer = 0.f;
+    glm::vec3 cross_product =
+        glm::cross(current_forward_dir, normalized_target);
+    Log::debug("{}, {}, {}", cross_product.x, cross_product.y, cross_product.z);
 
     if (sqrt(dot_product * dot_product) > 0.95f)
     {
@@ -104,17 +116,15 @@ void AIController::OnUpdate(const Timestep& delta_time)
     }
     else
     {
-        glm::vec3 cross_product =
-            glm::cross(current_forward_dir, normalized_target);
         if (cross_product.x > 0)
         {
             vehicle_reference_->mCommandState.steer =
-                -0.6f * handling_multiplier_;
+                -0.3f * handling_multiplier_;
         }
         else
         {
             vehicle_reference_->mCommandState.steer =
-                0.6f * handling_multiplier_;
+                0.3f * handling_multiplier_;
         }
     }
 
@@ -123,12 +133,12 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    Log::debug("Distance to the next point {}", distance);
-    if (distance < 30.f)
+    // Log::debug("Distance to the next point {}", distance);
+    if (distance < 25.f)
     {
-        next_car_position_ = path_to_follow_[next_path_index_+=4];
+        next_car_position_ = path_to_follow_[next_path_index_ += 1];
 
-        Log::debug("{}", next_path_index_);
+        // Log::debug("{}", next_path_index_);
     }
 }
 

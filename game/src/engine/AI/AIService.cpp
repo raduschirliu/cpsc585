@@ -38,7 +38,7 @@ void AIService::OnStart(ServiceProvider& service_provider)
     // auto node1 = *navMesh_->nodes_->find(1)->second;
     if (pathfinder_ && navMesh_)
         bvalue = pathfinder_->Search(navMesh_->nodes_->find(0)->second,
-                                     navMesh_->nodes_->find(110)->second);
+                                     navMesh_->nodes_->find(331)->second);
 
     else
     {
@@ -142,8 +142,6 @@ void NavMesh::ReadVertices()
                     glm::vec3(temp_face[0], temp_face[1], temp_face[2]));
         }
     }
-
-    Log::info("Total vertex points : {}", all_vertices_.size());
 }
 
 NavMesh::NavMesh()
@@ -176,160 +174,15 @@ NavMesh::NavMesh()
         Node* n1 = all_nodes[i];
         Node* n2 = all_nodes[i + 1];
         n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
+        n1->size_ = (n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
+                    (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
+                    (n1->v2_.x * (n1->v0_.z - n1->v1_.z)) / 2;
         // std::cout << i << " " << i+1 << std::endl;
-    }
-
-    {
-        // // first row of vertices
-        // vec3 v1(0.f, 0.f, 10.f);  // this is also the starting position of
-        // the car. vec3 v2(66.5f, 0.f, 10.f); vec3 v3(133.0f, 0.f, 10.f); vec3
-        // v4(199.5f, 0.f, 10.f); vec3 v5(266.f, 0.f, 10.f);
-
-        // // second row of vertices.
-        // vec3 v6(0.f, 0.f, -82.f);
-        // vec3 v7(66.5f, 0.f, -82.f);
-        // vec3 v8(133.0f, 0.f, -82.f);
-        // vec3 v9(199.5f, 0.f, -82.f);
-        // vec3 v10(266.f, 0.f, -82.f);
-
-        // // third row of vertices.
-        // vec3 v11(0.f, 0.f, -174.f);
-        // vec3 v12(66.5f, 0.f, -174.f);
-        // vec3 v13(133.0f, 0.f, -174.f);
-        // vec3 v14(199.5f, 0.f, -174.f);
-        // vec3 v15(266.f, 0.f, -174.f);
-
-        // // fourth row of vertices.
-        // vec3 v16(0.f, 0.f, -266.f);
-        // vec3 v17(66.5f, 0.f, -266.f);
-        // vec3 v18(133.0f, 0.f, -266.f);
-        // vec3 v19(199.5f, 0.f, -266.f);
-        // vec3 v20(266.f, 0.f, -266.f);
-
-        // // using the above vertices to make our 24 triangles / nodes.
-        // Node* n1 = new Node(0, v1, v6, v7);
-        // Node* n2 = new Node(1, v1, v2, v7);
-
-        // Node* n3 = new Node(2, v2, v7, v8);
-        // Node* n4 = new Node(3, v2, v3, v7);
-
-        // Node* n5 = new Node(4, v3, v8, v9);
-        // Node* n6 = new Node(5, v3, v4, v9);
-
-        // Node* n7 = new Node(6, v4, v9, v10);
-        // Node* n8 = new Node(7, v4, v5, v10);
-
-        // Node* n9 = new Node(8, v6, v11, v12);
-        // Node* n10 = new Node(9, v6, v7, v12);
-
-        // Node* n11 = new Node(10, v7, v12, v13);
-        // Node* n12 = new Node(11, v7, v8, v13);
-
-        // Node* n13 = new Node(12, v8, v13, v14);
-        // Node* n14 = new Node(13, v8, v9, v14);
-
-        // Node* n15 = new Node(14, v9, v14, v15);
-        // Node* n16 = new Node(15, v9, v10, v15);
-
-        // Node* n17 = new Node(16, v11, v16, v17);
-        // Node* n18 = new Node(17, v11, v12, v17);
-
-        // Node* n19 = new Node(18, v12, v17, v18);
-        // Node* n20 = new Node(19, v12, v13, v18);
-
-        // Node* n21 = new Node(20, v13, v18, v19);
-        // Node* n22 = new Node(21, v13, v14, v19);
-
-        // Node* n23 = new Node(22, v14, v19, v20);
-        // Node* n24 = new Node(23, v14, v15, v20);
-
-        // // create map of nodes.
-        // this->nodes_->insert({n1->id_, n1});
-        // this->nodes_->insert({n2->id_, n2});
-        // this->nodes_->insert({n3->id_, n3});
-        // this->nodes_->insert({n4->id_, n4});
-        // this->nodes_->insert({n5->id_, n5});
-        // this->nodes_->insert({n6->id_, n6});
-        // this->nodes_->insert({n7->id_, n7});
-        // this->nodes_->insert({n8->id_, n8});
-        // this->nodes_->insert({n9->id_, n9});
-        // this->nodes_->insert({n10->id_, n10});
-        // this->nodes_->insert({n11->id_, n11});
-        // this->nodes_->insert({n12->id_, n12});
-        // this->nodes_->insert({n13->id_, n13});
-        // this->nodes_->insert({n14->id_, n14});
-        // this->nodes_->insert({n15->id_, n15});
-        // this->nodes_->insert({n16->id_, n16});
-        // this->nodes_->insert({n17->id_, n17});
-        // this->nodes_->insert({n18->id_, n18});
-        // this->nodes_->insert({n19->id_, n19});
-        // this->nodes_->insert({n20->id_, n20});
-        // this->nodes_->insert({n21->id_, n21});
-        // this->nodes_->insert({n22->id_, n22});
-        // this->nodes_->insert({n23->id_, n23});
-        // this->nodes_->insert({n24->id_, n24});
-
-        // n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
-
-        // n2->connections_->emplace_back(std::make_pair(Cost(n2, n3), n3));
-        // // n2->connections_->emplace_back(std::make_pair(  Cost(n2, n1),
-        // n1));
-
-        // n3->connections_->emplace_back(std::make_pair(Cost(n3, n4), n4));
-        // // n3->connections_->emplace_back(std::make_pair(  Cost(n3, n2),
-        // n2));
-
-        // n4->connections_->emplace_back(std::make_pair(Cost(n4, n5), n5));
-        // // n4->connections_->emplace_back(std::make_pair(  Cost(n4, n3),
-        // n3));
-
-        // n5->connections_->emplace_back(std::make_pair(Cost(n5, n6), n6));
-        // // n5->connections_->emplace_back(std::make_pair(  Cost(n5, n4),
-        // n4));
-
-        // n6->connections_->emplace_back(std::make_pair(Cost(n6, n7), n7));
-        // // n6->connections_->emplace_back(std::make_pair(  Cost(n6, n5),
-        // n5));
-
-        // n7->connections_->emplace_back(std::make_pair(Cost(n7, n14), n14));
-        // // n7->connections_->emplace_back(std::make_pair(  Cost(n7, n6),
-        // n6));
-
-        // n14->connections_->emplace_back(std::make_pair(Cost(n14, n13), n13));
-        // // n14->connections_->emplace_back(std::make_pair(  Cost(n14, n7),
-        // n7));
-
-        // n13->connections_->emplace_back(std::make_pair(Cost(n13, n22), n22));
-        // // n13->connections_->emplace_back(std::make_pair(  Cost(n13, n14),
-        // n14));
-
-        // n22->connections_->emplace_back(std::make_pair(Cost(n22, n21), n21));
-        // // n22->connections_->emplace_back(std::make_pair(  Cost(n22, n13),
-        // n13));
-
-        // n21->connections_->emplace_back(std::make_pair(Cost(n21, n20), n20));
-        // // n21->connections_->emplace_back(std::make_pair(  Cost(n21, n22),
-        // n22));
-
-        // n20->connections_->emplace_back(std::make_pair(Cost(n20, n11), n11));
-        // // n20->connections_->emplace_back(std::make_pair(  Cost(n20, n21),
-        // n21));
-
-        // n11->connections_->emplace_back(std::make_pair(Cost(n11, n12), n12));
-        // // n11->connections_->emplace_back(std::make_pair(  Cost(n11, n20),
-        // n20));
-
-        // n12->connections_->emplace_back(std::make_pair(Cost(n12, n13), n13));
-        // // n12->connections_->emplace_back(std::make_pair(  Cost(n12, n11),
-        // n11));
-
-        // n13->connections_->emplace_back(std::make_pair(Cost(n13, n23), n23));
-        // // n13->connections_->emplace_back(std::make_pair(  Cost(n13, n12),
-        // n12));
-
-        // n23->connections_->emplace_back(std::make_pair(Cost(n23, n24), n24));
-        // // n23->connections_->emplace_back(std::make_pair(  Cost(n23, n13),
-        // n13));
+        std::cout << std::endl
+                  << ((n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
+                      (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
+                      (n1->v2_.x * (n1->v0_.z - n1->v1_.z))) /
+                         2;
     }
 }
 
@@ -482,15 +335,14 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     std::vector<glm::vec3> smoothPath;
     smoothPath = SmoothPath(bPath);
 
-    // std::ofstream points_output("NavMeshPointsNEWNEW.obj");
+    std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
     for (auto& i : smoothPath)
-        // {
+    {
         this->path_->push(i);
-    //     points_output << "v " << i.x << " " << i.y << " " << i.z <<
-    //     std::endl;
-    // }
-    // points_output.close();
+        points_output << "v " << i.x << " " << i.y << " " << i.z << std::endl;
+    }
+    points_output.close();
 }
 
 std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
