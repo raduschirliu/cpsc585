@@ -2,49 +2,55 @@
 
 #include "PxPhysicsAPI.h"
 
-struct Command
+enum class VehicleGear
 {
-    physx::PxF32 brake;
-    physx::PxF32 throttle;
-    physx::PxF32 steer;
-    physx::PxF32 duration;
+    kReverse = 0,
+    kNeutral = 1,
+    kForward = 2
+};
 
-    // The normal constructor, brake is applied automatically as car needs to
-    // slow down when nothing happens
-    Command()
+struct VehicleCommand
+{
+    float front_brake;
+    float rear_brake;
+    float throttle;
+    float steer;
+
+    VehicleCommand()
     {
-        brake = 0.1f;
-        throttle = 0.f;
-        steer = 0.f;
-        duration = 0.f;
+        front_brake = 0.0f;
+        throttle = 0.0f;
+        steer = 0.0f;
     }
 
-    Command(const physx::PxF32& in_brake, const physx::PxF32& in_throttle,
-            const physx::PxF32& in_steer, const physx::PxF32& in_duration)
+    VehicleCommand(const physx::PxF32& in_front_brake,
+                   const physx::PxF32& in_rear_brake,
+                   const physx::PxF32& in_throttle,
+                   const physx::PxF32& in_steer)
     {
-        brake = in_brake;
+        front_brake = in_front_brake;
+        rear_brake = in_rear_brake;
         throttle = in_throttle;
         steer = in_steer;
-        duration = in_duration;
     }
 
-    Command& operator+(const Command& a)
+    VehicleCommand& operator+(const VehicleCommand& a)
     {
-        brake = brake + a.brake;
+        front_brake = front_brake + a.front_brake;
+        rear_brake = rear_brake + a.rear_brake;
         throttle = throttle + a.throttle;
         steer = steer + a.steer;
 
-        // not adding the duration as it is not required.
         return *this;
     }
 
-    Command& operator+=(const Command& a)
+    VehicleCommand& operator+=(const VehicleCommand& a)
     {
-        brake += a.brake;
+        front_brake += a.front_brake;
+        rear_brake += a.rear_brake;
         throttle += a.throttle;
         steer += a.steer;
 
-        // not adding the duration as it is not required.
         return *this;
     }
 };

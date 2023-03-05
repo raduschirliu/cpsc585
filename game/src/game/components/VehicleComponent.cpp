@@ -1,5 +1,7 @@
 #include "VehicleComponent.h"
 
+#include <imgui.h>
+
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
@@ -143,6 +145,15 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
                         g_vehicle_name_.c_str());
 }
 
+void VehicleComponent::OnDebugGui()
+{
+    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
+    ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
+    ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
+    ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
+    ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
+}
+
 DirectDriveVehicle& VehicleComponent::GetVehicle()
 {
     return vehicle_;
@@ -153,19 +164,65 @@ void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
     player_data_ = &data;
 }
 
-glm::vec3 VehicleComponent::GetPosition()
-{
-    return transform_->GetPosition();
-}
-
-glm::quat VehicleComponent::GetOrientation()
-{
-    return transform_->GetOrientation();
-}
-
 PlayerStateData* VehicleComponent::GetPlayerStateData()
 {
     if (player_data_)
         return player_data_;
     return nullptr;
+}
+
+void VehicleComponent::SetGear(VehicleGear gear)
+{
+    PxVehicleDirectDriveTransmissionCommandState::Enum px_gear;
+    switch (gear)
+    {
+        case VehicleGear::kReverse:
+            px_gear =
+                PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE;
+            break;
+
+        case VehicleGear::kNeutral:
+            px_gear =
+                PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL;
+            break;
+
+        case VehicleGear::kForward:
+            px_gear =
+                PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD;
+            break;
+    }
+
+    vehicle_.mTransmissionCommandState.gear = px_gear;
+}
+
+void VehicleComponent::SetCommand(VehicleCommand command)
+{
+    vehicle_.mCommandState.throttle = glm::clamp(command.throttle, 0.0f, 1.0f);
+    vehicle_.mCommandState.steer = glm::clamp(command.steer, -1.0f, 1.0f);
+
+    vehicle_.mCommandState.nbBrakes = 2;
+    vehicle_.mCommandState.brakes[0] =
+        glm::clamp(command.front_brake, 0.0f, 1.0f);
+    vehicle_.mCommandState.brakes[1] =
+        glm::clamp(command.rear_brake, 0.0f, 1.0f);
+}
+
+VehicleGear VehicleComponent::GetGear() const
+{
+    switch (vehicle_.mTransmissionCommandState.gear)
+    {
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE:
+            return VehicleGear::kReverse;
+
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL:
+            return VehicleGear::kNeutral;
+
+        case PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD:
+            return VehicleGear::kForward;
+
+        default:
+            ASSERT_ALWAYS(
+                "Vehicle transmission should never be in an unkown state");
+            return VehicleGear::kNeutral;
+    }
 }

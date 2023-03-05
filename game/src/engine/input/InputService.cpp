@@ -4,39 +4,19 @@
 #include <imgui.h>
 
 #include <array>
+#include <string>
 #include <vector>
 
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/input/Gamepad.h"
+#include "engine/input/InputState.h"
 
 using glm::ivec2;
 using glm::vec2;
 using std::array;
+using std::string;
 using std::vector;
-
-enum class KeyState : uint8_t
-{
-    kReleased = 0,
-    kUp,
-    kPressed,
-    kDown
-};
-
-struct MouseState
-{
-    ivec2 pos;
-    array<KeyState, GLFW_MOUSE_BUTTON_LAST> button_states;
-
-    MouseState() : pos(0, 0), button_states{}
-    {
-    }
-
-    void SetPos(int x, int y)
-    {
-        pos.x = x;
-        pos.y = y;
-    }
-};
 
 struct InputEvent
 {
@@ -52,29 +32,32 @@ struct InputEvent
     }
 };
 
+// Keep track of all gamepads
+static vector<Gamepad> kGamepads;
+
 // Keeps track of key events to be processed on next update
 static vector<InputEvent> kInputEventQueue;
 
 // Holds state of all keys: 1 == pressed, 0 == not pressed
-static array<KeyState, GLFW_KEY_LAST> kKeyStateMap;
+static array<ButtonState, GLFW_KEY_LAST> kButtonStateMap;
 
 // Keep track of mouse state (pos, button presses)
 static MouseState kMouseState;
 
 bool InputService::IsKeyPressed(int key)
 {
-    ASSERT_MSG(key >= 0 && key < kKeyStateMap.size(),
+    ASSERT_MSG(key >= 0 && key < kButtonStateMap.size(),
                "Invalid key code requested");
-    return kKeyStateMap[key] == KeyState::kPressed;
+    return kButtonStateMap[key] == ButtonState::kPressed;
 }
 
 bool InputService::IsKeyDown(int key)
 {
-    ASSERT_MSG(key >= 0 && key < kKeyStateMap.size(),
+    ASSERT_MSG(key >= 0 && key < kButtonStateMap.size(),
                "Invalid key code requested");
 
-    KeyState state = kKeyStateMap[key];
-    return state == KeyState::kPressed || state == KeyState::kDown;
+    ButtonState state = kButtonStateMap[key];
+    return state == ButtonState::kPressed || state == ButtonState::kDown;
 }
 
 ivec2 InputService::GetMousePos()
@@ -86,14 +69,14 @@ bool InputService::IsMouseButtonPressed(int button)
 {
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
-    return kMouseState.button_states[button] == KeyState::kPressed;
+    return kMouseState.button_states[button] == ButtonState::kPressed;
 }
 
 bool InputService::IsMouseButtonReleased(int button)
 {
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
-    return kMouseState.button_states[button] == KeyState::kReleased;
+    return kMouseState.button_states[button] == ButtonState::kReleased;
 }
 
 bool InputService::IsMouseButtonDown(int button)
@@ -101,8 +84,8 @@ bool InputService::IsMouseButtonDown(int button)
     ASSERT_MSG(button >= 0 && button < kMouseState.button_states.size(),
                "Invalid mouse button");
 
-    KeyState state = kMouseState.button_states[button];
-    return state == KeyState::kPressed || state == KeyState::kDown;
+    ButtonState state = kMouseState.button_states[button];
+    return state == ButtonState::kPressed || state == ButtonState::kDown;
 }
 
 void InputService::OnKeyEvent(int key, int scancode, int action, int mods)
@@ -113,7 +96,7 @@ void InputService::OnKeyEvent(int key, int scancode, int action, int mods)
     }
 
     // Ignore any other keys
-    if (key >= 0 && key < kKeyStateMap.size())
+    if (key >= 0 && key < kButtonStateMap.size())
     {
         kInputEventQueue.push_back(InputEvent(true, action, key));
     }
@@ -138,12 +121,96 @@ void InputService::OnMouseButtonEvent(int button, int action, int mods)
     }
 }
 
+void InputService::OnJoystickChangedEvent(int joystick_id, int event)
+{
+    ASSERT_MSG(joystick_id < Gamepad::kGamepadCount,
+               "Joystick ID must be valid");
+
+    if (event == GLFW_CONNECTED)
+    {
+        Log::info("Joystick connected: {}", joystick_id);
+
+        if (!kGamepads[joystick_id].Connect())
+        {
+            Log::info("Connected joystick that is NOT a gamepad - ignoring");
+        }
+    }
+    else if (event == GLFW_DISCONNECTED)
+    {
+        Log::info("Joystick disconnected: {}", joystick_id);
+        kGamepads[joystick_id].Disconnect();
+    }
+    else
+    {
+        ASSERT_ALWAYS("This should never happen");
+    }
+}
+
+bool InputService::IsGamepadActive(size_t gamepad_id)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return false;
+    }
+
+    return kGamepads[gamepad_id].GetActive();
+}
+
+float InputService::GetGamepadAxis(size_t gamepad_id, int axis)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return 0.0f;
+    }
+
+    return kGamepads[gamepad_id].GetAxis(axis);
+}
+
+bool InputService::IsGamepadButtonDown(size_t gamepad_id, int button)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return false;
+    }
+
+    return kGamepads[gamepad_id].IsButtonDown(button);
+}
+
+bool InputService::IsGamepadButtonPressed(size_t gamepad_id, int button)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return false;
+    }
+
+    return kGamepads[gamepad_id].IsButtonPressed(button);
+}
+
 void InputService::OnInit()
 {
+    GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Check if any gamepads are connected
+    for (int i = 0; i < static_cast<int>(Gamepad::kGamepadCount); i++)
+    {
+        Gamepad gamepad(i);
+
+        if (gamepad.Connect())
+        {
+            Log::info("Found controller, ID: {}", i);
+        }
+
+        kGamepads.push_back(gamepad);
+    }
 }
 
 void InputService::OnCleanup()
 {
+    kGamepads.clear();
 }
 
 std::string_view InputService::GetName() const
@@ -154,28 +221,28 @@ std::string_view InputService::GetName() const
 void InputService::OnUpdate()
 {
     // Update keys in keyboard state map
-    for (auto& state : kKeyStateMap)
+    for (auto& state : kButtonStateMap)
     {
-        if (state == KeyState::kPressed)
+        if (state == ButtonState::kPressed)
         {
-            state = KeyState::kDown;
+            state = ButtonState::kDown;
         }
-        else if (state == KeyState::kReleased)
+        else if (state == ButtonState::kReleased)
         {
-            state = KeyState::kUp;
+            state = ButtonState::kUp;
         }
     }
 
     // Update mouse button states
     for (auto& state : kMouseState.button_states)
     {
-        if (state == KeyState::kPressed)
+        if (state == ButtonState::kPressed)
         {
-            state = KeyState::kDown;
+            state = ButtonState::kDown;
         }
-        else if (state == KeyState::kReleased)
+        else if (state == ButtonState::kReleased)
         {
-            state = KeyState::kUp;
+            state = ButtonState::kUp;
         }
     }
 
@@ -189,11 +256,11 @@ void InputService::OnUpdate()
             // Keyboard key events
             if (event.action == GLFW_PRESS)
             {
-                kKeyStateMap[event.key] = KeyState::kPressed;
+                kButtonStateMap[event.key] = ButtonState::kPressed;
             }
             else if (event.action == GLFW_RELEASE)
             {
-                kKeyStateMap[event.key] = KeyState::kReleased;
+                kButtonStateMap[event.key] = ButtonState::kReleased;
             }
         }
         else
@@ -201,14 +268,71 @@ void InputService::OnUpdate()
             // Mouse button events
             if (event.action == GLFW_PRESS)
             {
-                kMouseState.button_states[event.key] = KeyState::kPressed;
+                kMouseState.button_states[event.key] = ButtonState::kPressed;
             }
             else if (event.action == GLFW_RELEASE)
             {
-                kMouseState.button_states[event.key] = KeyState::kReleased;
+                kMouseState.button_states[event.key] = ButtonState::kReleased;
             }
         }
 
         kInputEventQueue.erase(kInputEventQueue.begin());
+    }
+
+    UpdateGamepads();
+
+    // Check for debug menu
+    if (IsKeyPressed(GLFW_KEY_F4))
+    {
+        show_debug_menu_ = !show_debug_menu_;
+    }
+}
+
+void InputService::OnGui()
+{
+    if (!show_debug_menu_)
+    {
+        return;
+    }
+
+    if (!ImGui::Begin("InputService Debug", &show_debug_menu_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Gamepad axis threshold: %f", Gamepad::kAxisThreshold);
+    ImGui::Text("Gamepads:");
+    ImGui::Spacing();
+
+    for (auto& gamepad : kGamepads)
+    {
+        const string name_label = fmt::format("Name: {}", gamepad.GetName());
+
+        ImGui::PushID(gamepad.GetId());
+        if (ImGui::CollapsingHeader(name_label.c_str()))
+        {
+            ImGui::Text("Joystick ID: %d", gamepad.GetId());
+
+            ImGui::Text("Axes:");
+            ImGui::Indent(5.0f);
+            for (int i = 0; i < Gamepad::kAxisCount; i++)
+            {
+                ImGui::Text("%s: %f", Gamepad::GetAxisName(i).c_str(),
+                            gamepad.GetAxis(i));
+            }
+            ImGui::Unindent(5.0f);
+        }
+        ImGui::PopID();
+    }
+
+    ImGui::End();
+}
+
+void InputService::UpdateGamepads()
+{
+    for (auto& gamepad : kGamepads)
+    {
+        gamepad.UpdateState();
     }
 }

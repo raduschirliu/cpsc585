@@ -27,11 +27,24 @@ class VehicleComponent final : public Component,
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnDestroy() override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
     // Event subscribers
     void OnUpdate(const Timestep& delta_time) override;
     void OnPhysicsUpdate(const Timestep& step) override;
+
+    void SetGear(VehicleGear gear);
+    void SetCommand(VehicleCommand command);
+
+    // Accessors
+    void SetVehicleName(const std::string& vehicle_name);
+    void SetPlayerStateData(PlayerStateData& data);
+
+    snippetvehicle2::DirectDriveVehicle& GetVehicle();
+    PlayerStateData* GetPlayerStateData();
+
+    VehicleGear GetGear() const;
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -49,26 +62,9 @@ class VehicleComponent final : public Component,
 
     std::string g_vehicle_name_;
 
-    // commands the car has to follow.
-    std::vector<Command> gCommands;
-
     PlayerStateData* player_data_;
-    // for functions.
-  private:
+
     void InitVehicle();
     void InitMaterialFrictionTable();
     void LoadParams();
-
-  public:
-    // Getters
-    snippetvehicle2::DirectDriveVehicle& GetVehicle();
-
-    void SetVehicleName(const std::string& vehicle_name);
-    void SetPlayerStateData(PlayerStateData& data);
-
-    PlayerStateData* GetPlayerStateData();
-
-    glm::vec3 GetPosition();
-
-    glm::quat GetOrientation();
 };
