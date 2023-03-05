@@ -179,15 +179,6 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(5.0f, 0.0f, 10.0f));
 
-        // Camera following car
-        Entity& follow_camera_entity = scene.AddEntity("Camera");
-        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
-        auto& follow_camera_comp =
-            follow_camera_entity.AddComponent<FollowCamera>();
-        follow_camera_comp.SetFollowingTransform(car_entity);
-
-        follow_camera_entity.AddComponent<Camera>();
-
         auto& player_state = car_entity.AddComponent<PlayerState>();
 
         auto& vehicle = car_entity.AddComponent<VehicleComponent>();
@@ -202,11 +193,19 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("car");
+        mesh_renderer.SetMesh("kart2-4");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
+
+        // Player camera following car
+        Entity& camera_entity = scene.AddEntity("Camera");
+        camera_entity.AddComponent<Transform>();
+        camera_entity.AddComponent<Camera>();
+
+        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
+        camera_follower.SetFollowingTransform(car_entity);
     }
 
     {
@@ -417,35 +416,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 32.0f});
     }
-    /*     {
-            // Player car
-            Entity& car_entity = scene.AddEntity("PlayerVehicle");
-
-            auto& transform = car_entity.AddComponent<Transform>();
-            transform.SetPosition(vec3(3.7f, 3.26f, 1.78f));
-
-            auto& vehicle = car_entity.AddComponent<VehicleComponent>();
-            vehicle.SetVehicleName("PlayerVehicle");
-            auto& controller = car_entity.AddComponent<PlayerController>();
-            controller.SetGVehicle(vehicle.GetVehicle());
-
-            auto& raycast = car_entity.AddComponent<RaycastComponent>();
-
-            auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-            mesh_renderer.SetMesh("car");
-            mesh_renderer.SetMaterialProperties(
-                {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
-                 .specular = vec3(0.3f, 0.3f, 0.3f),
-                 .shininess = 64.0f});
-
-            // Camera following car
-            Entity& camera_entity = scene.AddEntity("Camera");
-            camera_entity.AddComponent<Transform>();
-            camera_entity.AddComponent<Camera>();
-
-            auto& follow_camera = camera_entity.AddComponent<FollowCamera>();
-            follow_camera.SetFollowingTransform(car_entity);
-        } */
+    /*
     {
         // Debug camera
         Entity& entity = scene.AddEntity("DebugCamera");
@@ -453,17 +424,35 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         entity.AddComponent<Camera>();
         entity.AddComponent<DebugCameraController>();
     }
+    */
     {
-        // Test cube
-        Entity& entity = scene.AddEntity("TestCube");
+        // Player kart
+        Entity& kart_entity = scene.AddEntity("TestKart");
 
-        entity.AddComponent<Transform>();
+        auto& transform = kart_entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 5.0f, 0.0f));
 
-        auto& renderer = entity.AddComponent<MeshRenderer>();
-        renderer.SetMesh("cube");
+        auto& renderer = kart_entity.AddComponent<MeshRenderer>();
+        renderer.SetMesh("kart2-4");
 
-        auto& rigidbody = entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
+        auto& rigidbody = kart_entity.AddComponent<BoxRigidBody>();
         rigidbody.SetGravityEnabled(false);
+
+        auto& player_state = kart_entity.AddComponent<PlayerState>();
+
+        auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
+        vehicle.SetVehicleName("TestKart");
+        vehicle.SetPlayerStateData(*player_state.GetStateData());
+
+        kart_entity.AddComponent<PlayerController>();
+
+        // Camera
+        Entity& camera_entity = scene.AddEntity("DebugCamera");
+        camera_entity.AddComponent<Transform>();
+        camera_entity.AddComponent<Camera>();
+        camera_entity.AddComponent<DebugCameraController>();
+
+        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
+        camera_follower.SetFollowingTransform(kart_entity);
     }
 }

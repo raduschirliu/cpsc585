@@ -2,11 +2,15 @@
 
 #include <imgui.h>
 
+#include <glm/geometric.hpp>
+
 #include "engine/core/debug/Log.h"
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
+using glm::vec3;
 using std::string;
 using std::string_view;
 using namespace physx;
@@ -152,6 +156,26 @@ void VehicleComponent::OnDebugGui()
     ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
     ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
     ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
+
+    const vec3 linear_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.linearVelocity);
+    gui::ViewProperty("Linear Velocity", linear_velocity);
+
+    const float speed = glm::length(linear_velocity);
+    ImGui::Text("Speed: %f", speed);
+
+    auto vehicle_frame = vehicle_.mBaseParams.frame;
+    const float lat_speed =
+        vehicle_.mBaseState.rigidBodyState.getLateralSpeed(vehicle_frame);
+    const float long_speed =
+        vehicle_.mBaseState.rigidBodyState.getLongitudinalSpeed(vehicle_frame);
+
+    ImGui::Text("Lat Speed: %f", lat_speed);
+    ImGui::Text("Long Speed: %f", long_speed);
+
+    const vec3 angular_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.angularVelocity);
+    gui::ViewProperty("Angular Velocity", angular_velocity);
 }
 
 DirectDriveVehicle& VehicleComponent::GetVehicle()

@@ -9,6 +9,7 @@
 
 class RenderService;
 class InputService;
+class VehicleComponent;
 
 class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -30,6 +31,7 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<Transform> target_transform_;
+    jss::object_ptr<VehicleComponent> target_vehicle_;
 
     glm::vec3 offset_;
     float distance_;
