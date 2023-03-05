@@ -162,10 +162,10 @@ void AudioService::CullSources()
             Log::debug("{} stopped playing.", pair->first);
             alDeleteSources(1, &pair->second.first);
             alDeleteBuffers(1, &pair->second.second);
-            
+
             if (alGetError() != AL_NO_ERROR)
                 Log::error("While culling Sources for {}.", pair->first);
-           
+
             active_sources_.erase(pair);
         }
     }
