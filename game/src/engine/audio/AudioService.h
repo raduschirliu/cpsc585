@@ -2,12 +2,13 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AudioFile.h>
 
-#include <filesystem>
+#include <map>
 #include <object_ptr.hpp>
 #include <string>
+#include <utility>
 
+#include "AudioFile.h"
 #include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
@@ -21,13 +22,17 @@ class AudioService final : public Service
     /// @param gain optionally set the gain compensation. default: 0
     void PlayOneShot(std::string file_name, int gain = 0);
 
-    /// @brief loops a soundfile indefinitely (until stopped by other function).
+    /// @brief loops a soundfile indefinitely (until stopped).
     /// @param gain optionally set the gain compensation. default: 0
     void PlayLoop(std::string file_name, int gain = 0);
 
-    /// @brief stops all currently playing sounds.
-    /// @note not yet implemented.
-    void StopAll();
+    /// @todo
+    /// @brief stops playback of a specified sound. 
+    void StopPlayback(std::string file_name);
+
+    /// @todo
+    /// @brief stops playback of all sounds.
+    void StopAllPlayback();
 
     // from service:
     void OnInit() override;
@@ -44,19 +49,15 @@ class AudioService final : public Service
     ALCdevice* audio_device_;
     /// @brief it's like an openGL context.
     ALCcontext* audio_context_;
-
-    enum class PlaybackType
-    {
-        ONESHOT,
-        LOOP
-    };
+    /// @brief all of the currently active sources.
+    /// @note <file_name, <source, buffer>>
+    std::map<std::string, std::pair<ALuint, ALuint>> sources_;
 
     /// @brief loads file from the directory corresponding to the audio_type.
     /// @param audio_type either a ONESHOT or a LOOP.
-    AudioFile<float> LoadAudioFile(std::string file_name,
-                                   PlaybackType audio_type);
+    AudioFile LoadAudioFile(std::string file_name, bool is_looping);
     /// @brief gets the format of the file (mono/stereo, 8/16 bit).
-    ALenum GetFormat(AudioFile<float> audio_file);
+    // ALenum GetFormat(AudioData* data);
     /// @brief gets the audio file's raw data.
-    std::vector<float> GetData(AudioFile<float> audio_file);
+    // std::vector<float> GetData(AudioData* data);
 };

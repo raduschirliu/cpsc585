@@ -2,36 +2,35 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AudioFile.h>
 
+#include <iostream>
+#include <memory>
 #include <object_ptr.hpp>
 #include <string>
+#include <utility>
 
+#include "AudioFile.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
+#include "stb/stb_vorbis.c"
 
 // the system's default output device will be used
 const ALCchar* kDefaultDevice = nullptr;
 ALCint kContextAttributes = 0;
 
 // audio directories
-// const std::string kOneShotDirectory = "/game/resources/audio/oneshot/";
-const std::string kOneShotDirectory = "resources/audio/oneshot/";
-const std::string kLoopDirectory = "resources/audio/loop/";
-const std::string kTestFile = "professionalTestAudio.wav";
+const std::string kOneShotDirectory = "resources/audio/sfx/";
+const std::string kLoopDirectory = "resources/audio/music/";
 
-AudioService::AudioService()
-    : audio_device_(alcOpenDevice(kDefaultDevice)),
-      audio_context_(alcCreateContext(audio_device_, 0))
+AudioService::AudioService() : audio_device_(alcOpenDevice(kDefaultDevice))
 {
 }
 
 void AudioService::PlayOneShot(std::string file_name, int gain)
 {
-    AudioFile<float> audio_file =
-        LoadAudioFile(file_name, PlaybackType::ONESHOT);
+    AudioFile audio_file = LoadAudioFile(file_name, false);
 
     // create buffer in memory
     ALuint buffer;
@@ -43,122 +42,135 @@ void AudioService::PlayOneShot(std::string file_name, int gain)
     alSourcei(source, AL_LOOPING, AL_FALSE);
 
     // set gain if provided
-    if (gain != 0.f)
+    if (gain != 0)
         alSourcei(source, AL_GAIN, gain);
 
     // fill buffer
-    ALenum file_format = GetFormat(audio_file);
-    std::vector<float> file_data = GetData(audio_file);
-    size_t file_size = file_data.size();
-    ALsizei sample_rate = audio_file.getSampleRate();
-    alBufferData(buffer, file_format, file_data.data(), file_size, sample_rate);
+    int number_of_samples =
+        audio_file.samples_per_channel * audio_file.number_of_channels_;
+    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
+                 number_of_samples * sizeof(ALshort), audio_file.sample_rate_);
+
+    if (alGetError() != AL_NO_ERROR)
+        Log::warning("AUDIO FUCKED UP");
+
+    sources_[file_name] = std::make_pair(source, buffer);
 
     alSourcePlay(source);
 
     // don't destroy source until done playing
-    ALint state = AL_PLAYING;
-    while (state == AL_PLAYING)
-    {
-        Log::debug("AUDIO PLAYING");
-        alGetSourcei(source, AL_SOURCE_STATE, &state);
-    }
-    Log::debug("AUDIO ENDED");
-    
-    // kill the source when done
-    alDeleteSources(1, &source);
-    alDeleteBuffers(1, &buffer);
+    // ALint state = AL_PLAYING;
+    // while (state == AL_PLAYING)
+    // {
+    //     Log::debug("PLAYING AUDIO");
+    //     alGetSourcei(source, AL_SOURCE_STATE, &state);
+    // }
+    // Log::debug("AUDIO ENDED");
+
+    // sources_.erase(file_name);
+
+    // // kill the source when done
+    // alDeleteSources(1, &source);
+    // alDeleteBuffers(1, &buffer);
 }
 
-// need to implement streaming audio
-// instead buffering for longer files (i.e music, etc.)
+/// @todo implement streaming audio
+/// instead buffering for longer files (i.e music, etc.)
 void AudioService::PlayLoop(std::string file_name, int gain)
 {
-    AudioFile<float> audio_file = LoadAudioFile(file_name, PlaybackType::LOOP);
-
-    // create buffer in memory
-    ALuint buffer;
-    alGenBuffers(1, &buffer);
-
-    // create source, set to to loop
-    ALuint source;
-    alGenSources(1, &source);
-    alSourcei(source, AL_LOOPING, AL_TRUE);
-
-    // fill buffer
-    ALenum file_format = GetFormat(audio_file);
-    std::vector<float> file_data = GetData(audio_file);
-    size_t file_size = file_data.size();
-    int sample_rate = audio_file.getSampleRate();
-    alBufferData(buffer, file_format, file_data.data(), file_size, sample_rate);
-    alSourcePlay(source);
 }
 
-void AudioService::StopAll()
+void AudioService::StopPlayback(std::string file_name)
 {
+}
+
+void AudioService::StopAllPlayback()
+{
+    for (auto& source : sources_)
+    {
+        alSourceStop(source.second.first);
+    }
 }
 
 /* ----- getters / setters / helpers ----- */
 
-AudioFile<float> AudioService::LoadAudioFile(std::string file_name,
-                                             PlaybackType audio_type)
+AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
 {
     std::string file_path;
-    if (audio_type == PlaybackType::LOOP)
+
+    if (is_looping)
         file_path = kLoopDirectory;
     else
         file_path = kOneShotDirectory;
     file_path.append(file_name);
 
-    AudioFile<float> audio_file;
-    if (audio_file.load(file_path))
-        Log::debug("[AudioService] {} successfully loaded!", file_path);
+    // initialize AudioFile
+    AudioFile audio_file;
+    short* file_data;
+
+    audio_file.samples_per_channel = stb_vorbis_decode_filename(
+        file_path.c_str(), &audio_file.number_of_channels_,
+        &audio_file.sample_rate_, &file_data);
+
+    audio_file.data_ = std::unique_ptr<short>(file_data);
+
+    Log::debug("Succesfully opened audio file: {}", file_name);
+    Log::debug(
+        "File properties:\n"
+        "\t\tnum of channels: {}\n"
+        "\t\tnum of samples: {}\n"
+        "\t\tsample rate: {}\n",
+        audio_file.number_of_channels_, audio_file.samples_per_channel,
+        audio_file.sample_rate_);
+
+    if (audio_file.number_of_channels_ == 2)
+        audio_file.format_ = AL_FORMAT_STEREO16;
+    else
+        audio_file.format_ = AL_FORMAT_MONO16;
+
+    // alGetError();
+    // if (!AL_NO_ERROR)
+    // if (audio_file.load(file_path))
+    // Log::debug("[AudioService] {} successfully loaded!", file_path);
 
     return audio_file;
 }
 
-ALenum AudioService::GetFormat(AudioFile<float> audio_file)
-{
-    if (audio_file.isStereo())
-    {
-        if (audio_file.getBitDepth() == 8)
-        {
-            return AL_FORMAT_STEREO8;
-        }
-        else if (audio_file.getBitDepth() == 16)
-        {
-            return AL_FORMAT_STEREO16;
-        }
-    }
-    else /* if (audio_file.isMono()) */
-    {
-        if (audio_file.getBitDepth() == 8)
-        {
-            return AL_FORMAT_MONO8;
-        }
-        else if (audio_file.getBitDepth() == 16)
-        {
-            return AL_FORMAT_MONO16;
-        }
-    }
-}
+// ALenum AudioService::GetFormat(AudioData* data)
+// {
+//     if (data->channelCount == 1)
+//     {
+//         switch (data->sourceFormat)
+//         {
+//             case PCM_U8:
+//                 return AL_FORMAT_MONO8;
+//             case PCM_16:
+//                 return AL_FORMAT_MONO16;
+//             default:
+//                 return -1;
+//         }
+//     }
+//     else if (data->channelCount == 2)
+//     {
+//         switch (data->sourceFormat)
+//         {
+//             case PCM_U8:
+//                 return AL_FORMAT_STEREO8;
+//             case PCM_16:
+//                 return AL_FORMAT_STEREO16;
+//             default:
+//                 return -1;
+//         }
+//     }
+//     else
+//     {
+//         return -1;
+//     }
+// }
 
-std::vector<float> AudioService::GetData(AudioFile<float> audio_file)
-{
-    int number_of_channels = audio_file.getNumChannels();
-    int samples_per_channel = audio_file.getNumSamplesPerChannel();
-
-    std::vector<float> data;
-
-    for (int channel = 0; channel < number_of_channels; channel++)
-    {
-        for (int sample = 0; sample < samples_per_channel; sample++)
-        {
-            data.push_back(audio_file.samples[channel][sample]);
-        }
-    }
-
-    return data;
-}
+// std::vector<float> AudioService::GetData(AudioData* data)
+// {
+// }
 
 /* ----- from Service ------ */
 
@@ -174,7 +186,10 @@ void AudioService::OnInit()
         Log::debug("[AudioService] opened audio device successfully!");
     }
 
+    audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
+    if (alGetError() != AL_NO_ERROR)
+        Log::warning("AUDIO FUCKED UP");
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
@@ -191,12 +206,17 @@ void AudioService::OnUpdate()
     // test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
     {
-        PlayOneShot(kTestFile);
+        PlayOneShot("professionalTestAudio.ogg");
     }
 }
 
 void AudioService::OnCleanup()
 {
+    for (auto& source : sources_)
+    {
+        alDeleteSources(1, &source.second.first);
+        alDeleteBuffers(1, &source.second.second);
+    }
     alcMakeContextCurrent(nullptr);  // clear context
     alcDestroyContext(audio_context_);
     alcCloseDevice(audio_device_);
