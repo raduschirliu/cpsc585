@@ -3,7 +3,7 @@
 #include <object_ptr.hpp>
 
 #include "engine/game_state/GameStateService.h"
-#include "engine/physics/VehicleCommands.h"  // to get the command struct
+#include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -15,37 +15,30 @@ class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    PlayerController();
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
+    void OnDebugGui() override;
     std::string_view GetName() const override;
 
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
-    // We get this using the vehiclecomponent.
-    snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
+
+    jss::object_ptr<PlayerState> player_data_;
+    jss::object_ptr<VehicleComponent> vehicle_;
 
     bool execute_powerup_ = false;
+    bool forward_gear_ = true;
+    float speed_multiplier_ = 1.0f;
+    float handling_multiplier_ = 1.0f;
+    VehicleCommand command_;
 
-    PlayerState* player_data_ = nullptr;
-
-    float speed_multiplier_ = 1.f;
-    float handling_multiplier_ = 1.f;
-
-    // making this a pointer as we want to use it later in the vehicle data
-    // structure for changes to speed.
-    Command* executable_command_;
-
-    float timestep_ = 1.f / 60.f;
-
-    void CarController(const Timestep& delta_time);
-
-  public:
-    inline void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
-    {
-        vehicle_reference_ = &vehicle;
-    }
+    void UpdatePowerupControls(const Timestep& delta_time);
+    void UpdateCarControls(const Timestep& delta_time);
+    float GetSteerDirection();
+    float GetThrottle();
+    float GetFrontBrake();
+    void UpdateGear();
 };

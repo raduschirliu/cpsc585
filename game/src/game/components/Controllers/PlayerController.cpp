@@ -1,54 +1,55 @@
 #include "PlayerController.h"
 
+#include <imgui.h>
+
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Common.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/state/PlayerState.h"
 
-float kSpeedMultiplier(1.f);
-float kHanldingMultiplier(1.f);
-
-PlayerController::PlayerController() : vehicle_reference_(nullptr)
-{
-}
+static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+constexpr float kSpeedMultiplier = 1.0f;
+constexpr float kHanldingMultiplier = 1.0f;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+
     transform_ = &GetEntity().GetComponent<Transform>();
+    player_data_ = &GetEntity().GetComponent<PlayerState>();
+    vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void PlayerController::OnUpdate(const Timestep& delta_time)
 {
-    // Log::debug("Player ID: {} ; speed: {}", GetEntity().GetName(),
-    // speed_multiplier_);
+    UpdatePowerupControls(delta_time);
+    UpdateCarControls(delta_time);
+}
 
-    if (!player_data_)
-    {
-        player_data_ = &GetEntity().GetComponent<PlayerState>();
-    }
+std::string_view PlayerController::GetName() const
+{
+    return "Player Controller";
+}
 
+void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
+{
     if (input_service_->IsKeyDown(GLFW_KEY_SPACE))
     {
-        if (player_data_)
+        if (player_data_->GetCurrentPowerup() ==
+            PowerupPickupType::kDefaultPowerup)
         {
-            if (player_data_->GetCurrentPowerup() ==
-                PowerupPickupType::kDefaultPowerup)
-            {
-                Log::debug("You currently do not have any powerup.");
-            }
-
-            // so that this is not called every frame.
-            else
-            {
-                // Log::debug("executing the powerup");
-                // power executed, so add it to the map in game service.
-                game_state_service_->AddPlayerPowerup(
-                    GetEntity().GetId(), player_data_->GetCurrentPowerup());
-            }
+            Log::debug("You currently do not have any powerup.");
+        }
+        else
+        {
+            // Log::debug("executing the powerup");
+            // power executed, so add it to the map in game service.
+            game_state_service_->AddPlayerPowerup(
+                GetEntity().GetId(), player_data_->GetCurrentPowerup());
         }
     }
 
@@ -95,60 +96,84 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     {
         speed_multiplier_ = kSpeedMultiplier;
     }
-
-    // Control the car.
-    CarController(delta_time);
 }
 
-std::string_view PlayerController::GetName() const
+void PlayerController::UpdateCarControls(const Timestep& delta_time)
 {
-    return "Player Controller";
+    UpdateGear();
+    command_.steer = GetSteerDirection();
+    command_.throttle = GetThrottle();
+    command_.front_brake = GetFrontBrake();
+    vehicle_->SetCommand(command_);
 }
 
-void PlayerController::CarController(const Timestep& delta_time)
+float PlayerController::GetSteerDirection()
 {
-    executable_command_ =
-        new Command();  // the default Command slows down the car.
-
-    if (executable_command_)
+    if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        if (input_service_->IsKeyDown(GLFW_KEY_UP) ||
-            input_service_->IsKeyDown(GLFW_KEY_W))
-        {
-            vehicle_reference_->mTransmissionCommandState.gear =
-                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
-                    eFORWARD;
-            Command temp(0.0f, 1.0f * speed_multiplier_, 0.0f, timestep_);
-            *executable_command_ = temp;
-        }
-        if (input_service_->IsKeyDown(GLFW_KEY_LEFT) ||
-            input_service_->IsKeyDown(GLFW_KEY_A))
-        {
-            Command temp(0.0f, 0.1f, -0.4f * handling_multiplier_, timestep_);
-            *executable_command_ = temp;
-        }
-        if (input_service_->IsKeyDown(GLFW_KEY_RIGHT) ||
-            input_service_->IsKeyDown(GLFW_KEY_D))
-        {
-            Command temp(0.0f, 0.1f, 0.4f * handling_multiplier_, timestep_);
-            *executable_command_ = temp;
-        }
-        if (input_service_->IsKeyDown(GLFW_KEY_DOWN) ||
-            input_service_->IsKeyDown(GLFW_KEY_S))
-        {
-            vehicle_reference_->mTransmissionCommandState.gear =
-                physx::vehicle2::PxVehicleDirectDriveTransmissionCommandState::
-                    eREVERSE;
-            Command temp(0.f, 1.f * speed_multiplier_, 0.f, timestep_);
-            *executable_command_ = temp;
-        }
-
-        vehicle_reference_->mCommandState.brakes[0] =
-            executable_command_->brake;
-        vehicle_reference_->mCommandState.nbBrakes = 1;
-        vehicle_reference_->mCommandState.throttle =
-            executable_command_->throttle;
-        vehicle_reference_->mCommandState.steer = executable_command_->steer;
+        return 1.0f;
     }
-    delete (executable_command_);
+    else if (input_service_->IsKeyDown(GLFW_KEY_D))
+    {
+        return -1.0f;
+    }
+
+    return input_service_->GetGamepadAxis(kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_X);
+}
+
+float PlayerController::GetThrottle()
+{
+    if (input_service_->IsKeyDown(GLFW_KEY_W))
+    {
+        return 1.0f;
+    }
+    else if (input_service_->IsKeyDown(GLFW_KEY_S))
+    {
+        return 0.0f;
+    }
+
+    return math::Map(input_service_->GetGamepadAxis(
+                         kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                     -1.0f, 1.0f, 0.0f, 1.0f);
+}
+
+void PlayerController::UpdateGear()
+{
+    if (input_service_->IsKeyPressed(GLFW_KEY_X) ||
+        input_service_->IsGamepadButtonDown(kGamepadId, GLFW_GAMEPAD_BUTTON_X))
+    {
+        forward_gear_ = !forward_gear_;
+
+        if (forward_gear_)
+        {
+            Log::info("Switched into drive gear");
+            vehicle_->SetGear(VehicleGear::kForward);
+        }
+        else
+        {
+            Log::info("Switched into reverse gear");
+            vehicle_->SetGear(VehicleGear::kReverse);
+        }
+    }
+}
+
+float PlayerController::GetFrontBrake()
+{
+    if (input_service_->IsKeyDown(GLFW_KEY_S))
+    {
+        return 1.0f;
+    }
+
+    return math::Map(input_service_->GetGamepadAxis(
+                         kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                     -1.0f, 1.0f, 0.0f, 1.0f);
+}
+
+void PlayerController::OnDebugGui()
+{
+    ImGui::Text("Reverse: %d", !forward_gear_);
+    ImGui::Text("Steer: %f", command_.steer);
+    ImGui::Text("Throttle: %f", command_.throttle);
+    ImGui::Text("Front Brake: %f", command_.front_brake);
+    ImGui::Text("Rear Brake: %f", command_.rear_brake);
 }

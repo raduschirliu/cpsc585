@@ -57,6 +57,7 @@ struct InputEvent
 struct Gamepad
 {
     int id;
+    bool active;
     string name;
     GLFWgamepadstate state;
 };
@@ -66,7 +67,7 @@ static const array<string, GLFW_GAMEPAD_AXIS_LAST + 1> kGamepadAxisNames = {
     "LeftX", "LeftY", "RightX", "RightY", "LeftTrigger", "RightTrigger"};
 
 // Keep track of all gamepads
-static vector<Gamepad> kGamepads;
+static vector<Gamepad> kGamepads(GLFW_JOYSTICK_LAST + 1);
 
 // Keeps track of key events to be processed on next update
 static vector<InputEvent> kInputEventQueue;
@@ -168,22 +169,61 @@ void InputService::OnJoystickChangedEvent(int joystick_id, int event)
     else if (event == GLFW_DISCONNECTED)
     {
         Log::info("Joystick disconnected: {}", joystick_id);
-
-        auto iter = kGamepads.begin();
-
-        while (iter != kGamepads.end())
-        {
-            if (iter->id == joystick_id)
-            {
-                kGamepads.erase(iter);
-                return;
-            }
-        }
+        kGamepads[joystick_id].active = false;
+        kGamepads[joystick_id].name = "INACTIVE";
     }
     else
     {
         ASSERT_ALWAYS("This should never happen");
     }
+}
+
+float InputService::GetGamepadAxis(size_t gamepad_id, int axis)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return 0.0f;
+    }
+
+    if (axis >= kGamepadAxisNames.size() || axis < 0)
+    {
+        ASSERT_ALWAYS("Invalid gamepad axis");
+        return 0.0f;
+    }
+
+    const Gamepad& gamepad = kGamepads[gamepad_id];
+
+    if (!gamepad.active)
+    {
+        return 0.0f;
+    }
+
+    return gamepad.state.axes[axis];
+}
+
+bool InputService::IsGamepadButtonDown(size_t gamepad_id, int button)
+{
+    if (gamepad_id >= kGamepads.size())
+    {
+        ASSERT_ALWAYS("Invalid gamepad ID");
+        return false;
+    }
+
+    if (button < 0 || button > GLFW_GAMEPAD_BUTTON_LAST)
+    {
+        ASSERT_ALWAYS("Invalid gamepad button");
+        return false;
+    }
+
+    const Gamepad& gamepad = kGamepads[gamepad_id];
+
+    if (!gamepad.active)
+    {
+        return false;
+    }
+
+    return gamepad.state.buttons[button] == GLFW_PRESS;
 }
 
 void InputService::OnInit()
@@ -193,6 +233,10 @@ void InputService::OnInit()
     // Check if any gamepads are connected
     for (int i = 0; i < GLFW_JOYSTICK_LAST; i++)
     {
+        kGamepads[i].id = i;
+        kGamepads[i].active = false;
+        kGamepads[i].name = "INACTIVE";
+
         if (TryRegisterController(i))
         {
             Log::info("Found controller, ID: {}", i);
@@ -323,16 +367,20 @@ void InputService::OnGui()
 
 bool InputService::TryRegisterController(int id)
 {
+    if (id < 0 || id >= kGamepads.size())
+    {
+        return false;
+    }
+
     if (!glfwJoystickIsGamepad(id))
     {
         return false;
     }
 
-    Gamepad gamepad;
+    Gamepad& gamepad = kGamepads[id];
+    gamepad.active = true;
     gamepad.id = id;
     gamepad.name = glfwGetGamepadName(id);
-
-    kGamepads.push_back(gamepad);
 
     return true;
 }

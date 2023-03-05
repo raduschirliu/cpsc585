@@ -46,6 +46,17 @@ class InputService final : public Service, public IEventSubscriber<OnGuiEvent>
     bool IsMouseButtonDown(int button);
 
     /**
+     * Return a value in the range [-1.0f, 1.0f] representing a gamepad axis. If
+     * the gamepad doesn't exist, return 0.0f
+     */
+    float GetGamepadAxis(size_t gamepad_id, int axis);
+
+    /**
+     * Checks if a gamepad button is currently pressed
+    */
+    bool IsGamepadButtonDown(size_t gamepad_id, int button);
+
+    /**
      * Callback from GLFW to track key events
      */
     static void OnKeyEvent(int key, int scancode, int action, int mods);
