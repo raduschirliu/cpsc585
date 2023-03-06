@@ -405,7 +405,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& entity = scene.AddEntity("Track");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 5.0f, 0.0f));
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto& static_body = entity.AddComponent<MeshStaticBody>();
         static_body.SetMesh("track3-collision", 1.0f);
@@ -419,7 +419,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     }
     {
         // Human player
-        Entity& player_1 =
+        Entity& human_player =
             CreatePlayer(scene, "HumanPlayer", true, vec3(0.0f, 5.0f, 0.0f),
                          vec3(0.0f, 180.0f, 0.0f), colors::kRed);
 
@@ -431,7 +431,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // camera_entity.AddComponent<DebugCameraController>();
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
-        camera_follower.SetFollowingTransform(player_1);
+        camera_follower.SetFollowingTransform(human_player);
     }
     {
         // Other players
@@ -442,7 +442,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         CreatePlayer(scene, "AiPlayer3", false, vec3(-20.0f, 5.0f, 0.0f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kYellow);
     }
-    
+
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
@@ -462,8 +462,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& entity = scene.AddEntity("Finish Line");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 5.0f, 50.0f));
-        transform.SetScale(vec3(40.0f, 4.0f, 4.0f));
+        transform.SetPosition(vec3(10.0, 2.0f, 50.0f));
+        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
@@ -503,7 +503,7 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f));
+    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
 
     kart_entity.AddComponent<RaycastComponent>();
 
@@ -511,6 +511,11 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
+    }
+    else
+    {
+        auto& ai_controller = kart_entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(vehicle.GetVehicle());
     }
 
     return kart_entity;
