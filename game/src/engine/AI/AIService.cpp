@@ -52,8 +52,7 @@ void AIService::OnStart(ServiceProvider& service_provider)
         // std::cout << this->pathfinder_->path_->top() << std::endl;
         this->pathfinder_->path_->pop();
     }
-        std::reverse(final_smooth_points_.begin(), final_smooth_points_.end());
-
+    std::reverse(final_smooth_points_.begin(), final_smooth_points_.end());
 }
 
 void AIService::OnUpdate()

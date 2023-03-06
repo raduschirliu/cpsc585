@@ -456,7 +456,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //          .shininess = 64.0f});
     // }
 
-    
     {
         // AI 1
         Entity& entity = scene.AddEntity("AiVehicle1");
@@ -484,8 +483,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // Making the controller which will guide the car on where to go
         auto& ai_controller = entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
-    
-    // Camera
+
+        // Camera
         // Entity& camera_entity = scene.AddEntity("DebugCamera");
         // camera_entity.AddComponent<Transform>();
         // camera_entity.AddComponent<Camera>();
@@ -574,7 +573,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //     rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
     //     rigidbody.SetGravityEnabled(false);
     // }
-    
+
     {
         // Player kart
         Entity& kart_entity = scene.AddEntity("TestKart");

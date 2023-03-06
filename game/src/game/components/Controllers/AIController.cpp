@@ -105,7 +105,8 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     // Log::debug("cross {}", cross_product.x);
     // Log::debug("dot {}", dot_product);
-    // Log::debug("front {}, {}, {}", current_forward_dir.x, current_forward_dir.y,
+    // Log::debug("front {}, {}, {}", current_forward_dir.x,
+    // current_forward_dir.y,
     //            current_forward_dir.z);
 
     if (sqrt(dot_product * dot_product) > 0.98f)
@@ -116,19 +117,18 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         glm::vec3 cross_product =
             glm::normalize(glm::cross(normalized_target, current_forward_dir));
-       //ug("cross {}, {}, {}", cross_product.x, cross_product.y,
-       //        cross_product.z);
-            if (cross_product.x < 0)
-            {
-                vehicle_reference_->mCommandState.steer =
-                    -0.6f * handling_multiplier_;
-            }
-            else
-            {
-                vehicle_reference_->mCommandState.steer =
-                    0.6f * handling_multiplier_;
-            }
-        
+        // ug("cross {}, {}, {}", cross_product.x, cross_product.y,
+        //         cross_product.z);
+        if (cross_product.x < 0)
+        {
+            vehicle_reference_->mCommandState.steer =
+                -0.6f * handling_multiplier_;
+        }
+        else
+        {
+            vehicle_reference_->mCommandState.steer =
+                0.6f * handling_multiplier_;
+        }
     }
 
     // calculate the euclidean distance to see if the car is near the next
@@ -136,12 +136,12 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    //Log::debug("Distance to the next point {}", distance);
+    // Log::debug("Distance to the next point {}", distance);
     if (distance < 30.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_ += 1];
 
-        //Log::debug("{}", next_path_index_);
+        // Log::debug("{}", next_path_index_);
     }
 }
 
