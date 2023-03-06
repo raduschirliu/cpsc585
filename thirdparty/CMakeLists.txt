@@ -102,18 +102,6 @@ set(INCLUDES ${INCLUDES} fetched/openal-src/include/AL)
 set(LIBRARIES ${LIBRARIES} OpenAL::OpenAL)
 
 # -------------------------
-# AudioFile
-# -------------------------
-
-FetchContent_Declare(
-	audiofile	
-	GIT_REPOSITORY https://github.com/adamstark/AudioFile
-	GIT_TAG 004065d01e9b7338580390d4fdbfbaa46adede4e
-)
-FetchContent_MakeAvailable(audiofile)
-set(INCLUDES ${INCLUDES} fetched/audiofile-src)
-
-# -------------------------
 # object_ptr - https://github.com/anthonywilliams/object_ptr
 # -------------------------
 set(INCLUDES ${INCLUDES} object_ptr/)
