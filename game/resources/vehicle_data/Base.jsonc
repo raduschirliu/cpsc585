@@ -23,7 +23,7 @@
     "Scale": 1.0
   },
   "RigidBodyParams": {
-    "Mass": 4014.4000244140625,
+    "Mass": 4000.0,
     "MOI": [
       3200.0,
       3414.0,
@@ -341,27 +341,27 @@
   "SuspensionForceParams": [
     {
       "WheelId": 0,
-      "Damping": 17859,
-      "Stiffness": 100000,
-      "SprungMass": 553.7739868164063
+      "Damping": 6325,
+      "Stiffness": 10000,
+      "SprungMass": 1000
     },
     {
       "WheelId": 1,
-      "Damping": 17859,
-      "Stiffness": 100000,
-      "SprungMass": 553.7739868164063
+      "Damping": 6325,
+      "Stiffness": 10000,
+      "SprungMass": 1000
     },
     {
       "WheelId": 2,
-      "Damping": 13309,
-      "Stiffness": 70000,
-      "SprungMass": 439.3489990234375
+      "Damping": 5292,
+      "Stiffness": 7000,
+      "SprungMass": 1000
     },
     {
       "WheelId": 3,
-      "Damping": 13309,
-      "Stiffness": 70000,
-      "SprungMass": 439.3489990234375
+      "Damping": 5292,
+      "Stiffness": 7000,
+      "SprungMass": 1000
     }
   ],
   "SuspensionForceLegacyParams": [
