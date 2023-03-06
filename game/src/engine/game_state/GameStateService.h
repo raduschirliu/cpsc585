@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "engine/audio/AudioService.h"
 #include "engine/core/math/Timestep.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Entity.h"
@@ -54,6 +55,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 
   private:
+    jss::object_ptr<AudioService> audio_service_;
+
     std::map<uint32_t, PlayerStateData> player_details_;
     std::map<uint32_t, PlayerState*> player_states_;
     std::map<uint32_t, PowerupPickupType> player_powers_;

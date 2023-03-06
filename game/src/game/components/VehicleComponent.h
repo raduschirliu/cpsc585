@@ -38,6 +38,7 @@ class VehicleComponent final : public Component,
     PlayerStateData* GetPlayerStateData();
 
     VehicleGear GetGear() const;
+    float GetSpeed() const;
 
   private:
     jss::object_ptr<Transform> transform_;

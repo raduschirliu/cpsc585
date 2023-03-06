@@ -39,6 +39,7 @@
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
+#include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
@@ -446,6 +447,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         kart_entity.AddComponent<RaycastComponent>();
         kart_entity.AddComponent<PlayerController>();
+        kart_entity.AddComponent<PlayerHud>();
 
         // Camera
         Entity& camera_entity = scene.AddEntity("DebugCamera");

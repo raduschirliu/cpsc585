@@ -263,3 +263,10 @@ VehicleGear VehicleComponent::GetGear() const
             return VehicleGear::kNeutral;
     }
 }
+
+float VehicleComponent::GetSpeed() const
+{
+    const vec3 velocity =
+        PxToGlm(vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity());
+    return glm::length(velocity);
+}

@@ -30,11 +30,13 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
-    Log::debug("Game State Service working");
+    
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
+    audio_service_ = &service_provider.GetService<AudioService>();
+
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
@@ -350,6 +352,7 @@ void GameStateService::PlayerFinished(Entity& entity)
     {
         Log::info("Player finished: {}", entity.GetName());
         stats_.state = GameState::kFinished;
+        audio_service_->PlayOneShot("yay.ogg");
     }
     else
     {
