@@ -124,8 +124,8 @@ float PlayerController::GetSteerDirection()
 
     if (input_service_->IsGamepadActive(kGamepadId))
     {
-        return input_service_->GetGamepadAxis(kGamepadId,
-                                              GLFW_GAMEPAD_AXIS_LEFT_X);
+        return -input_service_->GetGamepadAxis(kGamepadId,
+                                               GLFW_GAMEPAD_AXIS_LEFT_X);
     }
 
     return 0.0f;

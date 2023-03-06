@@ -84,7 +84,7 @@ void GameApp::OnStart()
     AddScene("Test");
     AddScene("Track1");
 
-    SetActiveScene("Test");
+    SetActiveScene("Track1");
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
@@ -404,7 +404,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0f, 5.0f, 0.0f));
-        // transform.SetScale(vec3(50.0f, 50.0f, 50.0f));
 
         auto& static_body = entity.AddComponent<MeshStaticBody>();
         static_body.SetMesh("track3-collision", 1.0f);
@@ -431,12 +430,10 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& transform = kart_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0f, 5.0f, 0.0f));
+        transform.RotateEulerDegrees(vec3(0.0f, 180.0f, 0.0f));
 
         auto& renderer = kart_entity.AddComponent<MeshRenderer>();
         renderer.SetMesh("kart2-4");
-
-        auto& rigidbody = kart_entity.AddComponent<BoxRigidBody>();
-        rigidbody.SetGravityEnabled(false);
 
         auto& player_state = kart_entity.AddComponent<PlayerState>();
 

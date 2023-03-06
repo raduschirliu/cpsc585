@@ -445,7 +445,7 @@ void PhysicsService::InitPhysX()
     // d) metres  as the lengthscale.
     vehicle_context_.setToDefault();
     vehicle_context_.frame.lngAxis = PxVehicleAxes::ePosZ;  // 4
-    vehicle_context_.frame.latAxis = PxVehicleAxes::eNegX;  // 1
+    vehicle_context_.frame.latAxis = PxVehicleAxes::ePosX;  // 0
     vehicle_context_.frame.vrtAxis = PxVehicleAxes::ePosY;  // 2
     vehicle_context_.scale.scale = 1.0f;
     vehicle_context_.physxActorUpdateMode =
