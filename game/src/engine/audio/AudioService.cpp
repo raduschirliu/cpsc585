@@ -35,7 +35,9 @@ void AudioService::PlayOneShot(std::string file_name, float gain)
     // check if source already exists;
     // don't want to keep adding buffers for the same sound
     if (active_sources_.count(file_name) == 0)
+    {
         AddSource(file_name);
+    }
 
     ALuint source;
     source = active_sources_[file_name].first;
@@ -74,9 +76,13 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
     std::string file_path;
 
     if (is_looping)
+    {
         file_path = kMusicDirectory;
+    }
     else
+    {
         file_path = kSfxDirectory;
+    }
     file_path.append(file_name);
 
     // initialize AudioFile
@@ -99,9 +105,13 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
         audio_file.sample_rate_);
 
     if (audio_file.number_of_channels_ == 2)
+    {
         audio_file.format_ = AL_FORMAT_STEREO16;
+    }
     else
+    {
         audio_file.format_ = AL_FORMAT_MONO16;
+    }
 
     return audio_file;
 }
@@ -129,7 +139,9 @@ void AudioService::AddSource(std::string file_name, bool is_looping)
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
     if (alGetError() != AL_NO_ERROR)
+    {
         Log::warning("Couldn't buffer audio data.");
+    }
 
     active_sources_.insert({file_name, {source, buffer}});
 }
@@ -141,10 +153,14 @@ bool AudioService::IsPlaying(std::string file_name)
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
     if (alGetError() != AL_NO_ERROR)
+    {
         Log::warning("Couldn't get Source State from {}.", file_name);
+    }
 
     if (source_state != AL_PLAYING)
+    {
         return false;
+    }
 
     return true;
 }
@@ -164,7 +180,9 @@ void AudioService::CullSources()
             alDeleteBuffers(1, &pair->second.second);
 
             if (alGetError() != AL_NO_ERROR)
+            {
                 Log::error("While culling Sources for {}.", pair->first);
+            }
 
             active_sources_.erase(pair);
         }
