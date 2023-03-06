@@ -43,5 +43,5 @@ class AIController final : public Component,
     // as we want the car to move from current to next command, and so on until
     // the end.
     glm::vec3 next_car_position_;
-    int next_path_index_ = 201;
+    int next_path_index_ = 202;
 };

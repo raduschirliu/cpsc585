@@ -465,15 +465,18 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         // need a better way to do this
         // need a better way to do this
-        transform.SetPosition(vec3(-505.22742, 5.071559, -457.23126));
-        transform.RotateEulerDegrees(vec3(0.422f, 9.829f, 0.95f));
+        transform.SetPosition(vec3( -515.4849, 4.071634, -370.77426));
+        transform.RotateEulerDegrees(vec3(0.422f, 0.829f, 0.95f));
+
         Entity& follow_camera_entity = scene.AddEntity();
-        auto& transform_camera = follow_camera_entity.AddComponent<Transform>();
-        auto& follow_camera_comp =
+        auto& transform_camera =
+        follow_camera_entity.AddComponent<Transform>(); auto&
+        follow_camera_comp =
             follow_camera_entity.AddComponent<FollowCamera>();
         follow_camera_comp.SetFollowingTransform(entity);
 
         follow_camera_entity.AddComponent<Camera>();
+
         auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
@@ -548,11 +551,11 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //     auto& ai_controller = entity.AddComponent<AIController>();
     //     ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     // }
-    //  {
+    // {
     //     // Debug camera
     //     Entity& entity = scene.AddEntity("DebugCamera");
     //     auto& transform = entity.AddComponent<Transform>();
-    //     transform.SetPosition(vec3(-20.651195, 30.730307, 83.52167));
+    //     transform.SetPosition(vec3( -515.4849, -4.071634, -370.77426));
     //     transform.RotateEulerDegrees(vec3(0.422f, 189.829f, 0.95f));
 
     //     entity.AddComponent<Camera>();

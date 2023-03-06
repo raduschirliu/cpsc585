@@ -98,7 +98,7 @@ void NavMesh::ReadVertices()
         std::string s;
         while (std::getline(file, s))
         {
-            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm')
+            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' || s[0] == 'u')
                 continue;
             std::vector<float>
                 temp_vertex;  // so that after all the points are read, we
@@ -122,11 +122,9 @@ void NavMesh::ReadVertices()
                 }
                 if (word != "v" && !face_vertex_bool)
                 {
-                    if (index == 1)
-                        temp_vertex.push_back(std::stof(word) + 9.f);
-                    else
+                    
                         temp_vertex.push_back(std::stof(word) + 0.f);
-                    index++;
+                    
                 }
                 else if (word != "f" && face_vertex_bool)
                 {
@@ -156,9 +154,12 @@ NavMesh::NavMesh()
     // getting all the vertices first.
     for (int i = 0; i < face_positions_.size(); i++)
     {
-        auto& v1 = all_vertices_[static_cast<int>(face_positions_[i].x) - 1];
-        auto& v2 = all_vertices_[static_cast<int>(face_positions_[i].y) - 1];
-        auto& v3 = all_vertices_[static_cast<int>(face_positions_[i].z) - 1];
+        auto& v1 = all_vertices_[static_cast<int>(face_positions_[i].x) -1];
+        auto& v2 = all_vertices_[static_cast<int>(face_positions_[i].y) -1 ];
+        auto& v3 = all_vertices_[static_cast<int>(face_positions_[i].z) -1];
+        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].x), v1.x);
+        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].y), v2.x);
+        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].z), v3.x);
         Node* temp_node = new Node(node_index_, v1, v2, v3);
         all_nodes.push_back(temp_node);
 
@@ -169,20 +170,28 @@ NavMesh::NavMesh()
 
     // making the connections for the nodes, i.e. the nodes know which node is
     // connected to what node.
-    for (int i = 0; i < this->nodes_->size() - 1; i++)
+    for (int i = 0; i < this->nodes_->size() - 2; i++)
     {
         Node* n1 = all_nodes[i];
         Node* n2 = all_nodes[i + 1];
+        Node* n3 = all_nodes[i + 2];
+        // Node* n6 = all_nodes[i + 5];
+        // Node* n7 = all_nodes[i + 6];
+        // Node* n8 = all_nodes[i + 7];
         n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
-        n1->size_ = (n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
-                    (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
-                    (n1->v2_.x * (n1->v0_.z - n1->v1_.z)) / 2;
-        // std::cout << i << " " << i+1 << std::endl;
-        std::cout << std::endl
-                  << ((n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
-                      (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
-                      (n1->v2_.x * (n1->v0_.z - n1->v1_.z))) /
-                         2;
+        n1->connections_->emplace_back(std::make_pair(Cost(n1, n3), n3));
+        // n1->connections_->emplace_back(std::make_pair(Cost(n1, n6), n6));
+        // n1->connections_->emplace_back(std::make_pair(Cost(n1, n7), n7));
+        // n1->connections_->emplace_back(std::make_pair(Cost(n1, n8), n8));
+        // n1->size_ = (n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
+        //             (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
+        //             (n1->v2_.x * (n1->v0_.z - n1->v1_.z)) / 2;
+        // // std::cout << i << " " << i+1 << std::endl;
+        // std::cout << std::endl
+        //           << ((n1->v0_.x * (n1->v1_.z - n1->v2_.z)) +
+        //               (n1->v1_.x * (n1->v2_.z - n1->v0_.z)) +
+        //               (n1->v2_.x * (n1->v0_.z - n1->v1_.z))) /
+        //                  2;
     }
 }
 
@@ -332,15 +341,16 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     bPath.push_back(this->navMesh_->nodes_->find(temp)->second->centroid_);
 
     // smotth down this path.
-    std::vector<glm::vec3> smoothPath;
-    smoothPath = SmoothPath(bPath);
+    std::vector<glm::vec3> smoothPath = bPath;
+    //smoothPath = SmoothPath(bPath);
 
     std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
-    for (auto& i : smoothPath)
+    // for (int i = smoothPath.size() - 1; i > 0; i--)
+    for (int i = 0; i < smoothPath.size() - 1; i++)
     {
-        this->path_->push(i);
-        points_output << "v " << i.x << " " << i.y << " " << i.z << std::endl;
+        this->path_->push(smoothPath[i]);
+        points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y << " " << smoothPath[i].z << std::endl;
     }
     points_output.close();
 }

@@ -33,10 +33,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
                transform_->GetPosition().y, transform_->GetPosition().z);
 
     // storing the initial variables.
-    if (path_to_follow_.size() > 2)
-    {
-        next_car_position_ = path_to_follow_[201];
-    }
+    next_car_position_ = path_to_follow_[201];
 }
 
 void AIController::OnUpdate(const Timestep& delta_time)
@@ -88,7 +85,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
                       ->getLinearVelocity()
                       .magnitude();
     // Log::debug("{}", speed);
-    if (speed <= 20)
+    if (speed <= 30)
     {
         vehicle_reference_->mCommandState.throttle =
             1.f * speed_multiplier_;  // for the everyone slow down pickup.
@@ -99,33 +96,39 @@ void AIController::OnUpdate(const Timestep& delta_time)
             0.f;  // for the everyone slow down pickup.
     }
 
-    glm::vec3 target = transform_->GetPosition() - next_car_position_;
+    glm::vec3 target = -transform_->GetPosition() + next_car_position_;
     // normalize the vector to find out its true position later by dot
     // producting it
     glm::vec3 normalized_target = glm::normalize(target);
     glm::vec3 current_forward_dir = transform_->GetForwardDirection();
     float dot_product = glm::dot(normalized_target, current_forward_dir);
 
-    glm::vec3 cross_product =
-        glm::cross(current_forward_dir, normalized_target);
-    //Log::debug("{}, {}, {}", cross_product.x, cross_product.y, cross_product.z);
+    // Log::debug("cross {}", cross_product.x);
+    // Log::debug("dot {}", dot_product);
+    // Log::debug("front {}, {}, {}", current_forward_dir.x, current_forward_dir.y,
+    //            current_forward_dir.z);
 
-    if (sqrt(dot_product * dot_product) > 0.95f)
+    if (sqrt(dot_product * dot_product) > 0.999f)
     {
         vehicle_reference_->mCommandState.steer = 0.f;
     }
     else
     {
-        if (cross_product.x > 0)
-        {
-            vehicle_reference_->mCommandState.steer =
-                -0.3f * handling_multiplier_;
-        }
-        else
-        {
-            vehicle_reference_->mCommandState.steer =
-                0.3f * handling_multiplier_;
-        }
+        glm::vec3 cross_product =
+            glm::normalize(glm::cross(normalized_target, current_forward_dir));
+       Log::debug("cross {}, {}, {}", cross_product.x, cross_product.y,
+               cross_product.z);
+            if (cross_product.z > 0)
+            {
+                vehicle_reference_->mCommandState.steer =
+                    -0.6f * handling_multiplier_;
+            }
+            else
+            {
+                vehicle_reference_->mCommandState.steer =
+                    0.6f * handling_multiplier_;
+            }
+        
     }
 
     // calculate the euclidean distance to see if the car is near the next
@@ -134,13 +137,8 @@ void AIController::OnUpdate(const Timestep& delta_time)
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
     Log::debug("Distance to the next point {}", distance);
-    if (distance < 28.f)
+    if (distance < 30.f)
     {
-        if(next_path_index_ >= 430 && next_path_index_ <= 440)
-        {
-            
-            next_path_index_ = 578;
-        }
         next_car_position_ = path_to_follow_[next_path_index_ += 1];
 
         Log::debug("{}", next_path_index_);
