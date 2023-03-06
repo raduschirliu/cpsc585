@@ -6,8 +6,9 @@
 | W | Throttle |
 | S | Brake |
 | A | Steer left |
-| D | Steer right
+| D | Steer right |
 | X | Shift between reverse/drive gears | 
+| R | Shoot (WIP) |
 
 ## Controller
 | Key | Action |
@@ -15,7 +16,8 @@
 | X | Shift between reverse/drive gears |
 | RT | Throttle |
 | LT | Brake |
-| Left Joystick | Steer|
+| Left Joystick | Steer |
+| B | Shoot (WIP) |
 
 # Debug Keybinds
 

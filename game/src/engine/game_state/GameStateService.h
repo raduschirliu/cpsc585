@@ -4,9 +4,11 @@
 #include <memory>
 #include <object_ptr.hpp>
 #include <set>
-#include <utility>  // for pair
+#include <utility>
 #include <vector>
 
+#include "engine/core/math/Timestep.h"
+#include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/service/Service.h"
@@ -15,7 +17,27 @@
 
 class PlayerState;
 
-class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
+enum class GameState : uint8_t
+{
+    kNotRunning = 0,
+    kCountdown,
+    kRunning,
+    kFinished
+};
+
+struct GameStats
+{
+    GameState state;
+    size_t num_players;
+    size_t finished_players;
+    size_t num_laps;
+    Timestep elapsed_time;
+    Timestep countdown_elapsed_time;
+
+    void Reset();
+};
+
+class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
     GameStateService();
@@ -23,10 +45,13 @@ class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
     // From Service
     void OnInit() override;
     void OnUpdate() override;
-    void OnUpdate(const Timestep& delta_time) override;
     void OnCleanup() override;
     void OnStart(ServiceProvider& service_provider);
+    void OnSceneLoaded(Scene& scene) override;
     std::string_view GetName() const override;
+
+    // From Event subscribers
+    void OnGui() override;
 
   private:
     std::map<uint32_t, PlayerStateData> player_details_;
@@ -35,10 +60,14 @@ class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
-
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
+    GameStats stats_;
+
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
+
+    void StartCountdown();
+    void StartGame();
 
   public:
     // setters
@@ -57,4 +86,6 @@ class GameStateService : public Service, public IEventSubscriber<OnUpdateEvent>
 
     void RemoveEveryoneSlowerSpeedMultiplier();
     void RemoveActivePowerup();
+
+    void PlayerFinished(Entity& entity);
 };

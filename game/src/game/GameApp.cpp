@@ -441,6 +441,10 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         vehicle.SetVehicleName("TestKart");
         vehicle.SetPlayerStateData(*player_state.GetStateData());
 
+        auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
+        hitbox_component.SetSize(vec3(6.0f));
+
+        kart_entity.AddComponent<RaycastComponent>();
         kart_entity.AddComponent<PlayerController>();
 
         // Camera
@@ -452,5 +456,26 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
+    }
+
+    {
+        // Alleged finish line
+        Entity& entity = scene.AddEntity("Finish Line");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0, 5.0f, 50.0f));
+        transform.SetScale(vec3(10.0f, 4.0f, 10.0f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(20.0f, 4.0f, 10.0f));
+
+        entity.AddComponent<FinishLineComponent>();
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
     }
 }
