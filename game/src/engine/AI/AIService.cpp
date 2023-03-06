@@ -52,6 +52,8 @@ void AIService::OnStart(ServiceProvider& service_provider)
         // std::cout << this->pathfinder_->path_->top() << std::endl;
         this->pathfinder_->path_->pop();
     }
+        std::reverse(final_smooth_points_.begin(), final_smooth_points_.end());
+
 }
 
 void AIService::OnUpdate()
@@ -87,7 +89,7 @@ NavMesh::Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
 void NavMesh::ReadVertices()
 {
     std::fstream file;
-    file.open("resources/models/track/track3-4navmesh.obj", std::ios::in);
+    file.open("resources/models/track/track3-6navmesh.obj", std::ios::in);
     if (!file)
     {
         Log::error("Cannot open the navmesh file.");
@@ -98,7 +100,8 @@ void NavMesh::ReadVertices()
         std::string s;
         while (std::getline(file, s))
         {
-            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' || s[0] == 'u')
+            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' ||
+                s[0] == 'u')
                 continue;
             std::vector<float>
                 temp_vertex;  // so that after all the points are read, we
@@ -122,9 +125,7 @@ void NavMesh::ReadVertices()
                 }
                 if (word != "v" && !face_vertex_bool)
                 {
-                    
-                        temp_vertex.push_back(std::stof(word) + 0.f);
-                    
+                    temp_vertex.push_back(std::stof(word) + 0.f);
                 }
                 else if (word != "f" && face_vertex_bool)
                 {
@@ -154,12 +155,13 @@ NavMesh::NavMesh()
     // getting all the vertices first.
     for (int i = 0; i < face_positions_.size(); i++)
     {
-        auto& v1 = all_vertices_[static_cast<int>(face_positions_[i].x) -1];
-        auto& v2 = all_vertices_[static_cast<int>(face_positions_[i].y) -1 ];
-        auto& v3 = all_vertices_[static_cast<int>(face_positions_[i].z) -1];
-        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].x), v1.x);
-        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].y), v2.x);
-        Log::debug("{} : value {}", static_cast<int>(face_positions_[i].z), v3.x);
+        auto& v1 = all_vertices_[static_cast<int>(face_positions_[i].x) - 1];
+        auto& v2 = all_vertices_[static_cast<int>(face_positions_[i].y) - 1];
+        auto& v3 = all_vertices_[static_cast<int>(face_positions_[i].z) - 1];
+        // Log::debug("{} : value {}", static_cast<int>(face_positions_[i].x),
+        // v1.x); Log::debug("{} : value {}",
+        // static_cast<int>(face_positions_[i].y), v2.x); Log::debug("{} : value
+        // {}", static_cast<int>(face_positions_[i].z), v3.x);
         Node* temp_node = new Node(node_index_, v1, v2, v3);
         all_nodes.push_back(temp_node);
 
@@ -341,18 +343,27 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     bPath.push_back(this->navMesh_->nodes_->find(temp)->second->centroid_);
 
     // smotth down this path.
-    std::vector<glm::vec3> smoothPath = bPath;
-    //smoothPath = SmoothPath(bPath);
+    std::vector<glm::vec3> smoothPath;
 
-    std::ofstream points_output("NavMeshPointsNEWNEW.obj");
+    // for (int i = 0; i < bPath.size(); i++)
+    // {
+    //     if(bPath[i].x < 20 && bPath[i].x > 0)
+    //     std::cout << i << bPath[i] << std::endl;
+    // }
+
+    smoothPath = SmoothPath(bPath);
+
+    // std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
     // for (int i = smoothPath.size() - 1; i > 0; i--)
-    for (int i = 0; i < smoothPath.size() - 1; i++)
+    for (int i = 0; i < smoothPath.size(); i++)
     {
         this->path_->push(smoothPath[i]);
-        points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y << " " << smoothPath[i].z << std::endl;
+
+        // points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y <<
+        // " " << smoothPath[i].z << std::endl;
     }
-    points_output.close();
+    // points_output.close();
 }
 
 std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
@@ -373,7 +384,7 @@ std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)
     float c0 = 1.f / 4.f;
     float c1 = 3.f / 4.f;
 
-    for (unsigned int u = 0; u < 4; u++)
+    for (unsigned int u = 0; u < 1; u++)
     {
         iVerts.push_back(cPoints[0]);
         iVerts.push_back(c2 * cPoints[0] + c2 * cPoints[1]);

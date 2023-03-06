@@ -74,6 +74,21 @@ class Pathfinder
     bool PathEmpty();
 
   private:
+    glm::mat4 computeHermiteBasisMatrix(const glm::vec3& p0,
+                                        const glm::vec3& p1,
+                                        const glm::vec3& t0,
+                                        const glm::vec3& t1);
+    std::vector<glm::vec3> computeHermiteSegment(const glm::vec3& p0,
+                                                 const glm::vec3& p1,
+                                                 const glm::vec3& t0,
+                                                 const glm::vec3& t1,
+                                                 int numPoints);
+
+    std::vector<glm::vec3> computeHermiteCurve(
+        const std::vector<glm::vec3>& points,
+        const std::vector<glm::vec3>& tangents, int numPointsPerSegment);
+    std::vector<glm::vec3> computeTangents(
+        const std::vector<glm::vec3>& points);
     bool IsDestination(NavMesh::Node* src, NavMesh::Node* dest);
     float CalculateHCost(NavMesh::Node* src, NavMesh::Node* dest);
     void TracePath(NavMesh::Node* src, NavMesh::Node* dest,

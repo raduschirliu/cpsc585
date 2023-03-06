@@ -456,7 +456,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //          .shininess = 64.0f});
     // }
 
-    /*
+    
     {
         // AI 1
         Entity& entity = scene.AddEntity("AiVehicle1");
@@ -464,17 +464,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         // need a better way to do this
         // need a better way to do this
-        transform.SetPosition(vec3( -515.4849, 4.071634, -370.77426));
-        transform.RotateEulerDegrees(vec3(0.422f, 0.829f, 0.95f));
-
-        Entity& follow_camera_entity = scene.AddEntity();
-        auto& transform_camera =
-        follow_camera_entity.AddComponent<Transform>(); auto&
-        follow_camera_comp =
-            follow_camera_entity.AddComponent<FollowCamera>();
-        follow_camera_comp.SetFollowingTransform(entity);
-
-        follow_camera_entity.AddComponent<Camera>();
+        transform.SetPosition(vec3(10.554472, 5.0, -1.f));
+        transform.RotateEulerDegrees(vec3(0, 180.f, 0.95f));
 
         auto& player_state = entity.AddComponent<PlayerState>();
 
@@ -493,6 +484,16 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // Making the controller which will guide the car on where to go
         auto& ai_controller = entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+    
+    // Camera
+        // Entity& camera_entity = scene.AddEntity("DebugCamera");
+        // camera_entity.AddComponent<Transform>();
+        // camera_entity.AddComponent<Camera>();
+
+        // // camera_entity.AddComponent<DebugCameraController>();
+
+        // auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
+        // camera_follower.SetFollowingTransform(entity);
     }
 
     // {
@@ -573,7 +574,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     //     rigidbody.SetSize(vec3(2.0f, 2.0f, 2.0f));
     //     rigidbody.SetGravityEnabled(false);
     // }
-    */
+    
     {
         // Player kart
         Entity& kart_entity = scene.AddEntity("TestKart");

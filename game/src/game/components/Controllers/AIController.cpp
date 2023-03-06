@@ -22,18 +22,18 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,
-               transform_->GetPosition().y, transform_->GetPosition().z);
+    // Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,
+    //            transform_->GetPosition().y, transform_->GetPosition().z);
 
     // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
 
-    transform_->SetPosition(ai_service_->GetPath()[200]);
-    Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,
-               transform_->GetPosition().y, transform_->GetPosition().z);
+    transform_->SetPosition(ai_service_->GetPath()[356]);
+    // Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,
+    //            transform_->GetPosition().y, transform_->GetPosition().z);
 
     // storing the initial variables.
-    next_car_position_ = path_to_follow_[201];
+    next_car_position_ = path_to_follow_[357];
 }
 
 void AIController::OnUpdate(const Timestep& delta_time)
@@ -108,7 +108,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // Log::debug("front {}, {}, {}", current_forward_dir.x, current_forward_dir.y,
     //            current_forward_dir.z);
 
-    if (sqrt(dot_product * dot_product) > 0.999f)
+    if (sqrt(dot_product * dot_product) > 0.98f)
     {
         vehicle_reference_->mCommandState.steer = 0.f;
     }
@@ -116,9 +116,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         glm::vec3 cross_product =
             glm::normalize(glm::cross(normalized_target, current_forward_dir));
-       Log::debug("cross {}, {}, {}", cross_product.x, cross_product.y,
-               cross_product.z);
-            if (cross_product.z > 0)
+       //ug("cross {}, {}, {}", cross_product.x, cross_product.y,
+       //        cross_product.z);
+            if (cross_product.x < 0)
             {
                 vehicle_reference_->mCommandState.steer =
                     -0.6f * handling_multiplier_;
@@ -136,12 +136,12 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    Log::debug("Distance to the next point {}", distance);
+    //Log::debug("Distance to the next point {}", distance);
     if (distance < 30.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_ += 1];
 
-        Log::debug("{}", next_path_index_);
+        //Log::debug("{}", next_path_index_);
     }
 }
 
