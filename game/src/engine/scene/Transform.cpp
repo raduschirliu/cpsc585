@@ -13,9 +13,9 @@ static constexpr vec3 kXAxis(1.0f, 0.0f, 0.0f);
 static constexpr vec3 kYAxis(0.0f, 1.0f, 0.0f);
 static constexpr vec3 kZAxis(0.0f, 0.0f, 1.0f);
 
-static constexpr vec4 kDefaultForwardDir = vec4(-kZAxis, 0.0f);
+static constexpr vec4 kDefaultForwardDir = vec4(+kZAxis, 0.0f);
 static constexpr vec4 kDefaultUpDir = vec4(+kYAxis, 0.0f);
-static constexpr vec4 kDefaultRightDir = vec4(-kXAxis, 0.0f);
+static constexpr vec4 kDefaultRightDir = vec4(+kXAxis, 0.0f);
 
 Transform::Transform()
     : position_(0.0f, 0.0f, 0.0f),
