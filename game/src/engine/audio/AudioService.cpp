@@ -55,7 +55,7 @@ void AudioService::PlayLoop(std::string file_name, float gain)
     // TODO
 }
 
-void AudioService::PlayMusic(std::string file_name, float gain = 1.f)
+void AudioService::PlayMusic(std::string file_name, float gain)
 {
     // TODO
 }
