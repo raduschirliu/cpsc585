@@ -6,17 +6,10 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-
-// Vehicle details
-#include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
-#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
-#include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
-#include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
-
-#include "engine/physics/VehicleCommands.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,

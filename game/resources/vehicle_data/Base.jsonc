@@ -13,10 +13,11 @@
       ]
     }
   ],
+  // Must match frame defined in PhysicsService for the VehicleContext
   "Frame": {
-    "LngAxis": 4,
-    "LatAxis": 0,
-    "VrtAxis": 2
+    "LngAxis": 4, // PxVehicleAxes::ePosZ 
+    "LatAxis": 0, // PxVehicleAxes::ePosX
+    "VrtAxis": 2  // PxVehicleAxes::ePosY 
   },
   "Scale": {
     "Scale": 1.0
