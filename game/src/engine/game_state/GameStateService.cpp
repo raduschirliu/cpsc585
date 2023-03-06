@@ -30,7 +30,6 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
-    
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)

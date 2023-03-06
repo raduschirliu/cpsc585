@@ -11,8 +11,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
 
-class PlayerHud final : public Component,
-                        public IEventSubscriber<OnGuiEvent>
+class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 {
   public:
     // From Component
