@@ -55,6 +55,11 @@ void AudioService::PlayLoop(std::string file_name, float gain)
     // TODO
 }
 
+void AudioService::PlayMusic(std::string file_name, float gain = 1.f)
+{
+    // TODO
+}
+
 void AudioService::StopPlayback(std::string file_name)
 {
     ALuint source = active_sources_[file_name].first;
@@ -70,6 +75,16 @@ void AudioService::StopAllPlayback()
 }
 
 /* ----- getters / setters / helpers ----- */
+
+void AudioService::SetPitch(std::string file_name, float pitch_offset)
+{
+    // TODO
+}
+
+void AudioService::SetGain(std::string file_name, float gain)
+{
+    // TODO
+}
 
 AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
 {

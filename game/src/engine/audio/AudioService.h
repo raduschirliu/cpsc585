@@ -15,12 +15,15 @@
 
 /**
  *  @todo streaming for longer audio files
+ *  @todo implement positional audio
  */
 class AudioService final : public Service
 {
   public:
     /**
-     *  plays a soundfile fully just once.
+     *  plays an audio file fully just once.
+     *
+     *  @note only accepts mono files.
      *
      *  @param file_name name of audio file (including extension).
      *  @param gain relative gain compensation to be added. default: 1.f
@@ -28,7 +31,10 @@ class AudioService final : public Service
     void PlayOneShot(std::string file_name, float gain = 1.f);
 
     /**
-     *  plays and loops a soundfile until explicitly stopped.
+     *  @todo
+     *  plays and loops an audio file until explicitly stopped.
+     *
+     *  @note only accepts mono files.
      *
      *  @param file_name name of audio file (including extension).
      *  @param gain relative gain compensation to be added. default: 1.f
@@ -36,14 +42,41 @@ class AudioService final : public Service
     void PlayLoop(std::string file_name, float gain = 1.f);
 
     /**
-     *  stops a soundfile's playback.
+     *  @todo
+     *  plays and loops music, with no 3D positional effect.
+     *
+     *  @param file_name name of audio file (including extension).
+     *  @param gain relative gain compensation to be added. default: 1.f
+     */
+    void PlayMusic(std::string file_name, float gain = 1.f);
+
+    /**
+     *  stops an audio file's playback.
      *
      *  @param file_name name of audio file (including extension).
      */
     void StopPlayback(std::string file_name);
 
-    /// @brief stops playback of all soundfiles.
+    /// @brief stops playback of all sound files.
     void StopAllPlayback();
+
+    /**
+     *  @todo
+     *  sets the gain of a source specified by its file name.
+     *
+     *  @param file_name name of audio file (including extension).
+     *  @param gain relative gain compensation to be added.
+     */
+    void SetGain(std::string file_name, float gain);
+
+    /**
+     *  @todo
+     *  offsets the pitch of a source specified by its file name.
+     *
+     *  @param file_name name of audio file (including extension).
+     *  @param pitch_offset the amount to change pitch.
+     */
+    void SetPitch(std::string file_name, float pitch_offset);
 
     /* ----- from service ----- */
 
