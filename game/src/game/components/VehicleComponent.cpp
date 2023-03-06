@@ -99,7 +99,7 @@ void VehicleComponent::InitMaterialFrictionTable()
     // snippet there is only a single material so there can only be a single
     // mapping between material and friction. In this snippet the same mapping
     // is used by all tires.
-    gPhysXMaterialFrictions_[0].friction = 10.0f;
+    gPhysXMaterialFrictions_[0].friction = 15.0f;
     gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
 }

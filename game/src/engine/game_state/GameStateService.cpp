@@ -91,9 +91,9 @@ void GameStateService::OnGui()
     }
     else if (stats_.state == GameState::kRunning)
     {
-        ImGui::Text("Laps: %zu", stats_.num_laps);
+        ImGui::Text("Laps: 0/%zu", stats_.num_laps);
         ImGui::Text("Players: %zu", stats_.num_players);
-        ImGui::Text("Time: %f sec", stats_.elapsed_time.GetSeconds());
+        ImGui::Text("Time: %.2f sec", stats_.elapsed_time.GetSeconds());
     }
     else if (stats_.state == GameState::kFinished)
     {
@@ -333,6 +333,8 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
 void GameStateService::StartCountdown()
 {
     stats_.state = GameState::kCountdown;
+    stats_.num_players = 4;
+    stats_.num_laps = 1;
 }
 
 void GameStateService::StartGame()
