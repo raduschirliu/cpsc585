@@ -23,7 +23,7 @@
     "Scale": 1.0
   },
   "RigidBodyParams": {
-    "Mass": 2014.4000244140625,
+    "Mass": 4014.4000244140625,
     "MOI": [
       3200.0,
       3414.0,
@@ -31,7 +31,7 @@
     ]
   },
   "BrakeCommandResponseParams": {
-    "MaxResponse": 2000.0,
+    "MaxResponse": 3000.0,
     "WheelResponseMultipliers": [
       1.0,
       1.0,
