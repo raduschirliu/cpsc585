@@ -35,7 +35,7 @@ class NavMesh
         glm::vec3 v0_, v1_, v2_,
             centroid_;  // to define every point we need for
                         // our navmesh algorithm to work
-
+        float size_;
         std::vector<std::pair<float, Node*>>* connections_;
 
       private:
@@ -49,6 +49,11 @@ class NavMesh
     Node* FindEntity(glm::vec3 pos);
 
   private:
+    std::vector<glm::vec3> all_vertices_;
+    std::vector<glm::vec3> face_positions_;
+    std::vector<Node*> all_nodes;
+    uint32_t node_index_ = 0;
+    void ReadVertices();
     float Cost(Node* src, Node* dest);
 };
 
@@ -69,6 +74,21 @@ class Pathfinder
     bool PathEmpty();
 
   private:
+    glm::mat4 computeHermiteBasisMatrix(const glm::vec3& p0,
+                                        const glm::vec3& p1,
+                                        const glm::vec3& t0,
+                                        const glm::vec3& t1);
+    std::vector<glm::vec3> computeHermiteSegment(const glm::vec3& p0,
+                                                 const glm::vec3& p1,
+                                                 const glm::vec3& t0,
+                                                 const glm::vec3& t1,
+                                                 int numPoints);
+
+    std::vector<glm::vec3> computeHermiteCurve(
+        const std::vector<glm::vec3>& points,
+        const std::vector<glm::vec3>& tangents, int numPointsPerSegment);
+    std::vector<glm::vec3> computeTangents(
+        const std::vector<glm::vec3>& points);
     bool IsDestination(NavMesh::Node* src, NavMesh::Node* dest);
     float CalculateHCost(NavMesh::Node* src, NavMesh::Node* dest);
     void TracePath(NavMesh::Node* src, NavMesh::Node* dest,

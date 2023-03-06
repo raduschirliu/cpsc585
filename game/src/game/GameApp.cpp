@@ -435,13 +435,14 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     }
     {
         // Other players
-        CreatePlayer(scene, "AiPlayer1", false, vec3(10.0f, 5.0f, 0.0f),
+        CreatePlayer(scene, "AiPlayer1", false, vec3(10.f, 5.0, -1.f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kCyan);
         CreatePlayer(scene, "AiPlayer2", false, vec3(-10.0f, 5.0f, 0.0f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kMagenta);
         CreatePlayer(scene, "AiPlayer3", false, vec3(-20.0f, 5.0f, 0.0f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kYellow);
     }
+    
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
