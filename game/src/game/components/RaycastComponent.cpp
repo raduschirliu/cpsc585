@@ -16,6 +16,10 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
+static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+
+using glm::vec3;
+
 void RaycastComponent::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("RaycastComponent - Init");
@@ -33,37 +37,43 @@ void RaycastComponent::OnInit(const ServiceProvider& service_provider)
 
 void RaycastComponent::OnUpdate(const Timestep& delta_time)
 {
-    if (input_service_->IsKeyPressed(GLFW_KEY_R))
+    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_B))
     {
-        // origin and direction of the raycast from this entity
-        glm::vec3 direction = transform_->GetForwardDirection();
-        glm::vec3 offset = 15.f * direction;
-        glm::vec3 origin = transform_->GetPosition() + offset;
-
-        // no raycast data == no hit
-        if (!physics_service_->Raycast(origin, direction).has_value())
-        {
-            return;
-        }
-
-        // get the data from the raycast hit
-        RaycastData raycast =
-            physics_service_->Raycast(origin, direction).value();
-
-        float distance = raycast.distance;
-
-        physx::PxActor* target_actor = raycast.actor;
-        glm::vec3 normal = raycast.normal;
-        glm::vec3 position = raycast.position;
-
-        std::cout << "target actor: " << target_actor << "\n"
-                  << "target position: " << position << "\t"
-                  << "distance from target: " << distance << "\t"
-                  << "normal of raycast hit: " << normal << "\t" << std::endl;
+        Shoot();
     }
 }
 
 std::string_view RaycastComponent::GetName() const
 {
     return "RaycastComponent";
+}
+
+void RaycastComponent::Shoot()
+{
+    // origin and direction of the raycast from this entity
+    vec3 direction = transform_->GetForwardDirection();
+    vec3 offset = 15.f * direction;
+    vec3 origin = transform_->GetPosition() + offset;
+
+    // no raycast data == no hit
+    if (!physics_service_->Raycast(origin, direction).has_value())
+    {
+        return;
+    }
+
+    // get the data from the raycast hit
+    RaycastData raycast = physics_service_->Raycast(origin, direction).value();
+
+    float distance = raycast.distance;
+
+    physx::PxActor* target_actor = raycast.actor;
+    vec3 normal = raycast.normal;
+    vec3 position = raycast.position;
+
+    std::cout << "target actor: " << target_actor << "\n"
+              << "target position: " << position << "\t"
+              << "distance from target: " << distance << "\t"
+              << "normal of raycast hit: " << normal << "\t" << std::endl;
 }

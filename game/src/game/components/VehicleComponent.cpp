@@ -99,7 +99,7 @@ void VehicleComponent::InitMaterialFrictionTable()
     // snippet there is only a single material so there can only be a single
     // mapping between material and friction. In this snippet the same mapping
     // is used by all tires.
-    gPhysXMaterialFrictions_[0].friction = 10.0f;
+    gPhysXMaterialFrictions_[0].friction = 15.0f;
     gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
 }
@@ -262,4 +262,11 @@ VehicleGear VehicleComponent::GetGear() const
                 "Vehicle transmission should never be in an unkown state");
             return VehicleGear::kNeutral;
     }
+}
+
+float VehicleComponent::GetSpeed() const
+{
+    const vec3 velocity =
+        PxToGlm(vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity());
+    return glm::length(velocity);
 }

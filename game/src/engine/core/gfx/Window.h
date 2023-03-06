@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <memory>
+#include <string>
 
 // Class that specifies the interface for the most common GLFW callbacks
 //
@@ -48,6 +49,7 @@ class Window
 
     void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks);
     void SetSize(const glm::ivec2& size);
+    void SetTitle(const std::string& title);
 
     glm::ivec2 GetPos() const;
     glm::ivec2 GetSize() const;

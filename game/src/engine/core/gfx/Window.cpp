@@ -7,6 +7,7 @@
 #include "engine/core/gfx/GLDebug.h"
 
 using std::shared_ptr;
+using std::string;
 
 static GLFWwindow* kJoystickWindow = nullptr;
 
@@ -149,6 +150,11 @@ void Window::SetSize(const glm::ivec2& size)
 {
     ASSERT_MSG(handle_, "Window must exist");
     glfwSetWindowSize(handle_.get(), size.x, size.y);
+}
+
+void Window::SetTitle(const string& title)
+{
+    glfwSetWindowTitle(handle_.get(), title.c_str());
 }
 
 void Window::PollEvents()
