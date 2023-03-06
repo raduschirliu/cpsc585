@@ -44,7 +44,7 @@ void BoxTrigger::SetSize(const vec3& size)
         PX_RELEASE(shape_);
     }
 
-    PxBoxGeometry geometry(size.x / 2.0f, size.y / 2.0f, size.z / 2.0f);
+    PxBoxGeometry geometry(size.x, size.y, size.z);
     shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape_->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);

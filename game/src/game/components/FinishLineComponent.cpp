@@ -6,11 +6,12 @@
 
 void FinishLineComponent::OnInit(const ServiceProvider& service_provider)
 {
+    game_service_ = &service_provider.GetService<GameStateService>();
 }
 
 void FinishLineComponent::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    Log::debug("finish line hit by {}", data.other->GetName());
+    game_service_->PlayerFinished(*data.other);
 }
 
 std::string_view FinishLineComponent::GetName() const

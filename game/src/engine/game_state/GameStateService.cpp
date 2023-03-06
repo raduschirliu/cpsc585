@@ -1,11 +1,28 @@
 #include "GameStateService.h"
 
+#include <imgui.h>
+
+#include "engine/App.h"
 #include "engine/core/debug/Log.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/state/PlayerState.h"
 
-float kSlowDownTimerLimit(5.f);  // so that as soon as 5 seconds are hit the
-                                 // powerup is disabled and removed.
+static constexpr float kSlowDownTimerLimit(
+    5.f);  // so that as soon as 5 seconds are hit the
+           // powerup is disabled and removed.
+
+static const Timestep kCountdownTime = Timestep::Seconds(12.0);
+static const Timestep kMinRaceTime = Timestep::Seconds(50.0);
+
+void GameStats::Reset()
+{
+    state = GameState::kNotRunning;
+    countdown_elapsed_time.SetSeconds(0);
+    elapsed_time.SetSeconds(0);
+    finished_players = 0;
+    num_laps = 0;
+    num_players = 0;
+}
 
 GameStateService::GameStateService()
 {
@@ -13,17 +30,19 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
-    Log::debug("Game State Service working");
-    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
-    // GetEventBus().Subscribe<OnGuiEvent>(this);
+    audio_service_ = &service_provider.GetService<AudioService>();
+
+    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
-void GameStateService::OnUpdate(const Timestep& delta_time)
+void GameStateService::OnUpdate()
 {
+    const Timestep& delta_time = GetApp().GetDeltaTime();
+
     // get the powerups which are active right now.
 
     // increment all the timer values.
@@ -36,12 +55,63 @@ void GameStateService::OnUpdate(const Timestep& delta_time)
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
 
-    // Log::debug("{}", same_powerup_.size());
+    if (stats_.state == GameState::kRunning)
+    {
+        stats_.elapsed_time += delta_time;
+    }
+    else if (stats_.state == GameState::kCountdown)
+    {
+        stats_.countdown_elapsed_time += delta_time;
+
+        if (stats_.countdown_elapsed_time >= kCountdownTime)
+        {
+            StartGame();
+        }
+    }
 }
 
-void GameStateService::OnUpdate()
+void GameStateService::OnGui()
 {
-    // Log::debug("{}", timer_.size());
+    if (stats_.state == GameState::kNotRunning)
+    {
+        return;
+    }
+
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowPos(ImVec2(40, 40));
+    ImGui::Begin("Game State", nullptr, flags);
+
+    if (stats_.state == GameState::kCountdown)
+    {
+        ImGui::Text(
+            "Countdown: %f sec",
+            (kCountdownTime - stats_.countdown_elapsed_time).GetSeconds());
+    }
+    else if (stats_.state == GameState::kRunning)
+    {
+        ImGui::Text("Laps: %zu", stats_.num_laps);
+        ImGui::Text("Players: %zu", stats_.num_players);
+        ImGui::Text("Time: %f sec", stats_.elapsed_time.GetSeconds());
+    }
+    else if (stats_.state == GameState::kFinished)
+    {
+        ImGui::Text("Finished!");
+        ImGui::Text("Time: %f", stats_.elapsed_time.GetSeconds());
+    }
+
+    ImGui::End();
+}
+
+void GameStateService::OnSceneLoaded(Scene& scene)
+{
+    stats_.Reset();
+
+    if (scene.GetName() == "Track1")
+    {
+        StartCountdown();
+    }
 }
 
 void GameStateService::RemoveActivePowerup()
@@ -258,4 +328,33 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
         }
     }
     std::cout << "active : " << active_powerups_.size();
+}
+
+void GameStateService::StartCountdown()
+{
+    stats_.state = GameState::kCountdown;
+}
+
+void GameStateService::StartGame()
+{
+    stats_.state = GameState::kRunning;
+}
+
+void GameStateService::PlayerFinished(Entity& entity)
+{
+    if (stats_.state != GameState::kRunning)
+    {
+        return;
+    }
+
+    if (stats_.elapsed_time >= kMinRaceTime)
+    {
+        Log::info("Player finished: {}", entity.GetName());
+        stats_.state = GameState::kFinished;
+        audio_service_->PlayOneShot("yay.ogg");
+    }
+    else
+    {
+        Log::info("Stop trying to cheat smfh");
+    }
 }
