@@ -494,6 +494,11 @@ const PxVec3& PhysicsService::GetGravity() const
     return kGravity;
 }
 
+const PxCookingParams& PhysicsService::GetCookingParams() const
+{
+    return kDefaultPxCookingParams;
+}
+
 /* From PxSimulationEventCallback */
 void PhysicsService::onConstraintBreak(PxConstraintInfo* constraints,
                                        PxU32 count)

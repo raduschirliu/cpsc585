@@ -130,4 +130,5 @@ class PhysicsService final : public Service,
     }
 
     const physx::PxVec3& GetGravity() const;
+    const physx::PxCookingParams& GetCookingParams() const;
 };

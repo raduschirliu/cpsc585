@@ -429,7 +429,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& kart_entity = scene.AddEntity("TestKart");
 
         auto& transform = kart_entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(0.0f, 5.0f, 0.0f));
+        transform.SetPosition(vec3(0.0f, 7.5f, 0.0f));
 
         auto& renderer = kart_entity.AddComponent<MeshRenderer>();
         renderer.SetMesh("kart2-4");

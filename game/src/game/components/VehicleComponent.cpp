@@ -56,7 +56,7 @@ void VehicleComponent::LoadParams()
 void VehicleComponent::InitVehicle()
 {
     const bool vehicle_init_status = vehicle_.initialize(
-        *physics_service_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
+        *physics_service_->GetKPhysics(), physics_service_->GetCookingParams(),
         *physics_service_->GetKMaterial(), true);
     ASSERT_MSG(vehicle_init_status, "Vehicle must successfully initialize");
 
@@ -80,14 +80,12 @@ void VehicleComponent::InitVehicle()
 
         if (i == 0)
         {
-            // TODO: enabling collision for all shapes makes the vehicle get
-            // stuck in the floor?
-            shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
             shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, true);
+            shape->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, true);
         }
 
-        shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
         shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
+        shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
     }
 }
 
