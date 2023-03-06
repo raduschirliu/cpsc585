@@ -115,11 +115,11 @@ float PlayerController::GetSteerDirection()
 {
     if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        return -1.0f;
+        return 1.0f;
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_D))
     {
-        return 1.0f;
+        return -1.0f;
     }
 
     if (input_service_->IsGamepadActive(kGamepadId))
