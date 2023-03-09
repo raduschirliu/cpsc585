@@ -88,7 +88,7 @@ NavMesh::Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
 void NavMesh::ReadVertices()
 {
     std::fstream file;
-    file.open("resources/models/track/track3-6navmesh.obj", std::ios::in);
+    file.open("resources/models/track/track3-7navmesh.obj", std::ios::in);
     if (!file)
     {
         Log::error("Cannot open the navmesh file.");
@@ -324,6 +324,65 @@ float Pathfinder::CalculateHCost(NavMesh::Node* src, NavMesh::Node* dest)
     return glm::sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
+std::vector<glm::vec3> Pathfinder::HermiteCurve(
+    const std::vector<glm::vec3>& controlPoints, int numSegments)
+{
+    std::vector<glm::vec3> curvePoints;
+
+    for (int i = 0; i < numSegments; i++)
+    {
+        glm::vec3 p0, p1, m0, m1;
+
+        p0 = controlPoints[i];
+        p1 = controlPoints[i + 1];
+
+        if (i > 0)
+        {
+            m0 = (p1 - controlPoints[i - 1]) * 0.5f;
+        }
+        else
+        {
+            m0 = (p1 - p0) * 0.5f;
+        }
+
+        if (i < numSegments - 1)
+        {
+            m1 = (controlPoints[i + 2] - p0) * 0.5f;
+        }
+        else
+        {
+            m1 = (p1 - p0) * 0.5f;
+        }
+
+        for (int j = 0; j < 10; j++)
+        {
+            float t = static_cast<float>(j) / 10;
+
+            glm::vec3 hermitePoint = hermiteInterpolate(p0, p1, m0, m1, t);
+
+            curvePoints.push_back(hermitePoint);
+        }
+    }
+
+    return curvePoints;
+}
+
+glm::vec3 Pathfinder::hermiteInterpolate(const glm::vec3& p0,
+                                         const glm::vec3& p1,
+                                         const glm::vec3& m0,
+                                         const glm::vec3& m1, float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+
+    glm::vec3 h00 = (2.0f * t3 - 3.0f * t2 + 1.0f) * p0;
+    glm::vec3 h10 = (t3 - 2.0f * t2 + t) * m0;
+    glm::vec3 h01 = (-2.0f * t3 + 3.0f * t2) * p1;
+    glm::vec3 h11 = (t3 - t2) * m1;
+
+    return h00 + h10 + h01 + h11;
+}
+
 void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
                            std::map<unsigned int, unsigned int> parents)
 {
@@ -341,28 +400,40 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     }
     bPath.push_back(this->navMesh_->nodes_->find(temp)->second->centroid_);
 
-    // smotth down this path.
-    std::vector<glm::vec3> smoothPath;
-
     // for (int i = 0; i < bPath.size(); i++)
     // {
     //     if(bPath[i].x < 20 && bPath[i].x > 0)
     //     std::cout << i << bPath[i] << std::endl;
     // }
 
-    smoothPath = SmoothPath(bPath);
+    int num_segments = bPath.size() - 1;
+    // smotth down this path.
+    std::vector<glm::vec3> smoothPath = bPath;
 
-    // std::ofstream points_output("NavMeshPointsNEWNEW.obj");
+    glm::mat4 model_matrix =
+        glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f));
+
+    for (auto& point : smoothPath)
+    {
+        point = (model_matrix * glm::vec4(point, 1.f)).xyz;
+    }
+
+    std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
     // for (int i = smoothPath.size() - 1; i > 0; i--)
     for (int i = 0; i < smoothPath.size(); i++)
     {
         this->path_->push(smoothPath[i]);
 
-        // points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y <<
-        // " " << smoothPath[i].z << std::endl;
+        if (smoothPath[i].x < 15.f && smoothPath[i].x > 0.f)
+        {
+            std::cout << i << " : " << smoothPath[i] << std::endl;
+        }
+
+        points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y
+                      << " " << smoothPath[i].z << std::endl;
     }
-    // points_output.close();
+    points_output.close();
 }
 
 std::vector<glm::vec3> Pathfinder::SmoothPath(std::vector<glm::vec3> cPoints)

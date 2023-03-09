@@ -435,7 +435,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     }
     {
         // Other players
-        CreatePlayer(scene, "AiPlayer1", false, vec3(10.f, 5.0, -1.f),
+        CreatePlayer(scene, "AiPlayer1", false, vec3(10.f, 5.0, 0.f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kCyan);
         CreatePlayer(scene, "AiPlayer2", false, vec3(-10.0f, 5.0f, 0.0f),
                      vec3(0.0f, 180.0f, 0.0f), colors::kMagenta);
@@ -511,6 +511,11 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
+    }
+    else
+    {
+        auto& controller = kart_entity.AddComponent<AIController>();
+        controller.SetGVehicle(vehicle.GetVehicle());
     }
 
     return kart_entity;
