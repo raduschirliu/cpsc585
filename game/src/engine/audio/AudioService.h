@@ -61,7 +61,6 @@ class AudioService final : public Service
     void StopAllPlayback();
 
     /**
-     *  @todo
      *  sets the gain of a source specified by its file name.
      *
      *  @param file_name name of audio file (including extension).
@@ -70,7 +69,6 @@ class AudioService final : public Service
     void SetGain(std::string file_name, float gain);
 
     /**
-     *  @todo
      *  offsets the pitch of a source specified by its file name.
      *
      *  @param file_name name of audio file (including extension).
@@ -78,6 +76,9 @@ class AudioService final : public Service
      */
     void SetPitch(std::string file_name, float pitch_offset);
 
+    /// @brief creates and adds a source and buffer for the file given.
+    void AddSource(std::string file_name, bool is_looping = false);
+    
     /* ----- from service ----- */
 
     void OnInit() override;
@@ -102,10 +103,7 @@ class AudioService final : public Service
     std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
 
     /// @brief loads file from the directory corresponding to the audio_type.
-    AudioFile LoadAudioFile(std::string file_name, bool is_looping = false);
-
-    /// @brief creates and adds a source and buffer for the file given.
-    void AddSource(std::string file_name, bool is_looping = false);
+    AudioFile LoadAudioFile(std::string file_name, bool is_music = false);
 
     bool IsPlaying(std::string file_name);
 

@@ -78,19 +78,37 @@ void AudioService::StopAllPlayback()
 
 void AudioService::SetPitch(std::string file_name, float pitch_offset)
 {
-    // TODO
+    if (active_sources_.count(file_name) == 0)
+    {
+        Log::error("Couldn't open or find file: {}", file_name);
+        return;
+    }
+
+    ALuint source;
+    source = active_sources_[file_name].first;
+
+    alSourcef(source, AL_PITCH, pitch_offset);
 }
 
 void AudioService::SetGain(std::string file_name, float gain)
 {
-    // TODO
+    if (active_sources_.count(file_name) == 0)
+    {
+        Log::error("Couldn't open or find file: {}", file_name);
+        return;
+    }
+
+    ALuint source;
+    source = active_sources_[file_name].first;
+
+    alSourcef(source, AL_GAIN, gain);
 }
 
-AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
+AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 {
     std::string file_path;
 
-    if (is_looping)
+    if (is_music)
     {
         file_path = kMusicDirectory;
     }
@@ -131,9 +149,9 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_looping)
     return audio_file;
 }
 
-void AudioService::AddSource(std::string file_name, bool is_looping)
+void AudioService::AddSource(std::string file_name, bool is_music)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
+    AudioFile audio_file = LoadAudioFile(file_name, is_music);
 
     // create buffer in memory
     ALuint buffer;
@@ -244,6 +262,7 @@ void AudioService::OnUpdate()
     // temp implementation to test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
+        AddSource(kTestFileName);
         PlayOneShot(kTestFileName);
     }
 
