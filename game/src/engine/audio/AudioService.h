@@ -21,25 +21,24 @@ class AudioService final : public Service
 {
   public:
     /**
-     *  plays an audio file fully just once.
      *
-     *  @note only accepts mono files.
      *
      *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
      */
-    void PlayOneShot(std::string file_name, float gain = 1.f);
+    void AddSource(std::string file_name);
+
+    void SetLooping(std::string file_name, bool is_looping);
 
     /**
-     *  @todo
-     *  plays and loops an audio file until explicitly stopped.
-     *
-     *  @note only accepts mono files.
+     *  plays an audio file through a source, either as a oneshot or a loop.
      *
      *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
+     *  @param is_looping whether the file plays as a oneshot or a loop.
+     *    default: false
      */
-    void PlayLoop(std::string file_name, float gain = 1.f);
+    void PlaySource(std::string file_name, bool is_looping = false);
+
+    void SetMusic(std::string file_name);
 
     /**
      *  @todo
@@ -76,9 +75,6 @@ class AudioService final : public Service
      */
     void SetPitch(std::string file_name, float pitch_offset);
 
-    /// @brief creates and adds a source and buffer for the file given.
-    void AddSource(std::string file_name, bool is_looping = false);
-    
     /* ----- from service ----- */
 
     void OnInit() override;
@@ -101,11 +97,15 @@ class AudioService final : public Service
     /// @brief all of the currently active sources.
     /// @note <file_name, <source, buffer>>
     std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
+    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
+
+    bool IsPlaying(std::string file_name);
+    bool SourceExists(std::string file_name);
+
+    void UpdateStreamBuffer();
 
     /// @brief loads file from the directory corresponding to the audio_type.
     AudioFile LoadAudioFile(std::string file_name, bool is_music = false);
-
-    bool IsPlaying(std::string file_name);
 
     /// @brief deletes inactive sources and buffers
     void CullSources();
