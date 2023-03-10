@@ -353,7 +353,8 @@ void GameStateService::PlayerFinished(Entity& entity)
     {
         Log::info("Player finished: {}", entity.GetName());
         stats_.state = GameState::kFinished;
-        audio_service_->PlayOneShot("yay.ogg");
+        audio_service_->AddSource("yay.ogg");
+        audio_service_->PlaySource("yay.ogg");
     }
     else
     {
