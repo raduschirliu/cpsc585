@@ -38,7 +38,7 @@ void AIService::OnStart(ServiceProvider& service_provider)
     // auto node1 = *navMesh_->nodes_->find(1)->second;
     if (pathfinder_ && navMesh_)
         bvalue = pathfinder_->Search(navMesh_->nodes_->find(0)->second,
-                                     navMesh_->nodes_->find(331)->second);
+                                     navMesh_->nodes_->find(navMesh_->nodes_->size() - 1)->second);
 
     else
     {
@@ -88,7 +88,7 @@ NavMesh::Node::Node(unsigned int id, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
 void NavMesh::ReadVertices()
 {
     std::fstream file;
-    file.open("resources/models/track/track3-7navmesh.obj", std::ios::in);
+    file.open("resources/models/track/track3-7navmesh1.obj", std::ios::in);
     if (!file)
     {
         Log::error("Cannot open the navmesh file.");
@@ -100,7 +100,7 @@ void NavMesh::ReadVertices()
         while (std::getline(file, s))
         {
             if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' ||
-                s[0] == 'u')
+                s[0] == 'u' || s[0] == 'l')
                 continue;
             std::vector<float>
                 temp_vertex;  // so that after all the points are read, we
@@ -171,16 +171,16 @@ NavMesh::NavMesh()
 
     // making the connections for the nodes, i.e. the nodes know which node is
     // connected to what node.
-    for (int i = 0; i < this->nodes_->size() - 2; i++)
+    for (int i = 0; i < this->nodes_->size() - 1; i++)
     {
         Node* n1 = all_nodes[i];
         Node* n2 = all_nodes[i + 1];
-        Node* n3 = all_nodes[i + 2];
+        // Node* n3 = all_nodes[i + 2];
         // Node* n6 = all_nodes[i + 5];
         // Node* n7 = all_nodes[i + 6];
         // Node* n8 = all_nodes[i + 7];
         n1->connections_->emplace_back(std::make_pair(Cost(n1, n2), n2));
-        n1->connections_->emplace_back(std::make_pair(Cost(n1, n3), n3));
+        // n1->connections_->emplace_back(std::make_pair(Cost(n1, n3), n3));
         // n1->connections_->emplace_back(std::make_pair(Cost(n1, n6), n6));
         // n1->connections_->emplace_back(std::make_pair(Cost(n1, n7), n7));
         // n1->connections_->emplace_back(std::make_pair(Cost(n1, n8), n8));
@@ -354,9 +354,9 @@ std::vector<glm::vec3> Pathfinder::HermiteCurve(
             m1 = (p1 - p0) * 0.5f;
         }
 
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 2; j++)
         {
-            float t = static_cast<float>(j) / 10;
+            float t = static_cast<float>(j) / 2;
 
             glm::vec3 hermitePoint = hermiteInterpolate(p0, p1, m0, m1, t);
 
@@ -410,29 +410,33 @@ void Pathfinder::TracePath(NavMesh::Node* src, NavMesh::Node* dest,
     // smotth down this path.
     std::vector<glm::vec3> smoothPath = bPath;
 
-    glm::mat4 model_matrix =
-        glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 50.0f));
-
-    for (auto& point : smoothPath)
-    {
-        point = (model_matrix * glm::vec4(point, 1.f)).xyz;
-    }
-
     std::ofstream points_output("NavMeshPointsNEWNEW.obj");
     // storing everything in path
     // for (int i = smoothPath.size() - 1; i > 0; i--)
+    int lowest_index= 0;
+    int index_to_analyse = 343;
+    float lowest_distance = INT_MAX;
     for (int i = 0; i < smoothPath.size(); i++)
     {
         this->path_->push(smoothPath[i]);
 
-        if (smoothPath[i].x < 15.f && smoothPath[i].x > 0.f)
-        {
-            std::cout << i << " : " << smoothPath[i] << std::endl;
-        }
+        // float temp_distance = glm::distance(smoothPath[index_to_analyse], smoothPath[i]);
+        // if(i!=index_to_analyse && lowest_distance > temp_distance)
+        // { 
+        //     lowest_index = i;
+        //     lowest_distance = temp_distance;
+        // }
+
+
+        // if (smoothPath[i].x < 15.f && smoothPath[i].x > 0.f)
+        // {
+        //     std::cout << i << " : " << smoothPath[i] << std::endl;
+        // }
 
         points_output << "v " << smoothPath[i].x << " " << smoothPath[i].y
                       << " " << smoothPath[i].z << std::endl;
     }
+    // Log::warn("lowest index{} : with distance{}", lowest_index, lowest_distance);
     points_output.close();
 }
 

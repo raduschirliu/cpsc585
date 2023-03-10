@@ -1,5 +1,7 @@
 #include "AIController.h"
 
+#include <algorithm>
+
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
@@ -28,12 +30,12 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
 
-    transform_->SetPosition(ai_service_->GetPath()[356]);
+    transform_->SetPosition(ai_service_->GetPath()[1103]);
     // Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,
     //            transform_->GetPosition().y, transform_->GetPosition().z);
 
     // storing the initial variables.
-    next_car_position_ = path_to_follow_[357];
+    next_car_position_ = path_to_follow_[1104];
 }
 
 void AIController::OnUpdate(const Timestep& delta_time)
@@ -85,7 +87,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
                       ->getLinearVelocity()
                       .magnitude();
     // Log::debug("{}", speed);
-    if (speed <= 30)
+    if (speed <= 50)
     {
         vehicle_reference_->mCommandState.throttle =
             1.f * speed_multiplier_;  // for the everyone slow down pickup.
@@ -117,17 +119,17 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         glm::vec3 cross_product =
             glm::normalize(glm::cross(normalized_target, current_forward_dir));
-        // ug("cross {}, {}, {}", cross_product.x, cross_product.y,
-        //         cross_product.z);
+        Log::debug("cross {}, {}, {}", cross_product.x, cross_product.y,
+                 cross_product.z);
         if (cross_product.x < 0)
         {
             vehicle_reference_->mCommandState.steer =
-                -0.6f * handling_multiplier_;
+                -0.65f * handling_multiplier_;
         }
-        else
+        if(cross_product.z < 0)
         {
             vehicle_reference_->mCommandState.steer =
-                0.6f * handling_multiplier_;
+                0.65f * handling_multiplier_;
         }
     }
 
@@ -136,12 +138,89 @@ void AIController::OnUpdate(const Timestep& delta_time)
     // the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
-    // Log::debug("Distance to the next point {}", distance);
-    if (distance < 30.f)
+    Log::debug("Distance to the next point {}", distance);
+    if (distance < 45.f)
     {
         next_car_position_ = path_to_follow_[next_path_index_ += 1];
+        // if (next_path_index_ == 91)
+        // {
+        //     next_path_index_ = 335;
+        // }
+        // else if (next_path_index_ == 129 || next_path_index_ == 530 || next_path_index_ == 496)
+        // {
+        //     int min_index = 0.f;
+        //     float min_distance = INT_MAX;
+        //     // find the smallest path which not has been traversed yet.
+        //     for (int i = 0; i < path_to_follow_.size(); i++)
+        //     {
+        //         // if path is not traced yet.
+        //         if (path_traced_.find(i) == path_traced_.end())
+        //         {
+        //             float dist = glm::distance(
+        //                 path_to_follow_[i], path_to_follow_[next_path_index_]);
+        //             if (min_distance > dist)
+        //             {
+        //                 min_index = i;
+        //                 min_distance = dist;
+        //             }
+        //         }
+        //     }
+        //     next_path_index_ = min_index;
+        // }
+        // else
+        // {
+        //     if (path_traced_.find(next_path_index_ + 1) != path_traced_.end())
+        //     {
+        //         int min_index = 0.f;
+        //         float min_distance = INT_MAX;
+        //         // find the smallest path which not has been traversed yet.
+        //         for (int i = 0; i < path_to_follow_.size(); i++)
+        //         {
+        //             // if path is not traced yet.
+        //             if (path_traced_.find(i) == path_traced_.end())
+        //             {
+        //                 float dist =
+        //                     glm::distance(path_to_follow_[i],
+        //                                   path_to_follow_[next_path_index_]);
+        //                 if (min_distance > dist)
+        //                 {
+        //                     min_index = i;
+        //                     min_distance = dist;
+        //                 }
+        //             }
+        //         }
+        //         next_path_index_ = min_index;
+        //     }
+        //     else
+        //     {
+        //         next_car_position_ = path_to_follow_[next_path_index_ += 1];
+        //     }
+        // }
+        // path_traced_.insert(next_path_index_);
 
-        // Log::debug("{}", next_path_index_);
+        // if (next_path_index_ == 706)
+        // {
+        //     int min_index = 0.f;
+        //     float min_distance = INT_MAX;
+        //     // find the smallest path which not has been traversed yet.
+        //     for (int i = 0; i < path_to_follow_.size(); i++)
+        //     {
+        //         // if path is not traced yet.
+        //         if (path_traced_.find(i) == path_traced_.end())
+        //         {
+        //             float dist = glm::distance(
+        //                 path_to_follow_[i], path_to_follow_[next_path_index_]);
+        //             if (min_distance > dist)
+        //             {
+        //                 min_index = i;
+        //                 min_distance = dist;
+        //             }
+        //         }
+        //     }
+        //     next_path_index_ = min_index;
+        // }
+
+       // Log::debug("{}", next_path_index_);
     }
 }
 

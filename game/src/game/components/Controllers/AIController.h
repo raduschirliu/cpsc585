@@ -1,6 +1,7 @@
 #pragma once
 
 #include <object_ptr.hpp>
+#include <set>
 
 #include "engine/AI/AIService.h"
 #include "engine/game_state/GameStateService.h"
@@ -43,5 +44,7 @@ class AIController final : public Component,
     // as we want the car to move from current to next command, and so on until
     // the end.
     glm::vec3 next_car_position_;
-    int next_path_index_ = 358;
+    int next_path_index_ = 1105;
+
+    std::set<int> path_traced_;
 };
