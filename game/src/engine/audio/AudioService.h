@@ -13,51 +13,55 @@
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 
-/**
- *  @todo streaming for longer audio files
- *  @todo implement positional audio
- */
 class AudioService final : public Service
 {
   public:
+    /* ----- set sources functions -----*/
+
     /**
-     *
+     *  add a source to play an audio file from.
      *
      *  @param file_name name of audio file (including extension).
      */
     void AddSource(std::string file_name);
 
-    void SetLooping(std::string file_name, bool is_looping);
-
     /**
-     *  plays an audio file through a source, either as a oneshot or a loop.
+     *  add a source to stream music from
      *
-     *  @param file_name name of audio file (including extension).
-     *  @param is_looping whether the file plays as a oneshot or a loop.
-     *    default: false
+     *  @param file_name name of music file (including extension).
+     *
+     *  @note AudioService streams from just one music file at a time.
      */
-    void PlaySource(std::string file_name, bool is_looping = false);
-
     void SetMusic(std::string file_name);
 
-    /**
-     *  @todo
-     *  plays and loops music, with no 3D positional effect.
-     *
-     *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
-     */
-    void PlayMusic(std::string file_name, float gain = 1.f);
+    /* ----- playback functions ----- */
 
     /**
-     *  stops an audio file's playback.
+     *  plays an audio file through a source
      *
      *  @param file_name name of audio file (including extension).
      */
-    void StopPlayback(std::string file_name);
+    void PlaySource(std::string file_name);
 
-    /// @brief stops playback of all sound files.
-    void StopAllPlayback();
+    /**
+     *  streams a music file through a source
+     *
+     *  @param file_name name of music file (including extension).
+     */
+    void PlayMusic(std::string file_name);
+
+    /// @brief stops a sources playback.
+    void StopSource(std::string file_name);
+
+    /// @brief stops playback of all sources.
+    void StopAllSources();
+
+    void StopMusic();
+
+    /* ----- public setters ----- */
+
+    /// @brief whether given source loops or not
+    void SetLooping(std::string file_name, bool is_looping);
 
     /**
      *  sets the gain of a source specified by its file name.
@@ -95,18 +99,27 @@ class AudioService final : public Service
     ALCcontext* audio_context_;
 
     /// @brief all of the currently active sources.
-    /// @note <file_name, <source, buffer>>
     std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
+
+    /// @brief the current music source.
     std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
 
-    bool IsPlaying(std::string file_name);
-    bool SourceExists(std::string file_name);
-
-    void UpdateStreamBuffer();
-
-    /// @brief loads file from the directory corresponding to the audio_type.
+    /// @brief loads file from the appropriate directory.
     AudioFile LoadAudioFile(std::string file_name, bool is_music = false);
+
+    /**
+     *  when streaming music, pops off used buffers in queue and fills them with
+     *  new audio data.
+     *
+     *  @note ideally should be called every timestep
+     */
+    void UpdateStreamBuffer();
 
     /// @brief deletes inactive sources and buffers
     void CullSources();
+
+    /* ----- helpers ----- */
+
+    bool IsPlaying(std::string file_name);
+    bool SourceExists(std::string file_name);
 };

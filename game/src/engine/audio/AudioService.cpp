@@ -22,8 +22,6 @@ const ALCchar* kDefaultDevice = nullptr;
 ALCint kContextAttributes = 0;
 
 // audio directories
-// note: since diagetic sound (3d sound) can only be in mono
-// we'll want all sfx to be mono too (music is fine in stereo)
 const std::string kSfxDirectory = "resources/audio/sfx/";
 const std::string kMusicDirectory = "resources/audio/music/";
 
@@ -39,148 +37,32 @@ ALsizei kMusicPlayhead = 0;
 const std::string kTestFileName = "professional_test_audio.ogg";
 const std::string kTestMusic = "professional_test_music.ogg";
 
-/* ----- handling playback ----- */
+/* ----- setting sources ----- */
 
-void AudioService::PlaySource(std::string file_name, bool is_looping)
+void AudioService::AddSource(std::string file_name)
 {
-    // check if source already exists;
-    // don't want to keep adding buffers for the same sound
-    if (!SourceExists(file_name))
-    {
-        AddSource(file_name);
-    }
+    AudioFile audio_file = LoadAudioFile(file_name, false);
 
+    // create buffer in memory
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
+
+    // initialise buffer for audio data
+    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
+                 audio_file.get_size_bytes(), audio_file.sample_rate_);
+
+    // create and initialise source
     ALuint source;
-    source = active_sources_[file_name].first;
+    alGenSources(1, &source);
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
-    if (is_looping)
+    if (alGetError() != AL_NO_ERROR)
     {
-        alSourcef(source, AL_LOOPING, AL_TRUE);
-    }
-    else
-    {
-        alSourcef(source, AL_LOOPING, AL_FALSE);
+        Log::warning("Couldn't buffer audio data.");
     }
 
-    Log::debug("Playing audio: {}", file_name);
-
-    alSourcePlay(source);
-}
-
-void AudioService::PlayMusic(std::string file_name, float gain)
-{
-    //  music wasn't set yet
-    if (music_source_.first == "")
-    {
-        SetMusic(file_name);
-    }
-
-    ALuint source;
-    source = music_source_.second.first;
-
-    alSourcef(source, AL_GAIN, gain);
-
-    Log::debug("Starting playing music: {}", file_name);
-
-    alSourcePlay(source);
-}
-
-void AudioService::StopPlayback(std::string file_name)
-{
-    ALuint source = active_sources_[file_name].first;
-    alSourceStop(source);
-}
-
-void AudioService::StopAllPlayback()
-{
-    for (auto& pair : active_sources_)
-    {
-        alSourceStop(pair.second.first);
-    }
-}
-
-/* ----- getters / setters / helpers ----- */
-
-void AudioService::SetPitch(std::string file_name, float pitch_offset)
-{
-    if (!SourceExists(file_name))
-    {
-        Log::error("Couldn't open or find file: {}", file_name);
-        return;
-    }
-
-    ALuint source;
-    source = active_sources_[file_name].first;
-
-    alSourcef(source, AL_PITCH, pitch_offset);
-}
-
-void AudioService::SetGain(std::string file_name, float gain)
-{
-    if (!SourceExists(file_name))
-    {
-        Log::error("Couldn't open or find file: {}", file_name);
-        return;
-    }
-
-    ALuint source;
-    source = active_sources_[file_name].first;
-
-    alSourcef(source, AL_GAIN, gain);
-}
-
-void AudioService::SetLooping(std::string file_name, bool is_looping)
-{
-    if (!SourceExists(file_name))
-    {
-        Log::error("Couldn't open or find file: {}", file_name);
-        return;
-    }
-}
-
-AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
-{
-    std::string file_path;
-
-    if (is_music)
-    {
-        file_path = kMusicDirectory;
-    }
-    else
-    {
-        file_path = kSfxDirectory;
-    }
-    file_path.append(file_name);
-
-    // initialize AudioFile
-    AudioFile audio_file;
-    ALshort* file_data;
-
-    audio_file.samples_per_channel = stb_vorbis_decode_filename(
-        file_path.c_str(), &audio_file.number_of_channels_,
-        &audio_file.sample_rate_, &file_data);
-
-    audio_file.data_ = std::unique_ptr<short>(file_data);
-
-    Log::debug("Succesfully opened audio file: {}", file_name);
-    Log::debug(
-        "File properties:\n"
-        "\t\tnum of channels: {}\n"
-        "\t\tnum of samples: {}\n"
-        "\t\tsample rate: {}\n",
-        audio_file.number_of_channels_, audio_file.samples_per_channel,
-        audio_file.sample_rate_);
-
-    if (audio_file.number_of_channels_ == 2)
-    {
-        audio_file.format_ = AL_FORMAT_STEREO16;
-    }
-    else
-    {
-        audio_file.format_ = AL_FORMAT_MONO16;
-    }
-
-    return audio_file;
+    active_sources_.insert({file_name, {source, buffer}});
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -224,49 +106,147 @@ void AudioService::SetMusic(std::string file_name)
     music_source_ = {file_name, {source, buffers}};
 }
 
-void AudioService::AddSource(std::string file_name)
+/* ----- playback functions ----- */
+
+void AudioService::PlaySource(std::string file_name)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
-
-    // create buffer in memory
-    ALuint buffer;
-    alGenBuffers(1, &buffer);
-
-    // initialise buffer for audio data
-    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
-                 audio_file.get_size_bytes(), audio_file.sample_rate_);
-
-    // create and initialise source
-    ALuint source;
-    alGenSources(1, &source);
-    alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
-
-    if (alGetError() != AL_NO_ERROR)
+    // check if source already exists;
+    // don't want to keep adding buffers for the same sound
+    if (!SourceExists(file_name))
     {
-        Log::warning("Couldn't buffer audio data.");
+        AddSource(file_name);  // we'll set it here just to be nice
     }
 
-    active_sources_.insert({file_name, {source, buffer}});
+    // find the source
+    ALuint source;
+    source = active_sources_[file_name].first;
+
+    Log::debug("Playing audio: {}", file_name);
+    alSourcePlay(source);
 }
 
-bool AudioService::IsPlaying(std::string file_name)
+void AudioService::PlayMusic(std::string file_name)
+{
+    //  music wasn't set yet
+    if (music_source_.first == "")
+    {
+        SetMusic(file_name);  // we'll set it here just to be nice
+    }
+
+    // find the source
+    ALuint source;
+    source = music_source_.second.first;
+
+    Log::debug("Starting playing music: {}", file_name);
+    alSourcePlay(source);
+}
+
+void AudioService::StopSource(std::string file_name)
 {
     ALuint source = active_sources_[file_name].first;
-    ALint source_state;
-    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+    alSourceStop(source);
+}
 
-    if (alGetError() != AL_NO_ERROR)
+void AudioService::StopAllSources()
+{
+    for (auto& pair : active_sources_)
     {
-        Log::warning("Couldn't get Source State from {}.", file_name);
+        alSourceStop(pair.second.first);
+    }
+}
+
+void AudioService::StopMusic()
+{
+    ALuint source = music_source_.second.first;
+    alSourceStop(source);
+}
+
+/* ----- setters ------ */
+
+void AudioService::SetPitch(std::string file_name, float pitch_offset)
+{
+    if (!SourceExists(file_name))
+    {
+        Log::error("Couldn't open or find file: {}", file_name);
+        return;
     }
 
-    if (source_state != AL_PLAYING)
+    ALuint source;
+    source = active_sources_[file_name].first;
+
+    alSourcef(source, AL_PITCH, pitch_offset);
+}
+
+void AudioService::SetGain(std::string file_name, float gain)
+{
+    if (!SourceExists(file_name))
     {
-        return false;
+        Log::error("Couldn't open or find file: {}", file_name);
+        return;
     }
 
-    return true;
+    ALuint source;
+    source = active_sources_[file_name].first;
+
+    alSourcef(source, AL_GAIN, gain);
+}
+
+void AudioService::SetLooping(std::string file_name, bool is_looping)
+{
+    if (!SourceExists(file_name))
+    {
+        Log::error("Couldn't open or find file: {}", file_name);
+        return;
+    }
+}
+
+/* ----- backend ----- */
+
+AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
+{
+    // determine which folder to search from
+    std::string file_path;
+    if (is_music)
+    {
+        file_path = kMusicDirectory;
+    }
+    else
+    {
+        file_path = kSfxDirectory;
+    }
+    file_path.append(file_name);
+
+    // initialize AudioFile
+    AudioFile audio_file;
+    ALshort* file_data;
+
+    audio_file.samples_per_channel = stb_vorbis_decode_filename(
+        file_path.c_str(), &audio_file.number_of_channels_,
+        &audio_file.sample_rate_, &file_data);
+
+    audio_file.data_ = std::unique_ptr<short>(file_data);
+
+    Log::debug("Succesfully opened audio file: {}", file_name);
+    Log::debug(
+        "File properties:\n"
+        "\t\tnum of channels: {}\n"
+        "\t\tnum of samples: {}\n"
+        "\t\tsample rate: {}\n",
+        audio_file.number_of_channels_, audio_file.samples_per_channel,
+        audio_file.sample_rate_);
+
+    // determine format
+    // unless something is terribly wrong, should always be 16 bits
+    if (audio_file.number_of_channels_ == 2)
+    {
+        audio_file.format_ = AL_FORMAT_STEREO16;
+    }
+    else
+    {
+        audio_file.format_ = AL_FORMAT_MONO16;
+    }
+
+    return audio_file;
 }
 
 void AudioService::CullSources()
@@ -294,25 +274,11 @@ void AudioService::CullSources()
     }
 }
 
-bool AudioService::SourceExists(std::string file_name)
-{
-    if (active_sources_.count(file_name) == 1)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 void AudioService::UpdateStreamBuffer()
 {
     ALuint source = music_source_.second.first;
     ALint buffers_processed;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &buffers_processed);
-
-    // Log::debug("{}", buffers_processed);
 
     // we haven't streamed a buffer yet
     if (buffers_processed <= 0)
@@ -374,6 +340,37 @@ void AudioService::UpdateStreamBuffer()
     }
 }
 
+bool AudioService::IsPlaying(std::string file_name)
+{
+    ALuint source = active_sources_[file_name].first;
+    ALint source_state;
+    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::warning("Couldn't get Source State from {}.", file_name);
+    }
+
+    if (source_state != AL_PLAYING)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool AudioService::SourceExists(std::string file_name)
+{
+    if (active_sources_.count(file_name) == 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 /* ----- from Service ------ */
 
 void AudioService::OnInit()
@@ -407,29 +404,27 @@ void AudioService::OnStart(ServiceProvider& service_provider)
 
 void AudioService::OnSceneLoaded(Scene& scene)
 {
+    // test
     SetMusic(kTestMusic);
     PlayMusic(kTestMusic, 0.5f);
 }
 
 void AudioService::OnUpdate()
 {
-    bool test = false;
     // ex. implementation to test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
         AddSource(kTestFileName);
         PlaySource(kTestFileName);
-        // SetMusic(kTestMusic);
-        // PlayMusic(kTestMusic, 0.5f);
     }
-    CullSources();
 
+    // have something to update before you do it lol
     if (music_source_.second.first != NULL)
     {
         UpdateStreamBuffer();
     }
-
-    // test = !test;
+    // clear finished sources
+    CullSources();
 }
 
 void AudioService::OnCleanup()
@@ -446,7 +441,8 @@ void AudioService::OnCleanup()
         alDeleteBuffers(1, &source.second.second);
     }
 
-    alcMakeContextCurrent(nullptr);  // clear context
+    // clear context + device
+    alcMakeContextCurrent(nullptr);
     alcDestroyContext(audio_context_);
     alcCloseDevice(audio_device_);
 }
