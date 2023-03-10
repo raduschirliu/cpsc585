@@ -1,20 +1,20 @@
-#include "game/components/FinishLineComponent.h"
+#include "game/components/race/FinishLine.h"
 
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
-void FinishLineComponent::OnInit(const ServiceProvider& service_provider)
+void FinishLine::OnInit(const ServiceProvider& service_provider)
 {
     game_service_ = &service_provider.GetService<GameStateService>();
 }
 
-void FinishLineComponent::OnTriggerEnter(const OnTriggerEvent& data)
+void FinishLine::OnTriggerEnter(const OnTriggerEvent& data)
 {
     game_service_->PlayerFinished(*data.other);
 }
 
-std::string_view FinishLineComponent::GetName() const
+std::string_view FinishLine::GetName() const
 {
     return "FinishLine";
 }

@@ -11,7 +11,7 @@
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
@@ -32,7 +32,7 @@
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
-#include "game/components/FinishLineComponent.h"
+#include "game/components/race/FinishLine.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
@@ -303,7 +303,7 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
+        entity.AddComponent<FinishLine>();
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
@@ -468,7 +468,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
+        entity.AddComponent<FinishLine>();
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");

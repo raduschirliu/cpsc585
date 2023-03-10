@@ -2,7 +2,7 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/physics/RigidBodyComponent.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"

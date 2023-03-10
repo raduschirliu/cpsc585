@@ -6,7 +6,7 @@
 #include <object_ptr.hpp>
 
 #include "PickupType.h"
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"

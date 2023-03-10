@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
 
-class FinishLineComponent final : public Component
+class Checkpoint final : public Component
 {
   public:
     // From Component

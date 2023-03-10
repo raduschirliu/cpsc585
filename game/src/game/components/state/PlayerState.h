@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "PlayerStateStruct.h"
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"

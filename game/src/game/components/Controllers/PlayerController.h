@@ -2,7 +2,7 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/game_state/GameStateService.h"
+#include "game/services/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
