@@ -12,6 +12,9 @@ class Checkpoint final : public Component
     void OnTriggerEnter(const OnTriggerEvent& data) override;
     std::string_view GetName() const override;
 
+    void SetCheckpointIndex(int index);
+
   private:
     jss::object_ptr<GameStateService> game_service_;
+    int checkpoint_index_;
 };

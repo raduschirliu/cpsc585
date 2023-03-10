@@ -7,9 +7,9 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/state/PlayerState.h"
 
-static constexpr float kSlowDownTimerLimit(
-    5.f);  // so that as soon as 5 seconds are hit the
-           // powerup is disabled and removed.
+// so that as soon as 5 seconds are hit the
+// powerup is disabled and removed.
+static constexpr float kSlowDownTimerLimit = 5.0f;
 
 static const Timestep kCountdownTime = Timestep::Seconds(12.0);
 static const Timestep kMinRaceTime = Timestep::Seconds(50.0);
@@ -21,7 +21,6 @@ void GameStats::Reset()
     elapsed_time.SetSeconds(0);
     finished_players = 0;
     num_laps = 0;
-    num_players = 0;
 }
 
 GameStateService::GameStateService()
@@ -43,13 +42,9 @@ void GameStateService::OnUpdate()
 {
     const Timestep& delta_time = GetApp().GetDeltaTime();
 
-    // get the powerups which are active right now.
-
-    // increment all the timer values.
     for (auto& t : timer_)
     {
-        // Log::debug("{}", t.second);
-        t.second += delta_time.GetSeconds();
+        t.second += static_cast<float>(delta_time.GetSeconds());
     }
 
     active_powerups_ = PowerupsActive();
@@ -91,8 +86,7 @@ void GameStateService::OnGui()
     }
     else if (stats_.state == GameState::kRunning)
     {
-        ImGui::Text("Laps: 0/%zu", stats_.num_laps);
-        ImGui::Text("Players: %zu", stats_.num_players);
+        ImGui::Text("Players: %zu", players_.size());
         ImGui::Text("Time: %.2f sec", stats_.elapsed_time.GetSeconds());
     }
     else if (stats_.state == GameState::kFinished)
@@ -107,11 +101,7 @@ void GameStateService::OnGui()
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
     stats_.Reset();
-
-    if (scene.GetName() == "Track1")
-    {
-        StartCountdown();
-    }
+    num_checkpoints_ = 0;
 }
 
 void GameStateService::RemoveActivePowerup()
@@ -140,8 +130,9 @@ void GameStateService::RemoveActivePowerup()
 
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
-                            player_states_[a.first]->SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
+                            players_[a.first]
+                                .state_component->SetCurrentPowerup(
+                                    PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
                         }
@@ -164,8 +155,9 @@ void GameStateService::RemoveActivePowerup()
 
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
-                            player_states_[a.first]->SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
+                            players_[a.first]
+                                .state_component->SetCurrentPowerup(
+                                    PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
                         }
@@ -185,7 +177,7 @@ void GameStateService::RemoveActivePowerup()
 
                         // to reset the powerup back to nothing. The player
                         // can pick up the new powerup now.
-                        player_states_[a.first]->SetCurrentPowerup(
+                        players_[a.first].state_component->SetCurrentPowerup(
                             PowerupPickupType::kDefaultPowerup);
 
                         timer_.erase(a);
@@ -208,8 +200,9 @@ void GameStateService::RemoveActivePowerup()
 
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
-                            player_states_[a.first]->SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
+                            players_[a.first]
+                                .state_component->SetCurrentPowerup(
+                                    PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
                         }
@@ -262,16 +255,22 @@ GameStateService::PowerupsActive()
     return powerups;
 }
 
-void GameStateService::AddPlayerDetails(uint32_t id, PlayerStateData details)
+void GameStateService::RegisterPlayer(uint32_t id, Entity& entity,
+                                      PlayerState* player_state)
 {
-    player_details_.insert_or_assign(id, details);
-}
-
-void GameStateService::AddPlayerStates(uint32_t id, PlayerState* states)
-{
-    if (states)
+    if (players_.find(id) != players_.end())
     {
-        player_states_.insert_or_assign(id, states);
+        Log::warn(
+            "Player with ID {} has been registered twice in GameStateService",
+            id);
+    }
+
+    players_[id] = {.entity = &entity, .state_component = player_state};
+
+    // TODO: This shouldn't be hardcoded to 4
+    if (players_.size() == 4)
+    {
+        StartCountdown();
     }
 }
 
@@ -291,7 +290,9 @@ uint32_t GameStateService::GetDisableHandlingMultiplier()
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kDisableHandling)
+        {
             return a.first;
+        }
     }
     return NULL;
 }
@@ -302,7 +303,9 @@ uint32_t GameStateService::GetEveryoneSlowerSpeedMultiplier()
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kEveryoneSlower)
+        {
             return a.first;
+        }
     }
     return NULL;
 }
@@ -313,7 +316,9 @@ uint32_t GameStateService::GetHitBoxMultiplier()
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kIncreaseAimBox)
+        {
             return a.first;
+        }
     }
     return NULL;
 }
@@ -332,9 +337,19 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
 
 void GameStateService::StartCountdown()
 {
+    // Reset global stats
     stats_.state = GameState::kCountdown;
-    stats_.num_players = 4;
     stats_.num_laps = 1;
+
+    // Reset player stats
+    auto iter = players_.begin();
+    while (iter != players_.end())
+    {
+        iter->second.state_component->SetLapsCompleted(0);
+        iter->second.state_component->SetLastCheckpoint(0);
+
+        iter++;
+    }
 }
 
 void GameStateService::StartGame()
@@ -342,21 +357,66 @@ void GameStateService::StartGame()
     stats_.state = GameState::kRunning;
 }
 
-void GameStateService::PlayerFinished(Entity& entity)
+void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
     if (stats_.state != GameState::kRunning)
+    {
+        Log::error("Player finished lap before the game started");
+        return;
+    }
+
+    int laps = player.state_component->GetLapsCompleted() + 1;
+    player.state_component->SetLapsCompleted(laps);
+
+    if (laps == stats_.num_laps)
+    {
+        Log::info("Player finished game!");
+        audio_service_->PlayOneShot("yay.ogg");
+    }
+}
+
+void GameStateService::RegisterCheckpoint(Entity& entity)
+{
+    num_checkpoints_++;
+}
+
+void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
+{
+    auto iter = players_.find(entity.GetId());
+
+    if (iter == players_.end())
     {
         return;
     }
 
-    if (stats_.elapsed_time >= kMinRaceTime)
+    uint32_t last_checkpoint =
+        iter->second.state_component->GetLastCheckpoint();
+    uint32_t expected_checkpoint = last_checkpoint + 1;
+
+    if (expected_checkpoint >= num_checkpoints_)
     {
-        Log::info("Player finished: {}", entity.GetName());
-        stats_.state = GameState::kFinished;
-        audio_service_->PlayOneShot("yay.ogg");
+        expected_checkpoint = 0;
     }
-    else
+
+    if (index != expected_checkpoint)
     {
-        Log::info("Stop trying to cheat smfh");
+        return;
     }
+
+    iter->second.state_component->SetLastCheckpoint(index);
+
+    if (index == 0)
+    {
+        PlayerCompletedLap(iter->second);
+    }
+}
+
+const GameStats& GameStateService::GetGameStats() const
+{
+    return stats_;
+}
+
+const uint32_t GameStateService::GetNumCheckpoints() const
+{
+    return num_checkpoints_;
 }

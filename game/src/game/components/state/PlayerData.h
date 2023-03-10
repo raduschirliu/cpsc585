@@ -1,8 +1,8 @@
 #pragma once
-#include <memory>
 
-#include "../../../engine/scene/Entity.h"
 #include "../Pickups/PickupType.h"
+
+class Entity;
 
 struct PlayerStateData
 {
@@ -10,25 +10,23 @@ struct PlayerStateData
     int number_kills;
     int number_deaths;
     int laps_completed;
-    int current_lap;
+    int last_checkpoint;
     Entity* nemesis;
     Entity* bullied;
-    double time_elapsed;
     PowerupPickupType current_powerup;  // will be decided by the enum defined
                                         // for every powerup.
     double accuracy;
 
     PlayerStateData()
     {
-        speed_multiplier = 1.f;
+        speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;
         laps_completed = 0;
-        current_lap = 0;
+        last_checkpoint = 0;
         current_powerup = PowerupPickupType::kDefaultPowerup;
-        time_elapsed = 0.f;
         nemesis = nullptr;
         bullied = nullptr;
-        accuracy = 0.f;
+        accuracy = 0.0f;
     }
 };

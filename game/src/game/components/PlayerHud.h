@@ -22,5 +22,8 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 
   private:
+    jss::object_ptr<GameStateService> game_state_service_;
+
     jss::object_ptr<VehicleComponent> vehicle_;
+    jss::object_ptr<PlayerState> player_state_;
 };

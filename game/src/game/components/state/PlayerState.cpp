@@ -4,14 +4,11 @@
 
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
-    GetEventBus().Subscribe<OnUpdateEvent>(this);
     game_state_service_ = &service_provider.GetService<GameStateService>();
 
-    game_state_service_->AddPlayerDetails(GetEntity().GetId(), player_state_);
-    game_state_service_->AddPlayerStates(GetEntity().GetId(), this);
-    // so that next time we do not enter this loop and redundantly add
-    // more in the player details
-    game_state_assigned_ = true;
+    game_state_service_->RegisterPlayer(GetEntity().GetId(), GetEntity(), this);
+
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void PlayerState::OnStart()
@@ -20,8 +17,6 @@ void PlayerState::OnStart()
 
 void PlayerState::OnUpdate(const Timestep& delta_time)
 {
-    // time elapsed in the car since game started
-    player_state_.time_elapsed += delta_time.GetSeconds();
 }
 
 std::string_view PlayerState::GetName() const
@@ -30,29 +25,24 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
-float PlayerState::GetSpeedMultiplier()
+float PlayerState::GetSpeedMultiplier() const
 {
     return player_state_.speed_multiplier;
 }
 
-int PlayerState::GetKills()
+int PlayerState::GetKills() const
 {
     return player_state_.number_kills;
 }
 
-int PlayerState::GetDeaths()
+int PlayerState::GetDeaths() const
 {
     return player_state_.number_deaths;
 }
 
-int PlayerState::GetLapsCompleted()
+int PlayerState::GetLapsCompleted() const
 {
     return player_state_.laps_completed;
-}
-
-int PlayerState::GetCurrentLap()
-{
-    return player_state_.current_lap;
 }
 
 Entity* PlayerState::GetNemesis()
@@ -65,14 +55,14 @@ Entity* PlayerState::GetBullied()
     return player_state_.bullied;
 }
 
-double PlayerState::GetTimeElapsed()
-{
-    return player_state_.time_elapsed;
-}
-
-PowerupPickupType PlayerState::GetCurrentPowerup()
+PowerupPickupType PlayerState::GetCurrentPowerup() const
 {
     return player_state_.current_powerup;
+}
+
+int PlayerState::GetLastCheckpoint() const
+{
+    return player_state_.last_checkpoint;
 }
 
 PlayerStateData* PlayerState::GetStateData()
@@ -88,4 +78,14 @@ void PlayerState::SetSpeedMultiplier(float value)
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
     player_state_.current_powerup = type;
+}
+
+void PlayerState::SetLapsCompleted(int laps)
+{
+    player_state_.laps_completed = laps;
+}
+
+void PlayerState::SetLastCheckpoint(int checkpoint)
+{
+    player_state_.last_checkpoint = checkpoint;
 }

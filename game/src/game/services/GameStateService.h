@@ -4,6 +4,7 @@
 #include <memory>
 #include <object_ptr.hpp>
 #include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -14,7 +15,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
-#include "game/components/state/PlayerStateStruct.h"
+#include "game/components/state/PlayerData.h"
 
 class PlayerState;
 
@@ -29,13 +30,18 @@ enum class GameState : uint8_t
 struct GameStats
 {
     GameState state;
-    size_t num_players;
-    size_t finished_players;
-    size_t num_laps;
+    uint32_t finished_players;
+    uint32_t num_laps;
     Timestep elapsed_time;
     Timestep countdown_elapsed_time;
 
     void Reset();
+};
+
+struct PlayerRecord
+{
+    Entity* entity;
+    PlayerState* state_component;
 };
 
 class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
@@ -57,14 +63,14 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
   private:
     jss::object_ptr<AudioService> audio_service_;
 
-    std::map<uint32_t, PlayerStateData> player_details_;
-    std::map<uint32_t, PlayerState*> player_states_;
-    std::map<uint32_t, PowerupPickupType> player_powers_;
+    std::unordered_map<uint32_t, PlayerRecord> players_;
+    std::unordered_map<uint32_t, PowerupPickupType> player_powers_;
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
+    uint32_t num_checkpoints_;
     GameStats stats_;
 
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
@@ -73,9 +79,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void StartGame();
 
   public:
-    // setters
-    void AddPlayerDetails(uint32_t id, PlayerStateData details);
-    void AddPlayerStates(uint32_t id, PlayerState* states);
+    void RegisterCheckpoint(Entity& entity);
+
+    void RegisterPlayer(uint32_t id, Entity& entity, PlayerState* player_state);
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
 
@@ -90,5 +96,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void RemoveEveryoneSlowerSpeedMultiplier();
     void RemoveActivePowerup();
 
-    void PlayerFinished(Entity& entity);
+    void PlayerCompletedLap(PlayerRecord& player);
+    void PlayerCrossedCheckpoint(Entity& entity, uint32_t index);
+
+    const GameStats& GetGameStats() const;
+    const uint32_t GetNumCheckpoints() const;
 };
