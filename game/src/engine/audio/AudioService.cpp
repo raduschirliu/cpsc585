@@ -31,9 +31,9 @@ const std::string kMusicDirectory = "resources/audio/music/";
 AudioFile kMusicAudioFile;
 // number of buffers to use when streaming music files
 const std::size_t kStreamBufferAmount = 4;
-const std::size_t kStreamBufferSize = 65536;  // per buffer
+const ALsizei kStreamBufferSize = 65536;  // per buffer
 // just keeps track of how much of the file was played
-std::size_t kMusicPlayhead = kStreamBufferSize * kStreamBufferAmount;
+ALsizei kMusicPlayhead = 0;
 
 // for debugging
 const std::string kTestFileName = "professional_test_audio.ogg";
@@ -154,7 +154,7 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 
     // initialize AudioFile
     AudioFile audio_file;
-    short* file_data;
+    ALshort* file_data;
 
     audio_file.samples_per_channel = stb_vorbis_decode_filename(
         file_path.c_str(), &audio_file.number_of_channels_,
@@ -188,27 +188,29 @@ void AudioService::SetMusic(std::string file_name)
     kMusicAudioFile = LoadAudioFile(file_name, true);
 
     // reserve buffers in memory
-    ALuint buffers[kStreamBufferAmount];
+    ALuint* buffers = new ALuint[kStreamBufferAmount];
     alGenBuffers(kStreamBufferAmount, &buffers[0]);
 
     // initialise buffers for audio data
     auto audio_data = kMusicAudioFile.data_.get();
 
-    for (std::size_t i = 0; i < kStreamBufferAmount; ++i)
+    for (std::size_t i = 0; i < kStreamBufferAmount; i++)
     {
         alBufferData(buffers[i], kMusicAudioFile.format_,
-                     &audio_data[i * kStreamBufferSize], kStreamBufferSize,
-                     kMusicAudioFile.sample_rate_);
+                     &audio_data[(i * kStreamBufferSize) / sizeof(short)],
+                     kStreamBufferSize, kMusicAudioFile.sample_rate_);
 
         if (alGetError() != AL_NO_ERROR)
         {
             Log::error("Couldn't buffer audio data.");
         }
     }
+    kMusicPlayhead = kStreamBufferSize * kStreamBufferAmount;
 
     // create and initialise source
     ALuint source;
     alGenSources(1, &source);
+    // don't want to loop just one buffer
     alSourcei(source, AL_LOOPING, AL_FALSE);
 
     // queue buffers for source
@@ -231,12 +233,8 @@ void AudioService::AddSource(std::string file_name)
     alGenBuffers(1, &buffer);
 
     // initialise buffer for audio data
-    int number_of_samples =
-        audio_file.samples_per_channel * audio_file.number_of_channels_;
-    int size_in_bytes = number_of_samples * sizeof(short);
-
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
-                 size_in_bytes, audio_file.sample_rate_);
+                 audio_file.get_size_bytes(), audio_file.sample_rate_);
 
     // create and initialise source
     ALuint source;
@@ -311,61 +309,57 @@ bool AudioService::SourceExists(std::string file_name)
 void AudioService::UpdateStreamBuffer()
 {
     ALuint source = music_source_.second.first;
-    ALuint* buffers = music_source_.second.second;
-
-    ALint buffers_processed = 0;
+    ALint buffers_processed;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &buffers_processed);
+
+    // Log::debug("{}", buffers_processed);
 
     // we haven't streamed a buffer yet
     if (buffers_processed <= 0)
     {
         return;
     }
-    int number_of_samples = kMusicAudioFile.samples_per_channel *
-                            kMusicAudioFile.number_of_channels_;
-    int size_in_bytes = number_of_samples * sizeof(short);
 
     auto audio_data = kMusicAudioFile.data_.get();
 
-    Log::debug("buffers processed: {}", buffers_processed);
-    Log::debug("playhead at: {}/{}", kMusicPlayhead, size_in_bytes);
     // for every buffer in queue that was played
     while (buffers_processed > 0)
     {
         // pop off already played buffer
         ALuint buffer;
         alSourceUnqueueBuffers(source, 1, &buffer);
-        buffers_processed--;
 
         // reserve memory for new audio data
-        short* new_data = new short[kStreamBufferSize];
+        ALshort* new_data = new ALshort[kStreamBufferSize / sizeof(short)];
         std::memset(new_data, 0, kStreamBufferSize);
 
-        std::size_t new_data_size_bytes = kStreamBufferSize;
+        ALsizei new_data_size = kStreamBufferSize;
 
         // for when the remainder of the file is less than a buffer size
-        // if (kMusicPlayhead + kStreamBufferSize > size_in_bytes)
-        // {
-        //     new_data_size_bytes = size_in_bytes - kMusicPlayhead;
-        // }
+        if (kMusicPlayhead + kStreamBufferSize >
+            kMusicAudioFile.get_size_bytes())
+        {
+            new_data_size = kMusicAudioFile.get_size_bytes() - kMusicPlayhead;
+        }
 
         // get new data
-        std::memcpy(&new_data[0], &audio_data[kMusicPlayhead],
-                    new_data_size_bytes);
+        std::memcpy(&new_data[0], &audio_data[kMusicPlayhead / sizeof(short)],
+                    new_data_size);
 
         // advance playhead
-        kMusicPlayhead += new_data_size_bytes;
+        kMusicPlayhead += new_data_size;
 
         // when remainder is less than buffer size, fill buffer with the
         // beginning of the file for a seamless loop
-        // if (new_data_size_bytes < kStreamBufferSize)
-        // {
-        //     // loop back to beginning of song
-        //     kMusicPlayhead = 0;
-        //     int buffer_size = kStreamBufferSize - new_data_size_bytes;
-        //     std::memcpy(&new_data[new_data_size_bytes],
-        //                 &audio_data[kMusicPlayhead], buffer_size);
-        // }
+        if (new_data_size < kStreamBufferSize)
+        {
+            // loop back to beginning of song
+            kMusicPlayhead = 0;
+            int buffer_size = kStreamBufferSize - new_data_size;
+            std::memcpy(&new_data[new_data_size],
+                        &audio_data[kMusicPlayhead / sizeof(short)],
+                        buffer_size);
+        }
 
         // copy new data into buffer and queue it
         alBufferData(buffer, kMusicAudioFile.format_, new_data,
@@ -376,6 +370,7 @@ void AudioService::UpdateStreamBuffer()
 
         // clean up
         delete[] new_data;
+        buffers_processed--;
     }
 }
 
@@ -412,21 +407,29 @@ void AudioService::OnStart(ServiceProvider& service_provider)
 
 void AudioService::OnSceneLoaded(Scene& scene)
 {
+    SetMusic(kTestMusic);
+    PlayMusic(kTestMusic, 0.5f);
 }
 
 void AudioService::OnUpdate()
 {
+    bool test = false;
     // ex. implementation to test audio
     if (input_service_->IsKeyPressed(GLFW_KEY_P))
     {
-        // AddSource(kTestFileName);
-        // PlaySource(kTestFileName);
-        SetMusic(kTestMusic);
-        PlayMusic(kTestMusic, 0.5f);
+        AddSource(kTestFileName);
+        PlaySource(kTestFileName);
+        // SetMusic(kTestMusic);
+        // PlayMusic(kTestMusic, 0.5f);
     }
     CullSources();
+
     if (music_source_.second.first != NULL)
+    {
         UpdateStreamBuffer();
+    }
+
+    // test = !test;
 }
 
 void AudioService::OnCleanup()
@@ -434,6 +437,7 @@ void AudioService::OnCleanup()
     // clear music
     alDeleteSources(1, &music_source_.second.first);
     alDeleteBuffers(kStreamBufferAmount, music_source_.second.second);
+    delete[] music_source_.second.second;
 
     // clear sfx
     for (auto& source : active_sources_)
