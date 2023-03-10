@@ -29,10 +29,10 @@ class AudioService final : public Service
      *
      *  @param file_name name of audio file (including extension).
      */
-    void AddSource(std::string file_name, Entity entity = nullptr);
+    void AddSource(std::string file_name, Entity& entity = nullptr);
 
     /**
-     *  add a source to stream music from
+     *  add a source to stream music from.
      *
      *  @param file_name name of music file (including extension).
      *
@@ -40,28 +40,28 @@ class AudioService final : public Service
      */
     void SetMusic(std::string file_name);
 
+    void RegisterListener(Entity& entity);
+
     /* ----- playback functions ----- */
 
     /**
-     *  plays an audio file through a source
+     *  plays an audio file through a source.
      *
      *  @param file_name name of audio file (including extension).
      */
     void PlaySource(std::string file_name);
 
     /**
-     *  streams a music file through a source
+     *  streams a music file through a source.
      *
      *  @param file_name name of music file (including extension).
+     *
+     *  @note can only play one music file at a time.
      */
     void PlayMusic(std::string file_name);
 
-    /// @brief stops a sources playback.
     void StopSource(std::string file_name);
-
-    /// @brief stops playback of all sources.
     void StopAllSources();
-
     void StopMusic();
 
     /* ----- public setters ----- */
@@ -95,10 +95,8 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
-    /// @note post-debugging we prob want to remove this
+    /// @note post-debugging we prob want to remove this.
     jss::object_ptr<InputService> input_service_;
-
-    jss::object_ptr<Transform> transform;
 
     /// @brief the sound device to output game audio to.
     ALCdevice* audio_device_;
@@ -106,8 +104,11 @@ class AudioService final : public Service
     /// @brief it's like an openGL context.
     ALCcontext* audio_context_;
 
+    /// @brief entity of our listener (to get position for spatial audio).
+    Entity& listener_;
+
     /// @brief all of the currently active sources.
-    std::map < std::string, std::tuple<Source, Buffer, Entity> active_sources_;
+    std::map < std::string, std::tuple<Source, Buffer, Entity&> active_sources_;
 
     /// @brief the current music source.
     std::pair<std::string, std::pair<Source, ALuint*>> music_source_;
@@ -119,11 +120,18 @@ class AudioService final : public Service
      *  when streaming music, pops off used buffers in queue and fills them with
      *  new audio data.
      *
-     *  @note ideally should be called every timestep
+     *  @note should be called every timestep
      */
     void UpdateStreamBuffer();
 
-    /// @brief deletes inactive sources and buffers
+    /**
+     *  update positions for positional audio.
+     *
+     *  @note should be called every timestep.
+     */
+    void UpdatePositions();
+
+    /// @brief deletes inactive sources and buffers.
     void CullSources();
 
     /* ----- helpers ----- */
