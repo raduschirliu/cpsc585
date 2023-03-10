@@ -13,6 +13,8 @@
 #include "AudioFile.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
+#include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 #include "stb/stb_vorbis.c"
@@ -39,7 +41,7 @@ const std::string kTestMusic = "professional_test_music.ogg";
 
 /* ----- setting sources ----- */
 
-void AudioService::AddSource(std::string file_name)
+void AudioService::AddSource(std::string file_name , Entity entity)
 {
     AudioFile audio_file = LoadAudioFile(file_name, false);
 
@@ -395,6 +397,9 @@ void AudioService::OnInit()
         // i.e no audio at all
         Log::warning("Coudn't make audio context current.");
     }
+
+    // set distance model, apparently this one is the best?
+    alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)

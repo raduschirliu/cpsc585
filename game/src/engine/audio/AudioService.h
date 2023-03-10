@@ -5,16 +5,22 @@
 
 #include <map>
 #include <object_ptr.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 
 #include "AudioFile.h"
 #include "engine/input/InputService.h"
+#include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {
+    typedef ALuint Source;
+    typedef ALuint Buffer;
+
   public:
     /* ----- set sources functions -----*/
 
@@ -23,7 +29,7 @@ class AudioService final : public Service
      *
      *  @param file_name name of audio file (including extension).
      */
-    void AddSource(std::string file_name);
+    void AddSource(std::string file_name, Entity entity = nullptr);
 
     /**
      *  add a source to stream music from
@@ -92,6 +98,8 @@ class AudioService final : public Service
     /// @note post-debugging we prob want to remove this
     jss::object_ptr<InputService> input_service_;
 
+    jss::object_ptr<Transform> transform;
+
     /// @brief the sound device to output game audio to.
     ALCdevice* audio_device_;
 
@@ -99,10 +107,10 @@ class AudioService final : public Service
     ALCcontext* audio_context_;
 
     /// @brief all of the currently active sources.
-    std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
+    std::map < std::string, std::tuple<Source, Buffer, Entity> active_sources_;
 
     /// @brief the current music source.
-    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
+    std::pair<std::string, std::pair<Source, ALuint*>> music_source_;
 
     /// @brief loads file from the appropriate directory.
     AudioFile LoadAudioFile(std::string file_name, bool is_music = false);
