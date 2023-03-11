@@ -19,6 +19,11 @@ struct PlayerStateData
 
     PlayerStateData()
     {
+        Reset();
+    }
+
+    void Reset()
+    {
         speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;

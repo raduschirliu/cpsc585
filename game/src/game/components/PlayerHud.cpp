@@ -38,7 +38,7 @@ void PlayerHud::OnGui()
     ImGui::Text("Checkpoint: %d/%lu", player_state_->GetLastCheckpoint(),
                 game_state_service_->GetNumCheckpoints());
     ImGui::Text("Lap: %d/%lu", player_state_->GetLapsCompleted(),
-                game_state_service_->GetGameStats().num_laps);
+                game_state_service_->GetRaceConfig().num_laps);
 
     if (vehicle_->GetGear() == VehicleGear::kForward)
     {

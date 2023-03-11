@@ -6,9 +6,9 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
     game_state_service_ = &service_provider.GetService<GameStateService>();
 
-    game_state_service_->RegisterPlayer(GetEntity().GetId(), GetEntity(), this);
-
     GetEventBus().Subscribe<OnUpdateEvent>(this);
+
+    player_state_.Reset();
 }
 
 void PlayerState::OnStart()
@@ -21,7 +21,7 @@ void PlayerState::OnUpdate(const Timestep& delta_time)
 
 std::string_view PlayerState::GetName() const
 {
-    return "Player State";
+    return "PlayerState";
 }
 
 // getters

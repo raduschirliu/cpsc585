@@ -35,7 +35,6 @@ class VehicleComponent final : public Component,
     void SetPlayerStateData(PlayerStateData& data);
 
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
-    PlayerStateData* GetPlayerStateData();
 
     VehicleGear GetGear() const;
     float GetSpeed() const;

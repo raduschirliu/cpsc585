@@ -67,6 +67,11 @@ Scene& App::AddScene(const string& name)
     return scene_list_.AddScene(std::move(scene));
 }
 
+ServiceProvider& App::GetServiceProvider()
+{
+    return service_provider_;
+}
+
 void App::SetActiveScene(const string& name)
 {
     if (scene_list_.HasActiveScene())

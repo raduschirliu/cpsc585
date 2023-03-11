@@ -2,25 +2,46 @@
 
 #include <imgui.h>
 
+#include <array>
+#include <string>
+
 #include "engine/App.h"
 #include "engine/core/debug/Log.h"
+#include "engine/physics/Hitbox.h"
+#include "engine/render/Camera.h"
+#include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/components/Controllers/AIController.h"
+#include "game/components/Controllers/PlayerController.h"
+#include "game/components/FollowCamera.h"
+#include "game/components/PlayerHud.h"
+#include "game/components/RaycastComponent.h"
+#include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
+
+using glm::vec3;
+using std::array;
+using std::string;
 
 // so that as soon as 5 seconds are hit the
 // powerup is disabled and removed.
 static constexpr float kSlowDownTimerLimit = 5.0f;
+static constexpr uint32_t kMaxPlayers = 4;
 
 static const Timestep kCountdownTime = Timestep::Seconds(12.0);
 static const Timestep kMinRaceTime = Timestep::Seconds(50.0);
 
-void GameStats::Reset()
+static const array<string, kMaxPlayers> kHumanPlayerNames = {
+    "Player 1", "Player 2", "Player 3", "Player 4"};
+static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
+                                                          "CPU 3", "CPU 4"};
+
+void GlobalRaceState::Reset()
 {
     state = GameState::kNotRunning;
     countdown_elapsed_time.SetSeconds(0);
     elapsed_time.SetSeconds(0);
     finished_players = 0;
-    num_laps = 0;
 }
 
 GameStateService::GameStateService()
@@ -29,6 +50,24 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
+    race_config_.num_human_players = 1;
+    race_config_.num_ai_players = 3;
+    race_config_.num_laps = 2;
+
+    track_config_.player_spawns = {
+        {.position = vec3(0.0f, 5.0f, 0.0f),
+         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+         .color = colors::kRed},
+        {.position = vec3(10.0f, 5.0f, 0.0f),
+         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+         .color = colors::kCyan},
+        {.position = vec3(-10.0f, 5.0f, 0.0f),
+         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+         .color = colors::kMagenta},
+        {.position = vec3(-20.0f, 5.0f, 0.0f),
+         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+         .color = colors::kYellow},
+    };
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
@@ -50,24 +89,24 @@ void GameStateService::OnUpdate()
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
 
-    if (stats_.state == GameState::kRunning)
+    if (race_state_.state == GameState::kRaceInProgress)
     {
-        stats_.elapsed_time += delta_time;
+        race_state_.elapsed_time += delta_time;
     }
-    else if (stats_.state == GameState::kCountdown)
+    else if (race_state_.state == GameState::kCountdown)
     {
-        stats_.countdown_elapsed_time += delta_time;
+        race_state_.countdown_elapsed_time += delta_time;
 
-        if (stats_.countdown_elapsed_time >= kCountdownTime)
+        if (race_state_.countdown_elapsed_time >= kCountdownTime)
         {
-            StartGame();
+            race_state_.state = GameState::kRaceInProgress;
         }
     }
 }
 
 void GameStateService::OnGui()
 {
-    if (stats_.state == GameState::kNotRunning)
+    if (race_state_.state == GameState::kNotRunning)
     {
         return;
     }
@@ -78,21 +117,21 @@ void GameStateService::OnGui()
     ImGui::SetNextWindowPos(ImVec2(40, 40));
     ImGui::Begin("Game State", nullptr, flags);
 
-    if (stats_.state == GameState::kCountdown)
+    if (race_state_.state == GameState::kCountdown)
     {
         ImGui::Text(
             "Countdown: %f sec",
-            (kCountdownTime - stats_.countdown_elapsed_time).GetSeconds());
+            (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds());
     }
-    else if (stats_.state == GameState::kRunning)
+    else if (race_state_.state == GameState::kRaceInProgress)
     {
         ImGui::Text("Players: %zu", players_.size());
-        ImGui::Text("Time: %.2f sec", stats_.elapsed_time.GetSeconds());
+        ImGui::Text("Time: %.2f sec", race_state_.elapsed_time.GetSeconds());
     }
-    else if (stats_.state == GameState::kFinished)
+    else if (race_state_.state == GameState::kPostRace)
     {
         ImGui::Text("Finished!");
-        ImGui::Text("Time: %f", stats_.elapsed_time.GetSeconds());
+        ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
     }
 
     ImGui::End();
@@ -100,8 +139,13 @@ void GameStateService::OnGui()
 
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
-    stats_.Reset();
     num_checkpoints_ = 0;
+
+    if (scene.GetName() == "Track1")
+    {
+        SetupRace();
+        StartCountdown();
+    }
 }
 
 void GameStateService::RemoveActivePowerup()
@@ -255,25 +299,6 @@ GameStateService::PowerupsActive()
     return powerups;
 }
 
-void GameStateService::RegisterPlayer(uint32_t id, Entity& entity,
-                                      PlayerState* player_state)
-{
-    if (players_.find(id) != players_.end())
-    {
-        Log::warn(
-            "Player with ID {} has been registered twice in GameStateService",
-            id);
-    }
-
-    players_[id] = {.entity = &entity, .state_component = player_state};
-
-    // TODO: This shouldn't be hardcoded to 4
-    if (players_.size() == 4)
-    {
-        StartCountdown();
-    }
-}
-
 void GameStateService::AddPlayerPowerup(uint32_t id, PowerupPickupType power)
 {
     player_powers_.insert_or_assign(id, power);
@@ -338,40 +363,56 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
 void GameStateService::StartCountdown()
 {
     // Reset global stats
-    stats_.state = GameState::kCountdown;
-    stats_.num_laps = 1;
+    race_state_.state = GameState::kCountdown;
+}
 
-    // Reset player stats
-    auto iter = players_.begin();
-    while (iter != players_.end())
+void GameStateService::SetupRace()
+{
+    race_state_.Reset();
+
+    // Spawn players
+    ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
+                   kMaxPlayers,
+               "Too many players added to the game");
+    Log::info("Spawning players...");
+
+    uint32_t player_idx = 0;
+
+    for (uint32_t i = 0; i < race_config_.num_human_players; i++)
     {
-        iter->second.state_component->SetLapsCompleted(0);
-        iter->second.state_component->SetLastCheckpoint(0);
+        CreatePlayer(player_idx, true);
+        player_idx++;
+    }
 
-        iter++;
+    for (uint32_t i = 0; i < race_config_.num_ai_players; i++)
+    {
+        CreatePlayer(player_idx, false);
+        player_idx++;
     }
 }
 
-void GameStateService::StartGame()
+void GameStateService::StartRace()
 {
-    stats_.state = GameState::kRunning;
+    race_state_.state = GameState::kRaceInProgress;
+    Log::info("Game started");
 }
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
-    if (stats_.state != GameState::kRunning)
+    if (race_state_.state != GameState::kRaceInProgress)
     {
         Log::error("Player finished lap before the game started");
         return;
     }
 
-    int laps = player.state_component->GetLapsCompleted() + 1;
+    const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
 
-    if (laps == stats_.num_laps)
+    if (laps == race_config_.num_laps)
     {
         Log::info("Player finished game!");
         audio_service_->PlayOneShot("yay.ogg");
+        race_state_.finished_players++;
     }
 }
 
@@ -411,12 +452,91 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     }
 }
 
-const GameStats& GameStateService::GetGameStats() const
+void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
-    return stats_;
+    if (race_state_.state != GameState::kNotRunning)
+    {
+        Log::error("Cannot configure the race if it has already started");
+        return;
+    }
+
+    race_config_ = config;
+}
+
+const RaceConfig& GameStateService::GetRaceConfig() const
+{
+    return race_config_;
+}
+
+const GlobalRaceState& GameStateService::GetGlobalRaceState() const
+{
+    return race_state_;
 }
 
 const uint32_t GameStateService::GetNumCheckpoints() const
 {
     return num_checkpoints_;
+}
+
+Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
+{
+    ASSERT_MSG(index <= kMaxPlayers, "Cannot have more players than max");
+    ASSERT_MSG(players_.find(index) == players_.end(),
+               "Cannot register multiple players with same index");
+
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+    const PlayerSpawnConfig& config = track_config_.player_spawns[index];
+
+    const std::string& entity_name =
+        is_human ? kHumanPlayerNames[index] : kAiPlayerNames[index];
+
+    // Create & configure car entity
+    Entity& kart_entity = scene.AddEntity(entity_name);
+
+    auto& transform = kart_entity.AddComponent<Transform>();
+    transform.SetPosition(config.position);
+    transform.RotateEulerDegrees(config.orientation_euler_degrees);
+
+    auto& renderer = kart_entity.AddComponent<MeshRenderer>();
+    renderer.SetMesh("kart2-4");
+    renderer.SetMaterialProperties({.albedo_color = config.color,
+                                    .specular = vec3(1.0f, 1.0f, 1.0f),
+                                    .shininess = 64.0f});
+
+    auto& player_state = kart_entity.AddComponent<PlayerState>();
+
+    auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
+    vehicle.SetVehicleName(entity_name);
+    vehicle.SetPlayerStateData(*player_state.GetStateData());
+
+    auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
+    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
+
+    kart_entity.AddComponent<RaycastComponent>();
+
+    if (is_human)
+    {
+        kart_entity.AddComponent<PlayerController>();
+        kart_entity.AddComponent<PlayerHud>();
+
+        // Also create camera
+        Entity& camera_entity = scene.AddEntity("PlayerCamera");
+        camera_entity.AddComponent<Transform>();
+        camera_entity.AddComponent<Camera>();
+
+        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
+        camera_follower.SetFollowingTransform(kart_entity);
+    }
+    else
+    {
+        auto& ai_controller = kart_entity.AddComponent<AIController>();
+        ai_controller.SetGVehicle(vehicle.GetVehicle());
+    }
+
+    // Register the player
+    players_[index] = {.index = index,
+                       .entity = &kart_entity,
+                       .state_component = &player_state};
+
+    return kart_entity;
 }

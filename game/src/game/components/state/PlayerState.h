@@ -34,6 +34,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     PlayerStateData* GetStateData();
 
   private:
-    PlayerStateData player_state_;
     jss::object_ptr<GameStateService> game_state_service_;
+
+    PlayerStateData player_state_;
 };

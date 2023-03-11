@@ -201,13 +201,6 @@ void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
     player_data_ = &data;
 }
 
-PlayerStateData* VehicleComponent::GetPlayerStateData()
-{
-    if (player_data_)
-        return player_data_;
-    return nullptr;
-}
-
 void VehicleComponent::SetGear(VehicleGear gear)
 {
     PxVehicleDirectDriveTransmissionCommandState::Enum px_gear;
