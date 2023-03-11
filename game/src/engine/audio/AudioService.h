@@ -3,6 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <glm/glm.hpp>
 #include <map>
 #include <object_ptr.hpp>
 #include <optional>
@@ -22,14 +23,14 @@ class AudioService final : public Service
     typedef ALuint Buffer;
 
   public:
-    /* ----- set sources functions -----*/
+    /* ----- sources + listener functions -----*/
 
     /**
      *  add a source to play an audio file from.
      *
      *  @param file_name name of audio file (including extension).
      */
-    void AddSource(std::string file_name, Entity& entity = nullptr);
+    void AddSource(std::string file_name);
 
     /**
      *  add a source to stream music from.
@@ -40,7 +41,7 @@ class AudioService final : public Service
      */
     void SetMusic(std::string file_name);
 
-    void RegisterListener(Entity& entity);
+    void SetListener(Entity& entity);
 
     /* ----- playback functions ----- */
 
@@ -85,6 +86,9 @@ class AudioService final : public Service
      */
     void SetPitch(std::string file_name, float pitch_offset);
 
+    void SetListenerPosition(glm::vec3 position);
+    void SetListenerOrientation(glm::vec3 forward, glm::vec3 up);
+
     /* ----- from service ----- */
 
     void OnInit() override;
@@ -108,7 +112,7 @@ class AudioService final : public Service
     Entity& listener_;
 
     /// @brief all of the currently active sources.
-    std::map < std::string, std::tuple<Source, Buffer, Entity&> active_sources_;
+    std::map<std::string, std::pair<Source, Buffer>> active_sources_;
 
     /// @brief the current music source.
     std::pair<std::string, std::pair<Source, ALuint*>> music_source_;

@@ -42,7 +42,7 @@ const std::string kTestMusic = "professional_test_music.ogg";
 
 /* ----- setting sources ----- */
 
-void AudioService::AddSource(std::string file_name, Entity& entity)
+void AudioService::AddSource(std::string file_name)
 {
     AudioFile audio_file = LoadAudioFile(file_name, false);
 
@@ -65,7 +65,7 @@ void AudioService::AddSource(std::string file_name, Entity& entity)
         Log::warning("Couldn't buffer audio data.");
     }
 
-    active_sources_.insert({file_name, {source, buffer, entity}});
+    active_sources_.insert({file_name, {source, buffer}});
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -107,11 +107,6 @@ void AudioService::SetMusic(std::string file_name)
     }
 
     music_source_ = {file_name, {source, buffers}};
-}
-
-void AudioService::RegisterListener(Entity& entity)
-{
-    listener_entity_ = entity;
 }
 
 /* ----- playback functions ----- */
@@ -206,6 +201,18 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
         Log::error("Couldn't open or find file: {}", file_name);
         return;
     }
+}
+
+void AudioService::SetListenerPosition(glm::vec3 position)
+{
+    alListener3f(AL_POSITION, position.x, position.y, position.z);
+}
+
+void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
+{
+    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
+                             up.x,      up.y,      up.z};      //
+    alListenerfv(AL_ORIENTATION, orientation);
 }
 
 /* ----- backend ----- */
@@ -349,25 +356,6 @@ void AudioService::UpdateStreamBuffer()
 
 void AudioService::UpdatePositions()
 {
-    // update listener
-    vec3 listener_position = entity_listener_.GetComponent<Transform>();
-    alListenerfv(AL_POSITION, /*something*/);
-
-    // update all sources
-    for (auto tuple : active_sources_.second sources)
-    {
-        // don't need to update if NULL lol
-        if (!std::get<2>(tuple))
-        {
-            continue;
-        }
-        Entity& entity = std::get<2>(tuple);
-
-        // set position of source from entity
-        vec3 position = entity.GetComponent<Transform>();
-        ALuint source = std::get<0>(tuple);
-        alSource3f(source, AL_POSITION, position.x, position.y, position.z);
-    }
 }
 
 bool AudioService::IsPlaying(std::string file_name)
