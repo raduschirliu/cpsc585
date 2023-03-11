@@ -41,6 +41,8 @@ class AudioService final : public Service
      */
     void SetMusic(std::string file_name);
 
+    void SetListener(Entity& entity);
+
     /* ----- playback functions ----- */
 
     /**
