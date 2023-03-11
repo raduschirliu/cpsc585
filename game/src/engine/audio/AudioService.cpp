@@ -3,6 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <glm/glm.hpp>
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -41,7 +42,7 @@ const std::string kTestMusic = "professional_test_music.ogg";
 
 /* ----- setting sources ----- */
 
-void AudioService::AddSource(std::string file_name , Entity entity)
+void AudioService::AddSource(std::string file_name)
 {
     AudioFile audio_file = LoadAudioFile(file_name, false);
 
@@ -202,6 +203,18 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
+void AudioService::SetListenerPosition(glm::vec3 position)
+{
+    alListener3f(AL_POSITION, position.x, position.y, position.z);
+}
+
+void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
+{
+    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
+                             up.x,      up.y,      up.z};      //
+    alListenerfv(AL_ORIENTATION, orientation);
+}
+
 /* ----- backend ----- */
 
 AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
@@ -225,7 +238,6 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
     audio_file.samples_per_channel = stb_vorbis_decode_filename(
         file_path.c_str(), &audio_file.number_of_channels_,
         &audio_file.sample_rate_, &file_data);
-
     audio_file.data_ = std::unique_ptr<short>(file_data);
 
     Log::debug("Succesfully opened audio file: {}", file_name);
@@ -342,6 +354,10 @@ void AudioService::UpdateStreamBuffer()
     }
 }
 
+void AudioService::UpdatePositions()
+{
+}
+
 bool AudioService::IsPlaying(std::string file_name)
 {
     ALuint source = active_sources_[file_name].first;
@@ -411,25 +427,26 @@ void AudioService::OnSceneLoaded(Scene& scene)
 {
     // test
     SetMusic(kTestMusic);
-    PlayMusic(kTestMusic, 0.5f);
+    PlayMusic(kTestMusic);
 }
 
 void AudioService::OnUpdate()
 {
     // ex. implementation to test audio
-    if (input_service_->IsKeyPressed(GLFW_KEY_P))
-    {
-        AddSource(kTestFileName);
-        PlaySource(kTestFileName);
-    }
+    // if (input_service_->IsKeyPressed(GLFW_KEY_P))
+    // {
+    //     AddSource(kTestFileName);
+    //     PlaySource(kTestFileName);
+    // }
 
     // have something to update before you do it lol
     if (music_source_.second.first != NULL)
     {
         UpdateStreamBuffer();
     }
-    // clear finished sources
-    CullSources();
+
+    UpdatePositions();
+    CullSources();  // clear sources not playing
 }
 
 void AudioService::OnCleanup()
