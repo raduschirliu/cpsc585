@@ -82,7 +82,7 @@ class AudioService final : public Service
      *  stop a sources playback of an audio file, identified by
      *  its associated entity id.
      *
-     *  @param entity_id the id of the associated entity.
+     *  @overload
      */
     void StopSource(std::uint32_t entity_id);
 

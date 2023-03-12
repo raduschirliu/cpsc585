@@ -98,6 +98,10 @@ void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
     alSourcei(source, AL_LOOPING, AL_FALSE);
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
+    // set properties for spatial audio
+    alSourcef(source, AL_MAX_DISTANCE, 300.0f);  // distance until silent
+    alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
+
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't create source for {}", file_name);
@@ -233,6 +237,12 @@ void AudioService::PlayMusic(std::string file_name)
 void AudioService::StopSource(std::string file_name)
 {
     ALuint source = non_diegetic_sources_[file_name].first;
+    alSourceStop(source);
+}
+
+void AudioService::StopSource(std::uint32_t entity_id)
+{
+    ALuint source = diegetic_sources_[entity_id].first;
     alSourceStop(source);
 }
 
@@ -599,8 +609,8 @@ void AudioService::OnStart(ServiceProvider& service_provider)
 void AudioService::OnSceneLoaded(Scene& scene)
 {
     // debugging
-    SetMusic(kTestMusic);
-    PlayMusic(kTestMusic);
+    // SetMusic(kTestMusic);
+    // PlayMusic(kTestMusic);
 }
 
 void AudioService::OnUpdate()
