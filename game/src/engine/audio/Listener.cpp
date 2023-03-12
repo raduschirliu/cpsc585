@@ -21,7 +21,3 @@ void Listener::OnUpdate(const Timestep& delta_time)
     audio_service_->SetListenerOrientation(transform_->GetForwardDirection(),
                                            transform_->GetUpDirection());
 }
-
-void Listener::OnDestroy()
-{
-}

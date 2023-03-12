@@ -5,14 +5,13 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class Listener : public Component, public IEventSubscriber<OnUpdateEvent>
+class Listener final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     /* ----- from Component -----*/
 
-    virtual void OnInit(const ServiceProvider& service_provider) override;
-    virtual void OnUpdate(const Timestep& delta_time) override;
-    virtual void OnDestroy() override;
+    void OnInit(const ServiceProvider& service_provider) override;
+    void OnUpdate(const Timestep& delta_time) override;
 
   private:
     jss::object_ptr<AudioService> audio_service_;
