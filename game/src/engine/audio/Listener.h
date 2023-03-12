@@ -11,6 +11,10 @@ class Listener final : public Component, public IEventSubscriber<OnUpdateEvent>
     /* ----- from Component -----*/
 
     void OnInit(const ServiceProvider& service_provider) override;
+    std::string_view GetName() const override;
+
+    /* ----- from IEventSubscriber ----- */
+
     void OnUpdate(const Timestep& delta_time) override;
 
   private:
