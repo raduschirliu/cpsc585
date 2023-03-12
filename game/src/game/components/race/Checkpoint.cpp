@@ -8,7 +8,7 @@ void Checkpoint::OnInit(const ServiceProvider& service_provider)
 {
     game_service_ = &service_provider.GetService<GameStateService>();
 
-    game_service_->RegisterCheckpoint(GetEntity());
+    game_service_->RegisterCheckpoint(GetEntity(), this);
 }
 
 void Checkpoint::OnTriggerEnter(const OnTriggerEvent& data)
@@ -24,4 +24,9 @@ std::string_view Checkpoint::GetName() const
 void Checkpoint::SetCheckpointIndex(int index)
 {
     checkpoint_index_ = index;
+}
+
+int Checkpoint::GetCheckpointIndex() const
+{
+    return checkpoint_index_;
 }

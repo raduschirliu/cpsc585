@@ -5,6 +5,14 @@
 
 #include "engine/core/Colors.h"
 
+struct CheckpointRecord
+{
+    int index;
+    Entity* entity;
+    glm::vec3 position;
+    float distance_to_next;
+};
+
 struct PlayerSpawnConfig
 {
     glm::vec3 position;
@@ -15,6 +23,13 @@ struct PlayerSpawnConfig
 struct TrackConfig
 {
     std::vector<PlayerSpawnConfig> player_spawns;
+    std::vector<CheckpointRecord> checkpoints;
+
+    void Reset()
+    {
+        player_spawns.clear();
+        checkpoints.clear();
+    }
 };
 
 struct RaceConfig

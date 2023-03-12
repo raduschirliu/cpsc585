@@ -89,3 +89,13 @@ void PlayerState::SetLastCheckpoint(int checkpoint)
 {
     player_state_.last_checkpoint = checkpoint;
 }
+
+int PlayerState::GetCurrentPlace() const
+{
+    return player_state_.place;
+}
+
+void PlayerState::SetCurrentPlace(int place)
+{
+    player_state_.place = place;
+}

@@ -13,6 +13,7 @@ class Checkpoint final : public Component
     std::string_view GetName() const override;
 
     void SetCheckpointIndex(int index);
+    int GetCheckpointIndex() const;
 
   private:
     jss::object_ptr<GameStateService> game_service_;

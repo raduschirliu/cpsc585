@@ -18,7 +18,9 @@
 #include "game/components/state/PlayerData.h"
 #include "game/services/RaceConfig.h"
 
+class Checkpoint;
 class PlayerState;
+class Transform;
 
 enum class GameState : uint8_t
 {
@@ -28,22 +30,26 @@ enum class GameState : uint8_t
     kPostRace
 };
 
+struct PlayerRecord
+{
+    uint32_t index;
+    bool is_human;
+    Entity* entity;
+    Transform* transform;
+    PlayerState* state_component;
+    uint32_t checkpoint_count_accumulator;
+    float progress_score;
+};
+
 struct GlobalRaceState
 {
     GameState state;
     uint32_t finished_players;
     Timestep elapsed_time;
     Timestep countdown_elapsed_time;
+    std::vector<PlayerRecord*> sorted_players;
 
     void Reset();
-};
-
-struct PlayerRecord
-{
-    uint32_t index;
-    bool is_human;
-    Entity* entity;
-    PlayerState* state_component;
 };
 
 class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
@@ -62,7 +68,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // From Event subscribers
     void OnGui() override;
 
-    void RegisterCheckpoint(Entity& entity);
+    void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
@@ -88,23 +94,25 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
   private:
     jss::object_ptr<AudioService> audio_service_;
 
-    std::unordered_map<uint32_t, PlayerRecord> players_;
+    std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
     std::unordered_map<uint32_t, PowerupPickupType> player_powers_;
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
-    uint32_t num_checkpoints_;
     GlobalRaceState race_state_;
     RaceConfig race_config_;
     TrackConfig track_config_;
 
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
+    void UpdateRaceTimer(const Timestep& delta_time);
+    void UpdatePlayerProgressScore(const Timestep& delta_time);
 
     void SetupRace();
     void StartCountdown();
     void StartRace();
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
+    CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
 };

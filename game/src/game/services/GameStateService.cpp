@@ -17,10 +17,12 @@
 #include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
 
 using glm::vec3;
 using std::array;
+using std::make_unique;
 using std::string;
 
 // so that as soon as 5 seconds are hit the
@@ -28,8 +30,7 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(12.0);
-static const Timestep kMinRaceTime = Timestep::Seconds(50.0);
+static const Timestep kCountdownTime = Timestep::Seconds(7.0);
 
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
@@ -42,6 +43,7 @@ void GlobalRaceState::Reset()
     countdown_elapsed_time.SetSeconds(0);
     elapsed_time.SetSeconds(0);
     finished_players = 0;
+    sorted_players.clear();
 }
 
 GameStateService::GameStateService()
@@ -53,21 +55,6 @@ void GameStateService::OnInit()
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
     race_config_.num_laps = 2;
-
-    track_config_.player_spawns = {
-        {.position = vec3(0.0f, 5.0f, 0.0f),
-         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
-         .color = colors::kRed},
-        {.position = vec3(10.0f, 5.0f, 0.0f),
-         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
-         .color = colors::kCyan},
-        {.position = vec3(-10.0f, 5.0f, 0.0f),
-         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
-         .color = colors::kMagenta},
-        {.position = vec3(-20.0f, 5.0f, 0.0f),
-         .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
-         .color = colors::kYellow},
-    };
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
@@ -89,19 +76,8 @@ void GameStateService::OnUpdate()
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
 
-    if (race_state_.state == GameState::kRaceInProgress)
-    {
-        race_state_.elapsed_time += delta_time;
-    }
-    else if (race_state_.state == GameState::kCountdown)
-    {
-        race_state_.countdown_elapsed_time += delta_time;
-
-        if (race_state_.countdown_elapsed_time >= kCountdownTime)
-        {
-            race_state_.state = GameState::kRaceInProgress;
-        }
-    }
+    UpdateRaceTimer(delta_time);
+    UpdatePlayerProgressScore(delta_time);
 }
 
 void GameStateService::OnGui()
@@ -125,8 +101,21 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::Text("Players: %zu", players_.size());
         ImGui::Text("Time: %.2f sec", race_state_.elapsed_time.GetSeconds());
+        ImGui::Text("Players:", players_.size());
+        ImGui::Indent(10.0f);
+
+        for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
+        {
+            const int place = static_cast<int>(i + 1);
+            Entity* entity = race_state_.sorted_players[i]->entity;
+
+            ImGui::PushID(entity->GetId());
+            ImGui::Text("%d) %s", place, entity->GetName().c_str());
+            ImGui::PopID();
+        }
+
+        ImGui::Unindent(10.0f);
     }
     else if (race_state_.state == GameState::kPostRace)
     {
@@ -139,10 +128,25 @@ void GameStateService::OnGui()
 
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
-    num_checkpoints_ = 0;
+    track_config_.Reset();
 
     if (scene.GetName() == "Track1")
     {
+        track_config_.player_spawns = {
+            {.position = vec3(0.0f, 5.0f, 0.0f),
+             .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+             .color = colors::kRed},
+            {.position = vec3(10.0f, 5.0f, 0.0f),
+             .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+             .color = colors::kCyan},
+            {.position = vec3(-10.0f, 5.0f, 0.0f),
+             .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+             .color = colors::kMagenta},
+            {.position = vec3(-20.0f, 5.0f, 0.0f),
+             .orientation_euler_degrees = vec3(0.0f, 180.0f, 0.0f),
+             .color = colors::kYellow},
+        };
+
         SetupRace();
         StartCountdown();
     }
@@ -175,7 +179,7 @@ void GameStateService::RemoveActivePowerup()
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
                             players_[a.first]
-                                .state_component->SetCurrentPowerup(
+                                ->state_component->SetCurrentPowerup(
                                     PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
@@ -200,7 +204,7 @@ void GameStateService::RemoveActivePowerup()
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
                             players_[a.first]
-                                .state_component->SetCurrentPowerup(
+                                ->state_component->SetCurrentPowerup(
                                     PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
@@ -221,7 +225,7 @@ void GameStateService::RemoveActivePowerup()
 
                         // to reset the powerup back to nothing. The player
                         // can pick up the new powerup now.
-                        players_[a.first].state_component->SetCurrentPowerup(
+                        players_[a.first]->state_component->SetCurrentPowerup(
                             PowerupPickupType::kDefaultPowerup);
 
                         timer_.erase(a);
@@ -245,7 +249,7 @@ void GameStateService::RemoveActivePowerup()
                             // to reset the powerup back to nothing. The player
                             // can pick up the new powerup now.
                             players_[a.first]
-                                .state_component->SetCurrentPowerup(
+                                ->state_component->SetCurrentPowerup(
                                     PowerupPickupType::kDefaultPowerup);
 
                             timer_.erase(a);
@@ -362,8 +366,8 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
 
 void GameStateService::StartCountdown()
 {
-    // Reset global stats
     race_state_.state = GameState::kCountdown;
+    Log::info("Race countdown started...");
 }
 
 void GameStateService::SetupRace()
@@ -394,6 +398,14 @@ void GameStateService::SetupRace()
 void GameStateService::StartRace()
 {
     race_state_.state = GameState::kRaceInProgress;
+    race_state_.elapsed_time.SetSeconds(0.0);
+    race_state_.finished_players = 0;
+
+    for (auto& entry : players_)
+    {
+        race_state_.sorted_players.push_back(entry.second.get());
+    }
+
     Log::info("Game started");
 }
 
@@ -416,9 +428,27 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
     }
 }
 
-void GameStateService::RegisterCheckpoint(Entity& entity)
+void GameStateService::RegisterCheckpoint(Entity& entity,
+                                          Checkpoint* checkpoint)
 {
-    num_checkpoints_++;
+    CheckpointRecord new_record = {
+        .index = checkpoint->GetCheckpointIndex(),
+        .entity = &entity,
+        .position = entity.GetComponent<Transform>().GetPosition(),
+        .distance_to_next = 0.0f};
+
+    if (track_config_.checkpoints.size() > 0)
+    {
+        CheckpointRecord& first_record = track_config_.checkpoints.front();
+        CheckpointRecord& last_record = track_config_.checkpoints.back();
+
+        last_record.distance_to_next =
+            glm::distance(last_record.position, new_record.position);
+        new_record.distance_to_next =
+            glm::distance(new_record.position, first_record.position);
+    }
+
+    track_config_.checkpoints.push_back(new_record);
 }
 
 void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
@@ -430,25 +460,24 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
         return;
     }
 
-    uint32_t last_checkpoint =
-        iter->second.state_component->GetLastCheckpoint();
-    uint32_t expected_checkpoint = last_checkpoint + 1;
-
-    if (expected_checkpoint >= num_checkpoints_)
-    {
-        expected_checkpoint = 0;
-    }
+    const uint32_t last_checkpoint =
+        iter->second->state_component->GetLastCheckpoint();
+    const uint32_t expected_checkpoint =
+        (last_checkpoint + 1) % track_config_.checkpoints.size();
 
     if (index != expected_checkpoint)
     {
+        Log::info("Player {} hit incorrect checkpoint {} (expected {})",
+                  iter->second->index, index, expected_checkpoint);
         return;
     }
 
-    iter->second.state_component->SetLastCheckpoint(index);
+    iter->second->state_component->SetLastCheckpoint(index);
+    iter->second->checkpoint_count_accumulator++;
 
     if (index == 0)
     {
-        PlayerCompletedLap(iter->second);
+        PlayerCompletedLap(*iter->second);
     }
 }
 
@@ -475,12 +504,80 @@ const GlobalRaceState& GameStateService::GetGlobalRaceState() const
 
 const uint32_t GameStateService::GetNumCheckpoints() const
 {
-    return num_checkpoints_;
+    return static_cast<uint32_t>(track_config_.checkpoints.size());
+}
+
+void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
+{
+    if (race_state_.state == GameState::kRaceInProgress)
+    {
+        race_state_.elapsed_time += delta_time;
+    }
+    else if (race_state_.state == GameState::kCountdown)
+    {
+        race_state_.countdown_elapsed_time += delta_time;
+
+        if (race_state_.countdown_elapsed_time >= kCountdownTime)
+        {
+            StartRace();
+        }
+    }
+}
+
+void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
+{
+    if (race_state_.state != GameState::kRaceInProgress)
+    {
+        return;
+    }
+
+    for (auto& entry : players_)
+    {
+        auto player = entry.second.get();
+
+        const float checkpoint_progress =
+            static_cast<float>(player->checkpoint_count_accumulator) * 10000.0f;
+
+        const int last_checkpoint_index =
+            player->state_component->GetLastCheckpoint();
+        ASSERT_MSG(last_checkpoint_index >= 0 &&
+                       last_checkpoint_index < track_config_.checkpoints.size(),
+                   "Player must have valid checkpoint index");
+        const CheckpointRecord& last_checkpoint =
+            track_config_.checkpoints[last_checkpoint_index];
+        const CheckpointRecord& next_checkpoint =
+            GetNextCheckpoint(last_checkpoint_index + 1);
+
+        const float dist_to_next = glm::distance(
+            player->transform->GetPosition(), next_checkpoint.position);
+
+        // Value [0.0f, 100.0f] represententing how far a player is to the next
+        // checkpoint
+        const float current_checkpoint_progress =
+            glm::max(last_checkpoint.distance_to_next - dist_to_next, 0.0f) /
+            last_checkpoint.distance_to_next * 100.0f;
+
+        player->progress_score =
+            checkpoint_progress + current_checkpoint_progress;
+    }
+
+    // Sort players in descending order
+    std::sort(race_state_.sorted_players.begin(),
+              race_state_.sorted_players.end(),
+              [](PlayerRecord* a, PlayerRecord* b)
+              { return a->progress_score > b->progress_score; });
+
+    for (int i = 0; i < race_state_.sorted_players.size(); i++)
+    {
+        race_state_.sorted_players[i]->state_component->SetCurrentPlace(i);
+    }
 }
 
 Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 {
     ASSERT_MSG(index <= kMaxPlayers, "Cannot have more players than max");
+    ASSERT_MSG(index < track_config_.player_spawns.size(),
+               "Cannot have more players than number of spawn locations");
     ASSERT_MSG(players_.find(index) == players_.end(),
                "Cannot register multiple players with same index");
 
@@ -534,9 +631,22 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     }
 
     // Register the player
-    players_[index] = {.index = index,
-                       .entity = &kart_entity,
-                       .state_component = &player_state};
+    players_[index] = make_unique<PlayerRecord>(
+        PlayerRecord{.index = index,
+                     .is_human = is_human,
+                     .entity = &kart_entity,
+                     .transform = &transform,
+                     .state_component = &player_state,
+                     .checkpoint_count_accumulator = 0,
+                     .progress_score = 0.0f});
 
     return kart_entity;
+}
+
+CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
+{
+    size_t next_index = static_cast<size_t>(current_index) + 1;
+    next_index %= track_config_.checkpoints.size();
+
+    return track_config_.checkpoints[next_index];
 }
