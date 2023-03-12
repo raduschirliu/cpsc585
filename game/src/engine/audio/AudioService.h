@@ -54,6 +54,8 @@ class AudioService final : public Service
      */
     void PlaySource(std::string file_name);
 
+    void PlaySource(std::uint32_t entity_id);
+
     /**
      *  streams a music file through a source.
      *
@@ -87,6 +89,8 @@ class AudioService final : public Service
      *  @param pitch_offset the amount to change pitch.
      */
     void SetPitch(std::string file_name, float pitch_offset);
+
+    void SetSourcePosition(std::int32_t entity_id, glm::vec3 position);
 
     void SetListenerPosition(glm::vec3 position);
     void SetListenerOrientation(glm::vec3 forward, glm::vec3 up);

@@ -155,6 +155,38 @@ void AudioService::PlaySource(std::string file_name)
     alSourcePlay(source);
 }
 
+void AudioService::PlaySource(std::uint32_t entity_id)
+{
+    // check if source already exists;
+    // if (!SourceExists(file_name))
+    // {
+    //     AddSource(file_name);  // we'll set it here just to be nice
+    // }
+
+    if (active_3D_sources_.count(entity_id) == 0)
+    {
+        return;
+    }
+
+    // find the source
+    ALuint source;
+    source = active_3D_sources_[entity_id].first;
+    // alSourcei(source, AL_LOOPING, AL_TRUE);
+
+    Log::debug("Entity {} playing audio.", entity_id);
+    float x;
+    float y;
+    float z;
+
+    alGetSource3f(source, AL_POSITION, &x, &y, &z);
+    Log::debug("Source position: {}, {}, {}", x, y, z);
+
+    alGetListener3f(AL_POSITION, &x, &y, &z);
+    Log::debug("Listener position: {}, {}, {}", x, y, z);
+
+    alSourcePlay(source);
+}
+
 void AudioService::PlayMusic(std::string file_name)
 {
     //  music wasn't set yet
@@ -230,9 +262,34 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
+void AudioService::SetSourcePosition(std::int32_t entity_id, glm::vec3 position)
+{
+    if (active_3D_sources_.count(entity_id) == 0)
+    {
+        return;
+    }
+
+    ALuint source;
+    source = active_3D_sources_[entity_id].first;
+
+    alSource3f(source, AL_VELOCITY, 0, 0, 0);
+    alSource3f(source, AL_POSITION,  //
+               position.x, position.y, position.z);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::error("Couldn't set source position for {}.", entity_id);
+    }
+}
+
 void AudioService::SetListenerPosition(glm::vec3 position)
 {
     alListener3f(AL_POSITION, position.x, position.y, position.z);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::error("Couldn't set listener position.");
+    }
 }
 
 void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
@@ -240,6 +297,11 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
     ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
                              up.x,      up.y,      up.z};      //
     alListenerfv(AL_ORIENTATION, orientation);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::error("Couldn't set listener orientation.");
+    }
 }
 
 /* ----- backend ----- */
@@ -442,7 +504,7 @@ void AudioService::OnInit()
     }
 
     // set distance model, apparently this one is the best?
-    alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+    // alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
