@@ -55,6 +55,8 @@ void GameStateService::OnInit()
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
     race_config_.num_laps = 2;
+
+    race_state_.Reset();
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
@@ -128,6 +130,7 @@ void GameStateService::OnGui()
 
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
+    race_state_.Reset();
     track_config_.Reset();
 
     if (scene.GetName() == "Track1")
