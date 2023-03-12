@@ -8,6 +8,7 @@
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
+#include "engine/audio/Listener.h"
 #include "engine/audio/SoundEmitter.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
@@ -497,10 +498,10 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
                                     .specular = vec3(1.0f, 1.0f, 1.0f),
                                     .shininess = 64.0f});
 
-    auto& sound_emitter = kart_entity.AddComponent<SoundEmitter>();
-    sound_emitter.AddSource("yay.ogg");
 
     auto& player_state = kart_entity.AddComponent<PlayerState>();
+    
+    auto& sound_emitter = kart_entity.AddComponent<SoundEmitter>();
 
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
     vehicle.SetVehicleName(name);
@@ -515,11 +516,14 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
+        kart_entity.AddComponent<Listener>();
     }
     else
     {
         auto& ai_controller = kart_entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(vehicle.GetVehicle());
+        
+        sound_emitter.SetSource("professional_test_audio.ogg");
     }
 
     return kart_entity;
