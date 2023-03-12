@@ -67,7 +67,7 @@ void AudioService::AddSource(std::string file_name)
         Log::warning("Couldn't buffer audio data.");
     }
 
-    active_2D_sources_.insert({file_name, {source, buffer}});
+    non_diegetic_sources_.insert({file_name, {source, buffer}});
 }
 
 void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
@@ -93,7 +93,7 @@ void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
         Log::warning("Couldn't buffer audio data.");
     }
 
-    active_3D_sources_.insert({entity_id, {source, buffer}});
+    diegetic_sources_.insert({entity_id, {source, buffer}});
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -149,7 +149,7 @@ void AudioService::PlaySource(std::string file_name)
 
     // find the source
     ALuint source;
-    source = active_2D_sources_[file_name].first;
+    source = non_diegetic_sources_[file_name].first;
 
     Log::debug("Playing audio: {}", file_name);
     alSourcePlay(source);
@@ -163,14 +163,14 @@ void AudioService::PlaySource(std::uint32_t entity_id)
     //     AddSource(file_name);  // we'll set it here just to be nice
     // }
 
-    if (active_3D_sources_.count(entity_id) == 0)
+    if (diegetic_sources_.count(entity_id) == 0)
     {
         return;
     }
 
     // find the source
     ALuint source;
-    source = active_3D_sources_[entity_id].first;
+    source = diegetic_sources_[entity_id].first;
     // alSourcei(source, AL_LOOPING, AL_TRUE);
 
     Log::debug("Entity {} playing audio.", entity_id);
@@ -205,13 +205,13 @@ void AudioService::PlayMusic(std::string file_name)
 
 void AudioService::StopSource(std::string file_name)
 {
-    ALuint source = active_2D_sources_[file_name].first;
+    ALuint source = non_diegetic_sources_[file_name].first;
     alSourceStop(source);
 }
 
 void AudioService::StopAllSources()
 {
-    for (auto& pair : active_2D_sources_)
+    for (auto& pair : non_diegetic_sources_)
     {
         alSourceStop(pair.second.first);
     }
@@ -234,7 +234,7 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     }
 
     ALuint source;
-    source = active_2D_sources_[file_name].first;
+    source = non_diegetic_sources_[file_name].first;
 
     alSourcef(source, AL_PITCH, pitch_offset);
 }
@@ -248,7 +248,7 @@ void AudioService::SetGain(std::string file_name, float gain)
     }
 
     ALuint source;
-    source = active_2D_sources_[file_name].first;
+    source = non_diegetic_sources_[file_name].first;
 
     alSourcef(source, AL_GAIN, gain);
 }
@@ -264,13 +264,13 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
 
 void AudioService::SetSourcePosition(std::int32_t entity_id, glm::vec3 position)
 {
-    if (active_3D_sources_.count(entity_id) == 0)
+    if (diegetic_sources_.count(entity_id) == 0)
     {
         return;
     }
 
     ALuint source;
-    source = active_3D_sources_[entity_id].first;
+    source = diegetic_sources_[entity_id].first;
 
     alSource3f(source, AL_VELOCITY, 0, 0, 0);
     alSource3f(source, AL_POSITION,  //
@@ -355,9 +355,9 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 void AudioService::CullSources()
 {
     // iterate through active sources
-    for (auto pair = active_2D_sources_.begin(),
-              next_pair = pair;             //
-         pair != active_2D_sources_.end();  //
+    for (auto pair = non_diegetic_sources_.begin(),
+              next_pair = pair;                //
+         pair != non_diegetic_sources_.end();  //
          pair = next_pair)
     {
         next_pair++;
@@ -372,7 +372,7 @@ void AudioService::CullSources()
                 Log::error("While culling Sources for {}.", pair->first);
             }
 
-            active_2D_sources_.erase(pair);
+            non_diegetic_sources_.erase(pair);
         }
     }
 }
@@ -443,13 +443,9 @@ void AudioService::UpdateStreamBuffer()
     }
 }
 
-void AudioService::UpdatePositions()
-{
-}
-
 bool AudioService::IsPlaying(std::string file_name)
 {
-    ALuint source = active_2D_sources_[file_name].first;
+    ALuint source = non_diegetic_sources_[file_name].first;
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
@@ -466,9 +462,40 @@ bool AudioService::IsPlaying(std::string file_name)
     return true;
 }
 
+bool AudioService::IsPlaying(std::uint32_t entity_id)
+{
+    ALuint source = diegetic_sources_[entity_id].first;
+    ALint source_state;
+    alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::warning("Couldn't get Source State from entity: {}.", entity_id);
+    }
+
+    if (source_state != AL_PLAYING)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 bool AudioService::SourceExists(std::string file_name)
 {
-    if (active_2D_sources_.count(file_name) == 1)
+    if (non_diegetic_sources_.count(file_name) == 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool AudioService::SourceExists(std::uint32_t entity_id)
+{
+    if (diegetic_sources_.count(entity_id) == 1)
     {
         return true;
     }
@@ -521,21 +548,14 @@ void AudioService::OnSceneLoaded(Scene& scene)
 
 void AudioService::OnUpdate()
 {
-    // ex. implementation to test audio
-    if (input_service_->IsKeyPressed(GLFW_KEY_P))
-    {
-        AddSource(kTestFileName);
-        PlaySource(kTestFileName);
-    }
-
-    // have something to update before you do it lol
+    // check if there's something to update
     if (music_source_.second.first != NULL)
     {
         UpdateStreamBuffer();
     }
 
-    UpdatePositions();
-    CullSources();  // clear sources not playing
+    // clear sources not playing
+    CullSources();
 }
 
 void AudioService::OnCleanup()
@@ -546,13 +566,13 @@ void AudioService::OnCleanup()
     delete[] music_source_.second.second;
 
     // clear sfx
-    for (auto& source : active_2D_sources_)
+    for (auto& source : non_diegetic_sources_)
     {
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
     }
 
-    for (auto& source : active_3D_sources_)
+    for (auto& source : diegetic_sources_)
     {
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
