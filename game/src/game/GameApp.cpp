@@ -42,6 +42,8 @@
 #include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/Listener.h"
+#include "game/components/audio/SoundEmitter.h"
 #include "game/components/state/PlayerState.h"
 
 using glm::ivec2;
@@ -498,6 +500,8 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
 
     auto& player_state = kart_entity.AddComponent<PlayerState>();
 
+    auto& sound_emitter = kart_entity.AddComponent<SoundEmitter>();
+
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
     vehicle.SetVehicleName(name);
     vehicle.SetPlayerStateData(*player_state.GetStateData());
@@ -511,11 +515,14 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
+        kart_entity.AddComponent<Listener>();
     }
     else
     {
         auto& ai_controller = kart_entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(vehicle.GetVehicle());
+
+        sound_emitter.SetSource("professional_test_audio.ogg");
     }
 
     return kart_entity;
