@@ -176,3 +176,8 @@ GLuint TextureHandle::Value() const
 {
     return textureID;
 }
+
+void* TextureHandle::ValueRaw() const
+{
+    return reinterpret_cast<void*>(static_cast<std::intptr_t>(textureID));
+}

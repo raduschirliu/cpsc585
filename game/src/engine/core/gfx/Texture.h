@@ -25,13 +25,15 @@ class Texture
 
     static void Unbind();
 
-    Texture(std::string path, InterpolationMode interpolation_mode);
+    Texture(std::string path,
+            InterpolationMode interpolation_mode = InterpolationMode::kLinear);
 
     // Although uint (i.e. uvec2) might make more sense here, went with int
     // (i.e. ivec2) under the assumption that most students will want to work
     // with ints, not uints, in main.cpp
     glm::ivec2 GetDimensions() const;
     void Bind(Slot slot = Slot::kTexture0) const;
+    const TextureHandle& GetHandle() const;
 
   private:
     TextureHandle handle_;

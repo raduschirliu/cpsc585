@@ -1,13 +1,22 @@
 #include "Texture.h"
 
+#include <stb/stb_image.h>
+
 #include <iostream>
+
+#include "engine/core/debug/Assert.h"
 
 Texture::Texture(std::string path, InterpolationMode interpolation_mode)
     : handle_(),
       path_(path),
       interpolation_(interpolation_mode)
 {
-    int num_components = 0;
+    int num_components;
+    stbi_set_flip_vertically_on_load(false);
+    unsigned char* data =
+        stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
+
+    ASSERT_MSG(data, "Texture must be loaded");
 
     // Set alignment to be 1
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -35,8 +44,8 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
             break;
     };
     // Loads texture data into bound texture
-    // glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
-    //              GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
+                 GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -69,4 +78,9 @@ void Texture::Unbind()
 GLint Texture::GetInterpolationMode() const
 {
     return static_cast<GLint>(interpolation_);
+}
+
+const TextureHandle& Texture::GetHandle() const
+{
+    return handle_;
 }

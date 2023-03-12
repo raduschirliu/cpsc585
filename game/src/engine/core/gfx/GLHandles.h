@@ -165,6 +165,9 @@ class TextureHandle
     operator GLuint() const;
     GLuint Value() const;
 
+    // Allow converting to a void* for ImGui
+    void* ValueRaw() const;
+
   private:
     GLuint textureID;
 };
