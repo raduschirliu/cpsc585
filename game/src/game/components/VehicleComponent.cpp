@@ -9,7 +9,7 @@
 
 #include <glm/geometric.hpp>
 
-#include "engine/audio/SoundEmitter.h"  // debugging
+#include "game/components/audio/SoundEmitter.h"  // debugging
 #include "engine/core/debug/Log.h"
 #include "engine/core/gui/PropertyWidgets.h"
 #include "engine/core/math/Physx.h"

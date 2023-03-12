@@ -2,7 +2,7 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/audio/SoundEmitter.h"  // debugging
+#include "game/components/audio/SoundEmitter.h"  // debugging
 #include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
