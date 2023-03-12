@@ -9,6 +9,7 @@
 
 #include <glm/geometric.hpp>
 
+#include "engine/audio/SoundEmitter.h"  // debugging
 #include "engine/core/debug/Log.h"
 #include "engine/core/gui/PropertyWidgets.h"
 #include "engine/core/math/Physx.h"
@@ -106,6 +107,7 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
+    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  // debugging
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -123,8 +125,10 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
+
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
+        sound_emitter_->PlaySource();
         LoadParams();
         Log::info("Reloaded vehicle params from JSON files...");
     }

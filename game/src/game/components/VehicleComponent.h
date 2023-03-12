@@ -2,6 +2,7 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/audio/SoundEmitter.h"  // debugging
 #include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
@@ -41,6 +42,7 @@ class VehicleComponent final : public Component,
     float GetSpeed() const;
 
   private:
+    jss::object_ptr<SoundEmitter> sound_emitter_;  // debugging
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
