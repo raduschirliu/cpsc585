@@ -140,7 +140,7 @@ void AudioService::SetMusic(std::string file_name)
     // don't want to loop just one buffer
     alSourcei(source, AL_LOOPING, AL_FALSE);
     alSourcef(source, AL_GAIN, 0.2f);
-    
+
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
