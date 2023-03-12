@@ -2,12 +2,12 @@
 
 #include <object_ptr.hpp>
 
-#include "game/services/GameStateService.h"
 #include "engine/physics/RigidBodyComponent.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/services/GameStateService.h"
 
 class Hitbox final : public RigidBodyComponent
 {

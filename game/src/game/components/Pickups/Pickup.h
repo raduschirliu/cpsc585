@@ -6,11 +6,11 @@
 #include <object_ptr.hpp>
 
 #include "PickupType.h"
-#include "game/services/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 class PlayerState;
 

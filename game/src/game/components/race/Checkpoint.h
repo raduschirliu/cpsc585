@@ -1,8 +1,8 @@
 #pragma once
 
-#include "game/services/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
+#include "game/services/GameStateService.h"
 
 class Checkpoint final : public Component
 {
