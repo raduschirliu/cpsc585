@@ -39,8 +39,8 @@ const std::size_t kStreamBufferAmount = 4;
 const ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
 // for debugging
-const std::string kTestFileName = "professional_test_audio.ogg";
-const std::string kTestMusic = "professional_test_music.ogg";
+const std::string kTestFileName = "test_audio.ogg";
+const std::string kTestMusic = "test_music.ogg";
 
 /* ----- setting sources ----- */
 
@@ -139,7 +139,8 @@ void AudioService::SetMusic(std::string file_name)
     alGenSources(1, &source);
     // don't want to loop just one buffer
     alSourcei(source, AL_LOOPING, AL_FALSE);
-
+    alSourcef(source, AL_GAIN, 0.2f);
+    
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
@@ -609,8 +610,8 @@ void AudioService::OnStart(ServiceProvider& service_provider)
 void AudioService::OnSceneLoaded(Scene& scene)
 {
     // debugging
-    // SetMusic(kTestMusic);
-    // PlayMusic(kTestMusic);
+    SetMusic(kTestMusic);
+    PlayMusic(kTestMusic);
 }
 
 void AudioService::OnUpdate()
