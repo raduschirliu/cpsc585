@@ -8,6 +8,7 @@
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
+#include "engine/audio/SoundEmitter.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
@@ -495,6 +496,9 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     renderer.SetMaterialProperties({.albedo_color = color,
                                     .specular = vec3(1.0f, 1.0f, 1.0f),
                                     .shininess = 64.0f});
+
+    auto& sound_emitter = kart_entity.AddComponent<SoundEmitter>();
+    sound_emitter.AddSource("yay.ogg");
 
     auto& player_state = kart_entity.AddComponent<PlayerState>();
 
