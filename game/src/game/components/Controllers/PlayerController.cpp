@@ -29,6 +29,9 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
 {
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
+    // Log::info("{},{},{}", transform_->GetForwardDirection().x,
+    //           transform_->GetForwardDirection().y,
+    //           transform_->GetForwardDirection().z);
 }
 
 std::string_view PlayerController::GetName() const

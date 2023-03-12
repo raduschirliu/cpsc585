@@ -135,6 +135,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
+    // std::cout << transform_->GetForwardDirection() << std::endl;
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)

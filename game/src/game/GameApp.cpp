@@ -234,8 +234,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -261,8 +261,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -288,8 +288,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
