@@ -8,8 +8,6 @@
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
-#include "game/components/audio/Listener.h"
-#include "game/components/audio/SoundEmitter.h"
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
@@ -44,6 +42,8 @@
 #include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/Listener.h"
+#include "game/components/audio/SoundEmitter.h"
 #include "game/components/state/PlayerState.h"
 
 using glm::ivec2;
