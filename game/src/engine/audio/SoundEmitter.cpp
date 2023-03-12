@@ -6,9 +6,15 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-void SoundEmitter::AddSource(std::string file_name)
+void SoundEmitter::SetSource(std::string file_name)
 {
+    file_name_ = file_name;
     audio_service_->AddSource(file_name, GetEntity().GetId());
+}
+
+void SoundEmitter::PlaySource()
+{
+    audio_service_->PlaySource(GetEntity().GetId());
 }
 
 /* ----- from Component -----*/
@@ -34,8 +40,10 @@ std::string_view SoundEmitter::GetName() const
     return "SoundEmitter";
 }
 
-/* ----- from EventSubscriber ----- */
+/* ----- from IEventSubscriber ----- */
 
 void SoundEmitter::OnUpdate(const Timestep& delta_time)
 {
+    glm::vec3 position = transform_->GetPosition();
+    audio_service_->SetSourcePosition(GetEntity().GetId(), position);
 }

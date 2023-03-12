@@ -12,7 +12,8 @@ class SoundEmitter final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    void AddSource(std::string file_name);
+    void SetSource(std::string file_name);
+    void PlaySource();
 
     /* ----- from Component -----*/
 
@@ -24,6 +25,7 @@ class SoundEmitter final : public Component,
     void OnUpdate(const Timestep& delta_time) override;
 
   private:
+    std::string file_name_;
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<Transform> transform_;
 };
