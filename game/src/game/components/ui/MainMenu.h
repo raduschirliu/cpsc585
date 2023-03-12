@@ -1,7 +1,7 @@
 #pragma once
 
-#include <object_ptr.hpp>
 #include <memory>
+#include <object_ptr.hpp>
 
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
@@ -9,9 +9,9 @@
 
 class GameStateService;
 class Texture;
+class SceneDebugService;
 
-class MainMenu final : public Component,
-                                  public IEventSubscriber<OnGuiEvent>
+class MainMenu final : public Component, public IEventSubscriber<OnGuiEvent>
 {
   public:
     // From Component
@@ -24,6 +24,9 @@ class MainMenu final : public Component,
   private:
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<SceneDebugService> scene_service_;
 
+    int counter;
     std::unique_ptr<Texture> logo_;
+    std::unique_ptr<Texture> button_;
 };

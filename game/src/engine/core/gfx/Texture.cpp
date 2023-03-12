@@ -84,3 +84,8 @@ const TextureHandle& Texture::GetHandle() const
 {
     return handle_;
 }
+
+void* Texture::GetGuiHandle() const
+{
+    return handle_.ValueRaw();
+}

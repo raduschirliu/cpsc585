@@ -34,6 +34,7 @@ class Texture
     glm::ivec2 GetDimensions() const;
     void Bind(Slot slot = Slot::kTexture0) const;
     const TextureHandle& GetHandle() const;
+    void* GetGuiHandle() const;
 
   private:
     TextureHandle handle_;

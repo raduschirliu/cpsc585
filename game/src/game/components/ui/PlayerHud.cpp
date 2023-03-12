@@ -8,8 +8,8 @@
 #include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
 
-using std::string_view;
 using std::string;
+using std::string_view;
 
 void PlayerHud::OnInit(const ServiceProvider& service_provider)
 {
