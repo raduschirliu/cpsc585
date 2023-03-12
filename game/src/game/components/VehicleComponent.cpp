@@ -125,7 +125,6 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
-
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
         sound_emitter_->PlaySource();

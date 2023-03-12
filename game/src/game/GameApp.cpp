@@ -498,9 +498,8 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
                                     .specular = vec3(1.0f, 1.0f, 1.0f),
                                     .shininess = 64.0f});
 
-
     auto& player_state = kart_entity.AddComponent<PlayerState>();
-    
+
     auto& sound_emitter = kart_entity.AddComponent<SoundEmitter>();
 
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
@@ -522,7 +521,7 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         auto& ai_controller = kart_entity.AddComponent<AIController>();
         ai_controller.SetGVehicle(vehicle.GetVehicle());
-        
+
         sound_emitter.SetSource("professional_test_audio.ogg");
     }
 
