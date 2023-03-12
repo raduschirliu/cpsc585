@@ -19,9 +19,6 @@
 
 class AudioService final : public Service
 {
-    typedef ALuint Source;
-    typedef ALuint Buffer;
-
   public:
     /* ----- sources + listener functions -----*/
 
@@ -33,6 +30,13 @@ class AudioService final : public Service
     void AddSource(std::string file_name);
 
     /**
+     *  add a source to play an audio file from.
+     *
+     *  @param file_name name of audio file (including extension).
+     */
+    void AddSource(std::string file_name, std::uint32_t entity_id);
+
+    /**
      *  add a source to stream music from.
      *
      *  @param file_name name of music file (including extension).
@@ -40,8 +44,6 @@ class AudioService final : public Service
      *  @note AudioService streams from just one music file at a time.
      */
     void SetMusic(std::string file_name);
-
-    void SetListener(Entity& entity);
 
     /* ----- playback functions ----- */
 
@@ -108,17 +110,15 @@ class AudioService final : public Service
     /// @brief it's like an openGL context.
     ALCcontext* audio_context_;
 
-    /// @brief entity of our listener (to get position for spatial audio).
-    Entity& listener_;
-
     /// @brief all of the currently active sources.
-    std::map<std::string, std::pair<Source, Buffer>> active_sources_;
+    std::map<std::string, std::pair<ALuint, ALuint>> active_2D_sources_;
+    std::map<std::uint32_t, std::pair<ALuint, ALuint>> active_3D_sources_;
 
     /// @brief the current music source.
-    std::pair<std::string, std::pair<Source, ALuint*>> music_source_;
+    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
 
     /// @brief loads file from the appropriate directory.
-    AudioFile LoadAudioFile(std::string file_name, bool is_music = false);
+    AudioFile LoadAudioFile(std::string file_name, bool is_music);
 
     /**
      *  when streaming music, pops off used buffers in queue and fills them with

@@ -30,11 +30,13 @@ const std::string kMusicDirectory = "resources/audio/music/";
 
 // the current music file to stream from
 AudioFile kMusicAudioFile;
+
+// just keeps track of how much of the file was played
+ALsizei kMusicPlayhead = 0;
+
 // number of buffers to use when streaming music files
 const std::size_t kStreamBufferAmount = 4;
 const ALsizei kStreamBufferSize = 65536;  // per buffer
-// just keeps track of how much of the file was played
-ALsizei kMusicPlayhead = 0;
 
 // for debugging
 const std::string kTestFileName = "professional_test_audio.ogg";
@@ -65,7 +67,33 @@ void AudioService::AddSource(std::string file_name)
         Log::warning("Couldn't buffer audio data.");
     }
 
-    active_sources_.insert({file_name, {source, buffer}});
+    active_2D_sources_.insert({file_name, {source, buffer}});
+}
+
+void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
+{
+    AudioFile audio_file = LoadAudioFile(file_name, false);
+
+    // create buffer in memory
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
+
+    // initialise buffer for audio data
+    alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
+                 audio_file.get_size_bytes(), audio_file.sample_rate_);
+
+    // create and initialise source
+    ALuint source;
+    alGenSources(1, &source);
+    alSourcei(source, AL_LOOPING, AL_FALSE);
+    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::warning("Couldn't buffer audio data.");
+    }
+
+    active_3D_sources_.insert({entity_id, {source, buffer}});
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -114,7 +142,6 @@ void AudioService::SetMusic(std::string file_name)
 void AudioService::PlaySource(std::string file_name)
 {
     // check if source already exists;
-    // don't want to keep adding buffers for the same sound
     if (!SourceExists(file_name))
     {
         AddSource(file_name);  // we'll set it here just to be nice
@@ -122,7 +149,7 @@ void AudioService::PlaySource(std::string file_name)
 
     // find the source
     ALuint source;
-    source = active_sources_[file_name].first;
+    source = active_2D_sources_[file_name].first;
 
     Log::debug("Playing audio: {}", file_name);
     alSourcePlay(source);
@@ -146,13 +173,13 @@ void AudioService::PlayMusic(std::string file_name)
 
 void AudioService::StopSource(std::string file_name)
 {
-    ALuint source = active_sources_[file_name].first;
+    ALuint source = active_2D_sources_[file_name].first;
     alSourceStop(source);
 }
 
 void AudioService::StopAllSources()
 {
-    for (auto& pair : active_sources_)
+    for (auto& pair : active_2D_sources_)
     {
         alSourceStop(pair.second.first);
     }
@@ -175,7 +202,7 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     }
 
     ALuint source;
-    source = active_sources_[file_name].first;
+    source = active_2D_sources_[file_name].first;
 
     alSourcef(source, AL_PITCH, pitch_offset);
 }
@@ -189,7 +216,7 @@ void AudioService::SetGain(std::string file_name, float gain)
     }
 
     ALuint source;
-    source = active_sources_[file_name].first;
+    source = active_2D_sources_[file_name].first;
 
     alSourcef(source, AL_GAIN, gain);
 }
@@ -266,9 +293,9 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 void AudioService::CullSources()
 {
     // iterate through active sources
-    for (auto pair = active_sources_.begin(),
-              next_pair = pair;          //
-         pair != active_sources_.end();  //
+    for (auto pair = active_2D_sources_.begin(),
+              next_pair = pair;             //
+         pair != active_2D_sources_.end();  //
          pair = next_pair)
     {
         next_pair++;
@@ -283,7 +310,7 @@ void AudioService::CullSources()
                 Log::error("While culling Sources for {}.", pair->first);
             }
 
-            active_sources_.erase(pair);
+            active_2D_sources_.erase(pair);
         }
     }
 }
@@ -360,7 +387,7 @@ void AudioService::UpdatePositions()
 
 bool AudioService::IsPlaying(std::string file_name)
 {
-    ALuint source = active_sources_[file_name].first;
+    ALuint source = active_2D_sources_[file_name].first;
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
@@ -379,7 +406,7 @@ bool AudioService::IsPlaying(std::string file_name)
 
 bool AudioService::SourceExists(std::string file_name)
 {
-    if (active_sources_.count(file_name) == 1)
+    if (active_2D_sources_.count(file_name) == 1)
     {
         return true;
     }
@@ -433,11 +460,11 @@ void AudioService::OnSceneLoaded(Scene& scene)
 void AudioService::OnUpdate()
 {
     // ex. implementation to test audio
-    // if (input_service_->IsKeyPressed(GLFW_KEY_P))
-    // {
-    //     AddSource(kTestFileName);
-    //     PlaySource(kTestFileName);
-    // }
+    if (input_service_->IsKeyPressed(GLFW_KEY_P))
+    {
+        AddSource(kTestFileName);
+        PlaySource(kTestFileName);
+    }
 
     // have something to update before you do it lol
     if (music_source_.second.first != NULL)
@@ -457,7 +484,13 @@ void AudioService::OnCleanup()
     delete[] music_source_.second.second;
 
     // clear sfx
-    for (auto& source : active_sources_)
+    for (auto& source : active_2D_sources_)
+    {
+        alDeleteSources(1, &source.second.first);
+        alDeleteBuffers(1, &source.second.second);
+    }
+
+    for (auto& source : active_3D_sources_)
     {
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
