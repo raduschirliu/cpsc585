@@ -4,7 +4,11 @@
 
 static uint32_t kNextId = 0;
 
-Component::Component() : id_(kNextId), entity_(nullptr), event_bus_(nullptr), event_sub_ids_{}
+Component::Component()
+    : id_(kNextId),
+      entity_(nullptr),
+      event_bus_(nullptr),
+      event_sub_ids_{}
 {
     kNextId++;
 }

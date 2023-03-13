@@ -17,5 +17,4 @@ class GameApp : public App
   private:
     void LoadTestScene(Scene& scene);
     void LoadTrack1Scene(Scene& scene);
-    void LoadMainMenuScene(Scene& scene);
 };

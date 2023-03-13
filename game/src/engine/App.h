@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <string_view>
 #include <optional>
+#include <string_view>
 
 #include "engine/core/gfx/Window.h"
 #include "engine/core/math/Timestep.h"
