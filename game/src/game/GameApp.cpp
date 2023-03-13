@@ -1,8 +1,5 @@
 #include "game/GameApp.h"
 
-#include <yaml-cpp/yaml.h>
-
-#include <assimp/Importer.hpp>
 #include <string>
 
 #include "engine/AI/AIService.h"
@@ -11,7 +8,6 @@
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
-#include "engine/game_state/GameStateService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
@@ -32,7 +28,6 @@
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
-#include "game/components/FinishLineComponent.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
@@ -42,7 +37,9 @@
 #include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 using glm::ivec2;
 using glm::vec3;
@@ -303,8 +300,6 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
-
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
@@ -418,32 +413,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .shininess = 32.0f});
     }
     {
-        // Human player
-        Entity& human_player =
-            CreatePlayer(scene, "HumanPlayer", true, vec3(0.0f, 5.0f, 0.0f),
-                         vec3(0.0f, 180.0f, 0.0f), colors::kRed);
-
-        // Camera
-        Entity& camera_entity = scene.AddEntity("DebugCamera");
-        camera_entity.AddComponent<Transform>();
-        camera_entity.AddComponent<Camera>();
-
-        // camera_entity.AddComponent<DebugCameraController>();
-
-        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
-        camera_follower.SetFollowingTransform(human_player);
-    }
-    {
-        // Other players
-        CreatePlayer(scene, "AiPlayer1", false, vec3(10.f, 5.0, -1.f),
-                     vec3(0.0f, 180.0f, 0.0f), colors::kCyan);
-        CreatePlayer(scene, "AiPlayer2", false, vec3(-10.0f, 5.0f, 0.0f),
-                     vec3(0.0f, 180.0f, 0.0f), colors::kMagenta);
-        CreatePlayer(scene, "AiPlayer3", false, vec3(-20.0f, 5.0f, 0.0f),
-                     vec3(0.0f, 180.0f, 0.0f), colors::kYellow);
-    }
-
-    {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
@@ -468,7 +437,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(0);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
@@ -477,46 +447,26 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
-}
 
-Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
-                              const vec3& position,
-                              const vec3& orientation_euler_degrees,
-                              const Color3& color)
-{
-    Entity& kart_entity = scene.AddEntity(name);
-
-    auto& transform = kart_entity.AddComponent<Transform>();
-    transform.SetPosition(position);
-    transform.RotateEulerDegrees(orientation_euler_degrees);
-
-    auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh("kart2-4");
-    renderer.SetMaterialProperties({.albedo_color = color,
-                                    .specular = vec3(1.0f, 1.0f, 1.0f),
-                                    .shininess = 64.0f});
-
-    auto& player_state = kart_entity.AddComponent<PlayerState>();
-
-    auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
-    vehicle.SetVehicleName(name);
-    vehicle.SetPlayerStateData(*player_state.GetStateData());
-
-    auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
-
-    kart_entity.AddComponent<RaycastComponent>();
-
-    if (human)
     {
-        kart_entity.AddComponent<PlayerController>();
-        kart_entity.AddComponent<PlayerHud>();
-    }
-    else
-    {
-        auto& ai_controller = kart_entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(vehicle.GetVehicle());
-    }
+        // Checkpoint 1
+        Entity& entity = scene.AddEntity("Checkpoint 1");
 
-    return kart_entity;
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0, 2.0f, -60.0f));
+        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
+
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(1);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
 }
