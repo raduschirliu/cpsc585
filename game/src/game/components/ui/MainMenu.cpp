@@ -20,8 +20,16 @@ void MainMenu::OnInit(const ServiceProvider& service_provider)
     scene_service_ = &service_provider.GetService<SceneDebugService>();
 
     counter = 0;
-    logo_ = make_unique<Texture>("resources/textures/ui/logo.png");
-    button_ = make_unique<Texture>("resources/textures/ui/terrible_button.png");
+    // logo_ = make_unique<Texture>("resources/textures/ui/logo.png");
+    title_ = make_unique<Texture>("resources/textures/ui/main.png");
+    single_button_ =
+        make_unique<Texture>("resources/textures/ui/single_button.png");
+    multi_button_ =
+        make_unique<Texture>("resources/textures/ui/multi_button.png");
+    guide_button_ =
+        make_unique<Texture>("resources/textures/ui/howToPlay_button.png");
+    setting_button_ =
+        make_unique<Texture>("resources/textures/ui/setting_button.png");
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -50,44 +58,99 @@ void MainMenu::OnGui()
     // non-movable
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove |
                              ImGuiWindowFlags_AlwaysAutoResize |
+                             ImGuiWindowFlags_NoTitleBar |
+                             ImGuiWindowFlags_NoBackground |
+                             ImGuiWindowFlags_NoScrollWithMouse |
                              ImGuiWindowFlags_NoDecoration;
-    ImGui::SetNextWindowPos(ImVec2(120, 40));
 
-    const ImVec2& screen_size = ImGui::GetIO().DisplaySize;
+    // ImGui::SetNextWindowPos(ImVec2(0, 0));
+
+    // const ImVec2& screen_size = ImGui::GetIO().DisplaySize;
 
     // ImGui::Begin() ... ImGui::End() defines a window
     // All calls to do ImGui stuff should be between these two
-    ImGui::Begin("Main menu", nullptr, flags);
+    ImGui::Begin("Main title", nullptr, flags | ImGuiWindowFlags_NoInputs);
+    ImGui::Image(title_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
+    ImGui::End();
 
     // This works just like printf(), and has the same format specifiers: %f,
     // %s, etc.
-    string some_string = "hello again";
-    ImGui::Text("hello world: %d %s", 1234, some_string.c_str());
+    // string some_string = "hello again";
+    // ImGui::Text("hello world: %d %s", 1234, some_string.c_str());
+    // ImGui::Text("Your game window is: %fpx x %fpx", screen_size.x,
+    //             screen_size.y);
+    // ImGui::Image(logo_->GetGuiHandle(), ImVec2(200, 200));
 
-    ImGui::Text("Your game window is: %fpx x %fpx", screen_size.x,
-                screen_size.y);
+    // if (ImGui::Button("a nice button"))
+    // {
+    //     // This if statement gets ran whenever the button is clicked
+    //     counter++;
+    // }
+    ImGui::SetNextWindowPos(ImVec2(30, 30));
+    ImGui::Begin("Setting Buttons", nullptr, flags);
 
-    if (ImGui::Button("a nice button"))
+    // If the FramePadding does not increase, no matter how large the rounding value becomes, it does not apply
+    ImGui::GetStyle().FrameRounding = 50.f;
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.8f, 0.5f));
+    if (ImGui::ImageButton("how to play button", guide_button_->GetGuiHandle(),
+                           ImVec2(222, 49)))
     {
-        // This if statement gets ran whenever the button is clicked
-        counter++;
+        
     }
+    ImGui::PopStyleColor(3);
 
-    ImGui::Image(logo_->GetGuiHandle(), ImVec2(200, 200));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.3f));
+    ImGui::SameLine(0.f, 795.f);
+    if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
+                           ImVec2(163, 49)))
+    {
+        
+    }
+    ImGui::PopStyleColor(3);
 
-    if (ImGui::ImageButton("terrible button", button_->GetGuiHandle(),
-                           ImVec2(125, 50)))
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(910, 440));
+    ImGui::Begin("Play Buttons", nullptr, flags);
+
+    ImVec2 pos = ImGui::GetCursorPos();
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.8f, 0.5f));
+    if (ImGui::ImageButton("single button", single_button_->GetGuiHandle(),
+                           ImVec2(308, 93)))
     {
         // Has to be the name of a scene defined near the top of GameApp.cpp
         scene_service_->SetActiveScene("Track1");
     }
+    ImGui::PopStyleColor(3);
+    
+    ImVec2 newPos(pos.x, pos.y + 135);
+    ImGui::SetCursorPos(newPos);
 
-    ImGui::Text("Button click counter: %d", counter);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.f, 0.f, 0.5f));
+    if (ImGui::ImageButton("multi button", multi_button_->GetGuiHandle(),
+                           ImVec2(308, 93)))
+    {
+        // Has to be the name of a scene defined near the top of GameApp.cpp
+        // scene_service_->SetActiveScene("Track1");
+    }
+    ImGui::PopStyleColor(3);
+
+    // ImGui::Text("Button click counter: %d", counter);
 
     // Seting color for only a few elements
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 1.0f, 1.0f, 1.0f));
-    ImGui::Button("useless but styled button");
-    ImGui::PopStyleColor(1);
+    // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 1.0f, 1.0f, 1.0f));
+    // ImGui::Button("useless but styled button");
+    // ImGui::PopStyleColor(1);
 
     ImGui::End();
 }
