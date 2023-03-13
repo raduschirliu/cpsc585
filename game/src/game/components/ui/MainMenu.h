@@ -10,6 +10,7 @@
 class GameStateService;
 class Texture;
 class SceneDebugService;
+class AssetService;
 
 class MainMenu final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -25,12 +26,12 @@ class MainMenu final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
+    jss::object_ptr<AssetService> asset_service_;
 
     int counter;
-    // std::unique_ptr<Texture> logo_;
-    std::unique_ptr<Texture> title_;
-    std::unique_ptr<Texture> single_button_;
-    std::unique_ptr<Texture> multi_button_;
-    std::unique_ptr<Texture> setting_button_;
-    std::unique_ptr<Texture> guide_button_ ;
+    const Texture* title_;
+    const Texture* single_button_;
+    const Texture* multi_button_;
+    const Texture* setting_button_;
+    const Texture* guide_button_ ;
 };

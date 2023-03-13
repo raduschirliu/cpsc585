@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/Texture.h"
 #include "engine/scene/Entity.h"
@@ -18,18 +19,14 @@ void MainMenu::OnInit(const ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     scene_service_ = &service_provider.GetService<SceneDebugService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
 
     counter = 0;
-    // logo_ = make_unique<Texture>("resources/textures/ui/logo.png");
-    title_ = make_unique<Texture>("resources/textures/ui/main.png");
-    single_button_ =
-        make_unique<Texture>("resources/textures/ui/single_button.png");
-    multi_button_ =
-        make_unique<Texture>("resources/textures/ui/multi_button.png");
-    guide_button_ =
-        make_unique<Texture>("resources/textures/ui/howToPlay_button.png");
-    setting_button_ =
-        make_unique<Texture>("resources/textures/ui/setting_button.png");
+    title_ = &asset_service_->GetTexture("menu_title");
+    single_button_ = &asset_service_->GetTexture("single_button");
+    multi_button_ = &asset_service_->GetTexture("multi_button");
+    guide_button_ = &asset_service_->GetTexture("howToPlay_button");
+    setting_button_ = &asset_service_->GetTexture("settings_button");
 
     // Events
     ManageEventSub(GetEventBus().Subscribe<OnGuiEvent>(this));
