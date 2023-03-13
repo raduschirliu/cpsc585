@@ -1,9 +1,17 @@
 #include "engine/asset/AssetService.h"
 
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include <assimp/Importer.hpp>
+
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
-using namespace std;
+using std::make_unique;
+using std::string;
+using std::string_view;
+using std::vector;
 
 void AssetService::LoadMesh(const string &path, const string &name)
 {
@@ -364,10 +372,23 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
 //     return textureID;
 // }
 
+void AssetService::LoadTexture(const string &path, const string &name)
+{
+    ASSERT_MSG(textures_.find(name) == textures_.end(),
+               "Textures must have unique names");
+
+    textures_[name] = make_unique<Texture>(path);
+}
+
+const Texture &AssetService::GetTexture(const string &name)
+{
+    auto iter = textures_.find(name);
+    ASSERT_MSG(iter != textures_.end(), "Texture with given name must exist");
+    return *iter->second;
+}
+
 void AssetService::OnInit()
 {
-    // A mash must be generated and stored in meshes_ after the model is loaded
-    // successfully
     LoadMesh("resources/models/cube.obj", "cube");
     LoadMesh("resources/models/plane.obj", "plane");
     LoadMesh("resources/models/stanford_bunny.obj", "bunny");
@@ -382,6 +403,13 @@ void AssetService::OnInit()
     LoadMesh("resources/models/pickups/pickup_defence_2.obj", "defence_ring");
     LoadMesh("resources/models/pickups/pickup_defence_3.obj", "defence");
     LoadMesh("resources/models/pickups/pickup_defence.obj", "defence_shield");
+
+    LoadTexture("resources/textures/ui/main.png", "menu_title");
+    LoadTexture("resources/textures/ui/single_button.png", "single_button");
+    LoadTexture("resources/textures/ui/multi_button.png", "multi_button");
+    LoadTexture("resources/textures/ui/howToPlay_button.png",
+                "howToPlay_button");
+    LoadTexture("resources/textures/ui/setting_button.png", "settings_button");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/core/debug/Assert.h"
-#include "engine/core/event/EventHandler.h"
+#include "engine/core/event/Event.h"
 
 class EventDispatcher
 {

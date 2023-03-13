@@ -32,6 +32,7 @@ void GuiService::OnUpdate()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ImGui::StyleColorsDark();
     GetEventBus().Publish<OnGuiEvent>();
 
     ImGui::Render();

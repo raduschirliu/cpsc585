@@ -12,7 +12,10 @@ App::App()
       window_(),
       service_provider_(),
       scene_list_(),
-      event_bus_()
+      event_bus_(),
+      last_frame_(),
+      delta_time_(),
+      requested_scene_(std::nullopt)
 {
 }
 
@@ -74,25 +77,9 @@ ServiceProvider& App::GetServiceProvider()
 
 void App::SetActiveScene(const string& name)
 {
-    if (scene_list_.HasActiveScene())
-    {
-        Scene& old_scene = scene_list_.GetActiveScene();
-        Log::info("Unloading scene: {}", old_scene.GetName());
-
-        old_scene.Unload();
-        service_provider_.DispatchSceneUnloaded(old_scene);
-        OnSceneUnloaded(old_scene);
-    }
-
-    Log::info("Loading scene: {}", name);
-    scene_list_.SetActiveScene(name);
-    Scene& new_scene = scene_list_.GetActiveScene();
-
-    event_bus_.SetDownstream(&new_scene.GetEventBus());
-    service_provider_.DispatchSceneLoaded(new_scene);
-    OnSceneLoaded(new_scene);
-
-    Log::info("Active scene set to: {}", name);
+    Log::info("Requested scene change: {}", name);
+    ASSERT_MSG(scene_list_.HasScene(name), "Scene must exist");
+    requested_scene_ = name;
 }
 
 const Timestep& App::GetDeltaTime() const
@@ -127,6 +114,11 @@ void App::PerformGameLoop()
         service_provider_.DispatchUpdate();
 
         window_.SwapBuffers();
+
+        if (requested_scene_)
+        {
+            DispatchSceneChange();
+        }
     }
 }
 
@@ -135,6 +127,36 @@ void App::CalculateDeltaTime()
     const Timestep current_frame = Timestep::Seconds(glfwGetTime());
     delta_time_ = current_frame - last_frame_;
     last_frame_ = current_frame;
+}
+
+void App::DispatchSceneChange()
+{
+    ASSERT_MSG(requested_scene_.has_value(),
+               "Must request a scene change first");
+
+    Log::info("Dispatching scene change...");
+    const std::string& name = requested_scene_.value();
+
+    if (scene_list_.HasActiveScene())
+    {
+        Scene& old_scene = scene_list_.GetActiveScene();
+        Log::info("Unloading scene: {}", old_scene.GetName());
+
+        old_scene.Unload();
+        service_provider_.DispatchSceneUnloaded(old_scene);
+        OnSceneUnloaded(old_scene);
+    }
+
+    Log::info("Loading scene: {}", name);
+    scene_list_.SetActiveScene(name);
+    Scene& new_scene = scene_list_.GetActiveScene();
+
+    event_bus_.SetDownstream(&new_scene.GetEventBus());
+    service_provider_.DispatchSceneLoaded(new_scene);
+    OnSceneLoaded(new_scene);
+
+    Log::info("Active scene set to: {}", name);
+    requested_scene_.reset();
 }
 
 void App::OnKeyEvent(int key, int scancode, int action, int mods)

@@ -1,11 +1,14 @@
-#include "game/components/PlayerHud.h"
+#include "game/components/ui/PlayerHud.h"
 
 #include <imgui.h>
 
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
+#include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
 
+using std::string;
 using std::string_view;
 
 void PlayerHud::OnInit(const ServiceProvider& service_provider)
@@ -31,7 +34,7 @@ void PlayerHud::OnGui()
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPos(ImVec2(40, 650));
+    ImGui::SetNextWindowPos(ImVec2(40, 600));
     ImGui::Begin("Vehicle", nullptr, flags);
 
     ImGui::Text("Speed: %0.2f", vehicle_->GetSpeed());

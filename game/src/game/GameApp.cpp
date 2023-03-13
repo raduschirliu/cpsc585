@@ -34,11 +34,11 @@
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
-#include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/components/ui/PlayerHud.h"
 #include "game/services/GameStateService.h"
 
 using glm::ivec2;
@@ -102,7 +102,7 @@ void GameApp::OnSceneLoaded(Scene& scene)
 
 void GameApp::LoadTestScene(Scene& scene)
 {
-    Log::info("Loading entities for TestScene...");
+    Log::info("Loading entities for Test scene...");
 
     {
         // Floor
