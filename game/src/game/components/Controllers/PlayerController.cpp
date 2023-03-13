@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
 #include "engine/physics/PhysicsService.h"
@@ -41,49 +42,59 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     //           transform_->GetForwardDirection().y,
     //           transform_->GetForwardDirection().z);
 
-    // ///////// ------------ TO SEE IF THE PATH IS CORRECT
-    // float distance = glm::distance(transform_->GetPosition(),
-    //                                path_to_follow_[next_path_index_]);
-    // Log::debug("Distance to the next point {}", distance);
+    ///////// ------------ TO SEE IF THE PATH IS CORRECT
+    float distance = glm::distance(transform_->GetPosition(),
+                                   path_to_follow_[next_path_index_]);
+    Log::debug("Distance to the next point {}", distance);
+
+    render_service_->GetDebugDrawList().AddLine(
+        LineVertex(transform_->GetPosition()),
+        LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
+                             path_to_follow_[next_path_index_].y + 10,
+                             path_to_follow_[next_path_index_].z)));
+
+      render_service_->GetDebugDrawList().AddLine(
+        LineVertex(transform_->GetPosition(), Color4u(255, 0, 0, 255)),
+        LineVertex(transform_->GetPosition() +
+                       (transform_->GetForwardDirection() * 5.0f),
+                   Color4u(255, 0, 0, 255)));
 
     // render_service_->GetDebugDrawList().AddLine(
-    //     LineVertex(transform_->GetPosition()),
-    //     LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
-    //                          path_to_follow_[next_path_index_].y + 10,
-    //                          path_to_follow_[next_path_index_].z)));
-    // if (distance < 10.f)
-    // {
-    //     Log::debug("previous path was: {}, {}, {}",
-    //                path_to_follow_[next_path_index_].x,
-    //                path_to_follow_[next_path_index_].y,
-    //                path_to_follow_[next_path_index_].z);
-    //     // next_car_position_ = path_to_follow_[next_path_index_--];
-    //     int min_index = 0.f;
-    //     float min_distance = INT_MAX;
-    //     // find the smallest path which not has been traversed yet.
-    //     for (int i = 0; i < path_to_follow_.size(); i++)
-    //     {
-    //         // if path is not traced yet.
-    //         if (path_traced_.find(i) == path_traced_.end())
-    //         {
-    //             float dist = glm::distance(path_to_follow_[i],
-    //                                        path_to_follow_[next_path_index_]);
-    //             if (min_distance > dist)
-    //             {
-    //                 min_index = i;
-    //                 min_distance = dist;
-    //             }
-    //         }
-    //     }
-    //     next_path_index_ = min_index;
-    //     path_traced_.insert(next_path_index_);
-    //     // next_car_position_ = path_to_follow_[next_path_index_];
-    //     // next_path_index_ = 31;
-    //     Log::debug("Next path to follow: {}, {}, {}",
-    //                path_to_follow_[next_path_index_].x,
-    //                path_to_follow_[next_path_index_].y,
-    //                path_to_follow_[next_path_index_].z);
-    // }
+    //     LineVertex(transform_->GetRightDirection() + glm::vec3(0.f, 10.f, 0.f), colors::kYellow),
+    //     LineVertex(transform_->GetPosition() + ((transform_->GetRightDirection() + glm::vec3(0.f, 10.f, 0.f)) * 5.f), colors::kYellow));
+    if (distance < 10.f)
+    {
+        Log::debug("previous path was: {}, {}, {}",
+                   path_to_follow_[next_path_index_].x,
+                   path_to_follow_[next_path_index_].y,
+                   path_to_follow_[next_path_index_].z);
+        // next_car_position_ = path_to_follow_[next_path_index_--];
+        int min_index = 0.f;
+        float min_distance = INT_MAX;
+        // find the smallest path which not has been traversed yet.
+        for (int i = 0; i < path_to_follow_.size(); i++)
+        {
+            // if path is not traced yet.
+            if (path_traced_.find(i) == path_traced_.end())
+            {
+                float dist = glm::distance(path_to_follow_[i],
+                                           path_to_follow_[next_path_index_]);
+                if (min_distance > dist)
+                {
+                    min_index = i;
+                    min_distance = dist;
+                }
+            }
+        }
+        next_path_index_ = min_index;
+        path_traced_.insert(next_path_index_);
+        // next_car_position_ = path_to_follow_[next_path_index_];
+        // next_path_index_ = 31;
+        Log::debug("Next path to follow: {}, {}, {}",
+                   path_to_follow_[next_path_index_].x,
+                   path_to_follow_[next_path_index_].y,
+                   path_to_follow_[next_path_index_].z);
+    }
     // //////// ==========================================
 }
 

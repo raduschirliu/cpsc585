@@ -1,6 +1,7 @@
 #include "engine/scene/Transform.h"
 
 #include <imgui.h>
+#include <iostream>
 
 #include "engine/core/gui/PropertyWidgets.h"
 
@@ -155,6 +156,7 @@ std::string_view Transform::GetName() const
 
 void Transform::UpdateMatrices()
 {
+    //std::cout<<"HAPPPPPPPPPPPPPPPPPPPPPPPPPENINGGGGGGGGGGGGGGGGG";
     translation_matrix_ = glm::translate(mat4(1.0f), position_);
     rotation_matrix_ = glm::toMat4(orientation_);
     scale_matrix_ = glm::scale(mat4(1.0f), scale_);

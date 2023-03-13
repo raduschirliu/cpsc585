@@ -514,8 +514,8 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     }
     else
     {
-        auto& controller = kart_entity.AddComponent<AIController>();
-        controller.SetGVehicle(vehicle.GetVehicle());
+        // auto& controller = kart_entity.AddComponent<AIController>();
+        // controller.SetGVehicle(vehicle.GetVehicle());
     }
 
     return kart_entity;
