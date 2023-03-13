@@ -5,6 +5,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/state/PlayerState.h"
 
@@ -21,6 +22,13 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+    ai_service_ = &service_provider.GetService<AIService>();
+    render_service_ = &service_provider.GetService<RenderService>();
+
+    path_to_follow_ = ai_service_->GetPath();
+    next_path_index_ = 81;
+    next_car_position_ = path_to_follow_[81];
+    path_traced_.insert(81);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -32,6 +40,51 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     // Log::info("{},{},{}", transform_->GetForwardDirection().x,
     //           transform_->GetForwardDirection().y,
     //           transform_->GetForwardDirection().z);
+
+    // ///////// ------------ TO SEE IF THE PATH IS CORRECT
+    // float distance = glm::distance(transform_->GetPosition(),
+    //                                path_to_follow_[next_path_index_]);
+    // Log::debug("Distance to the next point {}", distance);
+
+    // render_service_->GetDebugDrawList().AddLine(
+    //     LineVertex(transform_->GetPosition()),
+    //     LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
+    //                          path_to_follow_[next_path_index_].y + 10,
+    //                          path_to_follow_[next_path_index_].z)));
+    // if (distance < 10.f)
+    // {
+    //     Log::debug("previous path was: {}, {}, {}",
+    //                path_to_follow_[next_path_index_].x,
+    //                path_to_follow_[next_path_index_].y,
+    //                path_to_follow_[next_path_index_].z);
+    //     // next_car_position_ = path_to_follow_[next_path_index_--];
+    //     int min_index = 0.f;
+    //     float min_distance = INT_MAX;
+    //     // find the smallest path which not has been traversed yet.
+    //     for (int i = 0; i < path_to_follow_.size(); i++)
+    //     {
+    //         // if path is not traced yet.
+    //         if (path_traced_.find(i) == path_traced_.end())
+    //         {
+    //             float dist = glm::distance(path_to_follow_[i],
+    //                                        path_to_follow_[next_path_index_]);
+    //             if (min_distance > dist)
+    //             {
+    //                 min_index = i;
+    //                 min_distance = dist;
+    //             }
+    //         }
+    //     }
+    //     next_path_index_ = min_index;
+    //     path_traced_.insert(next_path_index_);
+    //     // next_car_position_ = path_to_follow_[next_path_index_];
+    //     // next_path_index_ = 31;
+    //     Log::debug("Next path to follow: {}, {}, {}",
+    //                path_to_follow_[next_path_index_].x,
+    //                path_to_follow_[next_path_index_].y,
+    //                path_to_follow_[next_path_index_].z);
+    // }
+    // //////// ==========================================
 }
 
 std::string_view PlayerController::GetName() const

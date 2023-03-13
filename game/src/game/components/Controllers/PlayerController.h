@@ -2,8 +2,10 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/AI/AIService.h"
 #include "engine/game_state/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -42,4 +44,16 @@ class PlayerController final : public Component,
     float GetThrottle();
     float GetFrontBrake();
     bool GetGearChangeButton();
+
+    // ========================= PATH
+
+    jss::object_ptr<AIService> ai_service_;
+    glm::vec3 next_car_position_;
+    jss::object_ptr<RenderService> render_service_;
+
+    std::vector<glm::vec3> path_to_follow_;
+    int next_path_index_ = 33;
+    std::set<int> path_traced_;
+
+    // ----------------------------
 };

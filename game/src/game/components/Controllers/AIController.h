@@ -7,6 +7,7 @@
 #include "engine/game_state/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"  // to get the command struct
 #include "engine/scene/Component.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
@@ -26,6 +27,7 @@ class AIController final : public Component,
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<AIService> ai_service_;
+    jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
     // variable which changes when the speed slower powerup is picked up.

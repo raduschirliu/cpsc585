@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
@@ -21,11 +22,14 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
     ai_service_ = &service_provider.GetService<AIService>();
     transform_ = &GetEntity().GetComponent<Transform>();
+    render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     path_to_follow_ = ai_service_->GetPath();
-    next_car_position_ = path_to_follow_[34];
+    next_path_index_ = 81;
+    next_car_position_ = path_to_follow_[next_path_index_];
+    path_traced_.insert(next_path_index_);
 }
 
 float AIController::PIDController(float targetPosition, float currentPosition,
@@ -120,7 +124,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
                       ->getLinearVelocity()
                       .magnitude();
     // Log::debug("{}", speed);
-    if (speed <= 40)
+    if (speed <= 30)
     {
         vehicle_reference_->mCommandState.throttle =
             1.f * speed_multiplier_;  // for the everyone slow down pickup.
@@ -131,61 +135,69 @@ void AIController::OnUpdate(const Timestep& delta_time)
             0.f;  // for the everyone slow down pickup.
     }
 
-    // glm::vec3 toTarget =
-    //     glm::normalize(next_car_position_ - transform_->GetPosition());
+    // glm::vec3 waypoint_dir =
+    //     normalize(next_car_position_ - transform_->GetPosition());
+    // //std::cout << transform_->GetRightDirection() << std::endl;
+    // auto projected = dot(waypoint_dir, -transform_->GetRightDirection());
 
-    // // Log::debug("front {}, {}, {}", transform_->GetForwardDirection().x,
-    // transform_->GetForwardDirection().y,
-    // //            transform_->GetForwardDirection().z);
+    // std::cout << projected << std::endl;
 
-    // float dot = glm::dot(transform_->GetForwardDirection(), toTarget);
-
-    // if (sqrt(dot * dot) > 0.99f)
+    // if (projected <= 0.1 && projected >= -0.1)
+    // {
     //     vehicle_reference_->mCommandState.steer = 0.f;
+    // }
+    // else if (projected < 0)
+    // {
+    //     Log::debug("Turn right");
+    //     vehicle_reference_->mCommandState.steer = -1.f * projected;
+    // }
     // else
     // {
-    //     glm::vec3 cross =
-    //         glm::cross(transform_->GetForwardDirection(), toTarget);
-    //     cross = glm::normalize(cross);
-    //     //Log::debug("{}", cross.x);
-    //     if (cross.x > 0)
-    //     {
-    //         Log::debug("Steer left");
-    //         vehicle_reference_->mCommandState.steer = -0.6f;
-    //     }
-    //     else
-    //     {
-    //         Log::debug("Steer right");
-    //         vehicle_reference_->mCommandState.steer = 1.f;
-    //     }
+    //     Log::debug("Turn left");
+    //     vehicle_reference_->mCommandState.steer = 1.f * projected;
     // }
 
-    glm::vec3 waypoint_dir =
-        normalize(next_car_position_ - transform_->GetPosition());
-    auto projected = dot(waypoint_dir, transform_->GetRightDirection());
+    render_service_->GetDebugDrawList().AddLine(
+        LineVertex(transform_->GetPosition()),
+        LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
+                             path_to_follow_[next_path_index_].y + 10,
+                             path_to_follow_[next_path_index_].z)));
 
-    if (projected == 0)
+    physx::PxVec3 pos = GlmToPx(transform_->GetPosition());
+    physx::PxVec3 target;
+    physx::PxVec3 forward = GlmToPx(transform_->GetForwardDirection());
+    target.x = next_car_position_.x - pos.x;
+    target.y = next_car_position_.y - pos.y;
+    target.z = next_car_position_.z - pos.z;
+
+    target.normalize();
+
+    float dot = target.dot(forward);
+    if (sqrt(dot * dot) > 0.95f)
     {
         vehicle_reference_->mCommandState.steer = 0.f;
     }
-    else if (projected < 0)
-    {
-        // Log::debug("Turn right");
-        vehicle_reference_->mCommandState.steer = -1.f * projected;
-    }
     else
     {
-        // Log::debug("Turn left");
-        vehicle_reference_->mCommandState.steer = 1.f * projected;
+        physx::PxVec3 cross = forward.cross(target);
+        cross.normalize();
+        if (cross.x < 0)
+        {
+            vehicle_reference_->mCommandState.steer = 0.2;
+        }
+        else
+        {
+            vehicle_reference_->mCommandState.steer = -0.2;
+        }
     }
 
     // calculate the euclidean distance to see if the car is near the next
-    // position, if yes then update the next position to be the next index in
-    // the path array
+    // position, if yes then update the next position to be the next index
+    // in the path array
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
     Log::debug("Distance to the next point {}", distance);
-    if (distance < 100.f)
+    if (distance < 70.f)
     {
         Log::debug("previous path was: {}, {}, {}",
                    path_to_follow_[next_path_index_].x,
