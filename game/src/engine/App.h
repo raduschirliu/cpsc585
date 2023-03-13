@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string_view>
+#include <optional>
 
 #include "engine/core/gfx/Window.h"
 #include "engine/core/math/Timestep.h"
@@ -55,7 +56,9 @@ class App : public std::enable_shared_from_this<App>,
     SceneList scene_list_;
     EventBus event_bus_;
     Timestep last_frame_, delta_time_;
+    std::optional<std::string> requested_scene_;
 
     void PerformGameLoop();
     void CalculateDeltaTime();
+    void DispatchSceneChange();
 };

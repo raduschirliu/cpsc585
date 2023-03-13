@@ -132,6 +132,7 @@ void GameStateService::OnSceneLoaded(Scene& scene)
 {
     race_state_.Reset();
     track_config_.Reset();
+    players_.clear();
 
     if (scene.GetName() == "Track1")
     {

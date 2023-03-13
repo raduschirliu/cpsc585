@@ -148,4 +148,7 @@ void MainMenu::OnGui()
     // ImGui::PopStyleColor(1);
 
     ImGui::End();
+
+    // Reset styles back to default
+    ImGui::StyleColorsDark();
 }
