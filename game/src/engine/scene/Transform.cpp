@@ -112,7 +112,7 @@ const vec3& Transform::GetUpDirection() const
 
 const vec3& Transform::GetRightDirection() const
 {
-    return right_dir_;
+    return -right_dir_;
 }
 
 const mat4& Transform::GetModelMatrix() const

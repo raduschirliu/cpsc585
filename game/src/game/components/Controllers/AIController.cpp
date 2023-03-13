@@ -127,7 +127,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     if (speed <= 30)
     {
         vehicle_reference_->mCommandState.throttle =
-            1.f * speed_multiplier_;  // for the everyone slow down pickup.
+            0.1f * speed_multiplier_;  // for the everyone slow down pickup.
     }
     else
     {
@@ -142,20 +142,9 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     // std::cout << projected << std::endl;
 
-    // if (projected <= 0.1 && projected >= -0.1)
-    // {
-    //     vehicle_reference_->mCommandState.steer = 0.f;
-    // }
-    // else if (projected < 0)
-    // {
-    //     Log::debug("Turn right");
-    //     vehicle_reference_->mCommandState.steer = -1.f * projected;
-    // }
-    // else
-    // {
-    //     Log::debug("Turn left");
-    //     vehicle_reference_->mCommandState.steer = 1.f * projected;
-    // }
+    glm::vec3 waypoint_dir =
+        normalize(next_car_position_ - transform_->GetPosition());
+    float projected = dot(waypoint_dir, transform_->GetRightDirection());
 
     render_service_->GetDebugDrawList().AddLine(
         LineVertex(transform_->GetPosition()),
@@ -163,32 +152,33 @@ void AIController::OnUpdate(const Timestep& delta_time)
                              path_to_follow_[next_path_index_].y + 10,
                              path_to_follow_[next_path_index_].z)));
 
-    physx::PxVec3 pos = GlmToPx(transform_->GetPosition());
-    physx::PxVec3 target;
-    physx::PxVec3 forward = GlmToPx(transform_->GetForwardDirection());
-    target.x = next_car_position_.x - pos.x;
-    target.y = next_car_position_.y - pos.y;
-    target.z = next_car_position_.z - pos.z;
+    render_service_->GetDebugDrawList().AddLine(
+        LineVertex(transform_->GetPosition(), Color4u(255, 0, 0, 255)),
+        LineVertex(transform_->GetPosition() +
+                       (transform_->GetForwardDirection() * 15.0f),
+                   Color4u(255, 0, 0, 255)));
 
-    target.normalize();
+    render_service_->GetDebugDrawList().AddLine(
+        LineVertex(transform_->GetPosition(), Color4u(255, 0, 0, 255)),
+        LineVertex(transform_->GetPosition() +
+                       (transform_->GetRightDirection() * 20.f),
+                   Color4u(255, 0, 0, 255)));
 
-    float dot = target.dot(forward);
-    if (sqrt(dot * dot) > 0.95f)
+    std::cout << projected << std::endl;
+
+    if (projected <= 0.1 && projected >= -0.1)
     {
         vehicle_reference_->mCommandState.steer = 0.f;
     }
+    else if (projected < 0)
+    {
+        Log::debug("Turn right");
+        vehicle_reference_->mCommandState.steer = 1.0f;
+    }
     else
     {
-        physx::PxVec3 cross = forward.cross(target);
-        cross.normalize();
-        if (cross.x < 0)
-        {
-            vehicle_reference_->mCommandState.steer = 0.2;
-        }
-        else
-        {
-            vehicle_reference_->mCommandState.steer = -0.2;
-        }
+        Log::debug("Turn left");
+        vehicle_reference_->mCommandState.steer = -0.4f;
     }
 
     // calculate the euclidean distance to see if the car is near the next
@@ -197,7 +187,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     float distance = glm::distance(transform_->GetPosition(),
                                    path_to_follow_[next_path_index_]);
     Log::debug("Distance to the next point {}", distance);
-    if (distance < 70.f)
+    if (distance < 30.f)
     {
         Log::debug("previous path was: {}, {}, {}",
                    path_to_follow_[next_path_index_].x,
@@ -223,7 +213,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
         }
         next_path_index_ = min_index;
         path_traced_.insert(next_path_index_);
-        // next_car_position_ = path_to_follow_[next_path_index_];
+        next_car_position_ = path_to_follow_[next_path_index_];
         // next_path_index_ = 31;
         Log::debug("Next path to follow: {}, {}, {}",
                    path_to_follow_[next_path_index_].x,
