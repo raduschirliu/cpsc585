@@ -4,7 +4,7 @@
 
 static uint32_t kNextId = 0;
 
-Component::Component() : id_(kNextId), entity_(nullptr), event_bus_(nullptr)
+Component::Component() : id_(kNextId), entity_(nullptr), event_bus_(nullptr), event_sub_ids_{}
 {
     kNextId++;
 }
@@ -29,6 +29,10 @@ void Component::OnStart()
 
 void Component::OnDestroy()
 {
+    for (uint32_t sub_id : event_sub_ids_)
+    {
+        GetEventBus().Unsubscribe(sub_id);
+    }
 }
 
 void Component::OnTriggerEnter(const OnTriggerEvent& data)
@@ -52,4 +56,9 @@ EventBus& Component::GetEventBus()
 const uint32_t& Component::GetId() const
 {
     return id_;
+}
+
+void Component::ManageEventSub(uint32_t subscription_id)
+{
+    event_sub_ids_.push_back(subscription_id);
 }

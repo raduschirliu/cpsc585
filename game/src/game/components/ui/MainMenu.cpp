@@ -32,7 +32,7 @@ void MainMenu::OnInit(const ServiceProvider& service_provider)
         make_unique<Texture>("resources/textures/ui/setting_button.png");
 
     // Events
-    GetEventBus().Subscribe<OnGuiEvent>(this);
+    ManageEventSub(GetEventBus().Subscribe<OnGuiEvent>(this));
 }
 
 string_view MainMenu::GetName() const
@@ -56,12 +56,10 @@ void MainMenu::OnGui()
 {
     // Configure where the window will be placed first, since we'll make it
     // non-movable
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove |
-                             ImGuiWindowFlags_AlwaysAutoResize |
-                             ImGuiWindowFlags_NoTitleBar |
-                             ImGuiWindowFlags_NoBackground |
-                             ImGuiWindowFlags_NoScrollWithMouse |
-                             ImGuiWindowFlags_NoDecoration;
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDecoration;
 
     // ImGui::SetNextWindowPos(ImVec2(0, 0));
 
@@ -70,7 +68,8 @@ void MainMenu::OnGui()
     // ImGui::Begin() ... ImGui::End() defines a window
     // All calls to do ImGui stuff should be between these two
     ImGui::Begin("Main title", nullptr, flags | ImGuiWindowFlags_NoInputs);
-    ImGui::Image(title_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
+    ImGui::Image(title_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x,
+                                                ImGui::GetIO().DisplaySize.y));
     ImGui::End();
 
     // This works just like printf(), and has the same format specifiers: %f,
@@ -89,7 +88,8 @@ void MainMenu::OnGui()
     ImGui::SetNextWindowPos(ImVec2(30, 30));
     ImGui::Begin("Setting Buttons", nullptr, flags);
 
-    // If the FramePadding does not increase, no matter how large the rounding value becomes, it does not apply
+    // If the FramePadding does not increase, no matter how large the rounding
+    // value becomes, it does not apply
     ImGui::GetStyle().FrameRounding = 50.f;
 
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
@@ -98,7 +98,6 @@ void MainMenu::OnGui()
     if (ImGui::ImageButton("how to play button", guide_button_->GetGuiHandle(),
                            ImVec2(222, 49)))
     {
-        
     }
     ImGui::PopStyleColor(3);
 
@@ -109,7 +108,6 @@ void MainMenu::OnGui()
     if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
                            ImVec2(163, 49)))
     {
-        
     }
     ImGui::PopStyleColor(3);
 
@@ -130,7 +128,7 @@ void MainMenu::OnGui()
         scene_service_->SetActiveScene("Track1");
     }
     ImGui::PopStyleColor(3);
-    
+
     ImVec2 newPos(pos.x, pos.y + 135);
     ImGui::SetCursorPos(newPos);
 
