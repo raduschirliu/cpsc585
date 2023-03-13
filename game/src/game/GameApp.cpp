@@ -38,6 +38,7 @@
 #include "game/components/VehicleComponent.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
 #include "game/services/GameStateService.h"
 
@@ -82,8 +83,9 @@ void GameApp::OnStart()
 {
     AddScene("Test");
     AddScene("Track1");
+    AddScene("MainMenu");
 
-    SetActiveScene("Track1");
+    SetActiveScene("MainMenu");
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
@@ -97,6 +99,10 @@ void GameApp::OnSceneLoaded(Scene& scene)
     else if (scene_name == "Track1")
     {
         LoadTrack1Scene(scene);
+    }
+    else if (scene_name == "MainMenu")
+    {
+        LoadMainMenuScene(scene);
     }
 }
 
@@ -469,4 +475,12 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
+}
+
+void GameApp::LoadMainMenuScene(Scene& scene)
+{
+    Log::info("Loading entities for MainMenu scene...");
+
+    Entity& entity = scene.AddEntity("Menu");
+    entity.AddComponent<MainMenu>();
 }
