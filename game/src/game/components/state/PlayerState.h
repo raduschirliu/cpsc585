@@ -1,11 +1,11 @@
 #pragma once
 #include <memory>
 
-#include "PlayerStateStruct.h"
-#include "engine/game_state/GameStateService.h"
+#include "PlayerData.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/services/GameStateService.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -16,34 +16,27 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
 
-  private:
-    PlayerStateData player_state_;
-    jss::object_ptr<GameStateService> game_state_service_;
-
-    bool game_state_assigned_ = false;
-
-  public:
-    // getters
-    float GetSpeedMultiplier();
-
-    int GetKills();
-
-    int GetDeaths();
-
-    int GetLapsCompleted();
-
-    int GetCurrentLap();
-
-    Entity* GetNemesis();
-
-    Entity* GetBullied();
-
-    double GetTimeElapsed();
-
-    PowerupPickupType GetCurrentPowerup();
-
-    PlayerStateData* GetStateData();
-
+    // Setters
     void SetSpeedMultiplier(float value);
     void SetCurrentPowerup(PowerupPickupType type);
+    void SetLapsCompleted(int laps);
+    void SetLastCheckpoint(int checkpoint);
+    void SetCurrentPlace(int place);
+
+    // getters
+    float GetSpeedMultiplier() const;
+    int GetKills() const;
+    int GetDeaths() const;
+    int GetLapsCompleted() const;
+    int GetLastCheckpoint() const;
+    Entity* GetNemesis();
+    Entity* GetBullied();
+    PowerupPickupType GetCurrentPowerup() const;
+    int GetCurrentPlace() const;
+    PlayerStateData* GetStateData();
+
+  private:
+    jss::object_ptr<GameStateService> game_state_service_;
+
+    PlayerStateData player_state_;
 };

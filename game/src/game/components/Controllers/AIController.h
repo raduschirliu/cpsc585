@@ -3,12 +3,12 @@
 #include <object_ptr.hpp>
 
 #include "engine/AI/AIService.h"
-#include "engine/game_state/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"  // to get the command struct
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/services/GameStateService.h"
 
 class AIController final : public Component,
                            public IEventSubscriber<OnUpdateEvent>

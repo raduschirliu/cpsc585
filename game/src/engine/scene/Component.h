@@ -36,10 +36,12 @@ class Component
     const uint32_t& GetId() const;
 
   protected:
+    void ManageEventSub(uint32_t subscription_id);
     EventBus& GetEventBus();
 
   private:
     uint32_t id_;
     jss::object_ptr<Entity> entity_;
     jss::object_ptr<EventBus> event_bus_;
+    std::vector<uint32_t> event_sub_ids_;
 };

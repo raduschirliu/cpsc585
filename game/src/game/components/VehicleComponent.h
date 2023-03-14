@@ -2,7 +2,6 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/game_state/GameStateService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/physics/PhysicsService.h"
@@ -11,6 +10,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/audio/SoundEmitter.h"  // debugging
+#include "game/services/GameStateService.h"
 #include "vehicle2/PxVehicleAPI.h"
 
 class VehicleComponent final : public Component,
@@ -36,7 +36,6 @@ class VehicleComponent final : public Component,
     void SetPlayerStateData(PlayerStateData& data);
 
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
-    PlayerStateData* GetPlayerStateData();
 
     VehicleGear GetGear() const;
     float GetSpeed() const;

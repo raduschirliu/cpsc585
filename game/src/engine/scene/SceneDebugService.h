@@ -15,6 +15,8 @@ class SceneDebugService final : public Service,
     void OnCleanup() override;
     std::string_view GetName() const override;
 
+    void SetActiveScene(const std::string& name);
+
     // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 
