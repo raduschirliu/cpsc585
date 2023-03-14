@@ -27,7 +27,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     path_to_follow_ = ai_service_->GetPath();
-    next_path_index_ = 81;
+    next_path_index_ = 79;
     next_car_position_ = path_to_follow_[next_path_index_];
     path_traced_.insert(next_path_index_);
 }
@@ -127,7 +127,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     if (speed <= 30)
     {
         vehicle_reference_->mCommandState.throttle =
-            0.1f * speed_multiplier_;  // for the everyone slow down pickup.
+            1.f * speed_multiplier_;  // for the everyone slow down pickup.
     }
     else
     {
@@ -173,7 +173,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     else if (projected < 0)
     {
         Log::debug("Turn right");
-        vehicle_reference_->mCommandState.steer = 1.0f;
+        vehicle_reference_->mCommandState.steer = 0.4f;
     }
     else
     {
