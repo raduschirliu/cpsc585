@@ -12,7 +12,7 @@ struct AudioFile
     ALenum format_;
     std::unique_ptr<ALshort> data_;
 
-    ALsizei get_size_bytes()
+    ALsizei GetSizeBytes()
     {
         ALsizei number_of_samples = samples_per_channel * number_of_channels_;
         ALsizei size_in_bytes = number_of_samples * sizeof(short);

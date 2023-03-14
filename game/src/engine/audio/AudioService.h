@@ -131,7 +131,7 @@ class AudioService final : public Service
      *  @param entity_id the sources associated entity id.
      *  @param position the position to set the source at.
      */
-    void SetSourcePosition(std::int32_t entity_id, glm::vec3 position);
+    void SetSourcePosition(std::uint32_t entity_id, glm::vec3 position);
 
     /**
      *  set the position of the listener.
@@ -170,8 +170,12 @@ class AudioService final : public Service
     /// all of the currently active 3D/spatial sound sources.
     std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
 
+    /// the current music file to stream from
+    AudioFile music_file_;
     /// the current music source.
     std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
+    /// keep track of how much of the file was played
+    ALsizei playhead_;
 
     /**
      *  load an audiofile's data into memory from the appropriate directory.

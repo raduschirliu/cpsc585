@@ -21,26 +21,20 @@
 #include "stb/stb_vorbis.c"
 
 // the system's default output device will be used
-const ALCchar* kDefaultDevice = nullptr;
-ALCint kContextAttributes = 0;
+static const ALCchar* kDefaultDevice = nullptr;
+static ALCint kContextAttributes = 0;
 
 // audio directories
-const std::string kSfxDirectory = "resources/audio/sfx/";
-const std::string kMusicDirectory = "resources/audio/music/";
-
-// the current music file to stream from
-AudioFile kMusicAudioFile;
-
-// just keeps track of how much of the file was played
-ALsizei kMusicPlayhead = 0;
+static const std::string kSfxDirectory = "resources/audio/sfx/";
+static const std::string kMusicDirectory = "resources/audio/music/";
 
 // number of buffers to use when streaming music files
-const std::size_t kStreamBufferAmount = 4;
-const ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
+static constexpr std::size_t kStreamBufferAmount = 4;
+static constexpr ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
 // for debugging
-const std::string kTestFileName = "test_audio.ogg";
-const std::string kTestMusic = "test_music.ogg";
+static const std::string kTestFileName = "test_audio.ogg";
+static const std::string kTestMusic = "test_music.ogg";
 
 /* ----- setting sources ----- */
 
@@ -54,7 +48,7 @@ void AudioService::AddSource(std::string file_name)
 
     // initialise buffer for audio data
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
-                 audio_file.get_size_bytes(), audio_file.sample_rate_);
+                 audio_file.GetSizeBytes(), audio_file.sample_rate_);
 
     if (alGetError() != AL_NO_ERROR)
     {
@@ -85,7 +79,7 @@ void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
 
     // initialise buffer for audio data
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
-                 audio_file.get_size_bytes(), audio_file.sample_rate_);
+                 audio_file.GetSizeBytes(), audio_file.sample_rate_);
 
     if (alGetError() != AL_NO_ERROR)
     {
@@ -112,34 +106,33 @@ void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
 
 void AudioService::SetMusic(std::string file_name)
 {
-    kMusicAudioFile = LoadAudioFile(file_name, true);
+    music_file_ = LoadAudioFile(file_name, true);
 
     // reserve buffers in memory
     ALuint* buffers = new ALuint[kStreamBufferAmount];
     alGenBuffers(kStreamBufferAmount, &buffers[0]);
 
     // initialise buffers for audio data
-    auto audio_data = kMusicAudioFile.data_.get();
+    auto audio_data = music_file_.data_.get();
 
     for (std::size_t i = 0; i < kStreamBufferAmount; i++)
     {
-        alBufferData(buffers[i], kMusicAudioFile.format_,
+        alBufferData(buffers[i], music_file_.format_,
                      &audio_data[(i * kStreamBufferSize) / sizeof(short)],
-                     kStreamBufferSize, kMusicAudioFile.sample_rate_);
+                     kStreamBufferSize, music_file_.sample_rate_);
 
         if (alGetError() != AL_NO_ERROR)
         {
             Log::error("Couldn't buffer audio data for {}.", file_name);
         }
     }
-    kMusicPlayhead = kStreamBufferSize * kStreamBufferAmount;
+    playhead_ = kStreamBufferSize * kStreamBufferAmount;
 
     // create and initialise source
     ALuint source;
     alGenSources(1, &source);
     // don't want to loop just one buffer
     alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcef(source, AL_GAIN, 0.2f);
 
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
@@ -209,7 +202,7 @@ void AudioService::PlaySource(std::uint32_t entity_id)
     Log::debug("Source position: {}, {}, {}", x, y, z);
 
     alGetListener3f(AL_POSITION, &x, &y, &z);
-    Log::debug("Listener position: {}, {}, {}", x, y, z);
+    Log::debug("AudioListener position: {}, {}, {}", x, y, z);
 }
 
 void AudioService::PlayMusic(std::string file_name)
@@ -224,6 +217,7 @@ void AudioService::PlayMusic(std::string file_name)
     ALuint source;
     source = music_source_.second.first;
 
+    alSourcef(source, AL_GAIN, 0.2f);
     alSourcePlay(source);
 
     if (alGetError() != AL_NO_ERROR)
@@ -328,7 +322,7 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetSourcePosition(std::int32_t entity_id, glm::vec3 position)
+void AudioService::SetSourcePosition(std::uint32_t entity_id, glm::vec3 position)
 {
     if (!SourceExists(entity_id))
     {
@@ -456,7 +450,7 @@ void AudioService::UpdateStreamBuffer()
         return;
     }
 
-    auto audio_data = kMusicAudioFile.data_.get();
+    auto audio_data = music_file_.data_.get();
 
     // for every buffer in queue that was played
     while (buffers_processed > 0)
@@ -472,34 +466,34 @@ void AudioService::UpdateStreamBuffer()
         ALsizei new_data_size = kStreamBufferSize;
 
         // for when the remainder of the file is less than a buffer size
-        if (kMusicPlayhead + kStreamBufferSize >
-            kMusicAudioFile.get_size_bytes())
+        if (playhead_ + kStreamBufferSize >
+            music_file_.GetSizeBytes())
         {
-            new_data_size = kMusicAudioFile.get_size_bytes() - kMusicPlayhead;
+            new_data_size = music_file_.GetSizeBytes() - playhead_;
         }
 
         // get new data
-        std::memcpy(&new_data[0], &audio_data[kMusicPlayhead / sizeof(short)],
+        std::memcpy(&new_data[0], &audio_data[playhead_ / sizeof(short)],
                     new_data_size);
 
         // advance playhead
-        kMusicPlayhead += new_data_size;
+        playhead_ += new_data_size;
 
         // when remainder is less than buffer size, fill buffer with the
         // beginning of the file for a seamless loop
         if (new_data_size < kStreamBufferSize)
         {
             // loop back to beginning of song
-            kMusicPlayhead = 0;
+            playhead_ = 0;
             int buffer_size = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
-                        &audio_data[kMusicPlayhead / sizeof(short)],
+                        &audio_data[playhead_ / sizeof(short)],
                         buffer_size);
         }
 
         // copy new data into buffer and queue it
-        alBufferData(buffer, kMusicAudioFile.format_, new_data,
-                     kStreamBufferSize, kMusicAudioFile.sample_rate_);
+        alBufferData(buffer, music_file_.format_, new_data,
+                     kStreamBufferSize, music_file_.sample_rate_);
         alSourceQueueBuffers(source, 1, &buffer);
         if (alGetError() != AL_NO_ERROR)
             Log::error("Couldn't stream audio.");
@@ -596,6 +590,8 @@ void AudioService::OnInit()
         // i.e no audio at all
         Log::warning("Coudn't make audio context current.");
     }
+
+    playhead_ = 0;
 
     // set distance model, apparently this one is the best?
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
