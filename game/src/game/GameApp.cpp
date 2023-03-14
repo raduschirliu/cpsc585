@@ -42,7 +42,7 @@
 #include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
-#include "game/components/audio/Listener.h"
+#include "game/components/audio/AudioListener.h"
 #include "game/components/audio/SoundEmitter.h"
 #include "game/components/state/PlayerState.h"
 
@@ -515,7 +515,7 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     {
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
-        kart_entity.AddComponent<Listener>();
+        kart_entity.AddComponent<AudioListener>();
     }
     else
     {

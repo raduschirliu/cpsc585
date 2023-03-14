@@ -1,4 +1,4 @@
-#include "Listener.h"
+#include "AudioListener.h"
 
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
@@ -8,7 +8,7 @@
 
 /* ----- from Component -----*/
 
-void Listener::OnInit(const ServiceProvider& service_provider)
+void AudioListener::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("{} - Init", GetName());
 
@@ -18,14 +18,14 @@ void Listener::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-std::string_view Listener::GetName() const
+std::string_view AudioListener::GetName() const
 {
-    return "Listener";
+    return "AudioListener";
 }
 
 /* ----- from EventSubscriber ----- */
 
-void Listener::OnUpdate(const Timestep& delta_time)
+void AudioListener::OnUpdate(const Timestep& delta_time)
 {
     audio_service_->SetListenerPosition(transform_->GetPosition());
     audio_service_->SetListenerOrientation(transform_->GetForwardDirection(),

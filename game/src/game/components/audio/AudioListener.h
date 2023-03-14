@@ -5,7 +5,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class Listener final : public Component, public IEventSubscriber<OnUpdateEvent>
+class AudioListener final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     /* ----- from Component -----*/
