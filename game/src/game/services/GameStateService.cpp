@@ -30,7 +30,7 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(7.0);
+static const Timestep kCountdownTime = Timestep::Seconds(5.0);
 
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
@@ -52,6 +52,11 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
+    font_beya_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        "resources/textures/fonts/beya.ttf", 45.0f);
+    font_pado_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        "resources/textures/fonts/padosori.ttf", 36.0f);
+
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
     race_config_.num_laps = 2;
@@ -62,6 +67,12 @@ void GameStateService::OnInit()
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
     audio_service_ = &service_provider.GetService<AudioService>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
+
+    countdown3_ = &asset_service_->GetTexture("countdown3");
+    countdown2_ = &asset_service_->GetTexture("countdown2");
+    countdown1_ = &asset_service_->GetTexture("countdown1");
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
@@ -91,41 +102,88 @@ void GameStateService::OnGui()
 
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPos(ImVec2(40, 40));
-    ImGui::Begin("Game State", nullptr, flags);
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoInputs;
 
     if (race_state_.state == GameState::kCountdown)
     {
-        ImGui::Text(
-            "Countdown: %f sec",
-            (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds());
+        ImGui::SetNextWindowPos(ImVec2(425, 250));
+        ImGui::Begin("Game State", nullptr, flags);
+        double count =
+            (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds();
+        if (3 <= count && count < 4)
+        {
+            // ImGui::Text(
+            //     "Countdown: %f sec",
+            //     (kCountdownTime -
+            //     race_state_.countdown_elapsed_time).GetSeconds());
+            ImGui::Image(countdown3_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        else if (2 <= count && count < 3)
+        {
+            ImGui::Image(countdown2_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        else if (1 <= count && count < 2)
+        {
+            ImGui::Image(countdown1_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        ImGui::End();
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::Text("Time: %.2f sec", race_state_.elapsed_time.GetSeconds());
-        ImGui::Text("Players:", players_.size());
-        ImGui::Indent(10.0f);
+        ImGui::SetNextWindowPos(ImVec2(225, 650));
+        ImGui::Begin("Game State", nullptr, flags);
+
+        // ImGui::Text("Players:", players_.size());
+        // ImGui::Indent(10.0f);
+
+        ImGui::PushFont(font_beya_);
+        int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
+        int second = (int)race_state_.elapsed_time.GetSeconds() % 60;
+        ImGui::Text(
+            "%02d:%02d:%02.0f", min, second,
+            (race_state_.elapsed_time.GetSeconds() - (min * 60 + second)) *
+                100);
+        ImGui::PopFont();
+
+        ImGui::SameLine(0.f, 800.f);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
 
-            ImGui::PushID(entity->GetId());
-            ImGui::Text("%d) %s", place, entity->GetName().c_str());
-            ImGui::PopID();
+            if (race_state_.sorted_players[i]->is_human)
+            {
+                ImGui::PushID(entity->GetId());
+                ImGui::PushFont(font_pado_);
+                // ImGui::Text("%d) %s", place, entity->GetName().c_str());
+                if (place == 1)
+                    ImGui::Text("%dst", place);
+                else if (place == 2)
+                    ImGui::Text("%dnd", place);
+                else if (place == 3)
+                    ImGui::Text("%drd", place);
+                else if (place == 4)
+                    ImGui::Text("%dth", place);
+                ImGui::PopFont();
+                ImGui::PopID();
+            }
         }
-
-        ImGui::Unindent(10.0f);
+        // ImGui::Unindent(10.0f);
+        ImGui::End();
     }
     else if (race_state_.state == GameState::kPostRace)
     {
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::Begin("Game State", nullptr, flags);
+
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
-    }
 
-    ImGui::End();
+        ImGui::End();
+    }
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)

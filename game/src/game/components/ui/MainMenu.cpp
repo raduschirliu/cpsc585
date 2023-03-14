@@ -21,7 +21,7 @@ void MainMenu::OnInit(const ServiceProvider& service_provider)
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     asset_service_ = &service_provider.GetService<AssetService>();
 
-    counter = 0;
+    // counter = 0;
     // logo_ = make_unique<Texture>("resources/textures/ui/logo.png");
     title_ = &asset_service_->GetTexture("menu_title");
     single_button_ = &asset_service_->GetTexture("single_button");
@@ -125,8 +125,7 @@ void MainMenu::OnGui()
     }
     ImGui::PopStyleColor(3);
 
-    ImVec2 newPos(pos.x, pos.y + 135);
-    ImGui::SetCursorPos(newPos);
+    ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 135));
 
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));

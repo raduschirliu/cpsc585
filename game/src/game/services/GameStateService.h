@@ -6,7 +6,9 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <imgui.h>
 
+#include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
 #include "engine/core/Colors.h"
 #include "engine/core/math/Timestep.h"
@@ -16,6 +18,7 @@
 #include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
 #include "game/components/state/PlayerData.h"
+#include "game/services/GameStateService.h"
 #include "game/services/RaceConfig.h"
 
 class Checkpoint;
@@ -93,6 +96,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<AudioService> audio_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<AssetService> asset_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
     std::unordered_map<uint32_t, PowerupPickupType> player_powers_;
@@ -115,4 +120,11 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
+
+    const Texture* countdown3_;
+    const Texture* countdown2_;
+    const Texture* countdown1_;
+
+    ImFont* font_beya_;
+    ImFont* font_pado_;
 };

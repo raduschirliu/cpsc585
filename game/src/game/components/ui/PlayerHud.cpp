@@ -15,6 +15,7 @@ void PlayerHud::OnInit(const ServiceProvider& service_provider)
 {
     // Service dependencies
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
 
     // Component dependencies
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
@@ -33,16 +34,14 @@ void PlayerHud::OnGui()
 {
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPos(ImVec2(40, 600));
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse;
+    ImGui::SetNextWindowPos(ImVec2(30, 30));
     ImGui::Begin("Vehicle", nullptr, flags);
 
     ImGui::Text("Speed: %0.2f", vehicle_->GetSpeed());
     ImGui::Text("Checkpoint: %d/%lu", player_state_->GetLastCheckpoint(),
                 game_state_service_->GetNumCheckpoints());
-    ImGui::Text("Lap: %d/%lu", player_state_->GetLapsCompleted(),
-                game_state_service_->GetRaceConfig().num_laps);
-
     if (vehicle_->GetGear() == VehicleGear::kForward)
     {
         ImGui::Text("Gear: Drive");
@@ -52,5 +51,9 @@ void PlayerHud::OnGui()
         ImGui::Text("Gear: Reverse");
     }
 
+    ImGui::SetCursorPos(ImVec2(30, 660));
+    ImGui::Text("Lap: %d/%lu", player_state_->GetLapsCompleted(),
+                game_state_service_->GetRaceConfig().num_laps);
+    
     ImGui::End();
 }

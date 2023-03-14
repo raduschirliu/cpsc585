@@ -6,6 +6,7 @@
 #include "engine/scene/Component.h"
 
 class InputService;
+class AssetService;
 class VehicleComponent;
 class GameStateService;
 class PlayerState;
@@ -22,6 +23,7 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<AssetService> asset_service_;
 
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<PlayerState> player_state_;

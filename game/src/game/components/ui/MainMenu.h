@@ -28,7 +28,7 @@ class MainMenu final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<AssetService> asset_service_;
 
-    int counter;
+    // int counter;
     // std::unique_ptr<Texture> logo_;
     const Texture* title_;
     const Texture* single_button_;
