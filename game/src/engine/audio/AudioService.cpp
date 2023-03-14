@@ -322,7 +322,8 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetSourcePosition(std::uint32_t entity_id, glm::vec3 position)
+void AudioService::SetSourcePosition(std::uint32_t entity_id,
+                                     glm::vec3 position)
 {
     if (!SourceExists(entity_id))
     {
@@ -466,8 +467,7 @@ void AudioService::UpdateStreamBuffer()
         ALsizei new_data_size = kStreamBufferSize;
 
         // for when the remainder of the file is less than a buffer size
-        if (playhead_ + kStreamBufferSize >
-            music_file_.GetSizeBytes())
+        if (playhead_ + kStreamBufferSize > music_file_.GetSizeBytes())
         {
             new_data_size = music_file_.GetSizeBytes() - playhead_;
         }
@@ -487,13 +487,12 @@ void AudioService::UpdateStreamBuffer()
             playhead_ = 0;
             int buffer_size = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
-                        &audio_data[playhead_ / sizeof(short)],
-                        buffer_size);
+                        &audio_data[playhead_ / sizeof(short)], buffer_size);
         }
 
         // copy new data into buffer and queue it
-        alBufferData(buffer, music_file_.format_, new_data,
-                     kStreamBufferSize, music_file_.sample_rate_);
+        alBufferData(buffer, music_file_.format_, new_data, kStreamBufferSize,
+                     music_file_.sample_rate_);
         alSourceQueueBuffers(source, 1, &buffer);
         if (alGetError() != AL_NO_ERROR)
             Log::error("Couldn't stream audio.");
