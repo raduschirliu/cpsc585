@@ -427,7 +427,8 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
     if (laps == race_config_.num_laps)
     {
         Log::info("Player finished game!");
-        audio_service_->PlayOneShot("yay.ogg");
+        audio_service_->AddSource("yay.ogg");
+        audio_service_->PlaySource("yay.ogg");
         race_state_.finished_players++;
     }
 }
