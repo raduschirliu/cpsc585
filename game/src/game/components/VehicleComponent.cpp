@@ -107,7 +107,8 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  // debugging
+    //    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  //
+    //    debugging
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -127,7 +128,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
-        sound_emitter_->PlaySource();
+        // sound_emitter_->PlaySource();
         LoadParams();
         Log::info("Reloaded vehicle params from JSON files...");
     }

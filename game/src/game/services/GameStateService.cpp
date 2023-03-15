@@ -421,10 +421,10 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         return;
     }
 
-    if (!player.is_human)
-    {
-        player.entity->GetComponent<AIController>().ResetForNextLap();
-    }
+    // if (!player.is_human)
+    // {
+    //     player.entity->GetComponent<AIController>().ResetForNextLap();
+    // }
 
     const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
@@ -439,7 +439,7 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         {
             Log::info("AI finished game!");
         }
-        audio_service_->PlayOneShot("yay.ogg");
+        // audio_service_->PlayMusic("yay.ogg");
 
         race_state_.finished_players++;
     }
