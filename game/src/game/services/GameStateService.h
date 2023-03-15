@@ -110,7 +110,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void PlayerFinished(Entity& entity);
     void PlayerCompletedLap(Entity& entity);
-
   private:
     jss::object_ptr<AudioService> audio_service_;
 
