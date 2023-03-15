@@ -392,7 +392,7 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
-    for (uint32_t i = 0; i < race_config_.num_ai_players; i++)
+    for (uint32_t i = 0; i < /*race_config_.num_ai_players*/ 1; i++)
     {
         CreatePlayer(player_idx, false);
         player_idx++;
@@ -421,12 +421,24 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         return;
     }
 
+    if (!player.is_human)
+    {
+        player.entity->GetComponent<AIController>().ResetForNextLap();
+    }
+
     const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
 
     if (laps == race_config_.num_laps)
     {
-        Log::info("Player finished game!");
+        if (player.is_human)
+        {
+            Log::info("Player finished game!");
+        }
+        else
+        {
+            Log::info("AI finished game!");
+        }
         audio_service_->PlayOneShot("yay.ogg");
         race_state_.finished_players++;
     }
@@ -631,7 +643,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     else
     {
         auto& ai_controller = kart_entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(vehicle.GetVehicle());
     }
 
     // Register the player

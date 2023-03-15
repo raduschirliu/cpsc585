@@ -110,15 +110,11 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void PlayerFinished(Entity& entity);
     void PlayerCompletedLap(Entity& entity);
+
   private:
     jss::object_ptr<AudioService> audio_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
-    std::unordered_map<uint32_t, PowerupPickupType> player_powers_;
-    std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
-
-    std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
-    std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
     GlobalRaceState race_state_;
     RaceConfig race_config_;
@@ -129,7 +125,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void UpdatePlayerProgressScore(const Timestep& delta_time);
 
     void SetupRace();
-    void StartCountdown();
     void StartRace();
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);

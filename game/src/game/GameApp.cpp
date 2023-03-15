@@ -412,32 +412,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 32.0f});
     }
-    {
-        // Human player
-        Entity& player_1 =
-            CreatePlayer(scene, "HumanPlayer", true, vec3(0.0f, 5.0f, 0.0f),
-                         vec3(0.0f, 180.0f, 0.0f), colors::kRed);
-
-        // Camera
-        Entity& camera_entity = scene.AddEntity("DebugCamera");
-        camera_entity.AddComponent<Transform>();
-        camera_entity.AddComponent<Camera>();
-
-        // camera_entity.AddComponent<DebugCameraController>();
-
-        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
-        camera_follower.SetFollowingTransform(player_1);
-    }
-    {
-        // Other players
-        CreatePlayer(scene, "AiPlayer1", false, vec3(10.f, 5.0, 0.f),
-                     vec3(0.0f, 180.0f, 0.0f), colors::kCyan);
-        // CreatePlayer(scene, "AiPlayer2", false, vec3(-10.0f, 5.0f, 0.0f),
-        //              vec3(0.0f, 180.0f, 0.0f), colors::kMagenta);
-        // CreatePlayer(scene, "AiPlayer3", false, vec3(-20.0f, 5.0f, 0.0f),
-        //              vec3(0.0f, 180.0f, 0.0f), colors::kYellow);
-    }
-
+    
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
@@ -495,45 +470,4 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
-}
-
-Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
-                              const vec3& position,
-                              const vec3& orientation_euler_degrees,
-                              const Color3& color)
-{
-    Entity& kart_entity = scene.AddEntity(name);
-
-    auto& transform = kart_entity.AddComponent<Transform>();
-    transform.SetPosition(position);
-    transform.RotateEulerDegrees(orientation_euler_degrees);
-
-    auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh("kart2-4");
-    renderer.SetMaterialProperties({.albedo_color = color,
-                                    .specular = vec3(1.0f, 1.0f, 1.0f),
-                                    .shininess = 64.0f});
-
-    auto& player_state = kart_entity.AddComponent<PlayerState>();
-
-    auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
-    vehicle.SetVehicleName(name);
-    vehicle.SetPlayerStateData(*player_state.GetStateData());
-
-    auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f));
-
-    kart_entity.AddComponent<RaycastComponent>();
-
-    if (human)
-    {
-        kart_entity.AddComponent<PlayerController>();
-        kart_entity.AddComponent<PlayerHud>();
-    }
-    else
-    {
-        auto& controller = kart_entity.AddComponent<AIController>();
-    }
-
-    return kart_entity;
 }
