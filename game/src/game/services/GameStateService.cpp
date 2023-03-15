@@ -133,7 +133,7 @@ void GameStateService::OnGui()
     else if (race_state_.state == GameState::kRaceInProgress)
     {
         ImGui::SetNextWindowPos(ImVec2(225, 650));
-        ImGui::Begin("Game State", nullptr, flags);
+        ImGui::Begin("Timer", nullptr, flags);
 
         // ImGui::Text("Players:", players_.size());
         // ImGui::Indent(10.0f);
@@ -146,8 +146,12 @@ void GameStateService::OnGui()
             (race_state_.elapsed_time.GetSeconds() - (min * 60 + second)) *
                 100);
         ImGui::PopFont();
+        ImGui::End();
 
-        ImGui::SameLine(0.f, 800.f);
+        // ImGui::SameLine(0.f, 800.f);
+
+        ImGui::SetNextWindowPos(ImVec2(1025, 650));
+        ImGui::Begin("Ranking", nullptr, flags);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {

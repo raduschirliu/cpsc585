@@ -51,7 +51,7 @@ void PlayerHud::OnGui()
         ImGui::Text("Gear: Reverse");
     }
 
-    ImGui::SetCursorPos(ImVec2(30, 660));
+    ImGui::SetCursorPos(ImVec2(30, 630));
     ImGui::Text("Lap: %d/%lu", player_state_->GetLapsCompleted(),
                 game_state_service_->GetRaceConfig().num_laps);
     
