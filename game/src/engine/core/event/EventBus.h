@@ -14,7 +14,17 @@ class EventBus;
 
 class EventBus
 {
+    // Must be declared at top since it's used in the public section below
+  private:
+    static inline uint32_t kNextId = 0;
+
   public:
+    struct Subscription
+    {
+        uint32_t id;
+        std::unique_ptr<EventHandler> handler;
+    };
+
     EventBus() : subscribers_{}, downstream_(nullptr)
     {
     }
@@ -32,7 +42,7 @@ class EventBus
 
         for (auto& subscriber : subscribers_[key])
         {
-            subscriber->Exec(event);
+            subscriber.handler->Exec(event);
         }
 
         // Forward event to all downstream busses
@@ -43,13 +53,43 @@ class EventBus
     }
 
     template <class EventType>
-    void Subscribe(IEventSubscriber<EventType>* instance)
+    uint32_t Subscribe(IEventSubscriber<EventType>* instance)
     {
         std::type_index key = typeid(EventType);
 
-        auto subscriber =
-            std::make_unique<ComponentEventSubscriber<EventType>>(instance);
-        subscribers_[key].push_back(std::move(subscriber));
+        Subscription sub = {
+            .id = kNextId,
+            .handler = std::make_unique<ComponentEventSubscriber<EventType>>(
+                instance)};
+
+        kNextId++;
+        subscribers_[key].push_back(std::move(sub));
+
+        return sub.id;
+    }
+
+    void Unsubscribe(uint32_t id)
+    {
+        // This is super inefficient, but oeh well...
+        auto sub_types_iter = subscribers_.begin();
+
+        while (sub_types_iter != subscribers_.end())
+        {
+            auto sub_iter = sub_types_iter->second.begin();
+
+            while (sub_iter != sub_types_iter->second.end())
+            {
+                if (sub_iter->id == id)
+                {
+                    sub_types_iter->second.erase(sub_iter);
+                    return;
+                }
+
+                sub_iter++;
+            }
+
+            sub_types_iter++;
+        }
     }
 
     void ClearSubscribers()
@@ -63,8 +103,6 @@ class EventBus
     }
 
   private:
-    std::unordered_map<std::type_index,
-                       std::vector<std::unique_ptr<EventHandler>>>
-        subscribers_;
+    std::unordered_map<std::type_index, std::vector<Subscription>> subscribers_;
     jss::object_ptr<EventBus> downstream_;
 };

@@ -36,6 +36,19 @@ void SceneList::SetActiveScene(string_view name)
     ASSERT_MSG(false, "Scene with name does not exist");
 }
 
+bool SceneList::HasScene(string_view name)
+{
+    for (auto& scene : scenes_)
+    {
+        if (scene->GetName() == name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool SceneList::HasActiveScene() const
 {
     return active_scene_ != nullptr;

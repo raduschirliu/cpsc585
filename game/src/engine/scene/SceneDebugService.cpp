@@ -153,7 +153,7 @@ void SceneDebugService::DrawSceneTab()
         if (ImGui::Button("Load"))
         {
             Log::info("Changing scene: {}", scene->GetName());
-            GetApp().SetActiveScene(scene->GetName());
+            SetActiveScene(scene->GetName());
         }
 
         ImGui::SameLine();
@@ -161,4 +161,9 @@ void SceneDebugService::DrawSceneTab()
 
         ImGui::PopID();
     }
+}
+
+void SceneDebugService::SetActiveScene(const std::string& name)
+{
+    GetApp().SetActiveScene(name);
 }

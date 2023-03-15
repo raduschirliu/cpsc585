@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/game_state/GameStateService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Transform.h"
+#include "game/services/GameStateService.h"
 
-class FinishLineComponent final : public Component
+class Checkpoint final : public Component
 {
   public:
     // From Component
@@ -12,6 +12,10 @@ class FinishLineComponent final : public Component
     void OnTriggerEnter(const OnTriggerEvent& data) override;
     std::string_view GetName() const override;
 
+    void SetCheckpointIndex(int index);
+    int GetCheckpointIndex() const;
+
   private:
     jss::object_ptr<GameStateService> game_service_;
+    int checkpoint_index_;
 };

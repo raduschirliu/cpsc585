@@ -1,8 +1,5 @@
 #include "game/GameApp.h"
 
-#include <yaml-cpp/yaml.h>
-
-#include <assimp/Importer.hpp>
 #include <string>
 
 #include "engine/AI/AIService.h"
@@ -11,7 +8,6 @@
 #include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
-#include "engine/game_state/GameStateService.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
@@ -32,17 +28,18 @@
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
-#include "game/components/FinishLineComponent.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/GuiExampleComponent.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
-#include "game/components/PlayerHud.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/components/ui/PlayerHud.h"
+#include "game/services/GameStateService.h"
 
 using glm::ivec2;
 using glm::vec3;
@@ -105,7 +102,7 @@ void GameApp::OnSceneLoaded(Scene& scene)
 
 void GameApp::LoadTestScene(Scene& scene)
 {
-    Log::info("Loading entities for TestScene...");
+    Log::info("Loading entities for Test scene...");
 
     {
         // Floor
@@ -303,8 +300,6 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(10.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
-
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
@@ -405,7 +400,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& entity = scene.AddEntity("Track");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 5.0f, 0.0f));
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto& static_body = entity.AddComponent<MeshStaticBody>();
         static_body.SetMesh("track3-collision", 1.0f);
@@ -462,13 +457,36 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& entity = scene.AddEntity("Finish Line");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 5.0f, 50.0f));
-        transform.SetScale(vec3(40.0f, 4.0f, 4.0f));
+        transform.SetPosition(vec3(10.0, 2.0f, 50.0f));
+        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
 
-        entity.AddComponent<FinishLineComponent>();
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(0);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+
+    {
+        // Checkpoint 1
+        Entity& entity = scene.AddEntity("Checkpoint 1");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(10.0, 2.0f, -60.0f));
+        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
+
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(1);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
