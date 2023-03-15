@@ -442,7 +442,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // CreatePlayer(scene, "AiPlayer3", false, vec3(-20.0f, 5.0f, 0.0f),
         //              vec3(0.0f, 180.0f, 0.0f), colors::kYellow);
     }
-    
+
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
@@ -506,7 +506,7 @@ Entity& GameApp::CreatePlayer(Scene& scene, const string& name, bool human,
     hitbox_component.SetSize(vec3(6.0f));
 
     kart_entity.AddComponent<RaycastComponent>();
- 
+
     if (human)
     {
         kart_entity.AddComponent<PlayerController>();

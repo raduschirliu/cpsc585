@@ -117,16 +117,16 @@ void AIService::ReadVertices()
     sorted_faces_.push_back(faces_[0]);
 
     // sort the faces so that they are one after the other.
-    for(int i = 0; i < faces_.size(); i++)
+    for (int i = 0; i < faces_.size(); i++)
     {
         // find the closest to this face
         int lowest_index_ = 0;
         float lowest_distance_ = INT_MAX;
 
-        for(int j = i+1; j < faces_.size(); j++)
+        for (int j = i + 1; j < faces_.size(); j++)
         {
             int dist = glm::distance(faces_[i].centroid, faces_[j].centroid);
-            if(lowest_distance_ > dist)
+            if (lowest_distance_ > dist)
             {
                 // closest neighbour of this till now.
                 lowest_distance_ = dist;

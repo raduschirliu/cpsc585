@@ -6,8 +6,8 @@
 #include "engine/AI/AIService.h"
 #include "engine/game_state/GameStateService.h"
 #include "engine/physics/VehicleCommands.h"  // to get the command struct
-#include "engine/scene/Component.h"
 #include "engine/render/RenderService.h"
+#include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
@@ -40,7 +40,9 @@ class AIController final : public Component,
     std::vector<glm::vec3> path_to_follow_;
     jss::object_ptr<VehicleComponent> vehicle_;
 
-    void UpdateCarControls(glm::vec3& current_car_position, glm::vec3& next_waypoint, const Timestep& delta_time);
+    void UpdateCarControls(glm::vec3& current_car_position,
+                           glm::vec3& next_waypoint,
+                           const Timestep& delta_time);
     void NextWaypoint(glm::vec3& current_car_position, glm::vec3 next_waypoint);
     void DrawDebugLine(glm::vec3 from, glm::vec3 to);
     void UpdatePowerup();
@@ -50,6 +52,4 @@ class AIController final : public Component,
     int next_path_index_;
 
     std::set<int> path_traced_;
-
-
 };

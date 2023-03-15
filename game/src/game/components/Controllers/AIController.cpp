@@ -125,11 +125,11 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     }
     else if (projected < 0)
     {
-        temp_command.steer = 1.f * handling_multiplier_ * -(projected) ;
+        temp_command.steer = 1.f * handling_multiplier_ * -(projected);
     }
     else
     {
-        //std::cout << projected << std::endl;
+        // std::cout << projected << std::endl;
         temp_command.steer = -1.f * handling_multiplier_ * projected;
     }
 

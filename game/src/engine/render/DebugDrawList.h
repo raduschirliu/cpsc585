@@ -19,9 +19,7 @@ struct LineVertex
     {
     }
 
-    LineVertex(const glm::vec3& pos)
-        : pos(pos),
-          color(Color4u(255, 0, 0, 255))
+    LineVertex(const glm::vec3& pos) : pos(pos), color(Color4u(255, 0, 0, 255))
     {
     }
 };

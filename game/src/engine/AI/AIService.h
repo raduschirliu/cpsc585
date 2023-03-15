@@ -55,9 +55,9 @@ class AIService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
     void ReadVertices();
-    
+
     std::vector<glm::vec3> GetPath();
-    
+
   private:
     std::vector<glm::vec3> vertices_;
     std::vector<Faces> faces_;
