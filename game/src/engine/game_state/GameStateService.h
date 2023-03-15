@@ -67,8 +67,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     GameStats stats_;
 
-    void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
-
     void StartCountdown();
     void StartGame();
 
@@ -91,4 +89,5 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void RemoveActivePowerup();
 
     void PlayerFinished(Entity& entity);
+    void PlayerCompletedLap(Entity& entity);
 };

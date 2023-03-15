@@ -21,7 +21,7 @@ class AIController final : public Component,
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
     std::string_view GetName() const override;
-    void SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle);
+    void ResetForNextLap();
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -38,17 +38,18 @@ class AIController final : public Component,
     // variables for car
 
     std::vector<glm::vec3> path_to_follow_;
-    snippetvehicle2::DirectDriveVehicle* vehicle_reference_;
+    jss::object_ptr<VehicleComponent> vehicle_;
 
-    VehicleCommand executable_command_;
-    float timestep_ = 1.f / 60.f;
+    void UpdateCarControls(glm::vec3& current_car_position, glm::vec3& next_waypoint, const Timestep& delta_time);
+    void NextWaypoint(glm::vec3& current_car_position, glm::vec3 next_waypoint);
+    void DrawDebugLine(glm::vec3 from, glm::vec3 to);
+    void UpdatePowerup();
 
     // as we want the car to move from current to next command, and so on until
     // the end.
-    glm::vec3 next_car_position_;
-    int next_path_index_ = 33;
+    int next_path_index_;
 
     std::set<int> path_traced_;
-    float PIDController(float targetPosition, float currentPosition,
-                        float deltaTime);
+
+
 };

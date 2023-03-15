@@ -5,6 +5,7 @@
 #include "engine/App.h"
 #include "engine/core/debug/Log.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/components/Controllers/AIController.h"
 #include "game/components/state/PlayerState.h"
 
 static constexpr float kSlowDownTimerLimit(
@@ -13,6 +14,7 @@ static constexpr float kSlowDownTimerLimit(
 
 static const Timestep kCountdownTime = Timestep::Seconds(12.0);
 static const Timestep kMinRaceTime = Timestep::Seconds(50.0);
+static const int kMaxLaps = 3;
 
 void GameStats::Reset()
 {
@@ -358,5 +360,33 @@ void GameStateService::PlayerFinished(Entity& entity)
     else
     {
         Log::info("Stop trying to cheat smfh");
+    }
+}
+
+void GameStateService::PlayerCompletedLap(Entity& entity)
+{
+    if (stats_.state != GameState::kRunning)
+    {
+        return;
+    }
+
+    // get the player ID as we want to increment their number of laps.
+    uint32_t entity_id = entity.GetId();
+
+    player_details_[entity_id].laps_completed++;
+    player_details_[entity_id].current_lap++;
+
+    // increment the lap of the player who crossed the finish line
+    if (player_details_[entity_id].laps_completed >= kMaxLaps)
+    {
+        PlayerFinished(entity);
+    }
+
+    // now if the player is AI who completed the lap, then we want to reset the
+    // waypoints so that they are traceable again.
+    if (entity.GetName() == "AiPlayer1" || entity.GetName() == "AiPlayer2" ||
+        entity.GetName() == "AiPlayer3")
+    {
+        entity.GetComponent<AIController>().ResetForNextLap();
     }
 }

@@ -11,7 +11,7 @@ void FinishLineComponent::OnInit(const ServiceProvider& service_provider)
 
 void FinishLineComponent::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    game_service_->PlayerFinished(*data.other);
+    game_service_->PlayerCompletedLap(*data.other);
 }
 
 std::string_view FinishLineComponent::GetName() const

@@ -13,7 +13,8 @@ float kHandlingMultiplierReset(1.f);
 AIController::AIController()
     : input_service_(nullptr),
       transform_(nullptr),
-      ai_service_(nullptr)
+      ai_service_(nullptr),
+      next_path_index_(79)
 {
 }
 
@@ -24,58 +25,15 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     path_to_follow_ = ai_service_->GetPath();
-    next_path_index_ = 79;
-    next_car_position_ = path_to_follow_[next_path_index_];
     path_traced_.insert(next_path_index_);
 }
 
-float AIController::PIDController(float targetPosition, float currentPosition,
-                                  float deltaTime)
-{
-    // Set the PID constants
-    float Kp = 1.0f;
-    float Ki = 0.0f;
-    float Kd = 0.0f;
-
-    // Set the error variables
-    float error = targetPosition - currentPosition;
-    static float accumulatedError = 0.0f;
-    static float previousError = 0.0f;
-
-    // Calculate the PID terms
-    float pTerm = Kp * error;
-    accumulatedError += error * deltaTime;
-    float iTerm = Ki * accumulatedError;
-    float dTerm = Kd * ((error - previousError) / deltaTime);
-
-    // Calculate the total output
-    float output = pTerm + iTerm + dTerm;
-
-    // Update the previous error
-    previousError = error;
-
-    // Clamp the output to a valid range (-1 to 1 for DirectDriveVehicle)
-    output = std::min(output, 1.0f);
-    output = std::max(output, -1.0f);
-
-    // Return the output as the steering angle
-    return output;
-}
-
-// Constants for the PID controller
-const float kP = 0.1f;
-const float kI = 0.01f;
-const float kD = 0.05f;
-const float maxSteeringAngle = 1.0f;
-
-// Initialize PID controller variables
-float integralError = 0.0f;
-float previousError = 0.0f;
-
-void AIController::OnUpdate(const Timestep& delta_time)
+void AIController::UpdatePowerup()
 {
     if (uint32_t id =
             game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
@@ -115,95 +73,85 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         handling_multiplier_ = kHandlingMultiplierReset;
     }
+}
 
-    /**
-     * Here we have different criteria on how we want the car to move, the more
-     * advanced this is, the better the car will move on the track
-     * **/
-    float speed = vehicle_reference_->mPhysXState.physxActor.rigidBody
-                      ->getLinearVelocity()
-                      .magnitude();
-    // Log::debug("{}", speed);
-    if (speed <= 30)
-    {
-        vehicle_reference_->mCommandState.throttle =
-            1.f * speed_multiplier_;  // for the everyone slow down pickup.
-    }
-    else
-    {
-        vehicle_reference_->mCommandState.throttle =
-            0.f;  // for the everyone slow down pickup.
-    }
+void AIController::OnUpdate(const Timestep& delta_time)
+{
+    glm::vec3 current_car_position = transform_->GetPosition();
+    glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
 
-    // glm::vec3 waypoint_dir =
-    //     normalize(next_car_position_ - transform_->GetPosition());
-    // //std::cout << transform_->GetRightDirection() << std::endl;
-    // auto projected = dot(waypoint_dir, -transform_->GetRightDirection());
+    UpdateCarControls(current_car_position, next_waypoint, delta_time);
+    NextWaypoint(current_car_position, next_waypoint);
+}
 
-    // std::cout << projected << std::endl;
-
-    glm::vec3 waypoint_dir =
-        normalize(next_car_position_ - transform_->GetPosition());
-    float projected = dot(waypoint_dir, transform_->GetRightDirection());
-
+void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
+{
     render_service_->GetDebugDrawList().AddLine(
         LineVertex(transform_->GetPosition()),
         LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
                              path_to_follow_[next_path_index_].y + 10,
                              path_to_follow_[next_path_index_].z)));
+}
 
-    render_service_->GetDebugDrawList().AddLine(
-        LineVertex(transform_->GetPosition(), Color4u(255, 0, 0, 255)),
-        LineVertex(transform_->GetPosition() +
-                       (transform_->GetForwardDirection() * 15.0f),
-                   Color4u(255, 0, 0, 255)));
+void AIController::UpdateCarControls(glm::vec3& current_car_position,
+                                     glm::vec3& next_waypoint,
+                                     const Timestep& delta_time)
+{
+    // ----------------- put the code from here to updatecarcontrols
+    glm::vec3 current_car_right_direction = transform_->GetRightDirection();
 
-    render_service_->GetDebugDrawList().AddLine(
-        LineVertex(transform_->GetPosition(), Color4u(255, 0, 0, 255)),
-        LineVertex(transform_->GetPosition() +
-                       (transform_->GetRightDirection() * 20.f),
-                   Color4u(255, 0, 0, 255)));
+    VehicleCommand temp_command;
 
-    std::cout << projected << std::endl;
-
-    if (projected <= 0.1 && projected >= -0.1)
+    float speed = vehicle_->GetSpeed();
+    if (speed <= 40)
     {
-        vehicle_reference_->mCommandState.steer = 0.f;
-    }
-    else if (projected < 0)
-    {
-        Log::debug("Turn right");
-        vehicle_reference_->mCommandState.steer = 0.4f;
+        temp_command.throttle = 1.f * speed_multiplier_;
     }
     else
     {
-        Log::debug("Turn left");
-        vehicle_reference_->mCommandState.steer = -0.4f;
+        temp_command.throttle = 0.f;
     }
 
-    // calculate the euclidean distance to see if the car is near the next
-    // position, if yes then update the next position to be the next index
-    // in the path array
-    float distance = glm::distance(transform_->GetPosition(),
-                                   path_to_follow_[next_path_index_]);
-    Log::debug("Distance to the next point {}", distance);
-    if (distance < 30.f)
+    glm::vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
+    float projected = dot(waypoint_dir, current_car_right_direction);
+
+    DrawDebugLine(
+        current_car_position,
+        glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
+
+    if (projected <= 0.1 && projected >= -0.1)
     {
-        Log::debug("previous path was: {}, {}, {}",
-                   path_to_follow_[next_path_index_].x,
-                   path_to_follow_[next_path_index_].y,
-                   path_to_follow_[next_path_index_].z);
-        // next_car_position_ = path_to_follow_[next_path_index_--];
-        int min_index = 0.f;
-        float min_distance = INT_MAX;
+        temp_command.steer = 0.f;
+    }
+    else if (projected < 0)
+    {
+        temp_command.steer = 1.f * handling_multiplier_ * -(projected) ;
+    }
+    else
+    {
+        //std::cout << projected << std::endl;
+        temp_command.steer = -1.f * handling_multiplier_ * projected;
+    }
+
+    vehicle_->SetCommand(temp_command);
+}
+
+void AIController::NextWaypoint(glm::vec3& current_car_position,
+                                glm::vec3 next_waypoint)
+{
+    float distance = glm::distance(current_car_position, next_waypoint);
+
+    if (distance < 50.f)
+    {
+        int min_index = 0;
+        float min_distance = static_cast<float>(INT_MAX);
         // find the smallest path which not has been traversed yet.
         for (int i = 0; i < path_to_follow_.size(); i++)
         {
             // if path is not traced yet.
             if (path_traced_.find(i) == path_traced_.end())
             {
-                float dist = glm::distance(path_to_follow_[i],
-                                           path_to_follow_[next_path_index_]);
+                float dist = glm::distance(path_to_follow_[i], next_waypoint);
                 if (min_distance > dist)
                 {
                     min_index = i;
@@ -213,71 +161,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
         }
         next_path_index_ = min_index;
         path_traced_.insert(next_path_index_);
-        next_car_position_ = path_to_follow_[next_path_index_];
-        // next_path_index_ = 31;
-        Log::debug("Next path to follow: {}, {}, {}",
-                   path_to_follow_[next_path_index_].x,
-                   path_to_follow_[next_path_index_].y,
-                   path_to_follow_[next_path_index_].z);
     }
-    //     // else
-    //     // {
-    //     //     if (path_traced_.find(next_path_index_ + 1) !=
-    //     path_traced_.end())
-    //     //     {
-    //     //         int min_index = 0.f;
-    //     //         float min_distance = INT_MAX;
-    //     //         // find the smallest path which not has been traversed
-    //     yet.
-    //     //         for (int i = 0; i < path_to_follow_.size(); i++)
-    //     //         {
-    //     //             // if path is not traced yet.
-    //     //             if (path_traced_.find(i) == path_traced_.end())
-    //     //             {
-    //     //                 float dist =
-    //     //                     glm::distance(path_to_follow_[i],
-    //     // path_to_follow_[next_path_index_]);
-    //     //                 if (min_distance > dist)
-    //     //                 {
-    //     //                     min_index = i;
-    //     //                     min_distance = dist;
-    //     //                 }
-    //     //             }
-    //     //         }
-    //     //         next_path_index_ = min_index;
-    //     //     }
-    //     //     else
-    //     //     {
-    //     //         next_car_position_ = path_to_follow_[next_path_index_ +=
-    //     1];
-    //     //     }
-    //     // }
-    //     // path_traced_.insert(next_path_index_);
-
-    //     // if (next_path_index_ == 706)
-    //     // {
-    //     //     int min_index = 0.f;
-    //     //     float min_distance = INT_MAX;
-    //     //     // find the smallest path which not has been traversed yet.
-    //     //     for (int i = 0; i < path_to_follow_.size(); i++)
-    //     //     {
-    //     //         // if path is not traced yet.
-    //     //         if (path_traced_.find(i) == path_traced_.end())
-    //     //         {
-    //     //             float dist = glm::distance(
-    //     //                 path_to_follow_[i],
-    //     path_to_follow_[next_path_index_]);
-    //     //             if (min_distance > dist)
-    //     //             {
-    //     //                 min_index = i;
-    //     //                 min_distance = dist;
-    //     //             }
-    //     //         }
-    //     //     }
-    //     //     next_path_index_ = min_index;
-    //     // }
-
-    // Log::debug("{}", next_path_index_);
 }
 
 std::string_view AIController::GetName() const
@@ -285,7 +169,10 @@ std::string_view AIController::GetName() const
     return "AI Controller";
 }
 
-void AIController::SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
+void AIController::ResetForNextLap()
 {
-    vehicle_reference_ = &vehicle;
+    // clearing the traced path for the next path now
+    path_traced_.clear();
+    next_path_index_ = 79;
+    path_traced_.insert(next_path_index_);
 }
