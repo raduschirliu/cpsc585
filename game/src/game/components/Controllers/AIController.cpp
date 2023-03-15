@@ -103,19 +103,13 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     VehicleCommand temp_command;
 
     float speed = vehicle_->GetSpeed();
-    if (speed <= 45)
+    if (speed <= 40)
     {
         temp_command.throttle = 1.f * speed_multiplier_;
     }
     else
     {
         temp_command.throttle = 0.f;
-    }
-
-    if(speed > 45)
-    {
-        temp_command.front_brake = 0.5f;
-        temp_command.rear_brake = 0.5f;
     }
 
     glm::vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
