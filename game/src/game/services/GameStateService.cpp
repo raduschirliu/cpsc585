@@ -440,6 +440,7 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
             Log::info("AI finished game!");
         }
         audio_service_->PlayOneShot("yay.ogg");
+
         race_state_.finished_players++;
     }
 }
