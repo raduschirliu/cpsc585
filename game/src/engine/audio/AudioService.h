@@ -3,80 +3,151 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
+#include <glm/glm.hpp>
 #include <map>
 #include <object_ptr.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 
 #include "AudioFile.h"
 #include "engine/input/InputService.h"
+#include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 
-/**
- *  @todo streaming for longer audio files
- *  @todo implement positional audio
- */
 class AudioService final : public Service
 {
   public:
+    /* ----- adding/setting sources functions -----*/
+
     /**
-     *  plays an audio file fully just once.
+     *  add a source to play an audio file from.
      *
-     *  @note only accepts mono files.
-     *
-     *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
+     *  @param file_name name of the audio file to set a source to.
      */
-    void PlayOneShot(std::string file_name, float gain = 1.f);
+    void AddSource(std::string file_name);
 
     /**
-     *  @todo
-     *  plays and loops an audio file until explicitly stopped.
+     *  add a source to play an audio file from, identified by an entity's id.
      *
-     *  @note only accepts mono files.
+     *  @param entity_id the id of the entity to track its position from.
      *
-     *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
+     *  @overload
      */
-    void PlayLoop(std::string file_name, float gain = 1.f);
+    void AddSource(std::string file_name, std::uint32_t entity_id);
 
     /**
-     *  @todo
-     *  plays and loops music, with no 3D positional effect.
+     *  add a source to stream music from.
      *
-     *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added. default: 1.f
+     *  @param file_name name of the music file to set the source to.
      */
-    void PlayMusic(std::string file_name, float gain = 1.f);
+    void SetMusic(std::string file_name);
+
+    /* ----- playback functions ----- */
 
     /**
-     *  stops an audio file's playback.
+     *  play an audio file through its source.
      *
-     *  @param file_name name of audio file (including extension).
+     *  @param file_name name of the audio file to play from.
      */
-    void StopPlayback(std::string file_name);
-
-    /// @brief stops playback of all sound files.
-    void StopAllPlayback();
+    void PlaySource(std::string file_name);
 
     /**
-     *  @todo
-     *  sets the gain of a source specified by its file name.
+     *  play an audio file through its source, identified by
+     *  its associated entity id.
      *
-     *  @param file_name name of audio file (including extension).
-     *  @param gain relative gain compensation to be added.
+     *  @param entity_id the id of the associated entity.
+     */
+    void PlaySource(std::uint32_t entity_id);
+
+    /**
+     *  begin streaming a music file through a source.
+     *
+     *  @param file_name name of music file to stream from.
+     *
+     *  @note can only play one music file at a time.
+     */
+    void PlayMusic(std::string file_name);
+
+    /**
+     *  stop a sources playback of an audio file.
+     *
+     *  @param file_name name of the audio file to stop playback of.
+     */
+    void StopSource(std::string file_name);
+
+    /**
+     *  stop a sources playback of an audio file, identified by
+     *  its associated entity id.
+     *
+     *  @overload
+     */
+    void StopSource(std::uint32_t entity_id);
+
+    /// stop the playback of all sources (excluding the music source).
+    void StopAllSources();
+
+    /// stop the playback of music.
+    void StopMusic();
+
+    /* ----- public setters ----- */
+
+    /**
+     *  sets whether or not the playback of an audio file loops.
+     *
+     *  @param file_name name of the audio file to play from (extension
+     *    optional).
+     *  @param is_looping whether or not the playback loops.
+     */
+    void SetLooping(std::string file_name, bool is_looping);
+
+    /**
+     *  sets the gain of an audio file's playback.
+     *
+     *  @param file_name name of the audio file.
+     *  @param gain relative gain compensation to be applied.
+     *
+     *  @note gain is given as a positive float relative to 1 (i.e. a value of 1
+     *    has no effect, > 1 is louder, and so on).
      */
     void SetGain(std::string file_name, float gain);
 
     /**
-     *  @todo
-     *  offsets the pitch of a source specified by its file name.
+     *  offsets the pitch of an audio file.
      *
-     *  @param file_name name of audio file (including extension).
-     *  @param pitch_offset the amount to change pitch.
+     *  @param file_name name of the audio file.
+     *  @param pitch_offset relative pitch offset to be applied.
+     *
+     *  @note pitch_offset is given as a positive float relative to 1
+     *    (i.e. a value of 1 has no effect, > 1 is higher pitch, and so on).
      */
     void SetPitch(std::string file_name, float pitch_offset);
+
+    /**
+     *  set the world position of a source to play from.
+     *
+     *  @param entity_id the sources associated entity id.
+     *  @param position the position to set the source at.
+     */
+    void SetSourcePosition(std::uint32_t entity_id, glm::vec3 position);
+
+    /**
+     *  set the position of the listener.
+     *
+     *  @param position the position to set the listener at.
+     */
+    void SetListenerPosition(glm::vec3 position);
+
+    /**
+     *  set the position of the listener.
+     *
+     *  @param position the position to set the listener at.
+     *
+     *  @see SetListenerOrientation
+     */
+    void SetListenerOrientation(glm::vec3 forward, glm::vec3 up);
 
     /* ----- from service ----- */
 
@@ -88,27 +159,66 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
-    /// @note post-debugging we prob want to remove this
+    /// @note post-debugging we prob want to remove this.
     jss::object_ptr<InputService> input_service_;
 
-    /// @brief the sound device to output game audio to.
-    ALCdevice* audio_device_;
+    ALCdevice* audio_device_;    // the sound device to output audio to.
+    ALCcontext* audio_context_;  // like an openGL context.
 
-    /// @brief it's like an openGL context.
-    ALCcontext* audio_context_;
+    /// all of the currently active 2D sound sources.
+    std::map<std::string, std::pair<ALuint, ALuint>> non_diegetic_sources_;
+    /// all of the currently active 3D/spatial sound sources.
+    std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
 
-    /// @brief all of the currently active sources.
-    /// @note <file_name, <source, buffer>>
-    std::map<std::string, std::pair<ALuint, ALuint>> active_sources_;
+    /// the current music file to stream from
+    AudioFile music_file_;
+    /// the current music source.
+    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
+    /// keep track of how much of the file was played
+    ALsizei playhead_;
 
-    /// @brief loads file from the directory corresponding to the audio_type.
-    AudioFile LoadAudioFile(std::string file_name, bool is_looping = false);
+    /**
+     *  load an audiofile's data into memory from the appropriate directory.
+     *
+     *  @param file_name name of the audio file to load.
+     *  @param is_music whether the specified file is music or not.
+     *  @return an AudioFile struct that contains all the extrapolated
+     *    information on the file.
+     *
+     *  @note the distinction between music and not is important because
+     *    AudioService streams from music files instead of playing them directly
+     *    like SFX.
+     */
+    AudioFile LoadAudioFile(std::string file_name, bool is_music);
 
-    /// @brief creates and adds a source and buffer for the file given.
-    void AddSource(std::string file_name, bool is_looping = false);
+    /**
+     *  if currently streaming music checks if any stream buffers have been used
+     *  and updates them accordingly.
+     *
+     *  @note ideally called every timestep.
+     */
+    void UpdateStreamBuffer();
 
+    /// deletes all inactive sources and buffers
+    void CullSources();
+
+    /// @brief determines whether or not an audio file's source
+    ///   is currently playing.
+    /// @param file_name name of the audio file the source may be playing.
     bool IsPlaying(std::string file_name);
 
-    /// @brief deletes inactive sources and buffers
-    void CullSources();
+    /// @brief determines whether or not an audio file's source
+    ///   is currently playing.
+    /// @overload
+    bool IsPlaying(std::uint32_t entity_id);
+
+    /// @brief determines whether or not a source with a specified audio file
+    ///   already exists.
+    /// @param file_name name of the audio file to check for.
+    bool SourceExists(std::string file_name);
+
+    /// @brief determines whether or not a source with an associated entity id
+    ///   already exists.
+    /// @overload
+    bool SourceExists(std::uint32_t entity_id);
 };
