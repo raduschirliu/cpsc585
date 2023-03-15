@@ -112,7 +112,7 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
         temp_command.throttle = 0.f;
     }
 
-    if(speed > 45)
+    if (speed > 45)
     {
         temp_command.front_brake = 0.5f;
         temp_command.rear_brake = 0.5f;
