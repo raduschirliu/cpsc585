@@ -2,6 +2,7 @@
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <imgui.h>
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 
@@ -133,10 +134,45 @@ void AssetService::OnInit()
 
 void AssetService::OnStart(ServiceProvider &service_provider)
 {
+    input_service_ = &service_provider.GetService<InputService>();
+
+    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 void AssetService::OnUpdate()
 {
+    if (input_service_->IsKeyPressed(GLFW_KEY_F5))
+    {
+        show_menu_ = !show_menu_;
+    }
+}
+
+void AssetService::OnGui()
+{
+    if (!show_menu_)
+    {
+        return;
+    }
+
+    if (!ImGui::Begin("Asset Debug", &show_menu_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    if (ImGui::TreeNode("Meshes"))
+    {
+        DrawDebugMeshGui();
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Textures"))
+    {
+        DrawDebugTextureGui();
+        ImGui::TreePop();
+    }
+
+    ImGui::End();
 }
 
 void AssetService::OnCleanup()
@@ -146,29 +182,6 @@ void AssetService::OnCleanup()
 string_view AssetService::GetName() const
 {
     return "AssetService";
-}
-
-void AssetService::TestLoadMesh(const string &path)
-{
-    Assimp::Importer importer;
-    const uint32_t flags = aiProcessPreset_TargetRealtime_Fast;
-
-    const aiScene *scene = importer.ReadFile(path, flags);
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
-        !scene->mRootNode)
-    {
-        Log::error("Failed to import: {}", importer.GetErrorString());
-        ASSERT_MSG(false, "Import must be successful");
-    }
-
-    Log::info("Scene: {}", scene->mName.C_Str());
-    for (size_t i = 0; i < scene->mNumMeshes; i++)
-    {
-        aiMesh *mesh = scene->mMeshes[i];
-
-        Log::info("\t- Mesh: {}", mesh->mName.C_Str());
-    }
 }
 
 void AssetService::LoadAssetFile(const string &path)
@@ -193,5 +206,37 @@ void AssetService::LoadAssetFile(const string &path)
     for (auto &texture : bundle.textures)
     {
         LoadTexture(texture.path, texture.name);
+    }
+}
+
+void AssetService::DrawDebugMeshGui()
+{
+    for (auto &entry : meshes_)
+    {
+        if (ImGui::TreeNode(entry.first.c_str()))
+        {
+            ImGui::BulletText("Vertices: %zu", entry.second->vertices.size());
+            ImGui::BulletText("Indices: %zu", entry.second->indices.size());
+
+            ImGui::TreePop();
+        }
+    }
+}
+
+void AssetService::DrawDebugTextureGui()
+{
+    for (auto &entry : textures_)
+    {
+        if (ImGui::TreeNode(entry.first.c_str()))
+        {
+            glm::uvec2 size = entry.second->GetDimensions();
+            ImGui::BulletText("Dimensions: %lu %lu", size.x, size.y);
+
+            ImGui::Bullet();
+            ImGui::SameLine();
+            ImGui::Image(entry.second->GetGuiHandle(), ImVec2(150, 150));
+
+            ImGui::TreePop();
+        }
     }
 }
