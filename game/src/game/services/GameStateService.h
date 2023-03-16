@@ -70,20 +70,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
-    std::map<uint32_t, PlayerStateData> player_details_;
-    std::map<uint32_t, PlayerState*> player_states_;
-    std::map<uint32_t, PowerupPickupType> player_powers_;
-    std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
-
-    std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
-    std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
-
-    GameState stats_;
-
-    void StartCountdown();
-    void StartGame();
-
-  public:
     // setters
     void AddPlayerDetails(uint32_t id, PlayerStateData details);
     void AddPlayerStates(uint32_t id, PlayerState* states);
@@ -120,6 +106,16 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     RaceConfig race_config_;
     TrackConfig track_config_;
 
+    std::map<uint32_t, PlayerStateData> player_details_;
+    std::map<uint32_t, PlayerState*> player_states_;
+    std::map<uint32_t, PowerupPickupType> player_powers_;
+    std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
+
+    std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
+    std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
+
+    GameState stats_;
+
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
@@ -129,4 +125,5 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
+    void StartCountdown();
 };

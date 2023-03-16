@@ -216,8 +216,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
-        //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
-        //        0.f, 1.f, 0.f)));
+        //        transform.SetOrientation(glm::normalize(glm::quat(1.0f,
+        //        0.f, 1.0f, 0.f)));
         auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();

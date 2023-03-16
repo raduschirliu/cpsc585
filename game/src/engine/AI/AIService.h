@@ -10,20 +10,6 @@
 
 #include "../service/Service.h"
 
-// struct Vertices
-// {
-//   glm::vec3 v1;
-//   glm::vec3 v2;
-//   glm::vec3 v3;
-
-//   Vertices(glm::vec3& v1, glm::vec3& v2, glm::vec3& v3)
-//   {
-//     this->v1 = v1;
-//     this->v2 = v2;
-//     this->v3 = v3;
-//   }
-// };
-
 struct Faces
 {
     glm::vec3 f_v1, f_v2, f_v3;
@@ -31,7 +17,7 @@ struct Faces
 
     glm::vec3 CalculateCentroid()
     {
-        return (this->f_v1 + this->f_v2 + this->f_v3) / 3.f;
+        return (this->f_v1 + this->f_v2 + this->f_v3) / 3.0f;
     }
 
     Faces(glm::vec3& f1, glm::vec3& f2, glm::vec3& f3)

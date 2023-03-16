@@ -168,7 +168,7 @@ void GameStateService::RemoveActivePowerup()
             // active_powerup_ so that cars can go back to normal speed.
             if (a.second == PowerupPickupType::kEveryoneSlower)
             {
-                if (timer_[a] > 5.f)
+                if (timer_[a] > 5.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -193,7 +193,7 @@ void GameStateService::RemoveActivePowerup()
             }
             else if (a.second == PowerupPickupType::kDisableHandling)
             {
-                if (timer_[a] > 2.f)
+                if (timer_[a] > 2.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -238,7 +238,7 @@ void GameStateService::RemoveActivePowerup()
             }
             else if (a.second == PowerupPickupType::kIncreaseAimBox)
             {
-                if (timer_[a] > 4.f)
+                if (timer_[a] > 4.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -299,7 +299,7 @@ GameStateService::PowerupsActive()
             if (same_powerup_.find(p) == same_powerup_.end())
             {
                 // starting the time of this powerup as well
-                timer_.insert_or_assign({p.first, p.second}, 0.f);
+                timer_.insert_or_assign({p.first, p.second}, 0.0f);
                 same_powerup_.insert(p);
             }
         }

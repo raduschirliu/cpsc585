@@ -1,14 +1,15 @@
 #include "AIController.h"
 
 #include <algorithm>
+#include <limits>
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
-float kSpeedMultiplierReset(1.f);
-float kHandlingMultiplierReset(1.f);
+float kSpeedMultiplierReset(1.0f);
+float kHandlingMultiplierReset(1.0f);
 
 AIController::AIController()
     : input_service_(nullptr),
@@ -86,11 +87,8 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
 {
-    render_service_->GetDebugDrawList().AddLine(
-        LineVertex(transform_->GetPosition()),
-        LineVertex(glm::vec3(path_to_follow_[next_path_index_].x,
-                             path_to_follow_[next_path_index_].y + 10,
-                             path_to_follow_[next_path_index_].z)));
+    render_service_->GetDebugDrawList().AddLine(LineVertex(from),
+                                                LineVertex(to));
 }
 
 void AIController::UpdateCarControls(glm::vec3& current_car_position,
@@ -98,18 +96,18 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
                                      const Timestep& delta_time)
 {
     // ----------------- put the code from here to updatecarcontrols
-    glm::vec3 current_car_right_direction = transform_->GetRightDirection();
+    glm::vec3 current_car_right_direction = -transform_->GetRightDirection();
 
     VehicleCommand temp_command;
 
     float speed = vehicle_->GetSpeed();
     if (speed <= 45)
     {
-        temp_command.throttle = 1.f * speed_multiplier_;
+        temp_command.throttle = 1.0f * speed_multiplier_;
     }
     else
     {
-        temp_command.throttle = 0.f;
+        temp_command.throttle = 0.0f;
     }
 
     if (speed > 45)
@@ -125,18 +123,18 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
         current_car_position,
         glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
 
-    if (projected <= 0.1 && projected >= -0.1)
+    if (projected <= 0.1f && projected >= -0.1f)
     {
-        temp_command.steer = 0.f;
+        temp_command.steer = 0.0f;
     }
     else if (projected < 0)
     {
-        temp_command.steer = 1.f * handling_multiplier_ * -(projected);
+        temp_command.steer = 1.0f * handling_multiplier_ * -(projected);
     }
     else
     {
         // std::cout << projected << std::endl;
-        temp_command.steer = -1.f * handling_multiplier_ * projected;
+        temp_command.steer = -1.0f * handling_multiplier_ * projected;
     }
 
     vehicle_->SetCommand(temp_command);
@@ -147,10 +145,10 @@ void AIController::NextWaypoint(glm::vec3& current_car_position,
 {
     float distance = glm::distance(current_car_position, next_waypoint);
 
-    if (distance < 50.f)
+    if (distance < 50.0f)
     {
         int min_index = 0;
-        float min_distance = static_cast<float>(INT_MAX);
+        float min_distance = std::numeric_limits<float>::max;
         // find the smallest path which not has been traversed yet.
         for (int i = 0; i < path_to_follow_.size(); i++)
         {

@@ -1,6 +1,7 @@
 #include "AIService.h"
 
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -87,7 +88,7 @@ void AIService::ReadVertices()
                 }
                 if (word != "v" && !face_vertex_bool)
                 {
-                    temp_vertex.push_back(std::stof(word) + 0.f);
+                    temp_vertex.push_back(std::stof(word));
                 }
                 else if (word != "f" && face_vertex_bool)
                 {
@@ -121,7 +122,7 @@ void AIService::ReadVertices()
     {
         // find the closest to this face
         int lowest_index_ = 0;
-        float lowest_distance_ = static_cast<float>(INT_MAX);
+        float lowest_distance_ = std::numeric_limits<float>::max();
 
         for (int j = i + 1; j < faces_.size(); j++)
         {
