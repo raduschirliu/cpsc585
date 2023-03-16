@@ -8,6 +8,9 @@
 *.jpg binary
 *.tif binary
 
+# Anything in assets/ folder should be considered binary
+assets/**/* binary
+
 # Ignore thirdparty files except for cmake files (treat as binary)
 thirdparty/**/* binary
 thirdparty/CMakeLists.txt text=auto
