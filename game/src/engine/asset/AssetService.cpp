@@ -13,6 +13,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
+using glm::vec3;
 using rapidjson::Document;
 using rapidjson::IStreamWrapper;
 using rapidjson::SizeType;
@@ -37,106 +38,74 @@ void AssetService::LoadMesh(const string &path, const string &name)
         Log::error("Failed to import: {}", importer.GetErrorString());
         ASSERT_MSG(false, "Import must be successful");
     }
-    ProcessNode(path, name, scene->mRootNode, scene);
+
+    ASSERT_MSG(scene->mNumMeshes > 0, "Must have at least 1 mesh");
+
+    if (scene->mNumMeshes == 1)
+    {
+        ProcessMesh(scene->mMeshes[0], name);
+    }
+    else
+    {
+        for (uint32_t i = 0; i < scene->mNumMeshes; i++)
+        {
+            aiMesh *mesh = scene->mMeshes[i];
+            const string mesh_name =
+                fmt::format("{}@{}", name, mesh->mName.C_Str());
+            ProcessMesh(mesh, mesh_name);
+        }
+    }
 }
 
 const Mesh &AssetService::GetMesh(const std::string &name)
 {
     ASSERT_MSG(meshes_.find(name) != meshes_.end(),
                "Mesh with given name must exist");
-    return meshes_[name];
+    return *meshes_[name];
 }
 
-/*
- * .  : Directly access the members of the class
- * -> : Approach the member through a pointer
- */
-void AssetService::ProcessNode(const string &path, const string &name,
-                               aiNode *node, const aiScene *scene)
+void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
 {
-    for (uint32_t i = 0; i < node->mNumMeshes; ++i)
-    {
-        aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes_[name] = ProcessMesh(node, mesh, scene);
-    }
-
-    // Do the same for each of its children
-    for (uint32_t i = 0; i < node->mNumChildren; ++i)
-    {
-        ProcessNode(path, name, node->mChildren[i], scene);
-    }
-}
-
-/*
- * push_back()      : No internal constructor (Create a temporary object from
- *                    the outside)
- * emplace_back()   : Create its own objects internally using the
- *                    constructor
- */
-Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
-{
-    Mesh localMesh;
-    vector<Texture> textures;
+    auto processed_mesh = make_unique<Mesh>();
 
     // Vertex information
-    for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
+    for (uint32_t i = 0; i < mesh->mNumVertices; i++)
     {
-        Vertex vertex(glm::vec3(0.f));
-        glm::vec3 vector;
+        Vertex vertex(vec3(0.0f, 0.0f, 0.0f));
 
         // Position
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.position = vector;
+        vertex.position.x = mesh->mVertices[i].x;
+        vertex.position.y = mesh->mVertices[i].y;
+        vertex.position.z = mesh->mVertices[i].z;
 
         // Normal
         if (mesh->HasNormals())
         {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.normal = vector;
+            vertex.normal.x = mesh->mNormals[i].x;
+            vertex.normal.y = mesh->mNormals[i].y;
+            vertex.normal.z = mesh->mNormals[i].z;
         }
 
-        // TextureCoord: Maximum 8 texture
-        if (mesh->mTextureCoords[0])
+        // Texture UVs
+        if (mesh->HasTextureCoords(0))
         {
-            glm::vec2 vec;
-            vec.x = mesh->mTextureCoords[0][i].x;
-            vec.y = mesh->mTextureCoords[0][i].y;
-            vertex.uv = vec;
+            vertex.uv.x = mesh->mTextureCoords[0][i].x;
+            vertex.uv.y = mesh->mTextureCoords[0][i].y;
         }
 
-        // Tangent
-        // vector.x = mesh->mTangents[i].x;
-        // vector.y = mesh->mTangents[i].y;
-        // vector.z = mesh->mTangents[i].z;
-        // vertex.tangent = vector;
-
-        // BiTangent
-        // vector.x = mesh->mBitangents[i].x;
-        // vector.y = mesh->mBitangents[i].y;
-        // vector.z = mesh->mBitangents[i].z;
-        // vertex.bitangent = vector;
-
-        localMesh.vertices.emplace_back(vertex);
+        processed_mesh->vertices.emplace_back(vertex);
     }
 
     // Index information: May vary depending on the value of the Winding flag
-    for (uint32_t i = 0; i < mesh->mNumFaces; ++i)
+    for (uint32_t i = 0; i < mesh->mNumFaces; i++)
     {
         const aiFace &face = mesh->mFaces[i];
-        for (uint32_t j = 0; j < face.mNumIndices; ++j)
-        {
-            localMesh.indices.emplace_back(face.mIndices[j]);
-        }
+        processed_mesh->indices.insert(processed_mesh->indices.end(),
+                                       face.mIndices,
+                                       face.mIndices + face.mNumIndices);
     }
 
-    // Texture (Material) information
-    aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-
-    return localMesh;
+    meshes_[name] = std::move(processed_mesh);
 }
 
 void AssetService::LoadTexture(const string &path, const string &name)
@@ -158,7 +127,8 @@ void AssetService::OnInit()
 {
     LoadAssetFile(kAssetFilePath);
 
-    TestLoadMesh("resources/models/track/track3-9.gltf");
+    Log::info("Loaded meshes: {}", meshes_.size());
+    Log::info("Loaded textures: {}", textures_.size());
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

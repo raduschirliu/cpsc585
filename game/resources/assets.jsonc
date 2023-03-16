@@ -50,6 +50,10 @@
         {
             "path": "resources/models/track/track3-7collision.obj",
             "name": "track3-collision"
+        },
+        {
+            "path": "resources/models/track/track3-9.gltf",
+            "name": "track3new"
         }
     ],
 

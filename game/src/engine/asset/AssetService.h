@@ -30,11 +30,9 @@ class AssetService final : public Service
 
   private:
     std::unordered_map<std::string, std::unique_ptr<Texture>> textures_;
-    std::unordered_map<std::string, Mesh> meshes_;
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> meshes_;
 
+    void ProcessMesh(aiMesh *mesh, const std::string& name);
     void LoadAssetFile(const std::string& path);
-    void ProcessNode(const std::string &path, const std::string &name,
-                     aiNode *node, const aiScene *scene);
-    Mesh ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene);
     void TestLoadMesh(const std::string& path);
 };
