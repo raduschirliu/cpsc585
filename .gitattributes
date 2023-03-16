@@ -4,9 +4,11 @@
 # Treat PDFs as binary
 *.pdf binary
 
-# Treat images as binary
+# Treat images and models as binary
 *.jpg binary
 *.tif binary
+*.obj binary
+*.gltf binary
 
 # Anything in assets/ folder should be considered binary
 assets/**/* binary
