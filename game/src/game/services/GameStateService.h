@@ -70,6 +70,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
+    // setters
+    void AddPlayerDetails(uint32_t id, PlayerStateData details);
+    void AddPlayerStates(uint32_t id, PlayerState* states);
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
     std::vector<std::pair<uint32_t, PowerupPickupType>> PowerupsActive();
@@ -91,28 +94,36 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const GlobalRaceState& GetGlobalRaceState() const;
     const uint32_t GetNumCheckpoints() const;
 
+    void PlayerFinished(Entity& entity);
+    void PlayerCompletedLap(Entity& entity);
+
   private:
     jss::object_ptr<AudioService> audio_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
-    std::unordered_map<uint32_t, PowerupPickupType> player_powers_;
+
+    GlobalRaceState race_state_;
+    RaceConfig race_config_;
+    TrackConfig track_config_;
+
+    std::map<uint32_t, PlayerStateData> player_details_;
+    std::map<uint32_t, PlayerState*> player_states_;
+    std::map<uint32_t, PowerupPickupType> player_powers_;
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
-    GlobalRaceState race_state_;
-    RaceConfig race_config_;
-    TrackConfig track_config_;
+    GameState stats_;
 
     void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
 
     void SetupRace();
-    void StartCountdown();
     void StartRace();
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
+    void StartCountdown();
 };
