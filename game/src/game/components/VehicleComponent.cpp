@@ -24,6 +24,7 @@ using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
+static constexpr PxReal max_speed = 100.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
 static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
@@ -100,14 +101,14 @@ void VehicleComponent::InitMaterialFrictionTable()
     // snippet there is only a single material so there can only be a single
     // mapping between material and friction. In this snippet the same mapping
     // is used by all tires.
-    gPhysXMaterialFrictions_[0].friction = 15.0f;
+    gPhysXMaterialFrictions_[0].friction = 75.0f;
     gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
 }
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  // debugging
+    // sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  // debugging
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();

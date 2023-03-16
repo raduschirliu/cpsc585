@@ -39,6 +39,7 @@ class VehicleComponent final : public Component,
 
     VehicleGear GetGear() const;
     float GetSpeed() const;
+    //void SetMaxSpeed(float max_velocity) const;
 
   private:
     jss::object_ptr<SoundEmitter> sound_emitter_;  // debugging
