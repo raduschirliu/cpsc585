@@ -2,9 +2,9 @@
 * text=auto
 
 # Treat models as binary
-game/resources/**/*.obj binary
-game/resources/**/*.mtl binary
-game/resources/**/*.gltf binary
+*.obj binary
+*.mtl binary
+*.gltf binary
 
 # Anything in assets/ folder should be considered binary
 assets/**/* binary
