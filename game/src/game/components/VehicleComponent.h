@@ -34,10 +34,10 @@ class VehicleComponent final : public Component,
     void SetVehicleName(const std::string& vehicle_name);
     void SetPlayerStateData(PlayerStateData& data);
 
-    snippetvehicle2::DirectDriveVehicle& GetVehicle();
+    snippetvehicle2::EngineDriveVehicle& GetVehicle();
     PlayerStateData* GetPlayerStateData();
 
-    VehicleGear GetGear() const;
+    PxVehicleEngineDriveTransmissionCommandState::Enum GetGear() const;
     float GetSpeed() const;
 
   private:
@@ -46,8 +46,8 @@ class VehicleComponent final : public Component,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
-    // The vehicle with direct drivetrain
-    snippetvehicle2::DirectDriveVehicle vehicle_;
+    // The vehicle with engine drivetrain
+    snippetvehicle2::EngineDriveVehicle vehicle_;
 
     // The mapping between PxMaterial and friction.
     physx::vehicle2::PxVehiclePhysXMaterialFriction

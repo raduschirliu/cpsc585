@@ -3,8 +3,10 @@
 #include <imgui.h>
 #include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
+#include <physx/CommonVehicleFiles/enginedrivetrain/EngineDrivetrain.h>
 #include <physx/CommonVehicleFiles/serialization/BaseSerialization.h>
 #include <physx/CommonVehicleFiles/serialization/DirectDrivetrainSerialization.h>
+#include <physx/CommonVehicleFiles/serialization/EngineDrivetrainSerialization.h>
 #include <physx/CommonVehicleFiles/serialization/IntegrationSerialization.h>
 
 #include <glm/geometric.hpp>
@@ -25,7 +27,7 @@ using namespace snippetvehicle2;
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
-static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
+static constexpr const char* kEngineDriveParamFileName = "EngineDrive.jsonc";
 static constexpr const char* kIntegrationParamFileName = "Integration.jsonc";
 
 void VehicleComponent::LoadParams()
@@ -35,9 +37,9 @@ void VehicleComponent::LoadParams()
     ASSERT_MSG(success_base,
                "Must be able to load vehicle base params from JSON file");
 
-    const bool success_drivertrain = readDirectDrivetrainParamsFromJsonFile(
-        kVehicleDataPath, kDirectDriveParamFileName,
-        vehicle_.mBaseParams.axleDescription, vehicle_.mDirectDriveParams);
+    const bool success_drivertrain = readEngineDrivetrainParamsFromJsonFile(
+        kVehicleDataPath, kEngineDriveParamFileName,
+        vehicle_.mEngineDriveParams);
     ASSERT_MSG(success_drivertrain,
                "Must be able to load vehicle drivetrain params from JSON file");
 
@@ -57,11 +59,10 @@ void VehicleComponent::InitVehicle()
 {
     const bool vehicle_init_status = vehicle_.initialize(
         *physics_service_->GetKPhysics(), PxCookingParams(PxTolerancesScale()),
-        *physics_service_->GetKMaterial(), true);
+        *physics_service_->GetKMaterial(), EngineDriveVehicle::eDIFFTYPE_FOURWHEELDRIVE, true);
     ASSERT_MSG(vehicle_init_status, "Vehicle must successfully initialize");
 
-    vehicle_.mTransmissionCommandState.gear =
-        PxVehicleDirectDriveTransmissionCommandState::eFORWARD;
+    vehicle_.mTransmissionCommandState.eAUTOMATIC_GEAR;
 
     PxRigidBody* rigidbody = vehicle_.mPhysXState.physxActor.rigidBody;
     ASSERT_MSG(rigidbody, "Vehicle must have valid PhysX Actor RigidBody");
@@ -164,7 +165,7 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
 
 void VehicleComponent::OnDebugGui()
 {
-    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
+    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.eAUTOMATIC_GEAR);
     ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
     ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
     ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
@@ -191,7 +192,7 @@ void VehicleComponent::OnDebugGui()
     gui::ViewProperty("Angular Velocity", angular_velocity);
 }
 
-DirectDriveVehicle& VehicleComponent::GetVehicle()
+EngineDriveVehicle& VehicleComponent::GetVehicle()
 {
     return vehicle_;
 }
@@ -210,26 +211,16 @@ PlayerStateData* VehicleComponent::GetPlayerStateData()
 
 void VehicleComponent::SetGear(VehicleGear gear)
 {
-    PxVehicleDirectDriveTransmissionCommandState::Enum px_gear;
+    PxVehicleEngineDriveTransmissionCommandState::Enum px_gear;
     switch (gear)
     {
-        case VehicleGear::kReverse:
-            px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE;
-            break;
-
-        case VehicleGear::kNeutral:
-            px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL;
-            break;
-
         case VehicleGear::kForward:
             px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD;
+                PxVehicleEngineDriveTransmissionCommandState::Enum::eAUTOMATIC_GEAR;
             break;
     }
 
-    vehicle_.mTransmissionCommandState.gear = px_gear;
+    vehicle_.mTransmissionCommandState.eAUTOMATIC_GEAR;
 }
 
 void VehicleComponent::SetCommand(VehicleCommand command)
@@ -244,24 +235,9 @@ void VehicleComponent::SetCommand(VehicleCommand command)
         glm::clamp(command.rear_brake, 0.0f, 1.0f);
 }
 
-VehicleGear VehicleComponent::GetGear() const
+PxVehicleEngineDriveTransmissionCommandState::Enum VehicleComponent::GetGear() const
 {
-    switch (vehicle_.mTransmissionCommandState.gear)
-    {
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE:
-            return VehicleGear::kReverse;
-
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL:
-            return VehicleGear::kNeutral;
-
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD:
-            return VehicleGear::kForward;
-
-        default:
-            ASSERT_ALWAYS(
-                "Vehicle transmission should never be in an unkown state");
-            return VehicleGear::kNeutral;
-    }
+    return vehicle_.mTransmissionCommandState.eAUTOMATIC_GEAR;
 }
 
 float VehicleComponent::GetSpeed() const
