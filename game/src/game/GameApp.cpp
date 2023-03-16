@@ -216,8 +216,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
         // transform.RotateEulerDegrees(glm::vec3(0.f, -90.f, 0.f));
-        //        transform.SetOrientation(glm::normalize(glm::quat(1.f,
-        //        0.f, 1.f, 0.f)));
+        //        transform.SetOrientation(glm::normalize(glm::quat(1.0f,
+        //        0.f, 1.0f, 0.f)));
         auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
@@ -233,8 +233,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -260,8 +260,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -287,8 +287,8 @@ void GameApp::LoadTestScene(Scene& scene)
              .shininess = 64.0f});
 
         // Making the controller which will guide the car on where to go
-        auto& ai_controller = entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
+        // auto& ai_controller = entity.AddComponent<AIController>();
+        // ai_controller.SetGVehicle(bunny_vehicle.GetVehicle());
     }
 
     {
@@ -414,6 +414,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 32.0f});
     }
+
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 

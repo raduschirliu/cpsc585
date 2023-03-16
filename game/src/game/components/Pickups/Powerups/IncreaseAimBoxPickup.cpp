@@ -19,7 +19,7 @@ void IncreaseAimBoxPickup::OnTriggerEnter(const OnTriggerEvent& data)
             if (power_visible_ && player_state_->GetCurrentPowerup() ==
                                       PowerupPickupType::kDefaultPowerup)
             {
-                transform_->SetScale(glm::vec3(0.f, 0.f, 0.f));
+                transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
                 // Assigns this powerup to the player/AI who picked it up
