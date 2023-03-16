@@ -1,4 +1,4 @@
-#include "game/components/RaycastComponent.h"
+#include "game/components/Shooter.h"
 
 #include <stdio.h>
 
@@ -20,7 +20,7 @@ static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 
 using glm::vec3;
 
-void RaycastComponent::OnInit(const ServiceProvider& service_provider)
+void Shooter::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("RaycastComponent - Init");
 
@@ -35,7 +35,7 @@ void RaycastComponent::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-void RaycastComponent::OnUpdate(const Timestep& delta_time)
+void Shooter::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
         input_service_->IsGamepadButtonPressed(kGamepadId,
@@ -45,12 +45,12 @@ void RaycastComponent::OnUpdate(const Timestep& delta_time)
     }
 }
 
-std::string_view RaycastComponent::GetName() const
+std::string_view Shooter::GetName() const
 {
     return "RaycastComponent";
 }
 
-void RaycastComponent::Shoot()
+void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
     vec3 direction = transform_->GetForwardDirection();

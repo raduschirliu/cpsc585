@@ -614,7 +614,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
     hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
 
-    kart_entity.AddComponent<RaycastComponent>();
+    kart_entity.AddComponent<Shooter>();
 
     if (is_human)
     {

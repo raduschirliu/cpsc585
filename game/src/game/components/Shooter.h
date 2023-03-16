@@ -10,18 +10,19 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class RaycastComponent final : public Component,
-                               public IEventSubscriber<OnUpdateEvent>
+class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    // from component
+    void Shoot();
+
+    /* ----- from component ----- */
+
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
 
-    // from IEventSubscriber<OnUpdateEvent>
-    void OnUpdate(const Timestep& delta_time) override;
+    /* ----- from IEventSubscriber ----- */
 
-    void Shoot();
+    void OnUpdate(const Timestep& delta_time) override;
 
   private:
     // service dependencies

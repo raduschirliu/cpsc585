@@ -34,7 +34,7 @@
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
-#include "game/components/RaycastComponent.h"
+#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/audio/SoundEmitter.h"
@@ -191,7 +191,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& controller = car_entity.AddComponent<PlayerController>();
-        auto& raycast = car_entity.AddComponent<RaycastComponent>();
+        auto& raycast = car_entity.AddComponent<Shooter>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart2-4");
