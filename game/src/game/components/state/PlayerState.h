@@ -19,6 +19,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     // Setters
     void SetSpeedMultiplier(float value);
     void SetCurrentPowerup(PowerupPickupType type);
+    void SetCurrentAmmoType(AmmoPickupType type);
     void SetLapsCompleted(int laps);
     void SetLastCheckpoint(int checkpoint);
     void SetCurrentPlace(int place);
@@ -32,6 +33,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     Entity* GetNemesis();
     Entity* GetBullied();
     PowerupPickupType GetCurrentPowerup() const;
+    AmmoPickupType GetCurrentAmmoType() const;
     int GetCurrentPlace() const;
     PlayerStateData* GetStateData();
 
