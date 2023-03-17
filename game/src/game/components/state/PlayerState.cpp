@@ -88,7 +88,7 @@ void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
 {
-    player_state_.current_ammo_type= type;
+    player_state_.current_ammo_type = type;
 }
 
 void PlayerState::SetLapsCompleted(int laps)

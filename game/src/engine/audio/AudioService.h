@@ -20,7 +20,7 @@
 /// pair of a source and its corresponding buffer
 using SourceAndBuffer = std::pair<ALuint, ALuint>;
 /// map from filename to a source and buffer pair
-using FileToSource = std::map < std::string, SourceAndBuffer >> ;
+using FileToSource = std::map <std::string, SourceAndBuffer>>;
 
 class AudioService final : public Service
 {
