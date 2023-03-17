@@ -278,6 +278,27 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     Log::debug("Offset pitch of {} by {}", file_name, pitch_offset);
 }
 
+void AudioService::SetPitch(std::uint32_t entity_id, float pitch_offset)
+{
+    if (!SourceExists(entity_id))
+    {
+        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        return;
+    }
+
+    ALuint source;
+    source = diegetic_sources_[entity_id].first;
+
+    alSourcef(source, AL_PITCH, pitch_offset);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::error("Couldn't set pitch for {}.", entity_id);
+    }
+
+    Log::debug("Offset pitch of entity: {} by {}", entity_id, pitch_offset);
+}
+
 void AudioService::SetGain(std::string file_name, float gain)
 {
     if (!SourceExists(file_name))
@@ -299,6 +320,27 @@ void AudioService::SetGain(std::string file_name, float gain)
     Log::debug("Offset pitch of {} by {}", file_name, gain);
 }
 
+void AudioService::SetGain(std::uint32_t entity_id, float gain)
+{
+    if (!SourceExists(entity_id))
+    {
+        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        return;
+    }
+
+    ALuint source;
+    source = diegetic_sources_[entity_id].first;
+
+    alSourcef(source, AL_GAIN, gain);
+
+    if (alGetError() != AL_NO_ERROR)
+    {
+        Log::error("Couldn't set gain for {}.", entity_id);
+    }
+
+    Log::debug("Set gain for entity: {} by {}", entity_id, gain);
+}
+
 void AudioService::SetLooping(std::string file_name, bool is_looping)
 {
     if (!SourceExists(file_name))
@@ -313,12 +355,35 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     if (is_looping)
     {
         alSourcef(source, AL_LOOPING, AL_TRUE);
-        Log::debug("Set {} by to loop.", file_name);
+        Log::debug("Set {} to loop.", file_name);
     }
     else
     {
         alSourcef(source, AL_LOOPING, AL_FALSE);
-        Log::debug("Set {} by to not loop.", file_name);
+        Log::debug("Set {} to not loop.", file_name);
+    }
+}
+
+void AudioService::SetLooping(std::uint32_t entity_id,  bool is_looping)
+{
+    if (!SourceExists(entity_id))
+    {
+        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        return;
+    }
+
+    ALuint source;
+    source = diegetic_sources_[entity_id].first;
+
+    if (is_looping)
+    {
+        alSourcef(source, AL_LOOPING, AL_TRUE);
+        Log::debug("Set source for entity: {} to loop.", entity_id);
+    }
+    else
+    {
+        alSourcef(source, AL_LOOPING, AL_FALSE);
+        Log::debug("Set source for entity: {} to not loop.", entity_id);
     }
 }
 
@@ -327,6 +392,7 @@ void AudioService::SetSourcePosition(std::uint32_t entity_id,
 {
     if (!SourceExists(entity_id))
     {
+        Log::error("Source for entity: {} doesn't exist.", entity_id);
         return;
     }
 

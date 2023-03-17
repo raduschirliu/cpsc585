@@ -102,6 +102,13 @@ class AudioService final : public Service
      *  @param is_looping whether or not the playback loops.
      */
     void SetLooping(std::string file_name, bool is_looping);
+    
+    /**
+     *  sets whether or not the playback of an audio file loops.
+     *
+     *  @overload
+     */
+    void SetLooping(std::uint32_t entity_id,  bool is_looping);
 
     /**
      *  sets the gain of an audio file's playback.
@@ -115,6 +122,13 @@ class AudioService final : public Service
     void SetGain(std::string file_name, float gain);
 
     /**
+     *  sets the gain of an audio file's playback.
+     *  
+     *  @overload
+     */
+    void SetGain(std::uint32_t entity_id, float gain);
+
+    /**
      *  offsets the pitch of an audio file.
      *
      *  @param file_name name of the audio file.
@@ -126,6 +140,13 @@ class AudioService final : public Service
     void SetPitch(std::string file_name, float pitch_offset);
 
     /**
+     *  offsets the pitch of an audio file.
+     * 
+     *  @overload
+     */
+    void SetPitch(std::uint32_t entity_id, float pitch_offset);
+
+/**
      *  set the world position of a source to play from.
      *
      *  @param entity_id the sources associated entity id.
