@@ -142,12 +142,14 @@ void AudioService::SetMusic(std::string file_name)
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
+    SourceBufferPair source_buffer_pair = {source, buffer};
+
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't queue audio buffers for {}.", file_name);
     }
 
-    music_source_ = {file_name, {source, buffers}};
+    music_source_ = {file_name, source_buffer_pair};
 }
 
 /* ----- playback functions ----- */
