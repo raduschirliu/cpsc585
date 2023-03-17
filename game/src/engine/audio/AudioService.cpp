@@ -61,14 +61,14 @@ void AudioService::AddSource(std::string file_name)
     alSourcei(source, AL_LOOPING, AL_FALSE);
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
-    SourceAndBuffer source_buffer_pair = {source, buffer};
+    SourceBufferPair source_buffer_pair = {source, buffer};
 
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't create source for {}", file_name);
     }
 
-    non_diegetic_sources_.insert({file_name, SourceAndBuffer});
+    non_diegetic_sources_.insert({file_name, SourceBufferPair});
 }
 
 void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
@@ -98,8 +98,8 @@ void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
     alSourcef(source, AL_MAX_DISTANCE, 300.0f);  // distance until silent
     alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
 
-    SourceAndBuffer source_buffer_pair = {source, buffer};
-    FileToSource file_source_map = {file_name, source_buffer_pair};
+    SourceBufferPair source_buffer_pair = {source, buffer};
+    FileSourceMap file_source_map = {file_name, source_buffer_pair};
 
     if (alGetError() != AL_NO_ERROR)
     {

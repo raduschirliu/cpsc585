@@ -17,11 +17,6 @@
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 
-/// pair of a source and its corresponding buffer
-using SourceAndBuffer = std::pair<ALuint, ALuint>;
-/// map from filename to a source and buffer pair
-using FileToSource = std::map < std::string, SourceAndBuffer >> ;
-
 class AudioService final : public Service
 {
   public:
@@ -170,10 +165,15 @@ class AudioService final : public Service
     ALCdevice* audio_device_;    // the sound device to output audio to.
     ALCcontext* audio_context_;  // like an openGL context.
 
-    /// all of the currently active 2D sound sources.
-    FileToSource non_diegetic_sources_;
-    /// all of the currently active 3D/spatial sound sources.
-    std::map<std::uint32_t, FileToSource> diegetic_sources_;
+    /// all of the active 2D sound sources.
+    using SourceBufferPair = std::pair<ALuint, ALuint>;
+    using FileName = std::string;
+    using EntityID = std::uint32_t;
+    std::map < FileName, SourceBufferPair >> non_diegetic_sources_;
+
+    /// all of the active 3D/spatial sound sources and their entity's id.
+    using NameSourceMap = std::map < FileName, SourceBufferPair >> ;
+    std::map < EntityID, NameSourceMap >> diegetic_sources_;
 
     /// the current music file to stream from
     AudioFile music_file_;
