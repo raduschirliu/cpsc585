@@ -19,6 +19,7 @@ struct VehicleCommand
     VehicleCommand()
     {
         front_brake = 0.0f;
+        rear_brake = 0.0f;
         throttle = 0.0f;
         steer = 0.0f;
     }

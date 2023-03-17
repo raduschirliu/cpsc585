@@ -5,14 +5,17 @@
 #include <vector>
 
 #include "engine/core/gfx/Texture.h"
+#include "engine/gui/OnGuiEvent.h"
+#include "engine/input/InputService.h"
 #include "engine/render/Mesh.h"
 #include "engine/service/Service.h"
 
 struct aiScene;
 struct aiMesh;
 struct aiNode;
+class InputService;
 
-class AssetService final : public Service
+class AssetService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
     void LoadMesh(const std::string &path, const std::string &name);
@@ -28,11 +31,18 @@ class AssetService final : public Service
     void OnCleanup() override;
     std::string_view GetName() const override;
 
-  private:
-    std::unordered_map<std::string, std::unique_ptr<Texture>> textures_;
-    std::unordered_map<std::string, Mesh> meshes_;
+    // From IEventSubscriber<OnGuiEvent>
+    void OnGui() override;
 
-    void ProcessNode(const std::string &path, const std::string &name,
-                     aiNode *node, const aiScene *scene);
-    Mesh ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene);
+  private:
+    jss::object_ptr<InputService> input_service_;
+
+    std::unordered_map<std::string, std::unique_ptr<Texture>> textures_;
+    std::unordered_map<std::string, std::unique_ptr<Mesh>> meshes_;
+    bool show_menu_;
+
+    void ProcessMesh(aiMesh *mesh, const std::string &name);
+    void LoadAssetFile(const std::string &path);
+    void DrawDebugMeshGui();
+    void DrawDebugTextureGui();
 };

@@ -1,12 +1,13 @@
 # Set the default behavior for all files.
 * text=auto
 
-# Treat PDFs as binary
-*.pdf binary
+# Treat models as binary
+*.obj binary
+*.mtl binary
+*.gltf binary
 
-# Treat images as binary
-*.jpg binary
-*.tif binary
+# Anything in assets/ folder should be considered binary
+assets/**/* binary
 
 # Ignore thirdparty files except for cmake files (treat as binary)
 thirdparty/**/* binary
