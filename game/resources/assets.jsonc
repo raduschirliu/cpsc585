@@ -44,40 +44,40 @@
 
         /* Track */
         {
-            "path": "resources/models/track/track3-7.obj",
+            "path": "resources/models/track3/track3-7.obj",
             "name": "track3"
         },
         {
-            "path": "resources/models/track/track3-7collision.obj",
+            "path": "resources/models/track3/track3-7collision.obj",
             "name": "track3-collision"
         },
         {
-            "path": "resources/models/track/track3-9.gltf",
+            "path": "resources/models/track3/track3-9.gltf",
             "name": "track3new"
         }
     ],
 
     "textures": [
         /* UI */
-        {
-            "path": "resources/textures/ui/main.png",
-            "name": "menu_title"
-        },
-        {
-            "path": "resources/textures/ui/single_button.png",
-            "name": "single_button"
-        },
-        {
-            "path": "resources/textures/ui/multi_button.png",
-            "name": "multi_button"
-        },
-        {
-            "path": "resources/textures/ui/howToPlay_button.png",
-            "name": "howToPlay_button"
-        },
-        {
-            "path": "resources/textures/ui/setting_button.png",
-            "name": "settings_button"
-        }
+        // {
+        //     "path": "resources/textures/ui/main.png",
+        //     "name": "menu_title"
+        // },
+        // {
+        //     "path": "resources/textures/ui/single_button.png",
+        //     "name": "single_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/multi_button.png",
+        //     "name": "multi_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/howToPlay_button.png",
+        //     "name": "howToPlay_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/setting_button.png",
+        //     "name": "settings_button"
+        // }
     ]
 }
