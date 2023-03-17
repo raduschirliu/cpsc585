@@ -148,7 +148,7 @@ void AIController::NextWaypoint(glm::vec3& current_car_position,
     if (distance < 50.0f)
     {
         int min_index = 0;
-        float min_distance = std::numeric_limits<float>::max;
+        float min_distance = std::numeric_limits<float>::max();
         // find the smallest path which not has been traversed yet.
         for (int i = 0; i < path_to_follow_.size(); i++)
         {
