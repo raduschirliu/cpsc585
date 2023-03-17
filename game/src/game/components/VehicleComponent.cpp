@@ -14,6 +14,7 @@
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
+#include "game/components/audio/SoundEmitter.h"  // debugging
 
 using glm::vec3;
 using std::string;
@@ -99,13 +100,16 @@ void VehicleComponent::InitMaterialFrictionTable()
     // snippet there is only a single material so there can only be a single
     // mapping between material and friction. In this snippet the same mapping
     // is used by all tires.
-    gPhysXMaterialFrictions_[0].friction = 15.0f;
+    gPhysXMaterialFrictions_[0].friction = 75.0f;
     gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
 }
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
+    //    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  //
+    //    debugging
+
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
@@ -125,6 +129,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
+        // sound_emitter_->PlaySource();
         LoadParams();
         Log::info("Reloaded vehicle params from JSON files...");
     }
@@ -135,6 +140,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
+    // std::cout << transform_->GetForwardDirection() << std::endl;
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
