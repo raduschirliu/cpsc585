@@ -17,6 +17,11 @@
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
 
+/// pair of a source and its corresponding buffer
+using SourceAndBuffer = std::pair<ALuint, ALuint>;
+/// map from filename to a source and buffer pair
+using FileToSource = std::map < std::string, SourceAndBuffer >> ;
+
 class AudioService final : public Service
 {
   public:
@@ -36,7 +41,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void AddSource(std::string file_name, std::uint32_t entity_id);
+    void AddSource(std::uint32_t entity_id, std::string file_name);
 
     /**
      *  add a source to stream music from.
@@ -60,7 +65,7 @@ class AudioService final : public Service
      *
      *  @param entity_id the id of the associated entity.
      */
-    void PlaySource(std::uint32_t entity_id);
+    void PlaySource(std::uint32_t entity_id, std::string file_name);
 
     /**
      *  begin streaming a music file through a source.
@@ -166,9 +171,10 @@ class AudioService final : public Service
     ALCcontext* audio_context_;  // like an openGL context.
 
     /// all of the currently active 2D sound sources.
-    std::map<std::string, std::pair<ALuint, ALuint>> non_diegetic_sources_;
+    FileToSource non_diegetic_sources_;
     /// all of the currently active 3D/spatial sound sources.
-    std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
+    /* std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_; */
+    std::map<std::uint32_t, FileToSource> diegetic_sources_;
 
     /// the current music file to stream from
     AudioFile music_file_;
