@@ -488,14 +488,29 @@ void GameApp::LoadTrack1Scene(Scene& scene)
              .shininess = 64.0f});
     }
     {
-        // Track rings
-        auto& entity = scene.AddEntity("Track-Rings");
+        // Track rings2
+        auto& entity = scene.AddEntity("Track-Rings2");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("track3new@Rings");
+        mesh_renderer.SetMesh("track3new@Rings2");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture = &asset_service_.GetTexture("track3new@Rings"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+    {
+        // Track rings6
+        auto& entity = scene.AddEntity("Track-Rings6");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@Rings6");
         mesh_renderer.SetMaterialProperties(
             {.albedo_texture = &asset_service_.GetTexture("track3new@Rings"),
              .albedo_color = vec3(1.0f, 1.0f, 1.0f),
