@@ -1,5 +1,7 @@
 #include "game/GameApp.h"
 
+#include <fstream>
+#include <sstream>
 #include <string>
 
 #include "engine/AI/AIService.h"
@@ -393,6 +395,52 @@ void GameApp::LoadTestScene(Scene& scene)
     // }
 }
 
+std::vector<std::pair<glm::vec3, glm::quat>> kCheckpoints = {
+    std::make_pair<glm::vec3, glm::quat>(glm::vec3(-13.0f, -2.6f, -292.0f),
+                                         glm::quat(glm::vec3(0, -90, 0))),
+};
+
+void GameApp::GetCheckpoints()
+{
+    // import the checkpoints from the navmesh points.
+    std::fstream file;
+    file.open("resources/checkpoints/checkpoints.obj", std::ios::in);
+    if (!file)
+    {
+        Log::error("Cannot open the navmesh file.");
+    }
+    else
+    {
+        // perform the file thing we want here.
+        std::string s;
+        while (std::getline(file, s))
+        {
+            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' ||
+                s[0] == 'u' || s[0] == 'l')
+                continue;
+            std::vector<float>
+                temp_vertex;  // so that after all the points are read, we
+                              // can add it to the main vertex
+            std::stringstream ss(s);
+            std::string word;
+            while (ss >> word)
+            {
+                if (word == "v")
+                {
+                    continue;
+                }
+                else
+                {
+                    temp_vertex.push_back(std::stof(word));
+                }
+            }
+            kCheckpoints.push_back(std::make_pair<glm::vec3, glm::quat>(
+                glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
+                glm::quat(glm::vec3(0, 0, 0))));
+        }
+    }
+}
+
 void GameApp::LoadTrack1Scene(Scene& scene)
 {
     Log::info("Loading entities for Track1 scene...");
@@ -464,6 +512,31 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
         checkpoint.SetCheckpointIndex(1);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+
+    // GetCheckpoints();
+
+    for (int i = 0; i < kCheckpoints.size(); i++)
+    {
+        Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(kCheckpoints[i].first);
+        transform.SetOrientation(kCheckpoints[i].second);
+        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
+
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(i + 2);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");

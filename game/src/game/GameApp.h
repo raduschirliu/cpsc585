@@ -12,6 +12,7 @@ class GameApp : public App
     // From App
     void OnInit() override;
     void OnStart() override;
+    void GetCheckpoints();
     void OnSceneLoaded(Scene& scene) override;
 
   private:
