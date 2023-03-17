@@ -71,7 +71,7 @@ Mesh AssetService::ProcessMesh(aiNode *node, aiMesh *mesh, const aiScene *scene)
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
     {
-        Vertex vertex(glm::vec3(0.f));
+        Vertex vertex(glm::vec3(0.0f));
         glm::vec3 vector;
 
         // Position

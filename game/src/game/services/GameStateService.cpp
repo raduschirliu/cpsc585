@@ -53,7 +53,7 @@ GameStateService::GameStateService()
 void GameStateService::OnInit()
 {
     race_config_.num_human_players = 1;
-    race_config_.num_ai_players = 1;
+    race_config_.num_ai_players = 0;
     race_config_.num_laps = 2;
 
     race_state_.Reset();
