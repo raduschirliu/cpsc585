@@ -13,6 +13,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
+#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/RaycastComponent.h"
 #include "game/components/VehicleComponent.h"
@@ -625,8 +626,10 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
         camera_entity.AddComponent<Transform>();
         camera_entity.AddComponent<Camera>();
 
-        auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
-        camera_follower.SetFollowingTransform(kart_entity);
+        // auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
+        // camera_follower.SetFollowingTransform(kart_entity);
+
+        camera_entity.AddComponent<DebugCameraController>();
     }
     else
     {

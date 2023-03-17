@@ -26,7 +26,8 @@ void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 
     // Set defaults
     SetMaterial("default");
-    SetMaterialProperties({.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+    SetMaterialProperties({.albedo_texture = nullptr,
+                           .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                            .specular = vec3(0.5f, 0.5f, 0.5f),
                            .shininess = 64.0f});
 }

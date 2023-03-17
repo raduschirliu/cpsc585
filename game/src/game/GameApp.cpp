@@ -117,9 +117,10 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
-             .shininess = 32.0f});
+             .shininess = 64.0f});
     }
 
     {
@@ -136,7 +137,8 @@ void GameApp::LoadTestScene(Scene& scene)
         // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         // mesh_renderer.SetMesh("cube");
         // mesh_renderer.SetMaterialProperties(
-        //     {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+        //     {.albedo_texture = nullptr,.albedo_color = vec3(1.0f, 0.2f,
+        //     0.2f),
         //      .specular = vec3(0.4f, 0.1f, 0.1f),
         //      .shininess = 128.0f});
     }
@@ -144,14 +146,16 @@ void GameApp::LoadTestScene(Scene& scene)
     //     auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
     //     mesh_renderer.SetMesh("cube");
     //     mesh_renderer.SetMaterialProperties(
-    //         {.albedo_color = vec3(1.0f, 0.2f, 0.2f),
+    //         {.albedo_texture = nullptr,.albedo_color = vec3(1.0f, 0.2f,
+    //         0.2f),
     //          .specular = vec3(0.4f, 0.1f, 0.1f),
     //          .shininess = 128.0f});
     // }
 
     // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
     // mesh_renderer.SetMesh("cube");
-    // mesh_renderer.SetMaterialProperties({.albedo_color = vec3(1.0f, 0.2f,
+    // mesh_renderer.SetMaterialProperties({.albedo_texture =
+    // nullptr,.albedo_color = vec3(1.0f, 0.2f,
     // 0.2f),
     //                                      .specular = vec3(0.4f, 0.1f, 0.1f),
     //                                      .shininess = 128.0f});
@@ -194,7 +198,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
              .shininess = 64.0f});
 
@@ -226,7 +231,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
              .shininess = 64.0f});
 
@@ -253,7 +259,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
              .shininess = 64.0f});
 
@@ -280,7 +287,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
              .shininess = 64.0f});
 
@@ -303,7 +311,8 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
@@ -395,9 +404,12 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 {
     Log::info("Loading entities for Track1 scene...");
 
+    AssetService& asset_service_ =
+        GetServiceProvider().GetService<AssetService>();
+
     {
-        // Track
-        auto& entity = scene.AddEntity("Track");
+        // Track orange half
+        auto& entity = scene.AddEntity("Track-OrangeHalf");
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
@@ -406,11 +418,89 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         static_body.SetMesh("track3-collision", 1.0f);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("track3");
+        mesh_renderer.SetMesh("track3new@OrangeTrack");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(1.0f, 1.0f, 1.0f),
+            {.albedo_texture =
+                 &asset_service_.GetTexture("track3new@OrangeTrack"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
-             .shininess = 32.0f});
+             .shininess = 64.0f});
+    }
+    {
+        // Track blue half
+        auto& entity = scene.AddEntity("Track-BlueHalf");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@BlueTrack");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture =
+                 &asset_service_.GetTexture("track3new@BlueTrack"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+    {
+        // Track blocks
+        auto& entity = scene.AddEntity("Track-Blocks");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@Blocks");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture = &asset_service_.GetTexture("track3new@Blocks"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+    {
+        // Track globe
+        auto& entity = scene.AddEntity("Track-Globe");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@Globe");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture = &asset_service_.GetTexture("track3new@Globe"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+    {
+        // Track screen
+        auto& entity = scene.AddEntity("Track-Screen");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@Screen");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture = &asset_service_.GetTexture("track3new@Screen"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
+    }
+    {
+        // Track rings
+        auto& entity = scene.AddEntity("Track-Rings");
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(vec3(0.0f, 0.0f, 0.0f));
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("track3new@Rings");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_texture = &asset_service_.GetTexture("track3new@Rings"),
+             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
     }
     {
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
@@ -443,7 +533,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }
@@ -465,7 +556,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("cube");
         mesh_renderer.SetMaterialProperties(
-            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+            {.albedo_texture = nullptr,
+             .albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
     }

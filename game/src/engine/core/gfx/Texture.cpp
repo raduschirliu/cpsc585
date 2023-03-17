@@ -12,7 +12,7 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
       interpolation_(interpolation_mode)
 {
     int num_components;
-    stbi_set_flip_vertically_on_load(false);
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* data =
         stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
 

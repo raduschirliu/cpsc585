@@ -79,5 +79,31 @@
         //     "path": "resources/textures/ui/setting_button.png",
         //     "name": "settings_button"
         // }
+
+        /* Materials */
+        {
+            "path": "resources/textures/track3/orangeTrack.png",
+            "name": "track3new@OrangeTrack"
+        },
+        {
+            "path": "resources/textures/track3/blueTrack.png",
+            "name": "track3new@BlueTrack"
+        },
+        {
+            "path": "resources/textures/track3/screen.png",
+            "name": "track3new@Screen"
+        },
+        {
+            "path": "resources/textures/track3/blocks.png",
+            "name": "track3new@Blocks"
+        },
+        {
+            "path": "resources/textures/track3/globe.png",
+            "name": "track3new@Globe"
+        },
+        {
+            "path": "resources/textures/track3/rings.png",
+            "name": "track3new@Rings"
+        }
     ]
 }
