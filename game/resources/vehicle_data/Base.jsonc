@@ -17,7 +17,7 @@
   "Frame": {
     "LngAxis": 4, // PxVehicleAxes::ePosZ 
     "LatAxis": 0, // PxVehicleAxes::ePosX
-    "VrtAxis": 2  // PxVehicleAxes::ePosY 
+    "VrtAxis": 2 // PxVehicleAxes::ePosY 
   },
   "Scale": {
     "Scale": 1.0
