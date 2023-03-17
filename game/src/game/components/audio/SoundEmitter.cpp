@@ -17,6 +17,16 @@ void SoundEmitter::PlaySource()
     audio_service_->PlaySource(GetEntity().GetId());
 }
 
+void SoundEmitter::SetPitch(float pitch_offset)
+{
+    audio_service_->SetPitch(pitch_offset, GetEntity().GetId());
+}
+
+void SoundEmitter::SetGain(float gain)
+{
+    audio_service_->SetGain(gain, GetEntity().GetId());
+}
+
 /* ----- from Component -----*/
 
 void SoundEmitter::OnInit(const ServiceProvider& service_provider)

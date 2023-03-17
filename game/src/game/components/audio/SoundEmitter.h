@@ -15,6 +15,9 @@ class SoundEmitter final : public Component,
     void SetSource(std::string file_name);
     void PlaySource();
 
+    void SetPitch(float pitch_offset);
+    void SetGain(float gain); 
+
     /* ----- from Component -----*/
 
     void OnInit(const ServiceProvider& service_provider) override;
