@@ -100,17 +100,17 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
     switch (ammo_type)
     {
         case kDoubleDamage:
-            audio_emitter_->SetSource("kart_shoot_02.ogg");
+            audio_emitter_->AddSource("kart_shoot_02.ogg");
             break;
         case kExploadingBullet:
-            audio_emitter_->SetSource("kart_shoot_03.ogg");
+            audio_emitter_->AddSource("kart_shoot_03.ogg");
             break;
         // TODO!! need to find sounds
         case kBuckshot:
         case kIncreaseFireRate:
         case kVampireBullet:
         default:
-            audio_emitter_->SetSource("kart_shoot_01.ogg");
+            audio_emitter_->AddSource("kart_shoot_01.ogg");
             break;
     }
 }

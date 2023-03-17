@@ -207,6 +207,8 @@ class AudioService final : public Service
     /// deletes all inactive sources and buffers
     void CullSources();
 
+    /* ----- getters ----- */
+
     /// @brief determines whether or not an audio file's source
     ///   is currently playing.
     /// @param file_name name of the audio file the source may be playing.

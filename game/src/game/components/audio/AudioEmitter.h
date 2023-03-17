@@ -12,8 +12,8 @@ class AudioEmitter final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    void SetSource(std::string file_name);
-    void PlaySource();
+    void AddSource(std::string file_name);
+    void PlaySource(std::string file_name);
 
     /* ----- from Component -----*/
 

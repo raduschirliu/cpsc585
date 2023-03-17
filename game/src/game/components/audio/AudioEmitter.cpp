@@ -6,15 +6,15 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-void AudioEmitter::SetSource(std::string file_name)
+void AudioEmitter::AddSource(std::string file_name)
 {
     file_name_ = file_name;
-    audio_service_->AddSource(file_name, GetEntity().GetId());
+    audio_service_->AddSource(GetEntity().GetId(), file_name);
 }
 
-void AudioEmitter::PlaySource()
+void AudioEmitter::PlaySource(std::string file_name)
 {
-    audio_service_->PlaySource(GetEntity().GetId());
+    audio_service_->PlaySource(GetEntity().GetId(), file_name);
 }
 
 /* ----- from Component -----*/
