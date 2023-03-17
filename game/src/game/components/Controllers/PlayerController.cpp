@@ -2,9 +2,11 @@
 
 #include <imgui.h>
 
+#include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/state/PlayerState.h"
 
