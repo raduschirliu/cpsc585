@@ -11,7 +11,7 @@
 #include "game/components/state/PlayerState.h"
 
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
-static constexpr float kDefaultBrake = -0.1f;
+static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 1.0f;
 static constexpr float kHanldingMultiplier = 1.0f;
 
@@ -136,17 +136,21 @@ float PlayerController::GetSteerDirection()
 
 float PlayerController::GetThrottle()
 {
-    const float gamepad_trigger_left =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
-    const float gamepad_trigger_right =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
+    float gamepad_trigger_left = 0.0f;
+    float gamepad_trigger_right = 0.0f;
 
-    // Log::debug("Right trigger: {}", gamepad_trigger_right);
-    // Log::debug("Left trigger: {}", gamepad_trigger_left);
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        gamepad_trigger_left =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+        gamepad_trigger_right =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+    }
+
     if (forward_gear_)
     {
         if (input_service_->IsKeyDown(GLFW_KEY_W))
@@ -196,14 +200,21 @@ void PlayerController::UpdateGear()
 
 float PlayerController::GetFrontBrake()
 {
-    const float gamepad_trigger_left =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
-    const float gamepad_trigger_right =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
+    float gamepad_trigger_left = 0.0f;
+    float gamepad_trigger_right = 0.0f;
+
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        gamepad_trigger_left =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+        gamepad_trigger_right =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+    }
+
     if (input_service_->IsKeyDown(GLFW_KEY_S) && forward_gear_)
     {
         return 1.0f;
@@ -233,9 +244,9 @@ float PlayerController::GetRearBrake()
     if (input_service_->IsKeyDown(GLFW_KEY_E) ||
         input_service_->IsGamepadButtonDown(kGamepadId, GLFW_GAMEPAD_BUTTON_A))
     {
-        Log::debug("BLYAT");
         return 1.0f;
     }
+
     return 0.0f;
 }
 
@@ -250,22 +261,29 @@ void PlayerController::OnDebugGui()
 
 bool PlayerController::GetGearChangeButton()
 {
-    const float gamepad_trigger_left =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
-    const float gamepad_trigger_right =
-        math::Map(input_service_->GetGamepadAxis(
-                      kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
-                  -1.0f, 1.0f, 0.0f, 1.0f);
+    float gamepad_trigger_left = 0.0f;
+    float gamepad_trigger_right = 0.0f;
+
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        gamepad_trigger_left =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+        gamepad_trigger_right =
+            math::Map(input_service_->GetGamepadAxis(
+                          kGamepadId, GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER),
+                      -1.0f, 1.0f, 0.0f, 1.0f);
+    }
+
     if (forward_gear_)
     {
         return input_service_->IsKeyPressed(GLFW_KEY_S) ||
-               (gamepad_trigger_left > 0.0f);
+               (gamepad_trigger_left > 0.1f);
     }
     else
     {
         return input_service_->IsKeyPressed(GLFW_KEY_W) ||
-               (gamepad_trigger_right > 0.0f);
+               (gamepad_trigger_right > 0.1f);
     }
 }

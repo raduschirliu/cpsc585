@@ -52,7 +52,7 @@ std::string_view AIService::GetName() const
 void AIService::ReadVertices()
 {
     std::fstream file;
-    file.open("resources/models/track/track3-7navmesh2.obj", std::ios::in);
+    file.open("resources/models/track3/track3-7navmesh2.obj", std::ios::in);
     if (!file)
     {
         Log::error("Cannot open the navmesh file.");

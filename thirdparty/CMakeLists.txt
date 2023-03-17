@@ -66,10 +66,12 @@ set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
 # Disable all importers except for the ones manually enabled below
 # Assimp importer names can be found by searching for uses of the `ADD_ASSIMP_IMPORTER` macro in assimp code
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_COLLADA_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_BLEND_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_GLTF_IMPORTER 		ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_OBJ_IMPORTER 		ON CACHE BOOL "" FORCE)
+# May want to enable these at some point again
+set(ASSIMP_BUILD_BLEND_IMPORTER 	OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_COLLADA_IMPORTER 	OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_FBX_IMPORTER 		OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(assimp)
 set(LIBRARIES ${LIBRARIES} assimp)
@@ -112,6 +114,7 @@ set(INCLUDES ${INCLUDES} object_ptr/)
 # -------------------------
 set(INCLUDES ${INCLUDES} includes)
 set(DEFINITIONS ${DEFINITIONS} RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseTrailingCommasFlag|kParseCommentsFlag)
+set(DEFINITIONS ${DEFINITIONS} RAPIDJSON_HAS_STDSTRING=1)
 
 # -------------------------
 # Thirdparty combination library

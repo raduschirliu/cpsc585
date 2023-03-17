@@ -194,7 +194,7 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& raycast = car_entity.AddComponent<RaycastComponent>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("kart2-4");
+        mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.3f, 0.3f, 0.3f),
              .specular = vec3(0.3f, 0.3f, 0.3f),
@@ -226,7 +226,7 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("kart2-4");
+        mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 0.0f, 0.0f),
              .specular = vec3(1.0f, 0.0f, 0.0f),
@@ -253,7 +253,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("kart2-4");
+        mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(1.0f, 1.0f, 0.0f),
              .specular = vec3(0.0f, 1.0f, 0.0f),
@@ -280,7 +280,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh("kart2-4");
+        mesh_renderer.SetMesh("kart");
         mesh_renderer.SetMaterialProperties(
             {.albedo_color = vec3(0.0f, 0.0f, 1.0f),
              .specular = vec3(0.0f, 0.0f, 1.0f),
