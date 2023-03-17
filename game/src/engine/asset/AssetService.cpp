@@ -72,7 +72,6 @@ void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; i++)
     {
-
         Vertex vertex(vec3(0.0f, 0.0f, 0.0f));
 
         // Position
@@ -127,12 +126,10 @@ const Texture &AssetService::GetTexture(const string &name)
 
 void AssetService::OnInit()
 {
-
     LoadAssetFile(kAssetFilePath);
 
     Log::info("Loaded meshes: {}", meshes_.size());
     Log::info("Loaded textures: {}", textures_.size());
-
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
