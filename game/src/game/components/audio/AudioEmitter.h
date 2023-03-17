@@ -8,7 +8,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class SoundEmitter final : public Component,
+class AudioEmitter final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
 {
   public:

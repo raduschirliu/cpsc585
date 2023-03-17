@@ -1,4 +1,4 @@
-#include "SoundEmitter.h"
+#include "AudioEmitter.h"
 
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
@@ -6,20 +6,20 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-void SoundEmitter::SetSource(std::string file_name)
+void AudioEmitter::SetSource(std::string file_name)
 {
     file_name_ = file_name;
     audio_service_->AddSource(file_name, GetEntity().GetId());
 }
 
-void SoundEmitter::PlaySource()
+void AudioEmitter::PlaySource()
 {
     audio_service_->PlaySource(GetEntity().GetId());
 }
 
 /* ----- from Component -----*/
 
-void SoundEmitter::OnInit(const ServiceProvider& service_provider)
+void AudioEmitter::OnInit(const ServiceProvider& service_provider)
 {
     Log::info("{} - Init", GetName());
 
@@ -35,14 +35,14 @@ void SoundEmitter::OnInit(const ServiceProvider& service_provider)
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
-std::string_view SoundEmitter::GetName() const
+std::string_view AudioEmitter::GetName() const
 {
-    return "SoundEmitter";
+    return "AudioEmitter";
 }
 
 /* ----- from IEventSubscriber ----- */
 
-void SoundEmitter::OnUpdate(const Timestep& delta_time)
+void AudioEmitter::OnUpdate(const Timestep& delta_time)
 {
     glm::vec3 position = transform_->GetPosition();
     audio_service_->SetSourcePosition(GetEntity().GetId(), position);

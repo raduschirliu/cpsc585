@@ -37,7 +37,7 @@
 #include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioListener.h"
-#include "game/components/audio/SoundEmitter.h"
+#include "game/components/audio/AudioEmitter.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/PlayerHud.h"
