@@ -24,7 +24,6 @@ using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
-static constexpr PxReal max_speed = 100.0f;
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
 static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
