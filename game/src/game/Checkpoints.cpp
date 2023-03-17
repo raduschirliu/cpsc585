@@ -41,9 +41,9 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
                     temp_vertex.push_back(std::stof(word));
                 }
             }
-            kCheckpoints.push_back({
-                glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
-                glm::vec3(0, 0, 0)});
+            kCheckpoints.push_back(
+                {glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
+                 glm::vec3(0, 0, 0)});
         }
     }
 

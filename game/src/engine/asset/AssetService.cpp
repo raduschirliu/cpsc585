@@ -409,7 +409,8 @@ void AssetService::OnInit()
     // LoadTexture("resources/textures/ui/multi_button.png", "multi_button");
     // LoadTexture("resources/textures/ui/howToPlay_button.png",
     //             "howToPlay_button");
-    // LoadTexture("resources/textures/ui/setting_button.png", "settings_button");
+    // LoadTexture("resources/textures/ui/setting_button.png",
+    // "settings_button");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

@@ -611,7 +611,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     // as we want the id of the entity to be as the same of the index, we will
     // take care of that now.
-    
+
     // finding if the index is already assigned to any other entity.
     for (auto& e : scene.GetEntities())
     {
