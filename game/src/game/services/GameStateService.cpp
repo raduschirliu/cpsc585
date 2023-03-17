@@ -14,7 +14,7 @@
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/FollowCamera.h"
-#include "game/components/RaycastComponent.h"
+#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
