@@ -56,6 +56,8 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<PlayerState> player_state_;
 
+    void ShootBuckshot();
+
     /// sets the sound of the shot depending on the ammo type
     void SetShootSound(AmmoPickupType ammo_type);
 };

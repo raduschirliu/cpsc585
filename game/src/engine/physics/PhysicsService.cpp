@@ -369,7 +369,6 @@ std::optional<RaycastData> PhysicsService::Raycast(
     // check if hit successful
     if (!raycast_result.hasBlock)
     {
-        Log::debug("[Raycast]:  No hit");
         return std::nullopt;
     }
 
@@ -388,7 +387,6 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
-    Log::debug("[Raycast]: Hit something");
 
     return result;
 }
