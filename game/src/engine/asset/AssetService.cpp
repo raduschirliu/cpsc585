@@ -404,12 +404,13 @@ void AssetService::OnInit()
     LoadMesh("resources/models/pickups/pickup_defence_3.obj", "defence");
     LoadMesh("resources/models/pickups/pickup_defence.obj", "defence_shield");
 
-    LoadTexture("resources/textures/ui/main.png", "menu_title");
-    LoadTexture("resources/textures/ui/single_button.png", "single_button");
-    LoadTexture("resources/textures/ui/multi_button.png", "multi_button");
-    LoadTexture("resources/textures/ui/howToPlay_button.png",
-                "howToPlay_button");
-    LoadTexture("resources/textures/ui/setting_button.png", "settings_button");
+    // LoadTexture("resources/textures/ui/main.png", "menu_title");
+    // LoadTexture("resources/textures/ui/single_button.png", "single_button");
+    // LoadTexture("resources/textures/ui/multi_button.png", "multi_button");
+    // LoadTexture("resources/textures/ui/howToPlay_button.png",
+    //             "howToPlay_button");
+    // LoadTexture("resources/textures/ui/setting_button.png",
+    // "settings_button");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
