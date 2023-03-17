@@ -29,6 +29,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     int GetDeaths() const;
     int GetLapsCompleted() const;
     int GetLastCheckpoint() const;
+    float GetHealth() const;
     Entity* GetNemesis();
     Entity* GetBullied();
     PowerupPickupType GetCurrentPowerup() const;

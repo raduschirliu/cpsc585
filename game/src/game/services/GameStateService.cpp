@@ -52,10 +52,12 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
+    font_impact_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        "resources/textures/fonts/impact.ttf", 60.f);
     font_beya_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "resources/textures/fonts/beya.ttf", 45.0f);
+        "resources/textures/fonts/beya.ttf", 72.f);
     font_pado_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "resources/textures/fonts/padosori.ttf", 36.0f);
+        "resources/textures/fonts/padosori.ttf", 72.f);
 
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
@@ -132,7 +134,7 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::SetNextWindowPos(ImVec2(225, 650));
+        ImGui::SetNextWindowPos(ImVec2(220, 625));
         ImGui::Begin("Timer", nullptr, flags);
 
         // ImGui::Text("Players:", players_.size());
@@ -150,9 +152,8 @@ void GameStateService::OnGui()
 
         // ImGui::SameLine(0.f, 800.f);
 
-        ImGui::SetNextWindowPos(ImVec2(1025, 650));
+        ImGui::SetNextWindowPos(ImVec2(1090, 610));
         ImGui::Begin("Ranking", nullptr, flags);
-
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
             const int place = static_cast<int>(i + 1);

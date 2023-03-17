@@ -12,6 +12,7 @@ struct PlayerStateData
     int laps_completed;
     int last_checkpoint;
     int place;
+    float health;
     Entity* nemesis;
     Entity* bullied;
     PowerupPickupType current_powerup;  // will be decided by the enum defined
@@ -32,6 +33,7 @@ struct PlayerStateData
         last_checkpoint = 0;
         current_powerup = PowerupPickupType::kDefaultPowerup;
         place = 0;
+        health = 1.f;
         nemesis = nullptr;
         bullied = nullptr;
         accuracy = 0.0f;

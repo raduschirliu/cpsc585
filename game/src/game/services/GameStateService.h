@@ -127,4 +127,5 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     ImFont* font_beya_;
     ImFont* font_pado_;
+    ImFont* font_impact_;
 };

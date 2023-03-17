@@ -27,4 +27,6 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<PlayerState> player_state_;
+
+    float health;
 };

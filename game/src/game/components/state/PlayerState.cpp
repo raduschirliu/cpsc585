@@ -65,6 +65,11 @@ int PlayerState::GetLastCheckpoint() const
     return player_state_.last_checkpoint;
 }
 
+float PlayerState::GetHealth() const
+{
+    return player_state_.health;
+}
+
 PlayerStateData* PlayerState::GetStateData()
 {
     return &player_state_;

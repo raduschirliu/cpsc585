@@ -40,6 +40,8 @@
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
+#include "game/components/ui/HowToPlay.h"
+#include "game/components/ui/Setting.h"
 #include "game/services/GameStateService.h"
 
 using glm::ivec2;
@@ -84,6 +86,8 @@ void GameApp::OnStart()
     AddScene("Test");
     AddScene("Track1");
     AddScene("MainMenu");
+    AddScene("HowToPlay");
+    AddScene("Setting");
 
     SetActiveScene("MainMenu");
 }
@@ -103,6 +107,14 @@ void GameApp::OnSceneLoaded(Scene& scene)
     else if (scene_name == "MainMenu")
     {
         LoadMainMenuScene(scene);
+    }
+    else if (scene_name == "HowToPlay")
+    {
+        LoadHowToPlayScene(scene);
+    }
+    else if (scene_name == "Setting")
+    {
+        LoadSettingScene(scene);
     }
 }
 
@@ -483,4 +495,20 @@ void GameApp::LoadMainMenuScene(Scene& scene)
 
     Entity& entity = scene.AddEntity("Menu");
     entity.AddComponent<MainMenu>();
+}
+
+void GameApp::LoadHowToPlayScene(Scene& scene)
+{
+    Log::info("Loading entities for HowToPlay scene...");
+
+    Entity& entity = scene.AddEntity("HowToPlay");
+    entity.AddComponent<HowToPlay>();
+}
+
+void GameApp::LoadSettingScene(Scene& scene)
+{
+    Log::info("Loading entities for Setting scene...");
+
+    Entity& entity = scene.AddEntity("Setting");
+    entity.AddComponent<Setting>();
 }

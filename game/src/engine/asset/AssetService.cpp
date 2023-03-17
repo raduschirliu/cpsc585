@@ -413,6 +413,9 @@ void AssetService::OnInit()
     LoadTexture("resources/textures/ui/countdown3.png", "countdown3");
     LoadTexture("resources/textures/ui/countdown2.png", "countdown2");
     LoadTexture("resources/textures/ui/countdown1.png", "countdown1");
+    LoadTexture("resources/textures/ui/howToPlay.png", "how_to_play");
+    LoadTexture("resources/textures/ui/home_button.png", "home_button");
+    LoadTexture("resources/textures/ui/background.png", "background");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

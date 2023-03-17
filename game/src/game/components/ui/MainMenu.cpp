@@ -94,6 +94,7 @@ void MainMenu::OnGui()
     if (ImGui::ImageButton("how to play button", guide_button_->GetGuiHandle(),
                            ImVec2(222, 49)))
     {
+        scene_service_->SetActiveScene("HowToPlay");
     }
     ImGui::PopStyleColor(3);
 
@@ -104,6 +105,7 @@ void MainMenu::OnGui()
     if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
                            ImVec2(163, 49)))
     {
+        scene_service_->SetActiveScene("Setting");
     }
     ImGui::PopStyleColor(3);
 
