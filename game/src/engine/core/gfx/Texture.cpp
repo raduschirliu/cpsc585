@@ -6,13 +6,17 @@
 
 #include "engine/core/debug/Assert.h"
 
-Texture::Texture(std::string path, InterpolationMode interpolation_mode)
+Texture::Texture(std::string path, InterpolationMode interpolation_mode,
+                 bool flip_vertically)
     : handle_(),
       path_(path),
       interpolation_(interpolation_mode)
 {
     int num_components;
-    stbi_set_flip_vertically_on_load(true);
+    if (flip_vertically)
+    {
+        stbi_set_flip_vertically_on_load(true);
+    }
     unsigned char* data =
         stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
 
