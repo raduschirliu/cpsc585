@@ -93,6 +93,7 @@ class Entity
     void OnDestroy();
 
     const uint32_t& GetId() const;
+    void SetId(uint32_t& id);
     const std::string& GetName() const;
 
   protected:

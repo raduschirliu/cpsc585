@@ -30,7 +30,7 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(7.0);
+static const Timestep kCountdownTime = Timestep::Seconds(1.0);
 
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
@@ -53,7 +53,7 @@ GameStateService::GameStateService()
 void GameStateService::OnInit()
 {
     race_config_.num_human_players = 1;
-    race_config_.num_ai_players = 3;
+    race_config_.num_ai_players = 1;
     race_config_.num_laps = 2;
 
     race_state_.Reset();
@@ -392,7 +392,7 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
-    for (uint32_t i = 0; i < /*race_config_.num_ai_players*/ 1; i++)
+    for (uint32_t i = 0; i < race_config_.num_ai_players; i++)
     {
         CreatePlayer(player_idx, false);
         player_idx++;
@@ -608,6 +608,21 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     // Create & configure car entity
     Entity& kart_entity = scene.AddEntity(entity_name);
+
+    // as we want the id of the entity to be as the same of the index, we will
+    // take care of that now.
+    
+    // finding if the index is already assigned to any other entity.
+    for (auto& e : scene.GetEntities())
+    {
+        if (e->GetId() == index)
+        {
+            auto id = kart_entity.GetId();
+            auto swapping_id = e->GetId();
+            kart_entity.SetId(swapping_id);
+            e->SetId(id);
+        }
+    }
 
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
