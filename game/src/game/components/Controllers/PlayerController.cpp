@@ -29,6 +29,10 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
 
 void PlayerController::OnUpdate(const Timestep& delta_time)
 {
+    if (game_state_service_->GetRaceState()
+            .countdown_elapsed_time.GetSeconds() <=
+        game_state_service_->GetMaxCountdownSeconds())
+        return;
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
 }

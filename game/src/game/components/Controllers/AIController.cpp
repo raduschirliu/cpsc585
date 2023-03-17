@@ -78,6 +78,11 @@ void AIController::UpdatePowerup()
 
 void AIController::OnUpdate(const Timestep& delta_time)
 {
+    if (game_state_service_->GetRaceState()
+            .countdown_elapsed_time.GetSeconds() <=
+        game_state_service_->GetMaxCountdownSeconds())
+        return;
+
     glm::vec3 current_car_position = transform_->GetPosition();
     glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
 
@@ -119,9 +124,9 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     glm::vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
     float projected = dot(waypoint_dir, current_car_right_direction);
 
-    DrawDebugLine(
-        current_car_position,
-        glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
+    // DrawDebugLine(
+    //     current_car_position,
+    //     glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
 
     if (projected <= 0.1f && projected >= -0.1f)
     {
@@ -148,7 +153,7 @@ void AIController::NextWaypoint(glm::vec3& current_car_position,
     if (distance < 50.0f)
     {
         int min_index = 0;
-        float min_distance = std::numeric_limits<float>::max;
+        float min_distance = std::numeric_limits<float>::max();
         // find the smallest path which not has been traversed yet.
         for (int i = 0; i < path_to_follow_.size(); i++)
         {

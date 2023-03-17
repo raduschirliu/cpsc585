@@ -421,10 +421,12 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         return;
     }
 
-    // if (!player.is_human)
-    // {
-    //     player.entity->GetComponent<AIController>().ResetForNextLap();
-    // }
+    Log::debug("Player {}, completed the lap", player.entity->GetName());
+
+    if (!player.is_human)
+    {
+        player.entity->GetComponent<AIController>().ResetForNextLap();
+    }
 
     const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
@@ -665,4 +667,9 @@ CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
     next_index %= track_config_.checkpoints.size();
 
     return track_config_.checkpoints[next_index];
+}
+
+double GameStateService::GetMaxCountdownSeconds()
+{
+    return kCountdownTime.GetSeconds();
 }

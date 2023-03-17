@@ -14,6 +14,7 @@ void Checkpoint::OnInit(const ServiceProvider& service_provider)
 void Checkpoint::OnTriggerEnter(const OnTriggerEvent& data)
 {
     game_service_->PlayerCrossedCheckpoint(*data.other, checkpoint_index_);
+    
 }
 
 std::string_view Checkpoint::GetName() const
