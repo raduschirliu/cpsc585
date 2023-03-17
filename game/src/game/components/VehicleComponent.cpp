@@ -14,7 +14,7 @@
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
-#include "game/components/audio/SoundEmitter.h"  // debugging
+#include "game/components/audio/AudioEmitter.h"  // debugging
 
 using glm::vec3;
 using std::string;
@@ -107,7 +107,7 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    //    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  //
+    //    sound_emitter_ = &GetEntity().GetComponent<AudioEmitter>();  //
     //    debugging
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
