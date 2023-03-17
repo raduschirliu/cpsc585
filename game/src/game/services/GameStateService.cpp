@@ -168,7 +168,7 @@ void GameStateService::RemoveActivePowerup()
             // active_powerup_ so that cars can go back to normal speed.
             if (a.second == PowerupPickupType::kEveryoneSlower)
             {
-                if (timer_[a] > 5.f)
+                if (timer_[a] > 5.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -193,7 +193,7 @@ void GameStateService::RemoveActivePowerup()
             }
             else if (a.second == PowerupPickupType::kDisableHandling)
             {
-                if (timer_[a] > 2.f)
+                if (timer_[a] > 2.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -238,7 +238,7 @@ void GameStateService::RemoveActivePowerup()
             }
             else if (a.second == PowerupPickupType::kIncreaseAimBox)
             {
-                if (timer_[a] > 4.f)
+                if (timer_[a] > 4.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -299,7 +299,7 @@ GameStateService::PowerupsActive()
             if (same_powerup_.find(p) == same_powerup_.end())
             {
                 // starting the time of this powerup as well
-                timer_.insert_or_assign({p.first, p.second}, 0.f);
+                timer_.insert_or_assign({p.first, p.second}, 0.0f);
                 same_powerup_.insert(p);
             }
         }
@@ -392,7 +392,7 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
-    for (uint32_t i = 0; i < race_config_.num_ai_players; i++)
+    for (uint32_t i = 0; i < /*race_config_.num_ai_players*/ 1; i++)
     {
         CreatePlayer(player_idx, false);
         player_idx++;
@@ -421,13 +421,26 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         return;
     }
 
+    // if (!player.is_human)
+    // {
+    //     player.entity->GetComponent<AIController>().ResetForNextLap();
+    // }
+
     const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
 
     if (laps == race_config_.num_laps)
     {
-        Log::info("Player finished game!");
-        audio_service_->PlayOneShot("yay.ogg");
+        if (player.is_human)
+        {
+            Log::info("Player finished game!");
+        }
+        else
+        {
+            Log::info("AI finished game!");
+        }
+        // audio_service_->PlayMusic("yay.ogg");
+
         race_state_.finished_players++;
     }
 }
@@ -631,7 +644,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     else
     {
         auto& ai_controller = kart_entity.AddComponent<AIController>();
-        ai_controller.SetGVehicle(vehicle.GetVehicle());
     }
 
     // Register the player
