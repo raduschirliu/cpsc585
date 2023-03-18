@@ -62,4 +62,5 @@ class VehicleComponent final : public Component,
     void InitVehicle();
     void InitMaterialFrictionTable();
     void LoadParams();
+    void HandleVehicleTransform();
 };

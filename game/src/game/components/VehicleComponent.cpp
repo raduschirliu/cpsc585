@@ -105,6 +105,33 @@ void VehicleComponent::InitMaterialFrictionTable()
     gNbPhysXMaterialFrictions_ = 1;
 }
 
+void VehicleComponent::HandleVehicleTransform()
+{
+    if (game_state_service_->GetRespawnRequested(this->GetEntity().GetId()))
+    {
+        vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
+            CreatePxTransform(transform_->GetPosition(),
+                              transform_->GetOrientation()));
+
+        // now remove this from the list in gameservice so that it doesnt
+        // respawn again and again until requested again later.
+        game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
+
+        // set the velocity of this car to be 0, as it just respawned
+        vehicle_.mBaseState.rigidBodyState.linearVelocity = physx::PxVec3(0.f);
+    }
+
+    else
+    {
+        const PxTransform& pose =
+            vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+        const GlmTransform transform = PxToGlm(pose);
+        transform_->SetPosition(transform.position);
+        transform_->SetOrientation(transform.orientation);
+    }
+}
+
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
     //    sound_emitter_ = &GetEntity().GetComponent<SoundEmitter>();  //
@@ -134,30 +161,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         Log::info("Reloaded vehicle params from JSON files...");
     }
 
-    // std::cout << respawn_vehicle_ << std::endl;
-
-    if (game_state_service_->GetRespawnRequested(this->GetEntity().GetId()))
-    {
-        vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
-            CreatePxTransform(transform_->GetPosition(),
-                              transform_->GetOrientation()));
-
-        // now remove this from the list in gameservice so that it doesnt
-        // respawn again and again until requested again later.
-        game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
-    }
-
-       else
-    {
-        const PxTransform& pose =
-            vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
-
-        const GlmTransform transform = PxToGlm(pose);
-        transform_->SetPosition(transform.position);
-        transform_->SetOrientation(transform.orientation);
-    }
-
-    // std::cout << transform_->GetForwardDirection() << std::endl;
+    HandleVehicleTransform();
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)

@@ -521,9 +521,13 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
 
     Checkpoints temp_checkpoint_obj;
     out_checkpoint_location1 =
-        temp_checkpoint_obj.GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index].first;
-    out_checkpoint_location2 = 
-        temp_checkpoint_obj.GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1].first;
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
+            .first;
+    out_checkpoint_location2 =
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
+            .first;
 
     // return the checkpoint the player/AI who calls this function is at right
     // now
