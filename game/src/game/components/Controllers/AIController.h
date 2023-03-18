@@ -52,4 +52,16 @@ class AIController final : public Component,
     int next_path_index_;
 
     std::set<int> path_traced_;
+
+    // respawn handling
+
+    // this will be set in the onstart of the controller, so that the we can
+    // store the initial height of the car in the world and then later compare
+    // if the height difference is more than 500 then we can respawn the car.
+    float initial_height_ = 0.f;
+
+    double respawn_timer_min_speed = 0.f;
+    void HandleRespawn(const Timestep& delta_time);
+    void HandleMinSpeedThresholdRespawn(const Timestep& delta_time);
+    void HandleFreefallRespawn(const Timestep& delta_time);
 };

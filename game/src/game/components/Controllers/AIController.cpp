@@ -10,6 +10,11 @@
 
 float kSpeedMultiplierReset(1.0f);
 float kHandlingMultiplierReset(1.0f);
+static constexpr float kMaxRespawnTimer(3.0f);
+static constexpr float kMaxFreeFallDifference(500.0f);
+static constexpr float kMinRespawnSpeed(
+    5.0f);  // if the AI is below this speed then the car will respawn to the
+            // last checkpoint as there is some problem with the AI.
 
 AIController::AIController()
     : input_service_(nullptr),
@@ -32,6 +37,9 @@ void AIController::OnInit(const ServiceProvider& service_provider)
 
     path_to_follow_ = ai_service_->GetPath();
     path_traced_.insert(next_path_index_);
+
+    // for respawning.
+    initial_height_ = transform_->GetPosition().y;
 }
 
 void AIController::UpdatePowerup()
@@ -88,6 +96,78 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
+    HandleRespawn(delta_time);
+}
+
+void AIController::HandleRespawn(const Timestep& delta_time)
+{
+    // TODO: if the AI skips a checkpoint by mistake, then wait 5 seconds, if it
+    //          doesnt correct itself then respawn it.
+
+    // if the velocity of car is less than some amount then respawn the car.
+    HandleMinSpeedThresholdRespawn(delta_time);
+
+    // if the car falls off the map
+    HandleFreefallRespawn(delta_time);
+}
+
+void AIController::HandleMinSpeedThresholdRespawn(const Timestep& delta_time)
+{
+    if (vehicle_->GetSpeed() < kMinRespawnSpeed)
+    {
+        respawn_timer_min_speed += delta_time.GetSeconds();
+        if (respawn_timer_min_speed >= kMaxRespawnTimer)
+        {
+            // reset the transform to that of the checkpoint
+            // TODO: Set the orientation based on the next and current
+            // checkpoint.
+            glm::vec3 checkpoint_location;
+            glm::vec3 next_checkpoint_location;
+
+            int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
+                this->GetEntity().GetId(), checkpoint_location,
+                next_checkpoint_location);
+
+            if (current_checkpoint == -1)
+                return;
+
+            transform_->SetPosition(checkpoint_location);
+            // add this car's id to respawn, which will be handled by the
+            // gamestateservice
+            game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+        }
+    }
+    else
+    {
+        // reset the timer back
+        respawn_timer_min_speed = 0.0f;
+    }
+}
+
+void AIController::HandleFreefallRespawn(const Timestep& delta_time)
+{
+    if (glm::abs(transform_->GetPosition().y - initial_height_) >
+        kMaxFreeFallDifference)
+    {
+        // reset the transform to that of the checkpoint
+        // TODO: Set the orientation based on the next and current checkpoint.
+        glm::vec3 checkpoint_location;
+        glm::vec3 next_checkpoint_location;
+
+        int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
+            this->GetEntity().GetId(), checkpoint_location,
+            next_checkpoint_location);
+
+        if (current_checkpoint == -1)
+            return;
+
+        transform_->SetPosition(checkpoint_location);
+        transform_->SetOrientation(glm::quat(glm::normalize(
+            glm::vec3(next_checkpoint_location - checkpoint_location))));
+        // as this indicates that the car has fallen off the map, respawn it to
+        // the previous checkpoint
+        game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+    }
 }
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
