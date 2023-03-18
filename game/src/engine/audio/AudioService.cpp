@@ -61,15 +61,17 @@ void AudioService::AddSource(std::string file_name)
     alSourcei(source, AL_LOOPING, AL_FALSE);
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
+    SourceBufferPair source_buffer_pair = {source, buffer};
+
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't create source for {}", file_name);
     }
 
-    non_diegetic_sources_.insert({file_name, {source, buffer}});
+    non_diegetic_sources_.insert({file_name, SourceBufferPair});
 }
 
-void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
+void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
 {
     AudioFile audio_file = LoadAudioFile(file_name, false);
 
@@ -96,12 +98,15 @@ void AudioService::AddSource(std::string file_name, std::uint32_t entity_id)
     alSourcef(source, AL_MAX_DISTANCE, 300.0f);  // distance until silent
     alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
 
+    SourceBufferPair source_buffer_pair = {source, buffer};
+    FileSourceMap file_source_map = {file_name, source_buffer_pair};
+
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't create source for {}", file_name);
     }
 
-    diegetic_sources_.insert({entity_id, {source, buffer}});
+    diegetic_sources_.insert({entity_id, file_source_map});
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -137,12 +142,14 @@ void AudioService::SetMusic(std::string file_name)
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
+    SourceBufferPair source_buffer_pair = {source, buffer};
+
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't queue audio buffers for {}.", file_name);
     }
 
-    music_source_ = {file_name, {source, buffers}};
+    music_source_ = {file_name, source_buffer_pair};
 }
 
 /* ----- playback functions ----- */
@@ -170,7 +177,7 @@ void AudioService::PlaySource(std::string file_name)
     Log::debug("Playing audio: {}", file_name);
 }
 
-void AudioService::PlaySource(std::uint32_t entity_id)
+void AudioService::PlaySource(std::uint32_t entity_id, std::string file_name)
 {
     // check if source already exists;
     if (!SourceExists(entity_id))
@@ -181,8 +188,7 @@ void AudioService::PlaySource(std::uint32_t entity_id)
 
     // find the source
     ALuint source;
-    source = diegetic_sources_[entity_id].first;
-    // alSourcei(source, AL_LOOPING, AL_TRUE); // debugging
+    source = diegetic_sources_[entity_id].second.first;
 
     alSourcePlay(source);
 
@@ -192,6 +198,7 @@ void AudioService::PlaySource(std::uint32_t entity_id)
         return;
     }
 
+    // debuggingggg
     Log::debug("Entity {} playing audio.", entity_id);
 
     float x;
@@ -235,9 +242,9 @@ void AudioService::StopSource(std::string file_name)
     alSourceStop(source);
 }
 
-void AudioService::StopSource(std::uint32_t entity_id)
+void AudioService::StopSource(std::uint32_t entity_id, std::string file_name)
 {
-    ALuint source = diegetic_sources_[entity_id].first;
+    ALuint source = diegetic_sources_[entity_id][file_name].first;
     alSourceStop(source);
 }
 
@@ -588,9 +595,9 @@ bool AudioService::IsPlaying(std::string file_name)
     return true;
 }
 
-bool AudioService::IsPlaying(std::uint32_t entity_id)
+bool AudioService::IsPlaying(std::uint32_t entity_id, std::string file_name)
 {
-    ALuint source = diegetic_sources_[entity_id].first;
+    ALuint source = diegetic_sources_[entity_id][file_name].first;
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
@@ -619,9 +626,9 @@ bool AudioService::SourceExists(std::string file_name)
     }
 }
 
-bool AudioService::SourceExists(std::uint32_t entity_id)
+bool AudioService::SourceExists(std::uint32_t entity_id, std::string file_name)
 {
-    if (diegetic_sources_.count(entity_id) == 1)
+    if (diegetic_sources_[entity_id].count(file_name) == 1)
     {
         return true;
     }
@@ -701,10 +708,13 @@ void AudioService::OnCleanup()
         alDeleteBuffers(1, &source.second.second);
     }
 
-    for (auto& source : diegetic_sources_)
+    for (auto& entity : diegetic_sources_)
     {
-        alDeleteSources(1, &source.second.first);
-        alDeleteBuffers(1, &source.second.second);
+        for (auto& source : entity)
+        {
+            alDeleteSources(1, &source.second.first);
+            alDeleteBuffers(1, &source.second.second);
+        }
     }
 
     // clear context + device

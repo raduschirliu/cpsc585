@@ -36,6 +36,7 @@
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
 #include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/race/Checkpoint.h"

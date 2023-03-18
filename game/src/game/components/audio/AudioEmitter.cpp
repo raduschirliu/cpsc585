@@ -1,4 +1,4 @@
-#include "SoundEmitter.h"
+#include "AudioEmitter.h"
 
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
@@ -6,15 +6,25 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-void AudioEmitter::SetSource(std::string file_name)
+void AudioEmitter::AddSource(std::string file_name)
 {
     file_name_ = file_name;
-    audio_service_->AddSource(file_name, GetEntity().GetId());
+    audio_service_->AddSource(GetEntity().GetId(), file_name);
 }
 
-void AudioEmitter::PlaySource()
+void AudioEmitter::PlaySource(std::string file_name)
 {
-    audio_service_->PlaySource(GetEntity().GetId());
+    audio_service_->PlaySource(GetEntity().GetId(), file_name);
+}
+
+void AudioEmitter::SetPitch(float pitch_offset)
+{
+    audio_service_->SetPitch(pitch_offset, GetEntity().GetId());
+}
+
+void AudioEmitter::SetGain(float gain)
+{
+    audio_service_->SetGain(gain, GetEntity().GetId());
 }
 
 void AudioEmitter::SetPitch(float pitch_offset)
