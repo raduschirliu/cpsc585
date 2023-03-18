@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 
+#include <glm/ext.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 #include <object_ptr.hpp>
 
 #include "PxPhysics.h"
@@ -22,7 +24,7 @@ using glm::vec3;
 
 void RaycastComponent::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("RaycastComponent - Init");
+    debug::LogInfo("RaycastComponent - Init");
 
     // service dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
@@ -72,8 +74,9 @@ void RaycastComponent::Shoot()
     vec3 normal = raycast.normal;
     vec3 position = raycast.position;
 
-    std::cout << "target actor: " << target_actor << "\n"
-              << "target position: " << position << "\t"
+    std::cout << "target actor: " << target_actor->getName() << "\n"
+              << "target position: " << glm::to_string(position) << "\t"
               << "distance from target: " << distance << "\t"
-              << "normal of raycast hit: " << normal << "\t" << std::endl;
+              << "normal of raycast hit: " << glm::to_string(normal) << "\t"
+              << std::endl;
 }

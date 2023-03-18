@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 
@@ -365,13 +366,13 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
             active_powerups_.erase(active_powerups_.begin() + i);
         }
     }
-    std::cout << "active : " << active_powerups_.size();
+    debug::LogDebug("active : {}", active_powerups_.size());
 }
 
 void GameStateService::StartCountdown()
 {
     race_state_.state = GameState::kCountdown;
-    Log::info("Race countdown started...");
+    debug::LogInfo("Race countdown started...");
 }
 
 void GameStateService::SetupRace()
@@ -382,7 +383,7 @@ void GameStateService::SetupRace()
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
                "Too many players added to the game");
-    Log::info("Spawning players...");
+    debug::LogInfo("Spawning players...");
 
     uint32_t player_idx = 0;
 
@@ -410,14 +411,14 @@ void GameStateService::StartRace()
         race_state_.sorted_players.push_back(entry.second.get());
     }
 
-    Log::info("Game started");
+    debug::LogInfo("Game started");
 }
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
     if (race_state_.state != GameState::kRaceInProgress)
     {
-        Log::error("Player finished lap before the game started");
+        debug::LogError("Player finished lap before the game started");
         return;
     }
 
@@ -433,11 +434,11 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
     {
         if (player.is_human)
         {
-            Log::info("Player finished game!");
+            debug::LogInfo("Player finished game!");
         }
         else
         {
-            Log::info("AI finished game!");
+            debug::LogInfo("AI finished game!");
         }
         // audio_service_->PlayMusic("yay.ogg");
 
@@ -484,8 +485,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        Log::info("Player {} hit incorrect checkpoint {} (expected {})",
-                  iter->second->index, index, expected_checkpoint);
+        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
+                       iter->second->index, index, expected_checkpoint);
         return;
     }
 
@@ -502,7 +503,7 @@ void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
     {
-        Log::error("Cannot configure the race if it has already started");
+        debug::LogError("Cannot configure the race if it has already started");
         return;
     }
 

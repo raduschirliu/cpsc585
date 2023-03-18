@@ -252,7 +252,7 @@ PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
 
     if (result == PxTriangleMeshCookingResult::Enum::eLARGE_TRIANGLE)
     {
-        Log::warn("Mesh '{}' is too large for cooking, may cause issues",
+        debug::LogWarn("Mesh '{}' is too large for cooking, may cause issues",
                   mesh_name);
     }
 
@@ -369,26 +369,26 @@ std::optional<RaycastData> PhysicsService::Raycast(
     // check if hit successful
     if (!raycast_result.hasBlock)
     {
-        Log::debug("[Raycast]:  No hit");
+        debug::LogDebug("[Raycast]:  No hit");
         return std::nullopt;
     }
 
     // data validity guard checks; ensure that data is available:
     if (!PxHitFlag::ePOSITION)
     {
-        Log::debug("[Raycast]: Invalid Position");
+        debug::LogDebug("[Raycast]: Invalid Position");
         return std::nullopt;
     }
 
     if (!PxHitFlag::eNORMAL)
     {
-        Log::debug("[Raycast]: Invalid Normal");
+        debug::LogDebug("[Raycast]: Invalid Normal");
         return std::nullopt;
     }
 
     // so we don't have to do these conversions everywhere
     RaycastData result(raycast_result);
-    Log::debug("[Raycast]: Hit something");
+    debug::LogDebug("[Raycast]: Hit something");
 
     return result;
 }
@@ -416,7 +416,7 @@ void PhysicsService::InitPhysX()
         kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
     if (pvd_status)
     {
-        Log::info("PhysX SDK connected to PVD");
+        debug::LogInfo("PhysX SDK connected to PVD");
     }
 
     // Physics initlaization

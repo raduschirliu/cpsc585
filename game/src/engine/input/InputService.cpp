@@ -128,16 +128,16 @@ void InputService::OnJoystickChangedEvent(int joystick_id, int event)
 
     if (event == GLFW_CONNECTED)
     {
-        Log::info("Joystick connected: {}", joystick_id);
+        debug::LogInfo("Joystick connected: {}", joystick_id);
 
         if (!kGamepads[joystick_id].Connect())
         {
-            Log::info("Connected joystick that is NOT a gamepad - ignoring");
+            debug::LogInfo("Connected joystick that is NOT a gamepad - ignoring");
         }
     }
     else if (event == GLFW_DISCONNECTED)
     {
-        Log::info("Joystick disconnected: {}", joystick_id);
+        debug::LogInfo("Joystick disconnected: {}", joystick_id);
         kGamepads[joystick_id].Disconnect();
     }
     else
@@ -201,7 +201,7 @@ void InputService::OnInit()
 
         if (gamepad.Connect())
         {
-            Log::info("Found controller, ID: {}", i);
+            debug::LogInfo("Found controller, ID: {}", i);
         }
 
         kGamepads.push_back(gamepad);

@@ -104,7 +104,7 @@ void GameApp::OnSceneLoaded(Scene& scene)
 
 void GameApp::LoadTestScene(Scene& scene)
 {
-    Log::info("Loading entities for Test scene...");
+    debug::LogInfo("Loading entities for Test scene...");
 
     {
         // Floor
@@ -395,7 +395,7 @@ void GameApp::LoadTestScene(Scene& scene)
 
 void GameApp::LoadTrack1Scene(Scene& scene)
 {
-    Log::info("Loading entities for Track1 scene...");
+    debug::LogInfo("Loading entities for Track1 scene...");
 
     {
         // Track

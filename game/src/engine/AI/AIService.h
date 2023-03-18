@@ -1,14 +1,9 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <map>
-#include <set>
-#include <stack>
+#include <glm/vec3.hpp>
 #include <vector>
 
-#include "../service/Service.h"
+#include "engine/service/Service.h"
 
 struct Faces
 {

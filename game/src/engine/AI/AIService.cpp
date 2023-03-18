@@ -1,8 +1,10 @@
-#include "AIService.h"
+#include "engine/AI/AIService.h"
 
 #include <fstream>
+#include <glm/glm.hpp>
 #include <limits>
 #include <sstream>
+#include <stack>
 #include <string>
 
 #include "engine/core/debug/Log.h"
@@ -28,7 +30,7 @@ std::vector<glm::vec3> AIService::GetPath()
 
 void AIService::OnInit()
 {
-    Log::debug("AIService initialized");
+    debug::LogDebug("AIService initialized");
     ReadVertices();
 }
 
@@ -55,7 +57,7 @@ void AIService::ReadVertices()
     file.open("resources/models/track3/track3-7navmesh2.obj", std::ios::in);
     if (!file)
     {
-        Log::error("Cannot open the navmesh file.");
+        debug::LogError("Cannot open the navmesh file.");
     }
     else
     {

@@ -25,13 +25,13 @@ void GuiExampleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F))
     {
-        Log::info("repsects = paid.");
+        debug::LogInfo("repsects = paid.");
         transform_->Translate(glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     if (input_service_->IsKeyDown(GLFW_KEY_X))
     {
-        Log::info("shaaaaaaauun");
+        debug::LogInfo("shaaaaaaauun");
         transform_->Translate(glm::vec3(0.0f, 0.25f, 0.0f));
     }
 }

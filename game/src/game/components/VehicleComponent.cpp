@@ -131,7 +131,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     {
         // sound_emitter_->PlaySource();
         LoadParams();
-        Log::info("Reloaded vehicle params from JSON files...");
+        debug::LogInfo("Reloaded vehicle params from JSON files...");
     }
 
     const PxTransform& pose =

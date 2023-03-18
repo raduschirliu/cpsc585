@@ -3,7 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #include <map>
 #include <object_ptr.hpp>
 #include <optional>
@@ -11,11 +11,8 @@
 #include <utility>
 
 #include "AudioFile.h"
-#include "engine/input/InputService.h"
-#include "engine/scene/Entity.h"
-#include "engine/scene/Transform.h"
+#include "engine/FwdServices.h"
 #include "engine/service/Service.h"
-#include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {
@@ -36,7 +33,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void AddSource(std::string file_name, std::uint32_t entity_id);
+    void AddSource(std::string file_name, uint32_t entity_id);
 
     /**
      *  add a source to stream music from.
@@ -60,7 +57,7 @@ class AudioService final : public Service
      *
      *  @param entity_id the id of the associated entity.
      */
-    void PlaySource(std::uint32_t entity_id);
+    void PlaySource(uint32_t entity_id);
 
     /**
      *  begin streaming a music file through a source.
@@ -84,7 +81,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void StopSource(std::uint32_t entity_id);
+    void StopSource(uint32_t entity_id);
 
     /// stop the playback of all sources (excluding the music source).
     void StopAllSources();
@@ -131,7 +128,7 @@ class AudioService final : public Service
      *  @param entity_id the sources associated entity id.
      *  @param position the position to set the source at.
      */
-    void SetSourcePosition(std::uint32_t entity_id, glm::vec3 position);
+    void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
 
     /**
      *  set the position of the listener.
@@ -168,7 +165,7 @@ class AudioService final : public Service
     /// all of the currently active 2D sound sources.
     std::map<std::string, std::pair<ALuint, ALuint>> non_diegetic_sources_;
     /// all of the currently active 3D/spatial sound sources.
-    std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
+    std::map<uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
 
     /// the current music file to stream from
     AudioFile music_file_;
@@ -210,7 +207,7 @@ class AudioService final : public Service
     /// @brief determines whether or not an audio file's source
     ///   is currently playing.
     /// @overload
-    bool IsPlaying(std::uint32_t entity_id);
+    bool IsPlaying(uint32_t entity_id);
 
     /// @brief determines whether or not a source with a specified audio file
     ///   already exists.
@@ -220,5 +217,5 @@ class AudioService final : public Service
     /// @brief determines whether or not a source with an associated entity id
     ///   already exists.
     /// @overload
-    bool SourceExists(std::uint32_t entity_id);
+    bool SourceExists(uint32_t entity_id);
 };

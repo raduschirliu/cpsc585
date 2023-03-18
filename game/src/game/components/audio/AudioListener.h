@@ -1,9 +1,9 @@
 #pragma once
 
-#include "engine/audio/AudioService.h"
+#include "engine/FwdComponents.h"
+#include "engine/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
 
 class AudioListener final : public Component,
                             public IEventSubscriber<OnUpdateEvent>

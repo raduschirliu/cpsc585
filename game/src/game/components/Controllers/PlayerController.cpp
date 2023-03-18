@@ -45,11 +45,11 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         if (player_data_->GetCurrentPowerup() ==
             PowerupPickupType::kDefaultPowerup)
         {
-            Log::debug("You currently do not have any powerup.");
+            debug::LogDebug("You currently do not have any powerup.");
         }
         else
         {
-            // Log::debug("executing the powerup");
+            // debug::LogDebug("executing the powerup");
             // power executed, so add it to the map in game service.
             game_state_service_->AddPlayerPowerup(
                 GetEntity().GetId(), player_data_->GetCurrentPowerup());
@@ -187,12 +187,12 @@ void PlayerController::UpdateGear()
 
         if (forward_gear_)
         {
-            Log::info("Switched into drive gear");
+            debug::LogInfo("Switched into drive gear");
             vehicle_->SetGear(VehicleGear::kForward);
         }
         else
         {
-            Log::info("Switched into reverse gear");
+            debug::LogInfo("Switched into reverse gear");
             vehicle_->SetGear(VehicleGear::kReverse);
         }
     }
