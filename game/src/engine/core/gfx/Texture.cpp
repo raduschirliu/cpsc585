@@ -59,7 +59,7 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);  // Return to default alignment
 }
 
-glm::ivec2 Texture::GetDimensions() const
+glm::uvec2 Texture::GetDimensions() const
 {
     return glm::uvec2(width_, height_);
 }
