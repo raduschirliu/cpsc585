@@ -80,16 +80,16 @@ set(LIBRARIES ${LIBRARIES} assimp)
 # yaml-cpp
 # -------------------------
 
-FetchContent_Declare(
-	yamlcpp
-	GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-	GIT_TAG 1b50109f7bea60bd382d8ea7befce3d2bd67da5f # Master as of 01/07/2023
-)
-FetchContent_MakeAvailable(yamlcpp)
+# FetchContent_Declare(
+# 	yamlcpp
+# 	GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+# 	GIT_TAG 1b50109f7bea60bd382d8ea7befce3d2bd67da5f # Master as of 01/07/2023
+# )
+# FetchContent_MakeAvailable(yamlcpp)
 # set(INCLUDES ${INCLUDES} fetched/yamlcpp-src/include)
 # set(LIBRARIES ${LIBRARIES} yamlcpp)
-set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
-set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
+# set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+# set(LIBRARIES ${LIBRARIES} yaml-cpp::yaml-cpp)
 
 # -------------------------
 # OpenAL
@@ -101,7 +101,7 @@ FetchContent_Declare(
 	GIT_TAG fde74453a62a1ce4b5efaac0ec1835b9f5731e25
 )
 FetchContent_MakeAvailable(openAL)
-set(INCLUDES ${INCLUDES} fetched/openal-src/include/AL)
+set(INCLUDES ${INCLUDES} ${openAL_SOURCE_DIR}/include/AL)
 set(LIBRARIES ${LIBRARIES} OpenAL::OpenAL)
 
 # -------------------------

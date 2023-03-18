@@ -5,7 +5,6 @@
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
-#include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
@@ -61,7 +60,6 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
     GetWindow().SetTitle("Angry Wheels");
 
-    AddService<ConfigService>();
     AddService<AssetService>();
     AddService<SceneDebugService>();
     AddService<InputService>();
