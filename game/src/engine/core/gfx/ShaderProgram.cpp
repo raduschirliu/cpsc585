@@ -41,7 +41,8 @@ bool ShaderProgram::Recompile()
     }
     catch (std::runtime_error& e)
     {
-        debug::LogWarn("SHADER_PROGRAM falling back to previous version of shaders");
+        debug::LogWarn(
+            "SHADER_PROGRAM falling back to previous version of shaders");
         UNUSED(e);
         return false;
     }
@@ -105,13 +106,14 @@ bool ShaderProgram::CheckAndLogLinkSuccess() const
         glGetProgramInfoLog(programID, logLength, NULL, log.data());
 
         debug::LogError("SHADER_PROGRAM linking {} + {}:\n{}", vertex.getPath(),
-                   fragment.getPath(), log.data());
+                        fragment.getPath(), log.data());
         return false;
     }
     else
     {
-        debug::LogInfo("SHADER_PROGRAM successfully compiled and linked {} + {}",
-                  vertex.getPath(), fragment.getPath());
+        debug::LogInfo(
+            "SHADER_PROGRAM successfully compiled and linked {} + {}",
+            vertex.getPath(), fragment.getPath());
         return true;
     }
 }

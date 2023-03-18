@@ -132,7 +132,8 @@ void InputService::OnJoystickChangedEvent(int joystick_id, int event)
 
         if (!kGamepads[joystick_id].Connect())
         {
-            debug::LogInfo("Connected joystick that is NOT a gamepad - ignoring");
+            debug::LogInfo(
+                "Connected joystick that is NOT a gamepad - ignoring");
         }
     }
     else if (event == GLFW_DISCONNECTED)

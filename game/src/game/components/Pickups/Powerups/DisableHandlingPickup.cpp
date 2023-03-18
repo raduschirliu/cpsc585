@@ -28,7 +28,8 @@ void DisableHandlingPickup::OnTriggerEnter(const OnTriggerEvent& data)
             }
             else
             {
-                debug::LogDebug("Ignoring as the player already as another powerup");
+                debug::LogDebug(
+                    "Ignoring as the player already as another powerup");
             }
         }
     }

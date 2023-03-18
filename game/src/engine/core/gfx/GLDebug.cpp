@@ -52,28 +52,28 @@ void GLDebug::debugOutputHandler(GLenum source, GLenum type, GLuint id,
     {
         case GL_DEBUG_SEVERITY_HIGH:
             debug::LogError(format.c_str(), source_name, "high", id, type_name,
-                       message_str);
+                            message_str);
             DEBUG_BREAKPOINT();
             break;
 
         case GL_DEBUG_SEVERITY_MEDIUM:
             debug::LogWarn(format.c_str(), source_name, "medium", id, type_name,
-                      message_str);
+                           message_str);
             break;
 
         case GL_DEBUG_SEVERITY_LOW:
             debug::LogInfo(format.c_str(), source_name, "low", id, type_name,
-                      message_str);
+                           message_str);
             break;
 
         case GL_DEBUG_SEVERITY_NOTIFICATION:
             debug::LogDebug(format.c_str(), source_name, "debug", id, type_name,
-                       message_str);
+                            message_str);
             break;
 
         default:
-            debug::LogInfo(format.c_str(), source_name, "unknown", id, type_name,
-                      message_str);
+            debug::LogInfo(format.c_str(), source_name, "unknown", id,
+                           type_name, message_str);
             break;
     }
 }
