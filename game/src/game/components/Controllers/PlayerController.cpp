@@ -11,6 +11,7 @@
 #include "game/components/state/PlayerState.h"
 
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 1.0f;
 static constexpr float kHanldingMultiplier = 1.0f;
@@ -116,6 +117,34 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
     command_.front_brake = GetFrontBrake();
     command_.rear_brake = GetRearBrake();
     vehicle_->SetCommand(command_);
+
+    // key to respawn the car using.
+    if (input_service_->IsKeyDown(GLFW_KEY_F))
+    {
+        // start the timer.
+        button_down_respawn_timer += delta_time.GetSeconds();
+
+        // as the button was held down for 3 seconds, we respawn the car at the
+        // previous checkpoint location.
+        if (button_down_respawn_timer >= kRespawnSeconds)
+        {
+            // reset the transform of the car of that of the last checkpoint it
+            // crossed over. using game service to find out the information
+            // about this car and getting the last crossed checkpoint.
+            
+        }
+    }
+    else if (!input_service_->IsKeyDown(GLFW_KEY_F))
+    {
+        // reset the timer
+        button_down_respawn_timer = 0.f;
+    }
+    // to respawn the car
+    RespawnCar();
+}
+
+void PlayerController::RespawnCar()
+{
 }
 
 float PlayerController::GetSteerDirection()
