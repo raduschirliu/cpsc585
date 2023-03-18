@@ -79,67 +79,67 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
         kSortedCheckpoints.push_back(kCheckpoints[starting_index]);
     }
 
-    // fixing the orientation manually
-    for (int i = 5; i <= 9; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
-    }
+    // // fixing the orientation manually
+    // for (int i = 5; i <= 9; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+    // }
 
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 12);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 12);
 
-    for (int i = 12; i <= 14; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, 90, 0);
-    }
+    // for (int i = 12; i <= 14; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, 90, 0);
+    // }
 
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 15);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 16);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 20);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 53);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 24);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 25);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 29);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 31);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 26);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 30);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 33);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 34);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 40);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 15);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 16);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 20);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 53);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 24);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 25);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 29);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 31);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 26);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 30);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 33);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 34);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 40);
 
-    for (int i = 20; i <= 30; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
-    }
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 35);
-    for (int i = 40; i <= 42; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
-    }
+    // for (int i = 20; i <= 30; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+    // }
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 35);
+    // for (int i = 40; i <= 42; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+    // }
 
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 46);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 47);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 48);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 46);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 47);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 48);
 
-    for (int i = 46; i <= 49; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
-    }
+    // for (int i = 46; i <= 49; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+    // }
 
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
 
-    for (int i = 50; i <= 56; i++)
-    {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
-    }
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 56);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 55);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
+    // for (int i = 50; i <= 56; i++)
+    // {
+    //     kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+    // }
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 56);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 55);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
+    // kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
 
     // for (int i = 35; i <= 37; i++)
     // {

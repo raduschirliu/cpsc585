@@ -484,7 +484,23 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         glm::quat(glm::vec3(0.f));
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(checkpoints[i].first);
-        transform.SetOrientation(glm::quat(checkpoints[i].second));
+
+        if (i < checkpoints.size() - 1)
+        {
+            glm::vec3 forward_vec = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 direction_vec =
+                glm::normalize(checkpoints[i + 1].first - checkpoints[i].first);
+            glm::quat rotation_quat = glm::rotation(forward_vec, direction_vec);
+            transform.SetOrientation(rotation_quat);
+        }
+        else
+        {
+            glm::vec3 forward_vec = glm::vec3(0.0f, 0.0f, -1.0f);
+            glm::vec3 direction_vec =
+                glm::normalize(checkpoints[0].first - checkpoints[i].first);
+            glm::quat rotation_quat = glm::rotation(forward_vec, direction_vec);
+            transform.SetOrientation(rotation_quat);
+        }
 
         transform.SetScale(vec3(70.0f, 10.0f, 10.0f));
         auto& trigger = entity.AddComponent<BoxTrigger>();
@@ -493,11 +509,11 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& checkpoint = entity.AddComponent<Checkpoint>();
         checkpoint.SetCheckpointIndex(i + 2);
 
-        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        // mesh_renderer.SetMesh("cube");
-        // mesh_renderer.SetMaterialProperties(
-        //     {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
-        //      .specular = vec3(1.0f, 1.0f, 1.0f),
-        //      .shininess = 64.0f});
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        mesh_renderer.SetMesh("cube");
+        mesh_renderer.SetMaterialProperties(
+            {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+             .specular = vec3(1.0f, 1.0f, 1.0f),
+             .shininess = 64.0f});
     }
 }
