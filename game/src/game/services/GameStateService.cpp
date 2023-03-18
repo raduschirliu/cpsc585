@@ -11,6 +11,7 @@
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/Checkpoints.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/FollowCamera.h"
@@ -500,6 +501,40 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     }
 }
 
+// the second parameter is an out parameter.
+// the third will be used to find out the direction where the car should aim at.
+int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
+                                           glm::vec3& out_checkpoint_location1,
+                                           glm::vec3& out_checkpoint_location2)
+{
+    auto iter = players_.find(entity_id);
+    if (iter == players_.end())
+    {
+        // so that player not found with the given entity_id
+        // return -1 to detect the error.
+        return -1;
+    }
+
+    std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+
+    int checkpoint_index = iter->second->checkpoint_count_accumulator - 2;
+
+    Checkpoints temp_checkpoint_obj;
+    out_checkpoint_location1 =
+        temp_checkpoint_obj.GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index].first;
+    out_checkpoint_location2 = 
+        temp_checkpoint_obj.GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1].first;
+
+    // return the checkpoint the player/AI who calls this function is at right
+    // now
+    return checkpoint_index;
+}
+
+void GameStateService::SetRespawnEntity(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
+}
+
 void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
@@ -687,4 +722,21 @@ CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
 double GameStateService::GetMaxCountdownSeconds()
 {
     return kCountdownTime.GetSeconds();
+}
+
+void GameStateService::AddRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
+}
+
+void GameStateService::RemoveRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.erase(entity_id);
+}
+
+bool GameStateService::GetRespawnRequested(uint32_t entity_id)
+{
+    if (players_respawn_.find(entity_id) == players_respawn_.end())
+        return false;
+    return true;
 }

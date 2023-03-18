@@ -131,7 +131,8 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
             // reset the transform of the car of that of the last checkpoint it
             // crossed over. using game service to find out the information
             // about this car and getting the last crossed checkpoint.
-            
+            button_down_respawn_timer = 0.0f;
+            RespawnCar();
         }
     }
     else if (!input_service_->IsKeyDown(GLFW_KEY_F))
@@ -140,11 +141,31 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
         button_down_respawn_timer = 0.f;
     }
     // to respawn the car
-    RespawnCar();
 }
 
 void PlayerController::RespawnCar()
 {
+    // need this so that we can change the transform of this car to be that.
+    // this will act as out parameter and have information in it when the
+    // function returns.
+    glm::vec3 checkpoint_location;
+    glm::vec3 next_checkpoint_location;
+
+    int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
+        this->GetEntity().GetId(), checkpoint_location,
+        next_checkpoint_location);
+
+    if (current_checkpoint == -1)
+        return;
+
+    transform_->SetPosition(checkpoint_location);
+
+    // TODO: Ask Radu for this on how to properly set this up. (orientation)
+
+    // transform_->SetOrientation(glm::quat(glm::normalize(
+    //     glm::vec3(next_checkpoint_location - checkpoint_location))));
+
+    game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
 }
 
 float PlayerController::GetSteerDirection()

@@ -134,12 +134,29 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         Log::info("Reloaded vehicle params from JSON files...");
     }
 
-    const PxTransform& pose =
-        vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+    // std::cout << respawn_vehicle_ << std::endl;
 
-    const GlmTransform transform = PxToGlm(pose);
-    transform_->SetPosition(transform.position);
-    transform_->SetOrientation(transform.orientation);
+    if (game_state_service_->GetRespawnRequested(this->GetEntity().GetId()))
+    {
+        vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
+            CreatePxTransform(transform_->GetPosition(),
+                              transform_->GetOrientation()));
+
+        // now remove this from the list in gameservice so that it doesnt
+        // respawn again and again until requested again later.
+        game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
+    }
+
+       else
+    {
+        const PxTransform& pose =
+            vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+        const GlmTransform transform = PxToGlm(pose);
+        transform_->SetPosition(transform.position);
+        transform_->SetOrientation(transform.orientation);
+    }
+
     // std::cout << transform_->GetForwardDirection() << std::endl;
 }
 
