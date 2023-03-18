@@ -11,6 +11,7 @@ class GameStateService;
 class Texture;
 class SceneDebugService;
 class AssetService;
+class AudioService;
 
 class Setting final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -27,6 +28,7 @@ class Setting final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<AudioService> audio_service_;
 
     const Texture* background_;
     const Texture* home_button_;

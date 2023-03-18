@@ -47,12 +47,14 @@ void HowToPlay::OnGui()
     // const ImVec2& screen_size = ImGui::GetIO().DisplaySize;
 
     ImGui::Begin("HowToPlay", nullptr, flags | ImGuiWindowFlags_NoInputs);
-    ImGui::Image(instruction_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x,
-                                                ImGui::GetIO().DisplaySize.y));
+    ImGui::Image(
+        instruction_->GetGuiHandle(),
+        ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(1120, 560));
-    ImGui::Begin("H Button", nullptr, flags);
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100,
+                                   ImGui::GetIO().DisplaySize.y - 100));
+    ImGui::Begin("Button", nullptr, flags);
 
     // If the FramePadding does not increase, no matter how large the rounding
     // value becomes, it does not apply
@@ -60,9 +62,9 @@ void HowToPlay::OnGui()
 
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.3f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.1f));
     if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
-                           ImVec2(80, 80)))
+                           ImVec2(40, 37)))
     {
         scene_service_->SetActiveScene("MainMenu");
     }

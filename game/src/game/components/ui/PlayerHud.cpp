@@ -21,7 +21,16 @@ void PlayerHud::OnInit(const ServiceProvider& service_provider)
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
 
-    health = 1.f;
+    disableHandling_ = &asset_service_->GetTexture("disable");
+    everyoneSlower_ = &asset_service_->GetTexture("slower");
+    IncreaseAimBox_ = &asset_service_->GetTexture("double");
+    killAbilities_ = &asset_service_->GetTexture("kill");
+
+    buckshot_ = &asset_service_->GetTexture("buckshot");
+    doubleDamage_ = &asset_service_->GetTexture("damage");
+    exploadingBullet_ = &asset_service_->GetTexture("exploding");
+    increaseFireRate_ = &asset_service_->GetTexture("fire");
+    vampireBullet_ = &asset_service_->GetTexture("vampire");
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -34,10 +43,6 @@ string_view PlayerHud::GetName() const
 
 void PlayerHud::OnGui()
 {
-    if (player_state_->GetBullied())
-    {
-    }
-
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
@@ -45,20 +50,63 @@ void PlayerHud::OnGui()
     ImGui::SetNextWindowPos(ImVec2(30, 30));
     ImGui::Begin("Vehicle", nullptr, flags);
 
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.1f, 0.f, 1.f));
-    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.3f, 1.f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.f, 0.1f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.6f, 0.4f, 1.f));
     ImGui::ProgressBar(player_state_->GetHealth(), ImVec2(400, 30), "");
     ImGui::PopStyleColor(2);
 
-    ImGui::Text("Checkpoint: %d/%lu", player_state_->GetLastCheckpoint(),
-                game_state_service_->GetNumCheckpoints());
-    if (vehicle_->GetGear() == VehicleGear::kForward)
+    // ImGui::Text("Checkpoint: %d/%lu", player_state_->GetLastCheckpoint(),
+    //             game_state_service_->GetNumCheckpoints());
+    // if (vehicle_->GetGear() == VehicleGear::kForward)
+    // {
+    //     ImGui::Text("Gear: Drive");
+    // }
+    // else
+    // {
+    //     ImGui::Text("Gear: Reverse");
+    // }
+    ImGui::Spacing();
+    ImGui::Text("Test printing (powerup):...");
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+
+    ImGui::Text("Test printing (ammo):...");
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(buckshot_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(doubleDamage_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(exploadingBullet_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(increaseFireRate_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::SameLine(0.f, 10.f);
+    ImGui::Image(vampireBullet_->GetGuiHandle(), ImVec2(70, 70));
+
+    if (player_state_->GetCurrentPowerup() ==
+        PowerupPickupType::kDisableHandling)
     {
-        ImGui::Text("Gear: Drive");
+        ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
     }
-    else
+    else if (player_state_->GetCurrentPowerup() ==
+             PowerupPickupType::kEveryoneSlower)
     {
-        ImGui::Text("Gear: Reverse");
+        ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+    }
+    else if (player_state_->GetCurrentPowerup() ==
+             PowerupPickupType::kIncreaseAimBox)
+    {
+        ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+    }
+    else if (player_state_->GetCurrentPowerup() ==
+             PowerupPickupType::kKillAbilities)
+    {
+        ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(100, 100));
     }
 
     ImGui::SetCursorPos(ImVec2(0, 600));

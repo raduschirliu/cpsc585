@@ -10,6 +10,7 @@ class AssetService;
 class VehicleComponent;
 class GameStateService;
 class PlayerState;
+class Texture;
 
 class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -28,5 +29,14 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<PlayerState> player_state_;
 
-    float health;
+    const Texture* disableHandling_;
+    const Texture* everyoneSlower_;
+    const Texture* IncreaseAimBox_;
+    const Texture* killAbilities_;
+
+    const Texture* buckshot_;
+    const Texture* doubleDamage_;
+    const Texture* exploadingBullet_;
+    const Texture* increaseFireRate_;
+    const Texture* vampireBullet_;
 };

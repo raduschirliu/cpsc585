@@ -38,9 +38,9 @@
 #include "game/components/VehicleComponent.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/components/ui/HowToPlay.h"
 #include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
-#include "game/components/ui/HowToPlay.h"
 #include "game/components/ui/Setting.h"
 #include "game/services/GameStateService.h"
 

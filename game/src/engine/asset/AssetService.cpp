@@ -416,6 +416,15 @@ void AssetService::OnInit()
     LoadTexture("resources/textures/ui/howToPlay.png", "how_to_play");
     LoadTexture("resources/textures/ui/home_button.png", "home_button");
     LoadTexture("resources/textures/ui/background.png", "background");
+    LoadTexture("resources/textures/ui/disable.png", "disable");
+    LoadTexture("resources/textures/ui/slow.png", "slower");
+    LoadTexture("resources/textures/ui/double.png", "double");
+    LoadTexture("resources/textures/ui/kill.png", "kill");
+    LoadTexture("resources/textures/ui/buckshot.png", "buckshot");
+    LoadTexture("resources/textures/ui/damage.png", "damage");
+    LoadTexture("resources/textures/ui/exploding.png", "exploding");
+    LoadTexture("resources/textures/ui/fire.png", "fire");
+    LoadTexture("resources/textures/ui/vampire.png", "vampire");
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
