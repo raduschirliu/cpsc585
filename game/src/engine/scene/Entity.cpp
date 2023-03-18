@@ -60,11 +60,6 @@ const uint32_t& Entity::GetId() const
     return id_;
 }
 
-void Entity::SetId(uint32_t& id)
-{
-    id_ = id;
-}
-
 const string& Entity::GetName() const
 {
     return name_;

@@ -1,6 +1,6 @@
 #include "GameApp.h"
 
-class Checkpoints : public GameApp
+class Checkpoints
 {
   private:
     std::vector<std::pair<glm::vec3, glm::vec3>> kCheckpoints;

@@ -53,7 +53,7 @@ GameStateService::GameStateService()
 void GameStateService::OnInit()
 {
     race_config_.num_human_players = 1;
-    race_config_.num_ai_players = 0;
+    race_config_.num_ai_players = 3;
     race_config_.num_laps = 2;
 
     race_state_.Reset();
@@ -472,7 +472,14 @@ void GameStateService::RegisterCheckpoint(Entity& entity,
 
 void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 {
-    auto iter = players_.find(entity.GetId());
+    uint32_t entity_id = entity.GetId();
+    // to tackle the problem for not changing the entity.
+    if(entity_id >= 2 && entity_id <= 4)
+    {
+        entity_id = entity_id - 1;
+    }
+
+    auto iter = players_.find(entity_id);
 
     if (iter == players_.end())
     {
@@ -613,16 +620,18 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     // take care of that now.
 
     // finding if the index is already assigned to any other entity.
-    for (auto& e : scene.GetEntities())
-    {
-        if (e->GetId() == index)
-        {
-            auto id = kart_entity.GetId();
-            auto swapping_id = e->GetId();
-            kart_entity.SetId(swapping_id);
-            e->SetId(id);
-        }
-    }
+    // for (auto& e : scene.GetEntities())
+    // {
+    //     if (e->GetId() == index)
+    //     {
+    //         auto id = kart_entity.GetId();
+    //         auto swapping_id = e->GetId();
+    //         kart_entity.SetId(swapping_id);
+    //         e->SetId(id);
+    //     }
+    // }
+
+    Log::error("{}: entity_id", kart_entity.GetId());
 
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
