@@ -10,18 +10,8 @@ struct Faces
     glm::vec3 f_v1, f_v2, f_v3;
     glm::vec3 centroid;
 
-    glm::vec3 CalculateCentroid()
-    {
-        return (this->f_v1 + this->f_v2 + this->f_v3) / 3.0f;
-    }
-
-    Faces(glm::vec3& f1, glm::vec3& f2, glm::vec3& f3)
-    {
-        this->f_v1 = f1;
-        this->f_v2 = f2;
-        this->f_v3 = f3;
-        this->centroid = CalculateCentroid();
-    }
+    glm::vec3 CalculateCentroid() const;
+    Faces(glm::vec3& f1, glm::vec3& f2, glm::vec3& f3);
 };
 
 class AIService final : public Service

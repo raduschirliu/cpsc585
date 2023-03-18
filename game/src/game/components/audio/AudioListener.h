@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/FwdComponents.h"
-#include "engine/FwdServices.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 

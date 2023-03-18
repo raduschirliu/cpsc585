@@ -4,24 +4,19 @@
 #include <physx/CommonVehicleFiles/SnippetVehicleHelpers.h>
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/fwd.hpp>
 #include <optional>
 #include <vector>
 
 #include "PxPhysicsAPI.h"
 #include "RaycastData.h"
 #include "VehicleCommands.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/core/math/Timestep.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
-
-class AssetService;
-class InputService;
-class RenderService;
 
 class PhysicsService final : public Service,
                              public IEventSubscriber<OnGuiEvent>,

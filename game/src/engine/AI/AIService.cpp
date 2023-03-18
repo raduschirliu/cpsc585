@@ -9,6 +9,19 @@
 
 #include "engine/core/debug/Log.h"
 
+glm::vec3 Faces::CalculateCentroid() const
+{
+    return (f_v1 + f_v2 + f_v3) / 3.0f;
+}
+
+Faces::Faces(glm::vec3& f1, glm::vec3& f2, glm::vec3& f3)
+{
+    f_v1 = f1;
+    f_v2 = f2;
+    f_v3 = f3;
+    centroid = CalculateCentroid();
+}
+
 AIService::AIService()
 {
 }

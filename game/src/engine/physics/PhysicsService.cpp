@@ -1,5 +1,6 @@
 #include "engine/physics/PhysicsService.h"
 
+#include <glm/glm.hpp>
 #include <optional>
 
 #include "RaycastData.h"
@@ -253,7 +254,7 @@ PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
     if (result == PxTriangleMeshCookingResult::Enum::eLARGE_TRIANGLE)
     {
         debug::LogWarn("Mesh '{}' is too large for cooking, may cause issues",
-                  mesh_name);
+                       mesh_name);
     }
 
     PxDefaultMemoryInputData mesh_in_buffer(cooking_out_buffer.getData(),

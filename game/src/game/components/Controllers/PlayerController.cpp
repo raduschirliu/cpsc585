@@ -5,10 +5,14 @@
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
+#include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
+#include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 static constexpr float kDefaultBrake = 0.0f;

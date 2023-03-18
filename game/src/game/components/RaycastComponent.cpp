@@ -5,12 +5,12 @@
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
 #include <iostream>
-#include <object_ptr.hpp>
 
 #include "PxPhysics.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
+#include "engine/physics/Hitbox.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"

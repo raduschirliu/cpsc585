@@ -8,13 +8,16 @@
 #include <physx/CommonVehicleFiles/serialization/IntegrationSerialization.h>
 
 #include <glm/geometric.hpp>
+#include <glm/glm.hpp>
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/gui/PropertyWidgets.h"
 #include "engine/core/math/Physx.h"
+#include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/audio/SoundEmitter.h"  // debugging
+#include "game/services/GameStateService.h"
 
 using glm::vec3;
 using std::string;
