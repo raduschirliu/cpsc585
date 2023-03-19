@@ -14,7 +14,7 @@
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
-#include "game/components/audio/AudioEmitter.h"  // debugging
+#include "game/components/audio/AudioEmitter.h"
 
 using glm::vec3;
 using std::string;
@@ -28,6 +28,8 @@ static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
 static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
 static constexpr const char* kIntegrationParamFileName = "Integration.jsonc";
+
+static constexpr const char* kDrivingAudioFile = "kart_driving_01.ogg";
 
 void VehicleComponent::LoadParams()
 {
@@ -107,13 +109,11 @@ void VehicleComponent::InitMaterialFrictionTable()
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 {
-    //    sound_emitter_ = &GetEntity().GetComponent<AudioEmitter>();  //
-    //    debugging
-
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     transform_ = &GetEntity().GetComponent<Transform>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
     GetEventBus().Subscribe<OnPhysicsUpdateEvent>(this);
@@ -123,13 +123,17 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     InitVehicle();
 
     physics_service_->RegisterVehicle(&vehicle_);
+
+    audio_emitter_->AddSource(kDrivingAudioFile);
+    audio_emitter_->SetGain(kDrivingAudioFile, 0.2f);
+    audio_emitter_->SetLoop(kDrivingAudioFile, true);
+    audio_emitter_->PlaySource(kDrivingAudioFile);
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
 {
     if (input_service_->IsKeyPressed(GLFW_KEY_F10))
     {
-        // sound_emitter_->PlaySource();
         LoadParams();
         Log::info("Reloaded vehicle params from JSON files...");
     }
@@ -140,7 +144,6 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     const GlmTransform transform = PxToGlm(pose);
     transform_->SetPosition(transform.position);
     transform_->SetOrientation(transform.orientation);
-    // std::cout << transform_->GetForwardDirection() << std::endl;
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
