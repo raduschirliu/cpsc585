@@ -16,6 +16,8 @@
 #include "game/components/FollowCamera.h"
 #include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
+#include "game/components/audio/AudioListener.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/PlayerHud.h"
@@ -617,6 +619,8 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
                                     .specular = vec3(1.0f, 1.0f, 1.0f),
                                     .shininess = 64.0f});
 
+    kart_entity.AddComponent<AudioEmitter>();
+
     auto& player_state = kart_entity.AddComponent<PlayerState>();
 
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
@@ -630,6 +634,8 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     if (is_human)
     {
+        auto& audio_listener = kart_entity.AddComponent<AudioListener>();
+
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
 
