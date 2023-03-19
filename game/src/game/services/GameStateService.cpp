@@ -474,7 +474,7 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 {
     uint32_t entity_id = entity.GetId();
     // to tackle the problem for not changing the entity.
-    if (entity_id >= 2 && entity_id <= 4)
+    if(entity_id >= 2 && entity_id <= 4)
     {
         entity_id = entity_id - 1;
     }
