@@ -30,9 +30,9 @@ static const Timestep kPhysxTimestep = Timestep::Seconds(1.0f / 60.0f);
 static const OnPhysicsUpdateEvent kPhysicsUpdateEventData{.step =
                                                               kPhysxTimestep};
 
-static const PxVec3 kGravity(0.0f, -25.0f, 0.0f);
+static const PxVec3 kGravity(0.0f, -98.1f, 0.0f);
 // Typically speed tolerance should be gravity acceleration * 1 sec
-static const PxTolerancesScale kDefaultTolerancesScale(1.0f, 25.0f);
+static const PxTolerancesScale kDefaultTolerancesScale(1.0f, 98.1f);
 static const PxCookingParams kDefaultPxCookingParams =
     PxCookingParams(kDefaultTolerancesScale);
 

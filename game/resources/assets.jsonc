@@ -1,0 +1,83 @@
+{
+    "meshes": [
+        /* Misc assets */
+        {
+            "path": "resources/models/cube.obj",
+            "name": "cube"
+        },
+        {
+            "path": "resources/models/stanford_bunny.obj",
+            "name": "bunny"
+        },
+        {
+            "path": "resources/models/plane.obj",
+            "name": "plane"
+        },
+
+        /* Kart */
+        {
+            "path": "resources/models/kart/kart2-4.obj",
+            "name": "kart"
+        },
+
+        /* Pickups */
+        {
+            "path": "resources/models/pickups/coin_1.obj",
+            "name": "coin"
+        },
+        {
+            "path": "resources/models/pickups/energy_1.obj",
+            "name": "energy"
+        },
+        {
+            "path": "resources/models/pickups/pickup_defence_2.obj",
+            "name": "defence_ring"
+        },
+        {
+            "path": "resources/models/pickups/pickup_defence_3.obj",
+            "name": "defence"
+        },
+        {
+            "path": "resources/models/pickups/pickup_defence.obj",
+            "name": "defence_shield"
+        },
+
+        /* Track */
+        {
+            "path": "resources/models/track3/track3-7.obj",
+            "name": "track3"
+        },
+        {
+            "path": "resources/models/track3/track3-7collision.obj",
+            "name": "track3-collision"
+        },
+        {
+            "path": "resources/models/track3/track3-9.gltf",
+            "name": "track3new"
+        }
+    ],
+
+    "textures": [
+        /* UI */
+        // {
+        //     "path": "resources/textures/ui/main.png",
+        //     "name": "menu_title"
+        // },
+        // {
+        //     "path": "resources/textures/ui/single_button.png",
+        //     "name": "single_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/multi_button.png",
+        //     "name": "multi_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/howToPlay_button.png",
+        //     "name": "howToPlay_button"
+        // },
+        // {
+        //     "path": "resources/textures/ui/setting_button.png",
+        //     "name": "settings_button"
+        // }
+    ]
+}

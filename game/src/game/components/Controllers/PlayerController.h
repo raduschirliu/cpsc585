@@ -41,5 +41,6 @@ class PlayerController final : public Component,
     float GetSteerDirection();
     float GetThrottle();
     float GetFrontBrake();
+    float GetRearBrake();
     bool GetGearChangeButton();
 };

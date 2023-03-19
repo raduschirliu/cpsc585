@@ -1,16 +1,21 @@
 #include "AIController.h"
 
+#include <algorithm>
+#include <limits>
+
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 
-float kSpeedMultiplierReset(1.f);
-float kHandlingMultiplierReset(1.f);
+float kSpeedMultiplierReset(1.0f);
+float kHandlingMultiplierReset(1.0f);
 
 AIController::AIController()
     : input_service_(nullptr),
       transform_(nullptr),
-      ai_service_(nullptr)
+      ai_service_(nullptr),
+      next_path_index_(79)
 {
 }
 
@@ -19,24 +24,17 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
     ai_service_ = &service_provider.GetService<AIService>();
     transform_ = &GetEntity().GetComponent<Transform>();
+    render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
-    // Log::debug("Previous Position: {}, {}, {}", transform_->GetPosition().x,
-    //            transform_->GetPosition().y, transform_->GetPosition().z);
-
-    // store the path in a local variable.
     path_to_follow_ = ai_service_->GetPath();
-
-    transform_->SetPosition(ai_service_->GetPath()[356]);
-    // Log::debug("New Position: {}, {}, {}", transform_->GetPosition().x,
-    //            transform_->GetPosition().y, transform_->GetPosition().z);
-
-    // storing the initial variables.
-    next_car_position_ = path_to_follow_[357];
+    path_traced_.insert(next_path_index_);
 }
 
-void AIController::OnUpdate(const Timestep& delta_time)
+void AIController::UpdatePowerup()
 {
     if (uint32_t id =
             game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
@@ -76,72 +74,97 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         handling_multiplier_ = kHandlingMultiplierReset;
     }
+}
 
-    /**
-     * Here we have different criteria on how we want the car to move, the more
-     * advanced this is, the better the car will move on the track
-     * **/
-    float speed = vehicle_reference_->mPhysXState.physxActor.rigidBody
-                      ->getLinearVelocity()
-                      .magnitude();
-    // Log::debug("{}", speed);
-    if (speed <= 30)
+void AIController::OnUpdate(const Timestep& delta_time)
+{
+    glm::vec3 current_car_position = transform_->GetPosition();
+    glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
+
+    UpdateCarControls(current_car_position, next_waypoint, delta_time);
+    NextWaypoint(current_car_position, next_waypoint);
+}
+
+void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
+{
+    render_service_->GetDebugDrawList().AddLine(LineVertex(from),
+                                                LineVertex(to));
+}
+
+void AIController::UpdateCarControls(glm::vec3& current_car_position,
+                                     glm::vec3& next_waypoint,
+                                     const Timestep& delta_time)
+{
+    // ----------------- put the code from here to updatecarcontrols
+    glm::vec3 current_car_right_direction = -transform_->GetRightDirection();
+
+    VehicleCommand temp_command;
+
+    float speed = vehicle_->GetSpeed();
+    if (speed <= 45)
     {
-        vehicle_reference_->mCommandState.throttle =
-            1.f * speed_multiplier_;  // for the everyone slow down pickup.
+        temp_command.throttle = 1.0f * speed_multiplier_;
     }
     else
     {
-        vehicle_reference_->mCommandState.throttle =
-            0.f;  // for the everyone slow down pickup.
+        temp_command.throttle = 0.0f;
     }
 
-    glm::vec3 target = -transform_->GetPosition() + next_car_position_;
-    // normalize the vector to find out its true position later by dot
-    // producting it
-    glm::vec3 normalized_target = glm::normalize(target);
-    glm::vec3 current_forward_dir = transform_->GetForwardDirection();
-    float dot_product = glm::dot(normalized_target, current_forward_dir);
-
-    // Log::debug("cross {}", cross_product.x);
-    // Log::debug("dot {}", dot_product);
-    // Log::debug("front {}, {}, {}", current_forward_dir.x,
-    // current_forward_dir.y,
-    //            current_forward_dir.z);
-
-    if (sqrt(dot_product * dot_product) > 0.98f)
+    if (speed > 45)
     {
-        vehicle_reference_->mCommandState.steer = 0.f;
+        temp_command.front_brake = 0.5f;
+        temp_command.rear_brake = 0.5f;
+    }
+
+    glm::vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
+    float projected = dot(waypoint_dir, current_car_right_direction);
+
+    DrawDebugLine(
+        current_car_position,
+        glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
+
+    if (projected <= 0.1f && projected >= -0.1f)
+    {
+        temp_command.steer = 0.0f;
+    }
+    else if (projected < 0)
+    {
+        temp_command.steer = 1.0f * handling_multiplier_ * -(projected);
     }
     else
     {
-        glm::vec3 cross_product =
-            glm::normalize(glm::cross(normalized_target, current_forward_dir));
-        // ug("cross {}, {}, {}", cross_product.x, cross_product.y,
-        //         cross_product.z);
-        if (cross_product.x < 0)
-        {
-            vehicle_reference_->mCommandState.steer =
-                -0.6f * handling_multiplier_;
-        }
-        else
-        {
-            vehicle_reference_->mCommandState.steer =
-                0.6f * handling_multiplier_;
-        }
+        // std::cout << projected << std::endl;
+        temp_command.steer = -1.0f * handling_multiplier_ * projected;
     }
 
-    // calculate the euclidean distance to see if the car is near the next
-    // position, if yes then update the next position to be the next index in
-    // the path array
-    float distance = glm::distance(transform_->GetPosition(),
-                                   path_to_follow_[next_path_index_]);
-    // Log::debug("Distance to the next point {}", distance);
-    if (distance < 30.f)
-    {
-        next_car_position_ = path_to_follow_[next_path_index_ += 1];
+    vehicle_->SetCommand(temp_command);
+}
 
-        // Log::debug("{}", next_path_index_);
+void AIController::NextWaypoint(glm::vec3& current_car_position,
+                                glm::vec3 next_waypoint)
+{
+    float distance = glm::distance(current_car_position, next_waypoint);
+
+    if (distance < 50.0f)
+    {
+        int min_index = 0;
+        float min_distance = std::numeric_limits<float>::max();
+        // find the smallest path which not has been traversed yet.
+        for (int i = 0; i < path_to_follow_.size(); i++)
+        {
+            // if path is not traced yet.
+            if (path_traced_.find(i) == path_traced_.end())
+            {
+                float dist = glm::distance(path_to_follow_[i], next_waypoint);
+                if (min_distance > dist)
+                {
+                    min_index = i;
+                    min_distance = dist;
+                }
+            }
+        }
+        next_path_index_ = min_index;
+        path_traced_.insert(next_path_index_);
     }
 }
 
@@ -150,7 +173,10 @@ std::string_view AIController::GetName() const
     return "AI Controller";
 }
 
-void AIController::SetGVehicle(snippetvehicle2::DirectDriveVehicle& vehicle)
+void AIController::ResetForNextLap()
 {
-    vehicle_reference_ = &vehicle;
+    // clearing the traced path for the next path now
+    path_traced_.clear();
+    next_path_index_ = 79;
+    path_traced_.insert(next_path_index_);
 }
