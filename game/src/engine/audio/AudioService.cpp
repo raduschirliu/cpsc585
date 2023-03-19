@@ -68,7 +68,7 @@ void AudioService::AddSource(std::string file_name)
         Log::error("Couldn't create source for {}", file_name);
     }
 
-    non_diegetic_sources_.insert({file_name, SourceBufferPair});
+    non_diegetic_sources_.insert({file_name, source_buffer_pair});
 }
 
 void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
@@ -99,14 +99,13 @@ void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
     alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
 
     SourceBufferPair source_buffer_pair = {source, buffer};
-    FileSourceMap file_source_map = {file_name, source_buffer_pair};
 
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't create source for {}", file_name);
     }
 
-    diegetic_sources_.insert({entity_id, file_source_map});
+    diegetic_sources_[entity_id][file_name] = source_buffer_pair;
 }
 
 void AudioService::SetMusic(std::string file_name)
@@ -142,14 +141,12 @@ void AudioService::SetMusic(std::string file_name)
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
-    SourceBufferPair source_buffer_pair = {source, buffer};
-
     if (alGetError() != AL_NO_ERROR)
     {
         Log::error("Couldn't queue audio buffers for {}.", file_name);
     }
 
-    music_source_ = {file_name, source_buffer_pair};
+    music_source_ = {file_name, {source, buffers}};
 }
 
 /* ----- playback functions ----- */
@@ -180,7 +177,7 @@ void AudioService::PlaySource(std::string file_name)
 void AudioService::PlaySource(std::uint32_t entity_id, std::string file_name)
 {
     // check if source already exists;
-    if (!SourceExists(entity_id))
+    if (!SourceExists(entity_id, file_name))
     {
         Log::warning("Source for entity {} doesn't exist yet.", entity_id);
         return;
@@ -188,7 +185,7 @@ void AudioService::PlaySource(std::uint32_t entity_id, std::string file_name)
 
     // find the source
     ALuint source;
-    source = diegetic_sources_[entity_id].second.first;
+    source = diegetic_sources_[entity_id][file_name].first;
 
     alSourcePlay(source);
 
@@ -285,16 +282,17 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     Log::debug("Offset pitch of {} by {}", file_name, pitch_offset);
 }
 
-void AudioService::SetPitch(std::uint32_t entity_id, float pitch_offset)
+void AudioService::SetPitch(std::uint32_t entity_id, std::string file_name,
+                            float pitch_offset)
 {
-    if (!SourceExists(entity_id))
+    if (!SourceExists(entity_id, file_name))
     {
         Log::error("Source for entity: {} doesn't exist.", entity_id);
         return;
     }
 
     ALuint source;
-    source = diegetic_sources_[entity_id].first;
+    source = diegetic_sources_[entity_id][file_name].first;
 
     alSourcef(source, AL_PITCH, pitch_offset);
 
@@ -327,16 +325,17 @@ void AudioService::SetGain(std::string file_name, float gain)
     Log::debug("Offset pitch of {} by {}", file_name, gain);
 }
 
-void AudioService::SetGain(std::uint32_t entity_id, float gain)
+void AudioService::SetGain(std::uint32_t entity_id, std::string file_name,
+                           float gain)
 {
-    if (!SourceExists(entity_id))
+    if (!SourceExists(entity_id, file_name))
     {
         Log::error("Source for entity: {} doesn't exist.", entity_id);
         return;
     }
 
     ALuint source;
-    source = diegetic_sources_[entity_id].first;
+    source = diegetic_sources_[entity_id][file_name].first;
 
     alSourcef(source, AL_GAIN, gain);
 
@@ -371,16 +370,17 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetLooping(std::uint32_t entity_id,  bool is_looping)
+void AudioService::SetLooping(std::uint32_t entity_id, std::string file_name,
+                              bool is_looping)
 {
-    if (!SourceExists(entity_id))
+    if (!SourceExists(entity_id, file_name))
     {
         Log::error("Source for entity: {} doesn't exist.", entity_id);
         return;
     }
 
     ALuint source;
-    source = diegetic_sources_[entity_id].first;
+    source = diegetic_sources_[entity_id][file_name].first;
 
     if (is_looping)
     {
@@ -397,23 +397,27 @@ void AudioService::SetLooping(std::uint32_t entity_id,  bool is_looping)
 void AudioService::SetSourcePosition(std::uint32_t entity_id,
                                      glm::vec3 position)
 {
-    if (!SourceExists(entity_id))
+    for (auto& source : diegetic_sources_[entity_id])
     {
-        Log::error("Source for entity: {} doesn't exist.", entity_id);
-        return;
-    }
+        std::string file_name = source.first;
+        if (!SourceExists(entity_id, file_name))
+        {
+            Log::error("Source for entity: {} doesn't exist.", entity_id);
+            return;
+        }
 
-    ALuint source;
-    source = diegetic_sources_[entity_id].first;
+        ALuint source;
+        source = diegetic_sources_[entity_id][file_name].first;
 
-    alSource3f(source, AL_VELOCITY, 0, 0, 0);
-    alSource3f(source, AL_POSITION,  //
-               position.x, position.y, position.z);
+        alSource3f(source, AL_VELOCITY, 0, 0, 0);
+        alSource3f(source, AL_POSITION,  //
+                   position.x, position.y, position.z);
 
-    if (alGetError() != AL_NO_ERROR)
-    {
-        Log::error("Couldn't set source position for {}.", entity_id);
-        return;
+        if (alGetError() != AL_NO_ERROR)
+        {
+            Log::error("Couldn't set source position for {}.", entity_id);
+            return;
+        }
     }
 }
 
@@ -628,7 +632,7 @@ bool AudioService::SourceExists(std::string file_name)
 
 bool AudioService::SourceExists(std::uint32_t entity_id, std::string file_name)
 {
-    if (diegetic_sources_[entity_id].count(file_name) == 1)
+    if (diegetic_sources_[entity_id].count(file_name))
     {
         return true;
     }
@@ -678,8 +682,8 @@ void AudioService::OnStart(ServiceProvider& service_provider)
 void AudioService::OnSceneLoaded(Scene& scene)
 {
     // debugging
-    SetMusic(kTestMusic);
-    PlayMusic(kTestMusic);
+    /* SetMusic(kTestMusic); */
+    /* PlayMusic(kTestMusic); */
 }
 
 void AudioService::OnUpdate()
@@ -710,7 +714,7 @@ void AudioService::OnCleanup()
 
     for (auto& entity : diegetic_sources_)
     {
-        for (auto& source : entity)
+        for (auto& source : entity.second)
         {
             alDeleteSources(1, &source.second.first);
             alDeleteBuffers(1, &source.second.second);
