@@ -8,33 +8,31 @@
 
 void AudioEmitter::AddSource(std::string file_name)
 {
+    Log::debug("Entity: {} just added a source for {}", GetEntity().GetId(),
+               file_name);
     file_name_ = file_name;
     audio_service_->AddSource(GetEntity().GetId(), file_name);
 }
 
 void AudioEmitter::PlaySource(std::string file_name)
 {
+    Log::debug("Entity: {} is playing {}", GetEntity().GetId(), file_name);
     audio_service_->PlaySource(GetEntity().GetId(), file_name);
 }
 
-void AudioEmitter::SetPitch(float pitch_offset)
+void AudioEmitter::SetPitch(std::string file_name, float pitch_offset)
 {
-    audio_service_->SetPitch(pitch_offset, GetEntity().GetId());
+    audio_service_->SetPitch(GetEntity().GetId(), file_name, pitch_offset);
 }
 
-void AudioEmitter::SetGain(float gain)
+void AudioEmitter::SetGain(std::string file_name, float gain)
 {
-    audio_service_->SetGain(gain, GetEntity().GetId());
+    audio_service_->SetGain(GetEntity().GetId(), file_name, gain);
 }
 
-void AudioEmitter::SetPitch(float pitch_offset)
+void AudioEmitter::SetLoop(std::string file_name, bool is_looping)
 {
-    audio_service_->SetPitch(pitch_offset, GetEntity().GetId());
-}
-
-void AudioEmitter::SetGain(float gain)
-{
-    audio_service_->SetGain(gain, GetEntity().GetId());
+    audio_service_->SetLooping(GetEntity().GetId(), file_name, is_looping);
 }
 
 /* ----- from Component -----*/

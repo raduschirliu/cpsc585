@@ -15,8 +15,9 @@ class AudioEmitter final : public Component,
     void AddSource(std::string file_name);
     void PlaySource(std::string file_name);
 
-    void SetPitch(float pitch_offset);
-    void SetGain(float gain); 
+    void SetPitch(std::string file_name, float pitch_offset);
+    void SetGain(std::string file_name, float gain);
+    void SetLoop(std::string file_name, bool is_looping);
 
     /* ----- from Component -----*/
 
