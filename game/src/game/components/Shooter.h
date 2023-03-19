@@ -11,7 +11,7 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-#include "game/components/Pickups/PickupType"
+#include "game/components/Pickups/PickupType.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/state/PlayerState.h"
 
@@ -31,7 +31,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
      *
      *  @return either std::null_opt or a struct containing all the shot data
      */
-    RaycastData GetTargetData();
+    std::optional<RaycastData> GetTargetData();
 
     /* ----- from component ----- */
 
@@ -45,6 +45,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
   private:
     AmmoPickupType current_ammo_type_;
     std::optional<RaycastData> target_data_;
+    std::string shoot_sound_file_;
 
     /* ----- service and component dependencies ----- */
 
@@ -61,3 +62,5 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     /// sets the sound of the shot depending on the ammo type
     void SetShootSound(AmmoPickupType ammo_type);
 };
+
+float RandomPitchValue();

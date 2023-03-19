@@ -1,9 +1,8 @@
 #include "game/components/Shooter.h"
 
-#include <stdio.h>
-
 #include <glm/glm.hpp>
 #include <object_ptr.hpp>
+#include <random>
 
 #include "PxPhysics.h"
 #include "engine/core/debug/Log.h"
@@ -26,8 +25,10 @@ void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
     vec3 direction = transform_->GetForwardDirection();
-    vec3 offset = (hit_box_->GetSize() + 5.f) * direction;
+    vec3 offset = (hitbox_->GetSize() + 10.0f) * direction;
     vec3 origin = transform_->GetPosition() + offset;
+
+    current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
@@ -35,11 +36,16 @@ void Shooter::Shoot()
         return;
     }
 
-    target_data_ = physics_service_->Raycast(origin, direction);
+    audio_emitter_->AddSource(shoot_sound_file_);
+    // slightly randomize pitch
+    audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
+    audio_emitter_->PlaySource(shoot_sound_file_);
 
+    target_data_ = physics_service_->Raycast(origin, direction);
     if (!target_data_.has_value())
     {
-        Log::debug("Entity: {} did not hit anything.", GetEntity().GetId());
+        std::uint32_t entity_id = GetEntity().GetId();
+        Log::debug("Entity: {} did not hit anything.", entity_id);
         return;
     }
 
@@ -51,17 +57,11 @@ void Shooter::Shoot()
     vec3 normal = target_data_value.normal;
     vec3 position = target_data_value.position;
 
-    Log::debug("Entity: {} hit something!", GetEntity().GetId());
-    Log::debug(
-        "Hit properties:\n"
-        "\t\ttarget actor: {}\n"
-        "\t\ttarget position: {}\n"
-        "\t\tdistance from target: {}\n"
-        "\t\tnormal of hit: {}\n",
-        target_actor, position, distance, normal);
+    std::uint32_t entity_id = GetEntity().GetId();
+    Log::debug("Entity: {} hit something!", entity_id);
 }
 
-RaycastData Shooter::GetTargetData()
+std::optional<RaycastData> Shooter::GetTargetData()
 {
     return target_data_;
 }
@@ -77,17 +77,17 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
     switch (ammo_type)
     {
         case kDoubleDamage:
-            audio_emitter_->AddSource("kart_shoot_02.ogg");
+            shoot_sound_file_ = "kart_shoot_02.ogg";
             break;
         case kExploadingBullet:
-            audio_emitter_->AddSource("kart_shoot_03.ogg");
+            shoot_sound_file_ = "kart_shoot_03.ogg";
             break;
         // TODO!! need to find sounds
         case kBuckshot:
         case kIncreaseFireRate:
         case kVampireBullet:
         default:
-            audio_emitter_->AddSource("kart_shoot_01.ogg");
+            shoot_sound_file_ = "kart_shoot_01.ogg";
             break;
     }
 }
@@ -108,7 +108,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
-    current_ammo_type_ = player_state_->GetCurrentAmmoType();
+    shoot_sound_file_ = "kart_shoot_01.ogg";
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -125,13 +125,32 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     if (current_ammo_type_ != player_state_->GetCurrentAmmoType())
     {
         current_ammo_type_ = player_state_->GetCurrentAmmoType();
-        SetShootSound(player_state_->GetCurrentAmmoType());
+        SetShootSound(current_ammo_type_);
     }
 
-    /* if (input_service_->IsKeyPressed(GLFW_KEY_R) || */
-    /*     input_service_->IsGamepadButtonPressed(kGamepadId, */
-    /*                                            GLFW_GAMEPAD_BUTTON_B)) */
-    /* { */
-    /*     Shoot(); */
-    /* } */
+    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_B))
+    {
+        Shoot();
+    }
+}
+
+float RandomPitchValue()
+{
+    std::random_device seed;
+    std::mt19937 generator(seed());
+    std::uniform_int_distribution<int> value(0, 500);
+
+    int coefficient;
+    if (value(generator) >= 250)
+    {
+        coefficient = -1;
+    }
+    else
+    {
+        coefficient = 1;
+    }
+
+    return 1 + coefficient * (value(generator) / 1000.0f);
 }
