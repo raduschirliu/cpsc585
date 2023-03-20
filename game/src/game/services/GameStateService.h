@@ -106,6 +106,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<AudioService> audio_service_;
+    jss::object_ptr<InputService> input_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -133,4 +134,5 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
+    void DisplayScoreboard();
 };

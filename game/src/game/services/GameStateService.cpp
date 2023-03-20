@@ -62,6 +62,7 @@ void GameStateService::OnInit()
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
     audio_service_ = &service_provider.GetService<AudioService>();
+    input_service_ = &service_provider.GetService<InputService>();
 
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
@@ -123,6 +124,10 @@ void GameStateService::OnGui()
     {
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
+    }
+    if(input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        DisplayScoreboard();
     }
 
     ImGui::End();
@@ -696,4 +701,16 @@ CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
 double GameStateService::GetMaxCountdownSeconds()
 {
     return kCountdownTime.GetSeconds();
+}
+
+void GameStateService::DisplayScoreboard()
+{
+    ImGui::SetNextWindowPos(ImVec2(80, 40));
+    ImGui::SetNextWindowSize(ImVec2(120, 80));
+    ImGui::Text("Scoreboard");
+    ImGui::Text("Player   Kills   Deaths    Fastest Lap");
+    ImGui::Text("Player1    0       0         x.xx.xx");
+    ImGui::Text("CPU1       0       0         x.xx.xx");
+    ImGui::Text("CPU2       0       0         x.xx.xx");
+    ImGui::Text("CPU3       0       0         x.xx.xx");
 }
