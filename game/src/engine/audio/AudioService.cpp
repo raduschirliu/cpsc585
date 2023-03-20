@@ -71,7 +71,7 @@ void AudioService::AddSource(std::string file_name)
     non_diegetic_sources_.insert({file_name, source_buffer_pair});
 }
 
-void AudioService::AddSource(std::uint32_t entity_id, std::string file_name)
+void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 {
     AudioFile audio_file = LoadAudioFile(file_name, false);
 
@@ -174,7 +174,7 @@ void AudioService::PlaySource(std::string file_name)
     Log::debug("Playing audio: {}", file_name);
 }
 
-void AudioService::PlaySource(std::uint32_t entity_id, std::string file_name)
+void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
 {
     // check if source already exists;
     if (!SourceExists(entity_id, file_name))
@@ -239,7 +239,7 @@ void AudioService::StopSource(std::string file_name)
     alSourceStop(source);
 }
 
-void AudioService::StopSource(std::uint32_t entity_id, std::string file_name)
+void AudioService::StopSource(uint32_t entity_id, std::string file_name)
 {
     ALuint source = diegetic_sources_[entity_id][file_name].first;
     alSourceStop(source);
@@ -282,7 +282,7 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     Log::debug("Offset pitch of {} by {}", file_name, pitch_offset);
 }
 
-void AudioService::SetPitch(std::uint32_t entity_id, std::string file_name,
+void AudioService::SetPitch(uint32_t entity_id, std::string file_name,
                             float pitch_offset)
 {
     if (!SourceExists(entity_id, file_name))
@@ -325,7 +325,7 @@ void AudioService::SetGain(std::string file_name, float gain)
     Log::debug("Offset pitch of {} by {}", file_name, gain);
 }
 
-void AudioService::SetGain(std::uint32_t entity_id, std::string file_name,
+void AudioService::SetGain(uint32_t entity_id, std::string file_name,
                            float gain)
 {
     if (!SourceExists(entity_id, file_name))
@@ -370,7 +370,7 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetLooping(std::uint32_t entity_id, std::string file_name,
+void AudioService::SetLooping(uint32_t entity_id, std::string file_name,
                               bool is_looping)
 {
     if (!SourceExists(entity_id, file_name))
@@ -394,7 +394,7 @@ void AudioService::SetLooping(std::uint32_t entity_id, std::string file_name,
     }
 }
 
-void AudioService::SetSourcePosition(std::uint32_t entity_id,
+void AudioService::SetSourcePosition(uint32_t entity_id,
                                      glm::vec3 position)
 {
     for (auto& source : diegetic_sources_[entity_id])
@@ -599,7 +599,7 @@ bool AudioService::IsPlaying(std::string file_name)
     return true;
 }
 
-bool AudioService::IsPlaying(std::uint32_t entity_id, std::string file_name)
+bool AudioService::IsPlaying(uint32_t entity_id, std::string file_name)
 {
     ALuint source = diegetic_sources_[entity_id][file_name].first;
     ALint source_state;
@@ -630,7 +630,7 @@ bool AudioService::SourceExists(std::string file_name)
     }
 }
 
-bool AudioService::SourceExists(std::uint32_t entity_id, std::string file_name)
+bool AudioService::SourceExists(uint32_t entity_id, std::string file_name)
 {
     if (diegetic_sources_[entity_id].count(file_name))
     {

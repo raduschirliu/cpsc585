@@ -36,7 +36,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void AddSource(std::uint32_t entity_id, std::string file_name);
+    void AddSource(uint32_t entity_id, std::string file_name);
 
     /**
      *  add a source to stream music from.
@@ -60,7 +60,7 @@ class AudioService final : public Service
      *
      *  @param entity_id the id of the associated entity.
      */
-    void PlaySource(std::uint32_t entity_id, std::string file_name);
+    void PlaySource(uint32_t entity_id, std::string file_name);
 
     /**
      *  begin streaming a music file through a source.
@@ -84,7 +84,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void StopSource(std::uint32_t entity_id, std::string);
+    void StopSource(uint32_t entity_id, std::string);
 
     /// stop the playback of all sources (excluding the music source).
     void StopAllSources();
@@ -108,7 +108,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void SetLooping(std::uint32_t entity_id, std::string file_name,
+    void SetLooping(uint32_t entity_id, std::string file_name,
                     bool is_looping);
 
     /**
@@ -127,7 +127,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void SetGain(std::uint32_t entity_id, std::string file_name, float gain);
+    void SetGain(uint32_t entity_id, std::string file_name, float gain);
 
     /**
      *  offsets the pitch of an audio file.
@@ -145,7 +145,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void SetPitch(std::uint32_t entity_id, std::string file_name,
+    void SetPitch(uint32_t entity_id, std::string file_name,
                   float pitch_offset);
 
     /**
@@ -154,7 +154,7 @@ class AudioService final : public Service
      *  @param entity_id the sources associated entity id.
      *  @param position the position to set the source at.
      */
-    void SetSourcePosition(std::uint32_t entity_id, glm::vec3 position);
+    void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
 
     /**
      *  set the position of the listener.
@@ -191,7 +191,7 @@ class AudioService final : public Service
     /// all of the active 2D sound sources.
     using SourceBufferPair = std::pair<ALuint, ALuint>;
     using FileName = std::string;
-    using EntityID = std::uint32_t;
+    using EntityID = uint32_t;
     std::map<FileName, SourceBufferPair> non_diegetic_sources_;
 
     /// all of the active 3D/spatial sound sources and their entity's id.
@@ -240,7 +240,7 @@ class AudioService final : public Service
     /// @brief determines whether or not an audio file's source
     ///   is currently playing.
     /// @overload
-    bool IsPlaying(std::uint32_t entity_id, std::string file_name);
+    bool IsPlaying(uint32_t entity_id, std::string file_name);
 
     /// @brief determines whether or not a source with a specified audio file
     ///   already exists.
@@ -250,5 +250,5 @@ class AudioService final : public Service
     /// @brief determines whether or not a source with an associated entity id
     ///   already exists.
     /// @overload
-    bool SourceExists(std::uint32_t entity_id, std::string file_name);
+    bool SourceExists(uint32_t entity_id, std::string file_name);
 };

@@ -47,7 +47,7 @@ void AudioEmitter::OnInit(const ServiceProvider& service_provider)
     // component dependencies
     transform_ = &GetEntity().GetComponent<Transform>();
 
-    std::uint32_t entity = GetEntity().GetId();
+    uint32_t entity = GetEntity().GetId();
     Log::debug("Entity {} can emit sound.", entity);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);

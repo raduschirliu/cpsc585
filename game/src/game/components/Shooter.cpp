@@ -44,7 +44,7 @@ void Shooter::Shoot()
     target_data_ = physics_service_->Raycast(origin, direction);
     if (!target_data_.has_value())
     {
-        std::uint32_t entity_id = GetEntity().GetId();
+        uint32_t entity_id = GetEntity().GetId();
         Log::debug("Entity: {} did not hit anything.", entity_id);
         return;
     }
@@ -57,7 +57,7 @@ void Shooter::Shoot()
     vec3 normal = target_data_value.normal;
     vec3 position = target_data_value.position;
 
-    std::uint32_t entity_id = GetEntity().GetId();
+    uint32_t entity_id = GetEntity().GetId();
     Log::debug("Entity: {} hit something!", entity_id);
 }
 
