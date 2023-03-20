@@ -2,6 +2,7 @@
 
 #include <string>
 
+#include "Checkpoints.h"
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
@@ -457,10 +458,10 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0, 2.0f, -60.0f));
-        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
+        transform.SetScale(vec3(70.0f, 5.0f, 4.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
+        trigger.SetSize(vec3(70.0f, 4.0f, 10.0f));
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
         checkpoint.SetCheckpointIndex(1);
@@ -471,5 +472,32 @@ void GameApp::LoadTrack1Scene(Scene& scene)
             {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
+    }
+
+    // making the object for the checkpoint and getting checkpoints.
+    Checkpoints checkpoints_obj;
+    auto checkpoints = checkpoints_obj.GetCheckpoints();
+
+    for (int i = 0; i < checkpoints.size(); i++)
+    {
+        Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+        glm::quat(glm::vec3(0.f));
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(checkpoints[i].first);
+        transform.SetOrientation(glm::quat(checkpoints[i].second));
+
+        transform.SetScale(vec3(70.0f, 10.0f, 10.0f));
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
+
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(i + 2);
+
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+        //      .specular = vec3(1.0f, 1.0f, 1.0f),
+        //      .shininess = 64.0f});
     }
 }

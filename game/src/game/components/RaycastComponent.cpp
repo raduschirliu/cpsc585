@@ -54,7 +54,7 @@ void RaycastComponent::Shoot()
 {
     // origin and direction of the raycast from this entity
     vec3 direction = transform_->GetForwardDirection();
-    vec3 offset = 15.f * direction;
+    vec3 offset = 15.0f * direction;
     vec3 origin = transform_->GetPosition() + offset;
 
     // no raycast data == no hit
