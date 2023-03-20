@@ -62,5 +62,3 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     /// sets the sound of the shot depending on the ammo type
     void SetShootSound(AmmoPickupType ammo_type);
 };
-
-float RandomPitchValue();

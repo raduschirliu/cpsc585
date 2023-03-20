@@ -19,6 +19,7 @@
 
 using glm::vec3;
 
+static float RandomPitchValue();
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 
 void Shooter::Shoot()
@@ -92,6 +93,25 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
     }
 }
 
+float RandomPitchValue()
+{
+    std::random_device seed;
+    std::mt19937 generator(seed());
+    std::uniform_int_distribution<int> value(0, 500);
+
+    int coefficient;
+    if (value(generator) >= 250)
+    {
+        coefficient = -1;
+    }
+    else
+    {
+        coefficient = 1;
+    }
+
+    return 1 + coefficient * (value(generator) / 1000.0f);
+}
+
 /* ----- from component ----- */
 
 void Shooter::OnInit(const ServiceProvider& service_provider)
@@ -136,21 +156,3 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     }
 }
 
-float RandomPitchValue()
-{
-    std::random_device seed;
-    std::mt19937 generator(seed());
-    std::uniform_int_distribution<int> value(0, 500);
-
-    int coefficient;
-    if (value(generator) >= 250)
-    {
-        coefficient = -1;
-    }
-    else
-    {
-        coefficient = 1;
-    }
-
-    return 1 + coefficient * (value(generator) / 1000.0f);
-}
