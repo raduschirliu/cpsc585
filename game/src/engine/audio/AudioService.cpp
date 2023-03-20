@@ -12,6 +12,7 @@
 #include <utility>
 
 #include "AudioFile.h"
+#include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
@@ -50,9 +51,10 @@ void AudioService::AddSource(std::string file_name)
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
                  audio_file.GetSizeBytes(), audio_file.sample_rate_);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't buffer audio data for {}.", file_name);
+        return;
     }
 
     // create and initialise source
@@ -63,9 +65,10 @@ void AudioService::AddSource(std::string file_name)
 
     SourceBufferPair source_buffer_pair = {source, buffer};
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
-        Log::error("Couldn't create source for {}", file_name);
+        Log::error("Couldn't create audio source for {}", file_name);
+        return;
     }
 
     non_diegetic_sources_.insert({file_name, source_buffer_pair});
@@ -83,9 +86,10 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     alBufferData(buffer, audio_file.format_, audio_file.data_.get(),
                  audio_file.GetSizeBytes(), audio_file.sample_rate_);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't buffer audio data for {}.", file_name);
+        return;
     }
 
     // create and initialise source
@@ -100,9 +104,10 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 
     SourceBufferPair source_buffer_pair = {source, buffer};
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't create source for {}", file_name);
+        return;
     }
 
     diegetic_sources_[entity_id][file_name] = source_buffer_pair;
@@ -116,6 +121,12 @@ void AudioService::SetMusic(std::string file_name)
     ALuint* buffers = new ALuint[kStreamBufferAmount];
     alGenBuffers(kStreamBufferAmount, &buffers[0]);
 
+    if (CheckAlError())
+    {
+        Log::error("Couldn't create buffer stream for {}.", file_name);
+        return;
+    }
+
     // initialise buffers for audio data
     auto audio_data = music_file_.data_.get();
 
@@ -125,9 +136,10 @@ void AudioService::SetMusic(std::string file_name)
                      &audio_data[(i * kStreamBufferSize) / sizeof(short)],
                      kStreamBufferSize, music_file_.sample_rate_);
 
-        if (alGetError() != AL_NO_ERROR)
+        if (CheckAlError())
         {
             Log::error("Couldn't buffer audio data for {}.", file_name);
+            return;
         }
     }
     playhead_ = kStreamBufferSize * kStreamBufferAmount;
@@ -138,12 +150,19 @@ void AudioService::SetMusic(std::string file_name)
     // don't want to loop just one buffer
     alSourcei(source, AL_LOOPING, AL_FALSE);
 
+    if (CheckAlError())
+    {
+        Log::error("Couldn'create audio source for {}.", file_name);
+        return;
+    }
+
     // queue buffers for source
     alSourceQueueBuffers(source, kStreamBufferAmount, &buffers[0]);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't queue audio buffers for {}.", file_name);
+        return;
     }
 
     music_source_ = {file_name, {source, buffers}};
@@ -165,7 +184,7 @@ void AudioService::PlaySource(std::string file_name)
 
     alSourcePlay(source);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't play audio for {}.", file_name);
         return;
@@ -179,7 +198,8 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
     // check if source already exists;
     if (!SourceExists(entity_id, file_name))
     {
-        Log::warning("Source for entity {} doesn't exist yet.", entity_id);
+        Log::warning("Source for Entity {} and file {} doesn't exist yet.",
+                     entity_id, file_name);
         return;
     }
 
@@ -189,18 +209,16 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
 
     alSourcePlay(source);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
-        Log::error("Couldn't play audio for entity {}.", entity_id);
+        Log::error("Entity {} couldn't play audio for {}.", entity_id,
+                   file_name);
         return;
     }
 
-    // debuggingggg
     Log::debug("Entity {} playing audio.", entity_id);
 
-    float x;
-    float y;
-    float z;
+    float x, y, z;
 
     alGetSource3f(source, AL_POSITION, &x, &y, &z);
     Log::debug("Source position: {}, {}, {}", x, y, z);
@@ -214,7 +232,8 @@ void AudioService::PlayMusic(std::string file_name)
     //  music wasn't set yet
     if (music_source_.first == "")
     {
-        SetMusic(file_name);  // we'll set it here just to be nice
+        Log::error("Source wasn't set for {}", file_name);
+        return;
     }
 
     // find the source
@@ -224,7 +243,7 @@ void AudioService::PlayMusic(std::string file_name)
     alSourcef(source, AL_GAIN, 0.2f);
     alSourcePlay(source);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't play music for {}.", file_name);
         return;
@@ -265,7 +284,7 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
 {
     if (!SourceExists(file_name))
     {
-        Log::error("Couldn't open or find file: {}", file_name);
+        Log::error("Source wasn't set for {}", file_name);
         return;
     }
 
@@ -274,7 +293,7 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
 
     alSourcef(source, AL_PITCH, pitch_offset);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set pitch for {}.", file_name);
     }
@@ -287,7 +306,8 @@ void AudioService::SetPitch(uint32_t entity_id, std::string file_name,
 {
     if (!SourceExists(entity_id, file_name))
     {
-        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        Log::error("Source wasn't set for Entity {} and file {}", entity_id,
+                   file_name);
         return;
     }
 
@@ -296,19 +316,20 @@ void AudioService::SetPitch(uint32_t entity_id, std::string file_name,
 
     alSourcef(source, AL_PITCH, pitch_offset);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set pitch for {}.", entity_id);
     }
 
-    Log::debug("Offset pitch of entity: {} by {}", entity_id, pitch_offset);
+    Log::debug("Offset pitch for Entity: {}'s sound {} by {}", entity_id,
+               file_name, pitch_offset);
 }
 
 void AudioService::SetGain(std::string file_name, float gain)
 {
     if (!SourceExists(file_name))
     {
-        Log::error("Couldn't open or find file: {}", file_name);
+        Log::error("Source wasn't set for {}", file_name);
         return;
     }
 
@@ -317,12 +338,12 @@ void AudioService::SetGain(std::string file_name, float gain)
 
     alSourcef(source, AL_GAIN, gain);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set gain for {}.", file_name);
     }
 
-    Log::debug("Offset pitch of {} by {}", file_name, gain);
+    Log::debug("Set gain of {} set {}", file_name, gain);
 }
 
 void AudioService::SetGain(uint32_t entity_id, std::string file_name,
@@ -330,7 +351,8 @@ void AudioService::SetGain(uint32_t entity_id, std::string file_name,
 {
     if (!SourceExists(entity_id, file_name))
     {
-        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        Log::error("Source wasn't set for Entity {} and file {}", entity_id,
+                   file_name);
         return;
     }
 
@@ -339,19 +361,20 @@ void AudioService::SetGain(uint32_t entity_id, std::string file_name,
 
     alSourcef(source, AL_GAIN, gain);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set gain for {}.", entity_id);
     }
 
-    Log::debug("Set gain for entity: {} by {}", entity_id, gain);
+    Log::debug("Set gain for Entity: {}'s sound {} by {}", entity_id, file_name,
+               gain);
 }
 
 void AudioService::SetLooping(std::string file_name, bool is_looping)
 {
     if (!SourceExists(file_name))
     {
-        Log::error("Couldn't open or find file: {}", file_name);
+        Log::error("Source wasn't set for {}", file_name);
         return;
     }
 
@@ -375,7 +398,8 @@ void AudioService::SetLooping(uint32_t entity_id, std::string file_name,
 {
     if (!SourceExists(entity_id, file_name))
     {
-        Log::error("Source for entity: {} doesn't exist.", entity_id);
+        Log::error("Source wasn't set for Entity {} and file {}", entity_id,
+                   file_name);
         return;
     }
 
@@ -385,24 +409,26 @@ void AudioService::SetLooping(uint32_t entity_id, std::string file_name,
     if (is_looping)
     {
         alSourcef(source, AL_LOOPING, AL_TRUE);
-        Log::debug("Set source for entity: {} to loop.", entity_id);
+        Log::debug("Set source for Entity {}'s sound {} to loop.", entity_id,
+                   file_name);
     }
     else
     {
         alSourcef(source, AL_LOOPING, AL_FALSE);
-        Log::debug("Set source for entity: {} to not loop.", entity_id);
+        Log::debug("Set source for Entity {}'s sound {} to not loop.",
+                   entity_id, file_name);
     }
 }
 
-void AudioService::SetSourcePosition(uint32_t entity_id,
-                                     glm::vec3 position)
+void AudioService::SetSourcePosition(uint32_t entity_id, glm::vec3 position)
 {
     for (auto& source : diegetic_sources_[entity_id])
     {
         std::string file_name = source.first;
         if (!SourceExists(entity_id, file_name))
         {
-            Log::error("Source for entity: {} doesn't exist.", entity_id);
+            Log::error("Source for Entity {} and file {} doesn't exist.",
+                       entity_id, file_name);
             return;
         }
 
@@ -413,9 +439,10 @@ void AudioService::SetSourcePosition(uint32_t entity_id,
         alSource3f(source, AL_POSITION,  //
                    position.x, position.y, position.z);
 
-        if (alGetError() != AL_NO_ERROR)
+        if (CheckAlError())
         {
-            Log::error("Couldn't set source position for {}.", entity_id);
+            Log::error("Couldn't set source position for Entity {} and file {}",
+                       entity_id, file_name);
             return;
         }
     }
@@ -425,7 +452,7 @@ void AudioService::SetListenerPosition(glm::vec3 position)
 {
     alListener3f(AL_POSITION, position.x, position.y, position.z);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set listener position.");
     }
@@ -437,7 +464,7 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
                              up.x,      up.y,      up.z};      //
     alListenerfv(AL_ORIENTATION, orientation);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::error("Couldn't set listener orientation.");
     }
@@ -506,7 +533,7 @@ void AudioService::CullSources()
             alDeleteSources(1, &pair->second.first);
             alDeleteBuffers(1, &pair->second.second);
 
-            if (alGetError() != AL_NO_ERROR)
+            if (CheckAlError())
             {
                 Log::error("While culling Sources for {}.", pair->first);
             }
@@ -521,6 +548,12 @@ void AudioService::UpdateStreamBuffer()
     ALuint source = music_source_.second.first;
     ALint buffers_processed;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &buffers_processed);
+
+    if (CheckAlError())
+    {
+        Log::error("Couldn't get processed buffers for music streaming.");
+        return;
+    }
 
     // we haven't streamed a buffer yet
     if (buffers_processed <= 0)
@@ -571,7 +604,7 @@ void AudioService::UpdateStreamBuffer()
         alBufferData(buffer, music_file_.format_, new_data, kStreamBufferSize,
                      music_file_.sample_rate_);
         alSourceQueueBuffers(source, 1, &buffer);
-        if (alGetError() != AL_NO_ERROR)
+        if (CheckAlError())
             Log::error("Couldn't stream audio.");
 
         // clean up
@@ -586,7 +619,7 @@ bool AudioService::IsPlaying(std::string file_name)
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::warning("Couldn't get Source State from {}.", file_name);
     }
@@ -605,7 +638,7 @@ bool AudioService::IsPlaying(uint32_t entity_id, std::string file_name)
     ALint source_state;
     alGetSourcei(source, AL_SOURCE_STATE, &source_state);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         Log::warning("Couldn't get Source State from entity: {}.", entity_id);
     }
@@ -642,29 +675,70 @@ bool AudioService::SourceExists(uint32_t entity_id, std::string file_name)
     }
 }
 
+bool AudioService::CheckAlError(std::string error_message)
+{
+    ALenum al_error = alGetError();
+
+    if (al_error == AL_NO_ERROR)
+    {
+        return false;
+    }
+
+    if (error_message != "")
+    {
+        Log::error(error_message.append(""));
+    }
+
+    switch (al_error)
+    {
+        case AL_INVALID_NAME:
+            Log::error(
+                "AL_INVALID_NAME: "
+                "a bad name (ID) was passed to an OpenAL function.");
+            break;
+        case AL_INVALID_ENUM:
+            Log::error(
+                "AL_INVALID_ENUM: "
+                "an invalid enum value was passed to an OpenAL function.");
+            break;
+        case AL_INVALID_VALUE:
+            Log::error(
+                "AL_INVALID_VALUE: "
+                "an invalid value was passed to an OpenAL function.");
+            break;
+        case AL_INVALID_OPERATION:
+            Log::error(
+                "AL_INVALID_OPERATION: "
+                "the requested operation is not valid.");
+            break;
+        case AL_OUT_OF_MEMORY:
+            Log::error(
+                "AL_OUT_OF_MEMORY: "
+                "the requested operation resulted in"
+                "OpenAL running out of memory.");
+            break;
+    }
+    return true;
+}
+
 /* ----- from Service ------ */
 
 void AudioService::OnInit()
 {
     // open and verify audio device
     audio_device_ = alcOpenDevice(kDefaultDevice);
-    if (audio_device_)
-    {
-        Log::debug("[AudioService] opened audio device successfully!");
-    }
-    else
-    {
-        Log::warning("[AudioService] couldn't open audio device.");
-    }
+
+    ASSERT_MSG(audio_device_, "Couldn't open audio device.");
+    Log::info("Successfuly opened audio device!");
 
     // create audio context
     audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
 
-    if (alGetError() != AL_NO_ERROR)
+    if (CheckAlError())
     {
         // i.e no audio at all
-        Log::warning("Coudn't make audio context current.");
+        Log::error("Coudn't make audio context current.");
     }
 
     playhead_ = 0;

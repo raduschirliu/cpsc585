@@ -230,6 +230,8 @@ class AudioService final : public Service
     /// deletes all inactive sources and buffers
     void CullSources();
 
+    bool CheckAlError(std::string error_message = ""); 
+
     /* ----- getters ----- */
 
     /// @brief determines whether or not an audio file's source
