@@ -101,6 +101,13 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void PlayerFinished(Entity& entity);
     void PlayerCompletedLap(Entity& entity);
 
+    GlobalRaceState& GetRaceState()
+    {
+        return race_state_;
+    }
+
+    double GetMaxCountdownSeconds();
+
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GameStateService> game_state_service_;

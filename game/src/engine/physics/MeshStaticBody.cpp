@@ -4,6 +4,7 @@
 #include "engine/core/math/Physx.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 
 using std::string;
 using std::string_view;

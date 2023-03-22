@@ -2,10 +2,10 @@
 
 #include <string>
 
+#include "Checkpoints.h"
 #include "engine/AI/AIService.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
-#include "engine/config/ConfigService.h"
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
@@ -24,12 +24,10 @@
 #include "engine/scene/Scene.h"
 #include "engine/scene/SceneDebugService.h"
 #include "engine/scene/Transform.h"
-#include "game/components/BasicComponent.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
-#include "game/components/GuiExampleComponent.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
@@ -66,7 +64,6 @@ void GameApp::OnInit()
     GetWindow().SetSize(ivec2(1280, 720));
     GetWindow().SetTitle("Angry Wheels");
 
-    AddService<ConfigService>();
     AddService<AssetService>();
     AddService<SceneDebugService>();
     AddService<InputService>();
@@ -122,7 +119,7 @@ void GameApp::OnSceneLoaded(Scene& scene)
 
 void GameApp::LoadTestScene(Scene& scene)
 {
-    Log::info("Loading entities for Test scene...");
+    debug::LogInfo("Loading entities for Test scene...");
 
     {
         // Floor
@@ -413,7 +410,7 @@ void GameApp::LoadTestScene(Scene& scene)
 
 void GameApp::LoadTrack1Scene(Scene& scene)
 {
-    Log::info("Loading entities for Track1 scene...");
+    debug::LogInfo("Loading entities for Track1 scene...");
 
     {
         // Track
@@ -475,10 +472,10 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0, 2.0f, -60.0f));
-        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
+        transform.SetScale(vec3(70.0f, 5.0f, 4.0f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
+        trigger.SetSize(vec3(70.0f, 4.0f, 10.0f));
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
         checkpoint.SetCheckpointIndex(1);
@@ -489,6 +486,33 @@ void GameApp::LoadTrack1Scene(Scene& scene)
             {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
              .specular = vec3(1.0f, 1.0f, 1.0f),
              .shininess = 64.0f});
+    }
+
+    // making the object for the checkpoint and getting checkpoints.
+    Checkpoints checkpoints_obj;
+    auto checkpoints = checkpoints_obj.GetCheckpoints();
+
+    for (int i = 0; i < checkpoints.size(); i++)
+    {
+        Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+        glm::quat(glm::vec3(0.f));
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(checkpoints[i].first);
+        transform.SetOrientation(glm::quat(checkpoints[i].second));
+
+        transform.SetScale(vec3(70.0f, 10.0f, 10.0f));
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
+
+        auto& checkpoint = entity.AddComponent<Checkpoint>();
+        checkpoint.SetCheckpointIndex(i + 2);
+
+        // auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+        // mesh_renderer.SetMesh("cube");
+        // mesh_renderer.SetMaterialProperties(
+        //     {.albedo_color = vec3(0.1f, 1.0f, 0.2f),
+        //      .specular = vec3(1.0f, 1.0f, 1.0f),
+        //      .shininess = 64.0f});
     }
 }
 

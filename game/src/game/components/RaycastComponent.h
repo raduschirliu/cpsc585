@@ -2,13 +2,12 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/input/InputService.h"
-#include "engine/physics/BoxRigidBody.h"
-#include "engine/physics/Hitbox.h"
-#include "engine/physics/PhysicsService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
+
+class Hitbox;
 
 class RaycastComponent final : public Component,
                                public IEventSubscriber<OnUpdateEvent>

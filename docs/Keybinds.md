@@ -4,20 +4,25 @@
 | Key | Action |
 |----|---|
 | W | Throttle |
-| S | Brake |
-| A | Steer left |
-| D | Steer right |
-| X | Shift between reverse/drive gears | 
-| R | Shoot (WIP) |
+| S | Brake / Reverse |
+| A | Steer Left |
+| D | Steer Right |
+| R | Shoot |
+| F (Hold 3 sec) | Respawn |
+| Tab | Toggle Scoreboard |
+| Esc | Pause Menu |
 
 ## Controller
 | Key | Action |
 |----|---|
-| X | Shift between reverse/drive gears |
 | RT | Throttle |
-| LT | Brake |
+| LT | Brake / Reverse |
 | Left Joystick | Steer |
-| B | Shoot (WIP) |
+| B | Shoot |
+| A | Handbrake |
+| View Button (Hold 3 sec) | Respawn |
+| L3 | Toggle Scoreboard |
+| Menu | Pause Menu |
 
 # Debug Keybinds
 
