@@ -51,29 +51,29 @@ void GLDebug::debugOutputHandler(GLenum source, GLenum type, GLuint id,
     switch (severity)
     {
         case GL_DEBUG_SEVERITY_HIGH:
-            Log::error(format.c_str(), source_name, "high", id, type_name,
-                       message_str);
+            debug::LogError(format.c_str(), source_name, "high", id, type_name,
+                            message_str);
             DEBUG_BREAKPOINT();
             break;
 
         case GL_DEBUG_SEVERITY_MEDIUM:
-            Log::warn(format.c_str(), source_name, "medium", id, type_name,
-                      message_str);
+            debug::LogWarn(format.c_str(), source_name, "medium", id, type_name,
+                           message_str);
             break;
 
         case GL_DEBUG_SEVERITY_LOW:
-            Log::info(format.c_str(), source_name, "low", id, type_name,
-                      message_str);
+            debug::LogInfo(format.c_str(), source_name, "low", id, type_name,
+                           message_str);
             break;
 
         case GL_DEBUG_SEVERITY_NOTIFICATION:
-            Log::debug(format.c_str(), source_name, "debug", id, type_name,
-                       message_str);
+            debug::LogDebug(format.c_str(), source_name, "debug", id, type_name,
+                            message_str);
             break;
 
         default:
-            Log::info(format.c_str(), source_name, "unknown", id, type_name,
-                      message_str);
+            debug::LogInfo(format.c_str(), source_name, "unknown", id,
+                           type_name, message_str);
             break;
     }
 }
@@ -90,10 +90,10 @@ void GLDebug::enable()
         glDebugMessageCallback(GLDebug::debugOutputHandler, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0,
                               nullptr, GL_TRUE);
-        Log::info("Enabling debug mode for opengl");
+        debug::LogInfo("Enabling debug mode for opengl");
     }
     else
     {
-        Log::warn("Unable to enable debug mode for opengl");
+        debug::LogWarn("Unable to enable debug mode for opengl");
     }
 }

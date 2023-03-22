@@ -15,7 +15,7 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        Log::debug("Buckshot Ammo Type");
+        debug::LogDebug("Buckshot Ammo Type");
     }
 }
 

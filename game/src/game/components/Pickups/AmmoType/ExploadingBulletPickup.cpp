@@ -15,7 +15,7 @@ void ExploadingBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        Log::debug("Bullet will explode on contact, dealing more damange");
+        debug::LogDebug("Bullet will explode on contact, dealing more damange");
     }
 }
 
