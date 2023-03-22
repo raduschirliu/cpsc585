@@ -3,7 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #include <map>
 #include <object_ptr.hpp>
 #include <optional>
@@ -11,11 +11,8 @@
 #include <utility>
 
 #include "AudioFile.h"
-#include "engine/input/InputService.h"
-#include "engine/scene/Entity.h"
-#include "engine/scene/Transform.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/service/Service.h"
-#include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {

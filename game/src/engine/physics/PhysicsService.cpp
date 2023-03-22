@@ -1,5 +1,6 @@
 #include "engine/physics/PhysicsService.h"
 
+#include <glm/glm.hpp>
 #include <optional>
 
 #include "RaycastData.h"
@@ -252,8 +253,8 @@ PxTriangleMesh* PhysicsService::CreateTriangleMesh(const string& mesh_name)
 
     if (result == PxTriangleMeshCookingResult::Enum::eLARGE_TRIANGLE)
     {
-        Log::warn("Mesh '{}' is too large for cooking, may cause issues",
-                  mesh_name);
+        debug::LogWarn("Mesh '{}' is too large for cooking, may cause issues",
+                       mesh_name);
     }
 
     PxDefaultMemoryInputData mesh_in_buffer(cooking_out_buffer.getData(),
@@ -405,13 +406,13 @@ std::optional<RaycastData> PhysicsService::Raycast(
     // data validity guard checks; ensure that data is available:
     if (!PxHitFlag::ePOSITION)
     {
-        Log::debug("[Raycast]: Invalid Position");
+        debug::LogDebug("[Raycast]: Invalid Position");
         return std::nullopt;
     }
 
     if (!PxHitFlag::eNORMAL)
     {
-        Log::debug("[Raycast]: Invalid Normal");
+        debug::LogDebug("[Raycast]: Invalid Normal");
         return std::nullopt;
     }
 
@@ -444,7 +445,7 @@ void PhysicsService::InitPhysX()
         kPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
     if (pvd_status)
     {
-        Log::info("PhysX SDK connected to PVD");
+        debug::LogInfo("PhysX SDK connected to PVD");
     }
 
     // Physics initlaization

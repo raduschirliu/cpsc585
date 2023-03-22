@@ -5,15 +5,14 @@
 #include <vector>
 
 #include "engine/core/gfx/Texture.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
-#include "engine/input/InputService.h"
 #include "engine/render/Mesh.h"
 #include "engine/service/Service.h"
 
 struct aiScene;
 struct aiMesh;
 struct aiNode;
-class InputService;
 
 class AssetService final : public Service, public IEventSubscriber<OnGuiEvent>
 {

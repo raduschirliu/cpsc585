@@ -5,7 +5,7 @@
 
 void ServiceProvider::DispatchInit(App& app)
 {
-    Log::debug("[ServiceProvider] Initializing services");
+    debug::LogDebug("[ServiceProvider] Initializing services");
 
     ServiceInitializer initializer{
         .window = app.GetWindow(), .service_provider = *this, .app = app};
@@ -34,7 +34,7 @@ void ServiceProvider::DispatchSceneUnloaded(Scene& scene)
 
 void ServiceProvider::DispatchStart()
 {
-    Log::debug("[ServiceProvider] Starting services");
+    debug::LogDebug("[ServiceProvider] Starting services");
 
     for (auto& pair : services_)
     {
@@ -52,7 +52,7 @@ void ServiceProvider::DispatchUpdate()
 
 void ServiceProvider::DispatchCleanup()
 {
-    Log::debug("[ServiceProvider] Cleaning up services");
+    debug::LogDebug("[ServiceProvider] Cleaning up services");
 
     for (auto& pair : services_)
     {
