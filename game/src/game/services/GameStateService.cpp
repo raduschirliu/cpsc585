@@ -422,7 +422,7 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         return;
     }
 
-    Log::debug("Player {}, completed the lap", player.entity->GetName());
+    debug::LogDebug("Player {}, completed the lap", player.entity->GetName());
 
     if (!player.is_human)
     {
@@ -632,7 +632,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     //     }
     // }
 
-    Log::error("{}: entity_id", kart_entity.GetId());
+    debug::LogError("{}: entity_id", kart_entity.GetId());
 
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);

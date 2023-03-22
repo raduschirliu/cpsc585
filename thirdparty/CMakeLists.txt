@@ -1,6 +1,3 @@
-# argh - https://github.com/adishavit/argh/releases/tag/v1.3.1
-set(INCLUDES ${INCLUDES} argh-1.3.1/)
-
 # GLEW - http://glew.sourceforge.net/
 set(INCLUDES ${INCLUDES} glew-2.1.0/include)
 set(SOURCES ${SOURCES} glew-2.1.0/src/glew.c)
@@ -34,10 +31,6 @@ set(INCLUDES ${INCLUDES} fmt-7.0.3/include)
 # OpenGL
 find_package(OpenGL REQUIRED)
 set(LIBRARIES ${LIBRARIES} ${OPENGL_gl_LIBRARY})
-
-# STB
-set(INCLUDES ${INCLUDES} stb-2.26)
-set(DEFINITIONS ${DEFINITIONS} STB_IMAGE_IMPLEMENTATION)
 
 # OS-dependent options
 if(UNIX)
@@ -110,16 +103,17 @@ set(LIBRARIES ${LIBRARIES} OpenAL::OpenAL)
 set(INCLUDES ${INCLUDES} object_ptr/)
 
 # -------------------------
-# RapidJSON
+# Other includes
+# RapidJSON, STB
 # -------------------------
 set(INCLUDES ${INCLUDES} includes)
+set(DEFINITIONS ${DEFINITIONS} STB_IMAGE_IMPLEMENTATION)
 set(DEFINITIONS ${DEFINITIONS} RAPIDJSON_PARSE_DEFAULT_FLAGS=kParseTrailingCommasFlag|kParseCommentsFlag)
 set(DEFINITIONS ${DEFINITIONS} RAPIDJSON_HAS_STDSTRING=1)
 
 # -------------------------
 # Thirdparty combination library
 # -------------------------
-
 add_library(thirdparty STATIC)
 target_sources(thirdparty PUBLIC ${SOURCES})
 target_link_libraries(thirdparty PUBLIC ${LIBRARIES})

@@ -18,7 +18,7 @@
 #include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
 #include "engine/service/ServiceProvider.h"
-#include "stb/stb_vorbis.c"
+#include "stb/stb_vorbis.h"
 
 // the system's default output device will be used
 static const ALCchar* kDefaultDevice = nullptr;
