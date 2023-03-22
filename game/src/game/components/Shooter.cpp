@@ -53,13 +53,11 @@ void Shooter::Shoot()
     // get the data from the raycast hit
     RaycastData target_data_value = target_data_.value();
 
-    float distance = target_data_value.distance;
-    physx::PxActor* target_actor = target_data_value.actor;
-    vec3 normal = target_data_value.normal;
-    vec3 position = target_data_value.position;
+    Entity* target_entity = target_data_value.entity;
 
     uint32_t entity_id = GetEntity().GetId();
-    Log::debug("Entity: {} hit something!", entity_id);
+    Log::debug("Entity: {} hit Entity {}!", entity_id, target_entity->GetId());
+    /* Log::debug("{}", target_actor_name); */
 }
 
 std::optional<RaycastData> Shooter::GetTargetData()

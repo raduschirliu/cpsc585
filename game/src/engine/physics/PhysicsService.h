@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <map>
 #include <optional>
 #include <vector>
 
@@ -16,6 +17,7 @@
 #include "engine/core/math/Timestep.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
+#include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
@@ -54,7 +56,8 @@ class PhysicsService final : public Service,
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
     physx::PxCooking* cooking_ = nullptr;
     physx::vehicle2::PxVehiclePhysXSimulationContext vehicle_context_;
-    std::vector<snippetvehicle2::BaseVehicle*> vehicles_;
+    std::map<physx::PxActor*, Entity*> actors_;
+    std::map<snippetvehicle2::BaseVehicle*, Entity*> vehicles_;
 
     Timestep time_accumulator_;
 
@@ -71,10 +74,11 @@ class PhysicsService final : public Service,
                               physx::PxVisualizationParameter::Enum parameter);
 
   public:
-    void RegisterActor(physx::PxActor* actor);
-    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
-    void UnregisterActor(physx::PxActor* actor);
-    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
+    void RegisterActor(physx::PxActor* actor, Entity* entity);
+    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle, Entity* entity);
+    void UnregisterActor(physx::PxActor* actor, Entity* entity);
+    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle,
+                           Entity* entity);
 
     /* From PxSimulationEventCallback */
     void onConstraintBreak(physx::PxConstraintInfo* constraints,
