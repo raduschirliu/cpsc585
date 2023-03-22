@@ -46,7 +46,7 @@ void Shooter::Shoot()
     if (!target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
-        Log::debug("Entity: {} did not hit anything.", entity_id);
+        debug::LogDebug("Entity: {} did not hit anything.", entity_id);
         return;
     }
 
@@ -59,7 +59,7 @@ void Shooter::Shoot()
     vec3 position = target_data_value.position;
 
     uint32_t entity_id = GetEntity().GetId();
-    Log::debug("Entity: {} hit something!", entity_id);
+    debug::LogDebug("Entity: {} hit something!", entity_id);
 }
 
 std::optional<RaycastData> Shooter::GetTargetData()
@@ -69,7 +69,7 @@ std::optional<RaycastData> Shooter::GetTargetData()
 
 void Shooter::ShootBuckshot()
 {
-    Log::debug("NOT IMPLEMENTED YET OOOOPS");
+    debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
 void Shooter::SetShootSound(AmmoPickupType ammo_type)
@@ -116,7 +116,7 @@ float RandomPitchValue()
 
 void Shooter::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("{} Component - Init", GetName());
+    debug::LogInfo("{} Component - Init", GetName());
 
     // service dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();

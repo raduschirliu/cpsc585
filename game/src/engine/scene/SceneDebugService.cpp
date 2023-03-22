@@ -99,7 +99,7 @@ void SceneDebugService::DrawGeneralTab()
 
     if (ImGui::Button("Reload Scene"))
     {
-        Log::info("Reloading scene...");
+        debug::LogInfo("Reloading scene...");
         GetApp().SetActiveScene(active_scene_->GetName());
     }
 
@@ -152,7 +152,7 @@ void SceneDebugService::DrawSceneTab()
 
         if (ImGui::Button("Load"))
         {
-            Log::info("Changing scene: {}", scene->GetName());
+            debug::LogInfo("Changing scene: {}", scene->GetName());
             SetActiveScene(scene->GetName());
         }
 

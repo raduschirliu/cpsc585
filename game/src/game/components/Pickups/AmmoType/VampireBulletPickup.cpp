@@ -15,7 +15,7 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        Log::debug("Bullet will deal vampire damage.");
+        debug::LogDebug("Bullet will deal vampire damage.");
     }
 }
 

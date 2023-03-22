@@ -117,12 +117,12 @@ void Window::Create(int width, int height, const char* title)
     GLenum err = glewInit();
     if (err != GLEW_OK)
     {
-        Log::error("Window glewInit error: {}", glewGetErrorString(err));
+        debug::LogError("Window glewInit error: {}", glewGetErrorString(err));
         throw std::runtime_error("Failed to initialize GLEW");
     }
 
     ConnectCallbacks();
-    Log::info("Window created successfully");
+    debug::LogInfo("Window created successfully");
     GLDebug::enable();
 }
 

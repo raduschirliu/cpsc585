@@ -15,7 +15,7 @@ void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        Log::debug("Bullet will fire at more speed");
+        debug::LogDebug("Bullet will fire at more speed");
     }
 }
 
