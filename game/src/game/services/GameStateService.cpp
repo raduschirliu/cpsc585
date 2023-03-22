@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 
@@ -31,7 +32,7 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(7.0);
+static const Timestep kCountdownTime = Timestep::Seconds(1.0);
 
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
@@ -366,13 +367,13 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
             active_powerups_.erase(active_powerups_.begin() + i);
         }
     }
-    std::cout << "active : " << active_powerups_.size();
+    debug::LogDebug("active : {}", active_powerups_.size());
 }
 
 void GameStateService::StartCountdown()
 {
     race_state_.state = GameState::kCountdown;
-    Log::info("Race countdown started...");
+    debug::LogInfo("Race countdown started...");
 }
 
 void GameStateService::SetupRace()
@@ -383,7 +384,7 @@ void GameStateService::SetupRace()
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
                "Too many players added to the game");
-    Log::info("Spawning players...");
+    debug::LogInfo("Spawning players...");
 
     uint32_t player_idx = 0;
 
@@ -393,7 +394,7 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
-    for (uint32_t i = 0; i < /*race_config_.num_ai_players*/ 1; i++)
+    for (uint32_t i = 0; i < race_config_.num_ai_players; i++)
     {
         CreatePlayer(player_idx, false);
         player_idx++;
@@ -411,21 +412,23 @@ void GameStateService::StartRace()
         race_state_.sorted_players.push_back(entry.second.get());
     }
 
-    Log::info("Game started");
+    debug::LogInfo("Game started");
 }
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
     if (race_state_.state != GameState::kRaceInProgress)
     {
-        Log::error("Player finished lap before the game started");
+        debug::LogError("Player finished lap before the game started");
         return;
     }
 
-    // if (!player.is_human)
-    // {
-    //     player.entity->GetComponent<AIController>().ResetForNextLap();
-    // }
+    debug::LogDebug("Player {}, completed the lap", player.entity->GetName());
+
+    if (!player.is_human)
+    {
+        player.entity->GetComponent<AIController>().ResetForNextLap();
+    }
 
     const int laps = player.state_component->GetLapsCompleted() + 1;
     player.state_component->SetLapsCompleted(laps);
@@ -434,11 +437,11 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
     {
         if (player.is_human)
         {
-            Log::info("Player finished game!");
+            debug::LogInfo("Player finished game!");
         }
         else
         {
-            Log::info("AI finished game!");
+            debug::LogInfo("AI finished game!");
         }
         // audio_service_->PlayMusic("yay.ogg");
 
@@ -471,7 +474,14 @@ void GameStateService::RegisterCheckpoint(Entity& entity,
 
 void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 {
-    auto iter = players_.find(entity.GetId());
+    uint32_t entity_id = entity.GetId();
+    // to tackle the problem for not changing the entity.
+    if (entity_id >= 2 && entity_id <= 4)
+    {
+        entity_id = entity_id - 1;
+    }
+
+    auto iter = players_.find(entity_id);
 
     if (iter == players_.end())
     {
@@ -485,8 +495,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        Log::info("Player {} hit incorrect checkpoint {} (expected {})",
-                  iter->second->index, index, expected_checkpoint);
+        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
+                       iter->second->index, index, expected_checkpoint);
         return;
     }
 
@@ -503,7 +513,7 @@ void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
     {
-        Log::error("Cannot configure the race if it has already started");
+        debug::LogError("Cannot configure the race if it has already started");
         return;
     }
 
@@ -608,6 +618,23 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     // Create & configure car entity
     Entity& kart_entity = scene.AddEntity(entity_name);
 
+    // as we want the id of the entity to be as the same of the index, we will
+    // take care of that now.
+
+    // finding if the index is already assigned to any other entity.
+    // for (auto& e : scene.GetEntities())
+    // {
+    //     if (e->GetId() == index)
+    //     {
+    //         auto id = kart_entity.GetId();
+    //         auto swapping_id = e->GetId();
+    //         kart_entity.SetId(swapping_id);
+    //         e->SetId(id);
+    //     }
+    // }
+
+    debug::LogError("{}: entity_id", kart_entity.GetId());
+
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
     transform.RotateEulerDegrees(config.orientation_euler_degrees);
@@ -668,4 +695,9 @@ CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
     next_index %= track_config_.checkpoints.size();
 
     return track_config_.checkpoints[next_index];
+}
+
+double GameStateService::GetMaxCountdownSeconds()
+{
+    return kCountdownTime.GetSeconds();
 }

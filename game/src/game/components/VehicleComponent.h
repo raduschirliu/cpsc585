@@ -2,16 +2,16 @@
 
 #include <object_ptr.hpp>
 
-#include "engine/input/InputService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdPhysx.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
-#include "engine/physics/PhysicsService.h"
 #include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
+#include "game/FwdGame.h"
 // #include "game/components/audio/SoundEmitter.h"  // debugging
-#include "game/services/GameStateService.h"
-#include "vehicle2/PxVehicleAPI.h"
+#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
 
 class VehicleComponent final : public Component,
                                public IEventSubscriber<OnUpdateEvent>,

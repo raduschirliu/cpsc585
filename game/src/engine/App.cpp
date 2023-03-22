@@ -77,7 +77,7 @@ ServiceProvider& App::GetServiceProvider()
 
 void App::SetActiveScene(const string& name)
 {
-    Log::info("Requested scene change: {}", name);
+    debug::LogInfo("Requested scene change: {}", name);
     ASSERT_MSG(scene_list_.HasScene(name), "Scene must exist");
     requested_scene_ = name;
 }
@@ -134,20 +134,20 @@ void App::DispatchSceneChange()
     ASSERT_MSG(requested_scene_.has_value(),
                "Must request a scene change first");
 
-    Log::info("Dispatching scene change...");
+    debug::LogInfo("Dispatching scene change...");
     const std::string& name = requested_scene_.value();
 
     if (scene_list_.HasActiveScene())
     {
         Scene& old_scene = scene_list_.GetActiveScene();
-        Log::info("Unloading scene: {}", old_scene.GetName());
+        debug::LogInfo("Unloading scene: {}", old_scene.GetName());
 
         old_scene.Unload();
         service_provider_.DispatchSceneUnloaded(old_scene);
         OnSceneUnloaded(old_scene);
     }
 
-    Log::info("Loading scene: {}", name);
+    debug::LogInfo("Loading scene: {}", name);
     scene_list_.SetActiveScene(name);
     Scene& new_scene = scene_list_.GetActiveScene();
 
@@ -155,7 +155,7 @@ void App::DispatchSceneChange()
     service_provider_.DispatchSceneLoaded(new_scene);
     OnSceneLoaded(new_scene);
 
-    Log::info("Active scene set to: {}", name);
+    debug::LogInfo("Active scene set to: {}", name);
     requested_scene_.reset();
 }
 

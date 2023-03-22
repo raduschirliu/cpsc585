@@ -12,6 +12,7 @@
 
 #include "engine/asset/AssetBundle.h"
 #include "engine/core/debug/Log.h"
+#include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
@@ -37,7 +38,7 @@ void AssetService::LoadMesh(const string &path, const string &name)
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)
     {
-        Log::error("Failed to import: {}", importer.GetErrorString());
+        debug::LogError("Failed to import: {}", importer.GetErrorString());
         ASSERT_MSG(false, "Import must be successful");
     }
 
@@ -129,8 +130,8 @@ void AssetService::OnInit()
 {
     LoadAssetFile(kAssetFilePath);
 
-    Log::info("Loaded meshes: {}", meshes_.size());
-    Log::info("Loaded textures: {}", textures_.size());
+    debug::LogInfo("Loaded meshes: {}", meshes_.size());
+    debug::LogInfo("Loaded textures: {}", textures_.size());
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

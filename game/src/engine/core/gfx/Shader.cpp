@@ -60,7 +60,7 @@ bool Shader::compile()
         char error_str[kErrorBufferSize];
         strerror_r(errno, error_str, kErrorBufferSize);
 
-        Log::error("SHADER reading {}:\n{}", path, error_str);
+        debug::LogError("SHADER reading {}:\n{}", path, error_str);
         return false;
     }
     const GLchar* sourceCode = sourceString.c_str();
@@ -80,7 +80,7 @@ bool Shader::compile()
         std::vector<char> log(logLength);
         glGetShaderInfoLog(shaderID, logLength, NULL, log.data());
 
-        Log::error("SHADER compiling {}:\n{}", path, log.data());
+        debug::LogError("SHADER compiling {}:\n{}", path, log.data());
     }
     return success;
 }
