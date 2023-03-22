@@ -49,19 +49,34 @@ void Setting::OnGui()
     // const ImVec2& screen_size = ImGui::GetIO().DisplaySize;
 
     ImGui::Begin("Setting", nullptr, flags | ImGuiWindowFlags_NoInputs);
-    ImGui::Image(background_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x,
-                                                ImGui::GetIO().DisplaySize.y));
+    ImGui::Image(
+        background_->GetGuiHandle(),
+        ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(300, 225));
     ImGui::Begin("Options", nullptr, flags);
 
     // Game setting elements
-    ImGui::Text("What should I add hereeee");
+    static bool check = true;
+    ImGui::PushStyleColor(ImGuiCol_CheckMark, ImVec4(0.f, 0.f, 0.f, 1.f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.f, 1.f, 1.f, 1.f));
+    ImGui::Checkbox("Music", &check);
+    ImGui::PopStyleColor(2);
+
+    if (check)
+    {
+        audio_service_->PlayMusic("test_music.ogg");
+    }
+    else
+    {
+        audio_service_->StopMusic();
+    }
 
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100, ImGui::GetIO().DisplaySize.y - 100));
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100,
+                                   ImGui::GetIO().DisplaySize.y - 100));
     ImGui::Begin("Button", nullptr, flags);
 
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));

@@ -65,28 +65,28 @@ void PlayerHud::OnGui()
     // {
     //     ImGui::Text("Gear: Reverse");
     // }
-    ImGui::Spacing();
-    ImGui::Text("Test printing (powerup):...");
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::Spacing();
+    // ImGui::Text("Test printing (powerup):...");
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
 
-    ImGui::Text("Test printing (ammo):...");
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(buckshot_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(doubleDamage_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(exploadingBullet_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(increaseFireRate_->GetGuiHandle(), ImVec2(70, 70));
-    ImGui::SameLine(0.f, 10.f);
-    ImGui::Image(vampireBullet_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::Text("Test printing (ammo):...");
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(buckshot_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(doubleDamage_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(exploadingBullet_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(increaseFireRate_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::SameLine(0.f, 10.f);
+    // ImGui::Image(vampireBullet_->GetGuiHandle(), ImVec2(70, 70));
 
     if (player_state_->GetCurrentPowerup() ==
         PowerupPickupType::kDisableHandling)
@@ -118,4 +118,10 @@ void PlayerHud::OnGui()
     ImGui::Text("%0.0f KM/H", vehicle_->GetSpeed());
 
     ImGui::End();
+
+    if (player_state_->GetLapsCompleted() ==
+        game_state_service_->GetRaceConfig().num_laps)
+    {
+        
+    }
 }
