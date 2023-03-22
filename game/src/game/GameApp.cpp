@@ -22,11 +22,10 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
-#include "engine/scene/SceneDebugService.h"
+#include "engine/scene/ScenedebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
-#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
@@ -36,6 +35,7 @@
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/audio/SoundEmitter.h"
+#include "game/components/debugCameraController.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/HowToPlay.h"
@@ -518,7 +518,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
 void GameApp::LoadMainMenuScene(Scene& scene)
 {
-    Log::info("Loading entities for MainMenu scene...");
+    debug::LogInfo("Loading entities for MainMenu scene...");
 
     Entity& entity = scene.AddEntity("Menu");
     entity.AddComponent<MainMenu>();
@@ -526,7 +526,7 @@ void GameApp::LoadMainMenuScene(Scene& scene)
 
 void GameApp::LoadHowToPlayScene(Scene& scene)
 {
-    Log::info("Loading entities for HowToPlay scene...");
+    debug::LogInfo("Loading entities for HowToPlay scene...");
 
     Entity& entity = scene.AddEntity("HowToPlay");
     entity.AddComponent<HowToPlay>();
@@ -534,7 +534,7 @@ void GameApp::LoadHowToPlayScene(Scene& scene)
 
 void GameApp::LoadSettingScene(Scene& scene)
 {
-    Log::info("Loading entities for Setting scene...");
+    debug::LogInfo("Loading entities for Setting scene...");
 
     Entity& entity = scene.AddEntity("Setting");
     entity.AddComponent<Setting>();
