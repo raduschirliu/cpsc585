@@ -1,19 +1,20 @@
 #pragma once
 
-#include <object_ptr.hpp>
-#include <string>
-
 #include "engine/audio/AudioService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 
-class SoundEmitter final : public Component,
+class AudioEmitter final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    void SetSource(std::string file_name);
-    void PlaySource();
+    void AddSource(std::string file_name);
+    void PlaySource(std::string file_name);
+
+    void SetPitch(std::string file_name, float pitch_offset);
+    void SetGain(std::string file_name, float gain);
+    void SetLoop(std::string file_name, bool is_looping);
 
     /* ----- from Component -----*/
 
