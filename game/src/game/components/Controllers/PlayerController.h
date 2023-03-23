@@ -8,6 +8,7 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/FwdGame.h"
+#include "game/components/Shooter.h"
 
 class PlayerState;
 
@@ -28,6 +29,7 @@ class PlayerController final : public Component,
 
     jss::object_ptr<PlayerState> player_data_;
     jss::object_ptr<VehicleComponent> vehicle_;
+    jss::object_ptr<Shooter> shooter_;
 
     bool execute_powerup_ = false;
     bool forward_gear_ = true;
@@ -35,6 +37,7 @@ class PlayerController final : public Component,
     float handling_multiplier_ = 1.0f;
     VehicleCommand command_;
 
+    void OnShoot();
     void UpdatePowerupControls(const Timestep& delta_time);
     void UpdateCarControls(const Timestep& delta_time);
     void UpdateGear();

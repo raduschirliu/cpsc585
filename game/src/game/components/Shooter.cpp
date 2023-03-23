@@ -5,8 +5,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 
-static float RandomPitchValue();
-static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+static float RandomPitchValue(); // TODO: move this to AudioService
 
 void Shooter::Shoot()
 {
@@ -133,10 +132,10 @@ void Shooter::OnUpdate(const Timestep& delta_time)
         SetShootSound(current_ammo_type_);
     }
 
-    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
-        input_service_->IsGamepadButtonPressed(kGamepadId,
-                                               GLFW_GAMEPAD_BUTTON_B))
-    {
-        Shoot();
-    }
+    /* if (input_service_->IsKeyPressed(GLFW_KEY_R) || */
+    /*     input_service_->IsGamepadButtonPressed(kGamepadId, */
+    /*                                            GLFW_GAMEPAD_BUTTON_B)) */
+    /* { */
+    /*     Shoot(); */
+    /* } */
 }

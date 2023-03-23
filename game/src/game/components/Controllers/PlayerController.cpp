@@ -10,6 +10,7 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
+#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
@@ -27,6 +28,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+    shooter_ = &GetEntity().GetComponent<Shooter>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -39,11 +41,22 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         return;
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
+    OnShoot();
 }
 
 std::string_view PlayerController::GetName() const
 {
     return "Player Controller";
+}
+
+void PlayerController::OnShoot()
+{
+    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_B))
+    {
+        shooter_->Shoot();
+    }
 }
 
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
