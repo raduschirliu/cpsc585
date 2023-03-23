@@ -17,9 +17,6 @@ using std::make_unique;
 using std::unique_ptr;
 using std::vector;
 
-static VertexArray* kDebugVertexArray = nullptr;
-static VertexBuffer* kDebugVertexBuffer = nullptr;
-
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
@@ -207,8 +204,6 @@ void RenderService::OnUpdate()
 
 void RenderService::OnCleanup()
 {
-    delete kDebugVertexArray;
-    delete kDebugVertexBuffer;
 }
 
 std::string_view RenderService::GetName() const

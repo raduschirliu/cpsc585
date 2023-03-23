@@ -39,6 +39,9 @@ static constexpr uint32_t kMaxPlayers = 4;
 
 static const Timestep kCountdownTime = Timestep::Seconds(5.0);
 
+static const array<string, kMaxPlayers> kCarTextures = {
+    "kart@BodyMain-P1", "kart@BodyMain-P2", "kart@BodyMain-P3",
+    "kart@BodyMain-P4"};
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
 static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
@@ -686,35 +689,58 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     // Create & configure car entity
     Entity& kart_entity = scene.AddEntity(entity_name);
 
-    // as we want the id of the entity to be as the same of the index, we will
-    // take care of that now.
-
-    // finding if the index is already assigned to any other entity.
-    // for (auto& e : scene.GetEntities())
-    // {
-    //     if (e->GetId() == index)
-    //     {
-    //         auto id = kart_entity.GetId();
-    //         auto swapping_id = e->GetId();
-    //         kart_entity.SetId(swapping_id);
-    //         e->SetId(id);
-    //     }
-    // }
-
-    debug::LogError("{}: entity_id", kart_entity.GetId());
-
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
     transform.RotateEulerDegrees(config.orientation_euler_degrees);
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh({
-        &asset_service_->GetMesh("kart"),
-        MaterialProperties{
-            .albedo_texture = nullptr,
-            .albedo_color = config.color,
-            .specular = vec3(1.0f, 1.0f, 1.0f),
-            .shininess = 64.0f,
+    renderer.SetMeshes({
+        {
+            &asset_service_->GetMesh("kart@BodyMain"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture(kCarTextures[index]),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyTop"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyUnderside"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture("kart@BodyUnderside"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Muffler"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Muffler"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Wheels"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Wheels"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
         },
     });
 

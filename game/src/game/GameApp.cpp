@@ -167,7 +167,7 @@ void GameApp::LoadTestScene(Scene& scene)
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("kart"),
+            &asset_service_.GetMesh("kart-old"),
             MaterialProperties{
                 .albedo_texture = nullptr,
                 .albedo_color = vec3(0.3f, 0.3f, 0.3f),
@@ -354,20 +354,20 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMeshes({
             {
-                &asset_service_.GetMesh("track3new@OrangeTrack"),
+                &asset_service_.GetMesh("track3@OrangeTrack"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@OrangeTrack"),
+                        &asset_service_.GetTexture("track3@OrangeTrack"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
                 },
             },
             {
-                &asset_service_.GetMesh("track3new@BlueTrack"),
+                &asset_service_.GetMesh("track3@BlueTrack"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@BlueTrack"),
+                        &asset_service_.GetTexture("track3@BlueTrack"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
@@ -386,50 +386,50 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMeshes({
             {
-                &asset_service_.GetMesh("track3new@Blocks"),
+                &asset_service_.GetMesh("track3@Blocks"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@Blocks"),
+                        &asset_service_.GetTexture("track3@Blocks"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
                 },
             },
             {
-                &asset_service_.GetMesh("track3new@Globe"),
+                &asset_service_.GetMesh("track3@Globe"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@Globe"),
+                        &asset_service_.GetTexture("track3@Globe"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
                 },
             },
             {
-                &asset_service_.GetMesh("track3new@Screen"),
+                &asset_service_.GetMesh("track3@Screen"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@Screen"),
+                        &asset_service_.GetTexture("track3@Screen"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
                 },
             },
             {
-                &asset_service_.GetMesh("track3new@Rings2"),
+                &asset_service_.GetMesh("track3@Rings2"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@Rings"),
+                        &asset_service_.GetTexture("track3@Rings"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
                 },
             },
             {
-                &asset_service_.GetMesh("track3new@Rings6"),
+                &asset_service_.GetMesh("track3@Rings6"),
                 MaterialProperties{
                     .albedo_texture =
-                        &asset_service_.GetTexture("track3new@Rings"),
+                        &asset_service_.GetTexture("track3@Rings"),
                     .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                     .specular = vec3(1.0f, 1.0f, 1.0f),
                     .shininess = 64.0f,
