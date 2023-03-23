@@ -14,8 +14,8 @@ class RenderService;
 
 struct RenderableMesh
 {
-    std::string name;
-    MaterialProperties properties;
+    const Mesh* mesh;
+    MaterialProperties material_properties;
 };
 
 class MeshRenderer final : public Component
@@ -23,15 +23,12 @@ class MeshRenderer final : public Component
   public:
     MeshRenderer() = default;
 
-    void SetMesh(const std::string& name);
-    void SetMaterialProperties(const MaterialProperties& material_properties);
     void SetMaterial(const std::string& name);
 
-    void AddMesh(const RenderableMesh& mesh);
+    void SetMesh(const RenderableMesh& mesh);
+    void SetMeshes(const std::vector<RenderableMesh>& meshes);
     const std::vector<RenderableMesh>& GetMeshes() const;
 
-    const Mesh& GetMesh() const;
-    const MaterialProperties& GetMaterialProperties() const;
     const Material& GetMaterial() const;
 
     // From Component

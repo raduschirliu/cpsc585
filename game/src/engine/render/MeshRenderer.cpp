@@ -17,6 +17,9 @@ using glm::vec3;
 using std::string;
 using std::vector;
 
+static const MaterialProperties kDefaultMaterialProperties = {
+    nullptr, vec3(0.8f, 0.8f, 0.8f), vec3(0.8f, 0.8f, 0.8f), 64.0f};
+
 void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 {
     // Services
@@ -26,28 +29,40 @@ void MeshRenderer::OnInit(const ServiceProvider& service_provider)
     // Components
     transform_ = &GetEntity().GetComponent<Transform>();
 
-    // Registering
-    render_service_->RegisterRenderable(GetEntity());
-
     // Set defaults
     SetMaterial("default");
 }
 
 void MeshRenderer::OnDebugGui()
 {
-    if (mesh_name_)
+    for (auto& mesh : meshes_)
     {
-        ImGui::Text("Mesh: %s", mesh_name_.value().c_str());
-    }
-    else
-    {
-        ImGui::Text("Mesh: %s", "<NONE>");
-    }
+        ImGui::PushID(&mesh);
 
-    gui::EditColorProperty("Albedo", material_properties_.albedo_color);
-    gui::EditColorProperty("Specular", material_properties_.specular);
-    ImGui::DragFloat("Shininess", &material_properties_.shininess, 0.5f, 1.0f,
-                     512.0f);
+        if (ImGui::TreeNode(&mesh, "%s", mesh.mesh->name.c_str()))
+        {
+            if (mesh.material_properties.albedo_texture)
+            {
+                ImGui::Image(
+                    mesh.material_properties.albedo_texture->GetGuiHandle(),
+                    ImVec2(150.0f, 150.0f));
+            }
+            else
+            {
+                ImGui::Text("Texture: None");
+            }
+
+            gui::EditColorProperty("Albedo",
+                                   mesh.material_properties.albedo_color);
+            gui::EditColorProperty("Specular",
+                                   mesh.material_properties.specular);
+            ImGui::DragFloat("Shininess", &mesh.material_properties.shininess,
+                             0.5f, 1.0f, 512.0f);
+            ImGui::TreePop();
+        }
+
+        ImGui::PopID();
+    }
 }
 
 void MeshRenderer::OnDestroy()
@@ -60,40 +75,40 @@ std::string_view MeshRenderer::GetName() const
     return "MeshRenderer";
 }
 
-void MeshRenderer::SetMesh(const string& name)
+void MeshRenderer::SetMesh(const RenderableMesh& mesh)
 {
-    if (mesh_name_)
+    if (meshes_.size() > 0)
     {
         render_service_->UnregisterRenderable(GetEntity());
+        meshes_.clear();
     }
 
-    mesh_name_ = name;
-    render_service_->RegisterRenderable(GetEntity());
+    ASSERT_MSG(mesh.mesh, "Must have valid mesh data");
+
+    meshes_ = {mesh};
+    render_service_->RegisterRenderable(GetEntity(), *this);
 }
 
-void MeshRenderer::SetMaterialProperties(
-    const MaterialProperties& material_properties)
+void MeshRenderer::SetMeshes(const vector<RenderableMesh>& meshes)
 {
-    material_properties_ = material_properties;
-}
+    if (meshes_.size() > 0)
+    {
+        render_service_->UnregisterRenderable(GetEntity());
+        meshes_.clear();
+    }
 
-void MeshRenderer::AddMesh(const RenderableMesh& mesh)
-{
-}
+    for (const auto& mesh : meshes)
+    {
+        ASSERT_MSG(mesh.mesh, "Must have valid mesh data");
+    }
 
-const vector<RenderableMesh>& MeshRenderer::GetMeshes() const
-{
+    meshes_ = meshes;
+    render_service_->RegisterRenderable(GetEntity(), *this);
 }
 
 void MeshRenderer::SetMaterial(const string& name)
 {
     // TODO(radu): get material by name from render service and set
-}
-
-const Mesh& MeshRenderer::GetMesh() const
-{
-    ASSERT_MSG(mesh_name_.has_value(), "No mesh assigned");
-    return asset_service_->GetMesh(mesh_name_.value());
 }
 
 const Material& MeshRenderer::GetMaterial() const
@@ -102,7 +117,7 @@ const Material& MeshRenderer::GetMaterial() const
     return *material_;
 }
 
-const MaterialProperties& MeshRenderer::GetMaterialProperties() const
+const vector<RenderableMesh>& MeshRenderer::GetMeshes() const
 {
-    return material_properties_;
+    return meshes_;
 }

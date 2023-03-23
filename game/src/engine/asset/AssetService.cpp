@@ -70,6 +70,7 @@ const Mesh &AssetService::GetMesh(const std::string &name)
 void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
 {
     auto processed_mesh = make_unique<Mesh>();
+    processed_mesh->name = name;
 
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; i++)

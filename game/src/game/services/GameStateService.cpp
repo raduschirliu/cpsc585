@@ -708,10 +708,15 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     transform.RotateEulerDegrees(config.orientation_euler_degrees);
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh("kart");
-    renderer.SetMaterialProperties({.albedo_color = config.color,
-                                    .specular = vec3(1.0f, 1.0f, 1.0f),
-                                    .shininess = 64.0f});
+    renderer.SetMesh({
+        &asset_service_->GetMesh("kart"),
+        MaterialProperties{
+            .albedo_texture = nullptr,
+            .albedo_color = config.color,
+            .specular = vec3(1.0f, 1.0f, 1.0f),
+            .shininess = 64.0f,
+        },
+    });
 
     kart_entity.AddComponent<AudioEmitter>();
 

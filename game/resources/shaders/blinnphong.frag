@@ -2,7 +2,6 @@
 
 in vec3 aPos;
 in vec3 aNormal;
-in vec3 aColor; // TODO(radu): remove
 in vec2 aTextureCoord;
 
 out vec4 outColor;
