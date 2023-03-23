@@ -50,6 +50,24 @@ void Shooter::ShootBuckshot()
     debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
+float Shooter::GetAmmoDamage()
+{
+    using enum AmmoPickupType;
+    float base_damage = 10.0f;
+    switch (current_ammo_type_)
+    {
+        case kDoubleDamage:
+            return 2.0f * base_damage;
+            break;
+        // TODO
+        case kBuckshot:          // do less for each shot ?
+        case kExploadingBullet:  // do a lot but slower ?
+        case kVampireBullet:     // do less ??
+        default:
+            return base_damage;
+    }
+}
+
 void Shooter::UpdateOnHit()
 {
     Entity* target_entity = target_data_.value().entity;
@@ -62,12 +80,7 @@ void Shooter::UpdateOnHit()
     jss::object_ptr<PlayerState> target_state =
         &target_entity->GetComponent<PlayerState>();
 
-    /* target_state-> */
-}
-
-std::optional<RaycastData> Shooter::GetTargetData()
-{
-    return target_data_;
+    target_state->DecrementHealth(GetAmmoDamage());
 }
 
 void Shooter::SetShootSound(AmmoPickupType ammo_type)
@@ -127,7 +140,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
     shoot_sound_file_ = "kart_shoot_01.ogg";
-
+    hitbox_ = &GetEntity().GetComponent<Hitbox>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
@@ -145,11 +158,4 @@ void Shooter::OnUpdate(const Timestep& delta_time)
         current_ammo_type_ = player_state_->GetCurrentAmmoType();
         SetShootSound(current_ammo_type_);
     }
-
-    /* if (input_service_->IsKeyPressed(GLFW_KEY_R) || */
-    /*     input_service_->IsGamepadButtonPressed(kGamepadId, */
-    /*                                            GLFW_GAMEPAD_BUTTON_B)) */
-    /* { */
-    /*     Shoot(); */
-    /* } */
 }
