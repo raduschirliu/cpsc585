@@ -155,4 +155,3 @@ void Shooter::OnUpdate(const Timestep& delta_time)
         Shoot();
     }
 }
-

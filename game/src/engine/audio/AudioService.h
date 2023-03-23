@@ -1,21 +1,13 @@
 #pragma once
 
-#include <AL/al.h>
 #include <AL/alc.h>
 
 #include <glm/glm.hpp>
 #include <map>
-#include <object_ptr.hpp>
-#include <optional>
-#include <string>
-#include <utility>
 
 #include "AudioFile.h"
 #include "engine/input/InputService.h"
-#include "engine/scene/Entity.h"
-#include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
-#include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {
@@ -108,8 +100,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void SetLooping(uint32_t entity_id, std::string file_name,
-                    bool is_looping);
+    void SetLooping(uint32_t entity_id, std::string file_name, bool is_looping);
 
     /**
      *  sets the gain of an audio file's playback.
@@ -128,6 +119,8 @@ class AudioService final : public Service
      *  @overload
      */
     void SetGain(uint32_t entity_id, std::string file_name, float gain);
+
+    void SetMusicGain(float gain);
 
     /**
      *  offsets the pitch of an audio file.
@@ -230,7 +223,7 @@ class AudioService final : public Service
     /// deletes all inactive sources and buffers
     void CullSources();
 
-    bool CheckAlError(std::string error_message = ""); 
+    bool CheckAlError(std::string error_message = "");
 
     /* ----- getters ----- */
 

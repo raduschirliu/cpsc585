@@ -1,15 +1,12 @@
 #include "AudioEmitter.h"
 
-#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
-#include "engine/scene/Component.h"
-#include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
+#include "engine/scene/Entity.h"
 
 void AudioEmitter::AddSource(std::string file_name)
 {
-    debug::LogDebug("Entity: {} just added a source for {}", GetEntity().GetId(),
-               file_name);
+    debug::LogDebug("Entity: {} just added a source for {}",
+                    GetEntity().GetId(), file_name);
     file_name_ = file_name;
     audio_service_->AddSource(GetEntity().GetId(), file_name);
 }

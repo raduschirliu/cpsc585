@@ -1,5 +1,7 @@
 #pragma once
 
+#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
+
 #include <object_ptr.hpp>
 
 #include "engine/fwd/FwdComponents.h"
@@ -11,7 +13,6 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/FwdGame.h"
 #include "game/components/audio/AudioEmitter.h"
-#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
 
 class VehicleComponent final : public Component,
                                public IEventSubscriber<OnUpdateEvent>,
