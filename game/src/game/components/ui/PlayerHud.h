@@ -8,6 +8,7 @@
 #include "game/FwdGame.h"
 
 class Texture;
+struct ImFont;
 
 class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -21,6 +22,7 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
 
     jss::object_ptr<VehicleComponent> vehicle_;
@@ -36,4 +38,6 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     const Texture* exploadingBullet_;
     const Texture* increaseFireRate_;
     const Texture* vampireBullet_;
+
+    ImFont* font_;
 };
