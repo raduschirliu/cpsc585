@@ -15,21 +15,22 @@
 using glm::mat4;
 using glm::vec3;
 using std::string;
+using std::vector;
 
 void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 {
-    // Get dependencies
+    // Services
     render_service_ = &service_provider.GetService<RenderService>();
     asset_service_ = &service_provider.GetService<AssetService>();
 
+    // Components
     transform_ = &GetEntity().GetComponent<Transform>();
+
+    // Registering
+    render_service_->RegisterRenderable(GetEntity());
 
     // Set defaults
     SetMaterial("default");
-    SetMaterialProperties({.albedo_texture = nullptr,
-                           .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                           .specular = vec3(0.5f, 0.5f, 0.5f),
-                           .shininess = 64.0f});
 }
 
 void MeshRenderer::OnDebugGui()
@@ -51,10 +52,7 @@ void MeshRenderer::OnDebugGui()
 
 void MeshRenderer::OnDestroy()
 {
-    if (mesh_name_)
-    {
-        render_service_->UnregisterRenderable(GetEntity());
-    }
+    render_service_->UnregisterRenderable(GetEntity());
 }
 
 std::string_view MeshRenderer::GetName() const
@@ -77,6 +75,14 @@ void MeshRenderer::SetMaterialProperties(
     const MaterialProperties& material_properties)
 {
     material_properties_ = material_properties;
+}
+
+void MeshRenderer::AddMesh(const RenderableMesh& mesh)
+{
+}
+
+const vector<RenderableMesh>& MeshRenderer::GetMeshes() const
+{
 }
 
 void MeshRenderer::SetMaterial(const string& name)
