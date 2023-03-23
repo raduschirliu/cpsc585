@@ -5,7 +5,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 
-static float RandomPitchValue(); // TODO: move this to AudioService
+static float RandomPitchValue();  // TODO: move this to AudioService
 
 void Shooter::Shoot()
 {
@@ -35,25 +35,39 @@ void Shooter::Shoot()
         return;
     }
 
-    // get the data from the raycast hit
+    UpdateOnHit();
+
+    // debugggg
     RaycastData target_data_value = target_data_.value();
-
     Entity* target_entity = target_data_value.entity;
-
     uint32_t entity_id = GetEntity().GetId();
     debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
                     target_entity->GetId());
-    /* Log::debug("{}", target_actor_name); */
-}
-
-std::optional<RaycastData> Shooter::GetTargetData()
-{
-    return target_data_;
 }
 
 void Shooter::ShootBuckshot()
 {
     debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
+}
+
+void Shooter::UpdateOnHit()
+{
+    Entity* target_entity = target_data_.value().entity;
+
+    if (!target_entity->HasComponent<PlayerState>())
+    {
+        return;
+    }
+
+    jss::object_ptr<PlayerState> target_state =
+        &target_entity->GetComponent<PlayerState>();
+
+    /* target_state-> */
+}
+
+std::optional<RaycastData> Shooter::GetTargetData()
+{
+    return target_data_;
 }
 
 void Shooter::SetShootSound(AmmoPickupType ammo_type)
