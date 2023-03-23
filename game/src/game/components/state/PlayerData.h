@@ -17,6 +17,7 @@ struct PlayerStateData
     Entity* bullied;
     PowerupPickupType current_powerup;  // will be decided by the enum defined
                                         // for every powerup.
+    AmmoPickupType current_ammo_type;
     double accuracy;
 
     PlayerStateData()

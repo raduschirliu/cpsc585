@@ -60,6 +60,11 @@ PowerupPickupType PlayerState::GetCurrentPowerup() const
     return player_state_.current_powerup;
 }
 
+AmmoPickupType PlayerState::GetCurrentAmmoType() const
+{
+    return player_state_.current_ammo_type;
+}
+
 int PlayerState::GetLastCheckpoint() const
 {
     return player_state_.last_checkpoint;
@@ -75,6 +80,7 @@ PlayerStateData* PlayerState::GetStateData()
     return &player_state_;
 }
 
+// setters
 void PlayerState::SetSpeedMultiplier(float value)
 {
     player_state_.speed_multiplier = value;
@@ -83,6 +89,11 @@ void PlayerState::SetSpeedMultiplier(float value)
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
     player_state_.current_powerup = type;
+}
+
+void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
+{
+    player_state_.current_ammo_type = type;
 }
 
 void PlayerState::SetLapsCompleted(int laps)
