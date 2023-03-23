@@ -1,12 +1,9 @@
 #include "AudioListener.h"
 
-#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
-#include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
-#include "engine/service/ServiceProvider.h"
 
 /* ----- from Component -----*/
 

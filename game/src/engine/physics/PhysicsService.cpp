@@ -286,11 +286,11 @@ PxRigidStatic* PhysicsService::CreateRigidStatic(const glm::vec3& position,
     return rigid_static;
 }
 
-void PhysicsService::RegisterActor(PxActor* actor,Entity* entity)
+void PhysicsService::RegisterActor(PxActor* actor, Entity* entity)
 {
     ASSERT_MSG(actor, "Actor must be valid");
     kScene_->addActor(*actor);
-    actors_.insert({actor,entity});
+    actors_.insert({actor, entity});
 }
 
 void PhysicsService::RegisterVehicle(BaseVehicle* vehicle, Entity* entity)
@@ -299,12 +299,12 @@ void PhysicsService::RegisterVehicle(BaseVehicle* vehicle, Entity* entity)
     vehicles_.insert({vehicle, entity});
 }
 
-void PhysicsService::UnregisterActor(PxActor* actor,Entity* entity)
+void PhysicsService::UnregisterActor(PxActor* actor, Entity* entity)
 {
     ASSERT_MSG(actor, "Actor must be valid");
     kScene_->removeActor(*actor);
-    for (auto pair = actors_.begin(), next_pair = pair;
-         pair != actors_.end(); pair = next_pair)
+    for (auto pair = actors_.begin(), next_pair = pair; pair != actors_.end();
+         pair = next_pair)
     {
         next_pair++;
         if (pair->first == actor)

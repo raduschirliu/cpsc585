@@ -1,23 +1,9 @@
 #include "game/components/Shooter.h"
 
-#include <glm/glm.hpp>
-#include <object_ptr.hpp>
 #include <random>
 
-#include "PxPhysics.h"
 #include "engine/core/debug/Log.h"
-#include "engine/input/InputService.h"
-#include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/PhysicsService.h"
-#include "engine/physics/RaycastData.h"
-#include "engine/scene/Component.h"
-#include "engine/scene/Entity.h"
-#include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
-#include "game/components/audio/AudioEmitter.h"
-#include "game/components/state/PlayerState.h"
-
-using glm::vec3;
 
 static float RandomPitchValue();
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
@@ -25,9 +11,9 @@ static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    vec3 direction = transform_->GetForwardDirection();
-    vec3 offset = (hitbox_->GetSize() + 10.0f) * direction;
-    vec3 origin = transform_->GetPosition() + offset;
+    glm::vec3 direction = transform_->GetForwardDirection();
+    glm::vec3 offset = (hitbox_->GetSize() + 10.0f) * direction;
+    glm::vec3 origin = transform_->GetPosition() + offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
@@ -46,7 +32,7 @@ void Shooter::Shoot()
     if (!target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
-        Log::debug("Entity: {} did not hit anything.", entity_id);
+        debug::LogDebug("Entity: {} did not hit anything.", entity_id);
         return;
     }
 
@@ -56,7 +42,8 @@ void Shooter::Shoot()
     Entity* target_entity = target_data_value.entity;
 
     uint32_t entity_id = GetEntity().GetId();
-    Log::debug("Entity: {} hit Entity {}!", entity_id, target_entity->GetId());
+    debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                    target_entity->GetId());
     /* Log::debug("{}", target_actor_name); */
 }
 
@@ -67,7 +54,7 @@ std::optional<RaycastData> Shooter::GetTargetData()
 
 void Shooter::ShootBuckshot()
 {
-    Log::debug("NOT IMPLEMENTED YET OOOOPS");
+    debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
 void Shooter::SetShootSound(AmmoPickupType ammo_type)
@@ -114,7 +101,7 @@ float RandomPitchValue()
 
 void Shooter::OnInit(const ServiceProvider& service_provider)
 {
-    Log::info("{} Component - Init", GetName());
+    debug::LogInfo("{} Component - Init", GetName());
 
     // service dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
@@ -153,4 +140,3 @@ void Shooter::OnUpdate(const Timestep& delta_time)
         Shoot();
     }
 }
-

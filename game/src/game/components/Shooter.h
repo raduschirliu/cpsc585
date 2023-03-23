@@ -1,17 +1,13 @@
 #pragma once
 
-#include <object_ptr.hpp>
 #include <optional>
 
-#include "engine/input/InputService.h"
-#include "engine/physics/BoxRigidBody.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/physics/Hitbox.h"
-#include "engine/physics/PhysicsService.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
-#include "game/components/Pickups/PickupType.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/state/PlayerState.h"
 
