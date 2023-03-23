@@ -4,3 +4,4 @@ class GameStateService;
 struct PlayerStateData;
 
 class VehicleComponent;
+class PlayerState;

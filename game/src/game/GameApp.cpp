@@ -22,23 +22,25 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/ComponentUpdateService.h"
 #include "engine/scene/Scene.h"
-#include "engine/scene/SceneDebugService.h"
+#include "engine/scene/ScenedebugService.h"
 #include "engine/scene/Transform.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
-#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
-#include "game/components/RaycastComponent.h"
+#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
-#include "game/components/audio/SoundEmitter.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
+#include "game/components/ui/HowToPlay.h"
+#include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
+#include "game/components/ui/Setting.h"
 #include "game/services/GameStateService.h"
 
 using glm::ivec2;
@@ -81,8 +83,11 @@ void GameApp::OnStart()
 {
     AddScene("Test");
     AddScene("Track1");
+    AddScene("MainMenu");
+    AddScene("HowToPlay");
+    AddScene("Setting");
 
-    SetActiveScene("Track1");
+    SetActiveScene("MainMenu");
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
@@ -96,6 +101,18 @@ void GameApp::OnSceneLoaded(Scene& scene)
     else if (scene_name == "Track1")
     {
         LoadTrack1Scene(scene);
+    }
+    else if (scene_name == "MainMenu")
+    {
+        LoadMainMenuScene(scene);
+    }
+    else if (scene_name == "HowToPlay")
+    {
+        LoadHowToPlayScene(scene);
+    }
+    else if (scene_name == "Setting")
+    {
+        LoadSettingScene(scene);
     }
 }
 
@@ -192,7 +209,7 @@ void GameApp::LoadTestScene(Scene& scene)
         hitbox_component.SetSize(vec3(10.f));
 
         auto& controller = car_entity.AddComponent<PlayerController>();
-        auto& raycast = car_entity.AddComponent<RaycastComponent>();
+        auto& raycast = car_entity.AddComponent<Shooter>();
 
         auto& mesh_renderer = car_entity.AddComponent<MeshRenderer>();
         mesh_renderer.SetMesh("kart");
@@ -603,4 +620,28 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         //      .specular = vec3(1.0f, 1.0f, 1.0f),
         //      .shininess = 64.0f});
     }
+}
+
+void GameApp::LoadMainMenuScene(Scene& scene)
+{
+    debug::LogInfo("Loading entities for MainMenu scene...");
+
+    Entity& entity = scene.AddEntity("Menu");
+    entity.AddComponent<MainMenu>();
+}
+
+void GameApp::LoadHowToPlayScene(Scene& scene)
+{
+    debug::LogInfo("Loading entities for HowToPlay scene...");
+
+    Entity& entity = scene.AddEntity("HowToPlay");
+    entity.AddComponent<HowToPlay>();
+}
+
+void GameApp::LoadSettingScene(Scene& scene)
+{
+    debug::LogInfo("Loading entities for Setting scene...");
+
+    Entity& entity = scene.AddEntity("Setting");
+    entity.AddComponent<Setting>();
 }
