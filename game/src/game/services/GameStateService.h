@@ -9,22 +9,21 @@
 #include <unordered_map>
 #include <vector>
 
-#include "engine/asset/AssetService.h"
-#include "engine/audio/AudioService.h"
 #include "engine/core/Colors.h"
 #include "engine/core/math/Timestep.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
 #include "game/components/state/PlayerData.h"
-#include "game/services/GameStateService.h"
 #include "game/services/RaceConfig.h"
 
 class Checkpoint;
 class PlayerState;
 class Transform;
+class Texture;
 
 enum class GameState : uint8_t
 {
@@ -110,7 +109,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<AudioService> audio_service_;
-    jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;

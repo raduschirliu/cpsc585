@@ -56,6 +56,7 @@ void Setting::OnGui()
 
     ImGui::SetNextWindowPos(ImVec2(300, 225));
     ImGui::Begin("Options", nullptr, flags);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
     // Game setting elements
     static bool check = true;
@@ -63,21 +64,16 @@ void Setting::OnGui()
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.f, 1.f, 1.f, 1.f));
     ImGui::Checkbox("Music", &check);
     ImGui::PopStyleColor(2);
+    ImGui::PopStyleVar(1);
 
-    if (check)
-    {
-        audio_service_->PlayMusic("test_music.ogg");
-    }
-    else
-    {
-        audio_service_->StopMusic();
-    }
+    // TODO: hook up audio button to where the background music plays
 
     ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100,
                                    ImGui::GetIO().DisplaySize.y - 100));
     ImGui::Begin("Button", nullptr, flags);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
@@ -88,6 +84,7 @@ void Setting::OnGui()
         scene_service_->SetActiveScene("MainMenu");
     }
     ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(1);
 
     ImGui::End();
 }

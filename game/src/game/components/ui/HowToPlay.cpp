@@ -58,17 +58,22 @@ void HowToPlay::OnGui()
 
     // If the FramePadding does not increase, no matter how large the rounding
     // value becomes, it does not apply
-    ImGui::GetStyle().FrameRounding = 50.f;
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.1f));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
     if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
                            ImVec2(40, 37)))
     {
         scene_service_->SetActiveScene("MainMenu");
     }
+
     ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(1);
+    ImGui::StyleColorsDark();
 
     ImGui::End();
 }

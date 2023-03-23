@@ -7,7 +7,10 @@
 #include <string>
 
 #include "engine/App.h"
+#include "engine/asset/AssetService.h"
+#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
+#include "engine/gui/GuiService.h"
 #include "engine/physics/Hitbox.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
@@ -53,13 +56,6 @@ GameStateService::GameStateService()
 
 void GameStateService::OnInit()
 {
-    font_impact_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "resources/textures/fonts/impact.ttf", 60.f);
-    font_beya_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "resources/textures/fonts/beya.ttf", 72.f);
-    font_pado_ = ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "resources/textures/fonts/padosori.ttf", 72.f);
-
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
     race_config_.num_laps = 2;
@@ -69,15 +65,22 @@ void GameStateService::OnInit()
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
+    // Services
     audio_service_ = &service_provider.GetService<AudioService>();
-    game_state_service_ = &service_provider.GetService<GameStateService>();
     asset_service_ = &service_provider.GetService<AssetService>();
+    gui_service_ = &service_provider.GetService<GuiService>();
+
+    // Events
+    GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Assets
+    font_beya_ = gui_service_->GetFont("beya");
+    font_pado_ = gui_service_->GetFont("pado");
+    font_impact_ = gui_service_->GetFont("impact");
 
     countdown3_ = &asset_service_->GetTexture("countdown3");
     countdown2_ = &asset_service_->GetTexture("countdown2");
     countdown1_ = &asset_service_->GetTexture("countdown1");
-
-    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 void GameStateService::OnUpdate()

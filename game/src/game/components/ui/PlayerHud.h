@@ -2,14 +2,11 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Component.h"
+#include "game/FwdGame.h"
 
-class InputService;
-class AssetService;
-class VehicleComponent;
-class GameStateService;
-class PlayerState;
 class Texture;
 
 class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
@@ -31,7 +28,7 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 
     const Texture* disableHandling_;
     const Texture* everyoneSlower_;
-    const Texture* IncreaseAimBox_;
+    const Texture* increaseAimBox_;
     const Texture* killAbilities_;
 
     const Texture* buckshot_;

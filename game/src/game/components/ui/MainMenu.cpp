@@ -86,11 +86,13 @@ void MainMenu::OnGui()
 
     // If the FramePadding does not increase, no matter how large the rounding
     // value becomes, it does not apply
-    ImGui::GetStyle().FrameRounding = 50.f;
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.8f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(0.0f, 0.0f, 0.8f, 0.5f));
     if (ImGui::ImageButton("how to play button", guide_button_->GetGuiHandle(),
                            ImVec2(222, 49)))
     {
@@ -98,16 +100,19 @@ void MainMenu::OnGui()
     }
     ImGui::PopStyleColor(3);
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.3f));
-    ImGui::SameLine(0.f, 795.f);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
+    ImGui::SameLine(0.0f, 795.0f);
     if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
                            ImVec2(163, 49)))
     {
         scene_service_->SetActiveScene("Setting");
     }
     ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(1);
 
     ImGui::End();
 
@@ -116,9 +121,12 @@ void MainMenu::OnGui()
 
     ImVec2 pos = ImGui::GetCursorPos();
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.8f, 0.5f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(0.0f, 0.0f, 0.8f, 0.5f));
     if (ImGui::ImageButton("single button", single_button_->GetGuiHandle(),
                            ImVec2(308, 93)))
     {
@@ -129,9 +137,11 @@ void MainMenu::OnGui()
 
     ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 135));
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.f, 0.f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                          ImVec4(0.8f, 0.0f, 0.0f, 0.5f));
     if (ImGui::ImageButton("multi button", multi_button_->GetGuiHandle(),
                            ImVec2(308, 93)))
     {
@@ -139,6 +149,7 @@ void MainMenu::OnGui()
         // scene_service_->SetActiveScene("Track1");
     }
     ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(1);
 
     // ImGui::Text("Button click counter: %d", counter);
 
@@ -147,5 +158,6 @@ void MainMenu::OnGui()
     // ImGui::Button("useless but styled button");
     // ImGui::PopStyleColor(1);
 
+    ImGui::StyleColorsDark();
     ImGui::End();
 }

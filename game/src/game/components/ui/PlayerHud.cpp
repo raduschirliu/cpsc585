@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
@@ -21,9 +22,13 @@ void PlayerHud::OnInit(const ServiceProvider& service_provider)
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
 
+    // Events
+    GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Assets
     disableHandling_ = &asset_service_->GetTexture("disable");
     everyoneSlower_ = &asset_service_->GetTexture("slower");
-    IncreaseAimBox_ = &asset_service_->GetTexture("double");
+    increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
 
     buckshot_ = &asset_service_->GetTexture("buckshot");
@@ -31,9 +36,6 @@ void PlayerHud::OnInit(const ServiceProvider& service_provider)
     exploadingBullet_ = &asset_service_->GetTexture("exploding");
     increaseFireRate_ = &asset_service_->GetTexture("fire");
     vampireBullet_ = &asset_service_->GetTexture("vampire");
-
-    // Events
-    GetEventBus().Subscribe<OnGuiEvent>(this);
 }
 
 string_view PlayerHud::GetName() const
@@ -72,7 +74,7 @@ void PlayerHud::OnGui()
     // ImGui::SameLine(0.f, 10.f);
     // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
     // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+    // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
     // ImGui::SameLine(0.f, 10.f);
     // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
 
@@ -101,7 +103,7 @@ void PlayerHud::OnGui()
     else if (player_state_->GetCurrentPowerup() ==
              PowerupPickupType::kIncreaseAimBox)
     {
-        ImGui::Image(IncreaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+        ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
     }
     else if (player_state_->GetCurrentPowerup() ==
              PowerupPickupType::kKillAbilities)
