@@ -17,6 +17,9 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     std::string_view GetName() const override;
 
     // Setters
+    void SetHealth(float health);
+    void DecrementHealth(float health);
+    void IncrementHealth(float health);
     void SetSpeedMultiplier(float value);
     void SetCurrentPowerup(PowerupPickupType type);
     void SetCurrentAmmoType(AmmoPickupType type);
@@ -25,6 +28,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetCurrentPlace(int place);
 
     // getters
+    float GetHealth() const;
     float GetSpeedMultiplier() const;
     int GetKills() const;
     int GetDeaths() const;

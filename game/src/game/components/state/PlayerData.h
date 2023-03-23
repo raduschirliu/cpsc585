@@ -6,6 +6,7 @@ class Entity;
 
 struct PlayerStateData
 {
+    float health;
     float speed_multiplier;
     int number_kills;
     int number_deaths;
@@ -26,6 +27,7 @@ struct PlayerStateData
 
     void Reset()
     {
+        health = 100.0f;
         speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;

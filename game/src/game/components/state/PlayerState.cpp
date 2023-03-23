@@ -25,6 +25,11 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
+float PlayerState::GetHealth() const
+{
+    return player_state_.health;
+}
+
 float PlayerState::GetSpeedMultiplier() const
 {
     return player_state_.speed_multiplier;
@@ -76,6 +81,21 @@ PlayerStateData* PlayerState::GetStateData()
 }
 
 // setters
+void PlayerState::SetHealth(float health)
+{
+    player_state_.health = health;
+}
+
+void PlayerState::DecrementHealth(float health)
+{
+    player_state_.health -= health;
+}
+
+void PlayerState::IncrementHealth(float health)
+{
+    player_state_.health += health;
+}
+
 void PlayerState::SetSpeedMultiplier(float value)
 {
     player_state_.speed_multiplier = value;
