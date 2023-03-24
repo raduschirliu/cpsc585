@@ -25,11 +25,6 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
-float PlayerState::GetHealth() const
-{
-    return player_state_.health;
-}
-
 float PlayerState::GetSpeedMultiplier() const
 {
     return player_state_.speed_multiplier;
@@ -73,6 +68,11 @@ AmmoPickupType PlayerState::GetCurrentAmmoType() const
 int PlayerState::GetLastCheckpoint() const
 {
     return player_state_.last_checkpoint;
+}
+
+float PlayerState::GetHealth() const
+{
+    return player_state_.health;
 }
 
 PlayerStateData* PlayerState::GetStateData()

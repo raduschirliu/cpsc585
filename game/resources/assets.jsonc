@@ -59,25 +59,85 @@
 
     "textures": [
         /* UI */
-        // {
-        //     "path": "resources/textures/ui/main.png",
-        //     "name": "menu_title"
-        // },
-        // {
-        //     "path": "resources/textures/ui/single_button.png",
-        //     "name": "single_button"
-        // },
-        // {
-        //     "path": "resources/textures/ui/multi_button.png",
-        //     "name": "multi_button"
-        // },
-        // {
-        //     "path": "resources/textures/ui/howToPlay_button.png",
-        //     "name": "howToPlay_button"
-        // },
-        // {
-        //     "path": "resources/textures/ui/setting_button.png",
-        //     "name": "settings_button"
-        // }
+        {
+            "path": "resources/textures/ui/main.png",
+            "name": "menu_title"
+        },
+        {
+            "path": "resources/textures/ui/single_button.png",
+            "name": "single_button"
+        },
+        {
+            "path": "resources/textures/ui/multi_button.png",
+            "name": "multi_button"
+        },
+        {
+            "path": "resources/textures/ui/howToPlay_button.png",
+            "name": "howToPlay_button"
+        },
+        {
+            "path": "resources/textures/ui/setting_button.png",
+            "name": "settings_button"
+        },
+        {
+            "path": "resources/textures/ui/background.png",
+            "name": "background"
+        },
+        {
+            "path": "resources/textures/ui/buckshot.png",
+            "name": "buckshot"
+        },
+        {
+            "path": "resources/textures/ui/countdown1.png",
+            "name": "countdown1"
+        },
+        {
+            "path": "resources/textures/ui/countdown2.png",
+            "name": "countdown2"
+        },
+        {
+            "path": "resources/textures/ui/countdown3.png",
+            "name": "countdown3"
+        },
+        {
+            "path": "resources/textures/ui/damage.png",
+            "name": "damage"
+        },
+        {
+            "path": "resources/textures/ui/disable.png",
+            "name": "disable"
+        },
+        {
+            "path": "resources/textures/ui/double.png",
+            "name": "double"
+        },
+        {
+            "path": "resources/textures/ui/exploding.png",
+            "name": "exploding"
+        },
+        {
+            "path": "resources/textures/ui/fire.png",
+            "name": "fire"
+        },
+        {
+            "path": "resources/textures/ui/home_button.png",
+            "name": "home_button"
+        },
+        {
+            "path": "resources/textures/ui/howToPlay.png",
+            "name": "how_to_play"
+        },
+        {
+            "path": "resources/textures/ui/kill.png",
+            "name": "kill"
+        },
+        {
+            "path": "resources/textures/ui/slow.png",
+            "name": "slower"
+        },
+        {
+            "path": "resources/textures/ui/vampire.png",
+            "name": "vampire"
+        }
     ]
 }
