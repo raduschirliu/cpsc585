@@ -735,25 +735,48 @@ void GameStateService::DisplayScoreboard()
     */
 
     ImGui::SetNextWindowPos(ImVec2(80, 40));
-    ImGui::SetNextWindowSize(ImVec2(120, 80));
-    ImGui::Text("Scoreboard");
-    ImGui::Text("Player     Kills       Deaths      Fastest Lap");
+    ImGui::SetNextWindowSize(ImVec2(130, 100));
 
-    for (auto& player : players_)
+    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+
+    if(ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
     {
-        auto index = player.first;
-        auto& state = player.second->state_component;
-        if (player.second->is_human)
+        ImGui::TableSetupColumn("Player");
+        ImGui::TableSetupColumn("Kills");
+        ImGui::TableSetupColumn("Deaths");
+        ImGui::TableSetupColumn("Laps Completed");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+
+        for (auto& player : players_)
         {
-            ImGui::Text("Player %u,      %d,          %d,            %d", index + 1,
-                        state->GetKills(), state->GetDeaths(),
-                        state->GetLapsCompleted());
+            auto index = player.first;
+            auto& state = player.second->state_component;
+            if (player.second->is_human)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("Player %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
+            else
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("CPU %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
         }
-        else
-        {
-            ImGui::Text("CPU %u,         %d,          %d,            %d", index,
-                        state->GetKills(), state->GetDeaths(),
-                        state->GetLapsCompleted());
-        }
+        ImGui::EndTable();
     }
 }
