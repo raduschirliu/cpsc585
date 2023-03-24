@@ -6,6 +6,7 @@
 #include "engine/physics/PhysicsService.h"
 
 static float RandomPitchValue();  // TODO: move this to AudioService
+static constexpr float kBaseDamage = 10.0f;
 
 void Shooter::Shoot()
 {
@@ -22,9 +23,7 @@ void Shooter::Shoot()
         return;
     }
 
-    // play shoot sound
-    audio_emitter_->AddSource(shoot_sound_file_);
-    // slightly randomize pitch
+    // play shoot sound; slightly randomize pitch
     audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
     audio_emitter_->PlaySource(shoot_sound_file_);
 
@@ -89,6 +88,12 @@ void Shooter::UpdateOnHit()
         &target_entity->GetComponent<PlayerState>();
 
     target_state->DecrementHealth(GetAmmoDamage());
+
+    // vampire bullet increases own players health
+    if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
+    {
+        player_state_->IncrementHealth(GetAmmoDamage());
+    }
 }
 
 void Shooter::SetShootSound(AmmoPickupType ammo_type)
@@ -110,24 +115,32 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
             shoot_sound_file_ = "kart_shoot_01.ogg";
             break;
     }
+    audio_emitter_->AddSource(shoot_sound_file_);
 }
 
 float Shooter::GetAmmoDamage()
 {
     using enum AmmoPickupType;
-    float base_damage = 10.0f;
+
+    float damage_multiplier;
     switch (current_ammo_type_)
     {
         case kDoubleDamage:
-            return 2.0f * base_damage;
+            damage_multiplier = 2.0f;
             break;
-        // TODO
-        case kBuckshot:          // do less for each shot ?
-        case kExploadingBullet:  // do a lot but slower ?
-        case kVampireBullet:     // do less ??
+        case kBuckshot:
+            damage_multiplier = 0.5f;
+            break;
+        case kExploadingBullet:
+            damage_multiplier = 2.5f;
+            break;
+        case kVampireBullet:
+            damage_multiplier = 0.5f;
+            break;
         default:
-            return base_damage;
+            damage_multiplier = 1.0f;
     }
+    return damage_multiplier * kBaseDamage;
 }
 
 float RandomPitchValue()
@@ -156,7 +169,10 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
+    // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";
+    audio_emitter_->AddSource(shoot_sound_file_);
+
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
