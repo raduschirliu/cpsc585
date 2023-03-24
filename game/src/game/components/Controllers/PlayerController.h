@@ -31,7 +31,7 @@ class PlayerController final : public Component,
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<Shooter> shooter_;
 
-    float cooldown_timer_;
+    float shoot_cooldown_;
 
     bool execute_powerup_ = false;
     bool forward_gear_ = true;

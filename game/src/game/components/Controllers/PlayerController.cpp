@@ -42,7 +42,10 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         return;
     }
 
-
+    if (player_data_->IsDead())
+    {
+        return;
+    }
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
     CheckShoot();
@@ -58,7 +61,7 @@ void PlayerController::CheckShoot()
     if (cooldown_timer > 0.0f)
     {
         const Timestep& delta_time = GetApp().GetDeltaTime();
-        cooldown_timer_ -= static_cast<float>(delta_time.GetSeconda());
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconda());
         return;
     }
 
@@ -67,7 +70,7 @@ void PlayerController::CheckShoot()
                                                GLFW_GAMEPAD_BUTTON_B))
     {
         shooter_->Shoot();
-        cooldown_timer_ = shooter_->GetCooldownTime();
+        shoot_cooldown_ = shooter_->GetCooldownTime();
     }
 }
 

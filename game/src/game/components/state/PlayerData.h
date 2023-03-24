@@ -7,6 +7,7 @@ class Entity;
 struct PlayerStateData
 {
     float health;
+    bool is_dead;
     float speed_multiplier;
     int number_kills;
     int number_deaths;

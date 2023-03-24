@@ -5,6 +5,7 @@
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    death_cooldown = 0.f;
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
@@ -17,6 +18,34 @@ void PlayerState::OnStart()
 
 void PlayerState::OnUpdate(const Timestep& delta_time)
 {
+    CheckDead(delta_time);
+}
+
+void PlayerState::CheckDead(const Timestep& delta_time)
+{
+    if (player_state_.is_dead)  // lol
+    {
+        if (death_cooldown <= 0)
+        {
+            player_state_.is_dead = false;
+            player_state_.health = 100.0f;
+        }
+        else
+        {
+            float delta_time_seconds =
+                static_cast<float>(delta_time.GetSeconds());
+            death_cooldown -= delta_time_seconds;
+        }
+    }
+    else  // if u died, u died
+    {
+        if (player_state_.health <= 0.0f)
+        {
+            death_cooldown = 5.0f;
+            player_state_.is_dead = true;
+            player_state_.number_deaths++;
+        }
+    }
 }
 
 std::string_view PlayerState::GetName() const
@@ -25,6 +54,11 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
+bool PlayerState::IsDead() const
+{
+    return player_state_.is_dead;
+}
+
 float PlayerState::GetSpeedMultiplier() const
 {
     return player_state_.speed_multiplier;
