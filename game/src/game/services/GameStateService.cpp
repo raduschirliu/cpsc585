@@ -739,7 +739,7 @@ void GameStateService::DisplayScoreboard()
 
     auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
 
-    if(ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
     {
         ImGui::TableSetupColumn("Player");
         ImGui::TableSetupColumn("Kills");
