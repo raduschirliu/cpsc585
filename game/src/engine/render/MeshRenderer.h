@@ -3,6 +3,7 @@
 #include <object_ptr.hpp>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "engine/asset/AssetService.h"
 #include "engine/render/Material.h"
@@ -11,17 +12,23 @@
 
 class RenderService;
 
+struct RenderableMesh
+{
+    const Mesh* mesh;
+    MaterialProperties material_properties;
+};
+
 class MeshRenderer final : public Component
 {
   public:
     MeshRenderer() = default;
 
-    void SetMesh(const std::string& name);
-    void SetMaterialProperties(const MaterialProperties& material_properties);
     void SetMaterial(const std::string& name);
 
-    const Mesh& GetMesh() const;
-    const MaterialProperties& GetMaterialProperties() const;
+    void SetMesh(const RenderableMesh& mesh);
+    void SetMeshes(const std::vector<RenderableMesh>& meshes);
+    const std::vector<RenderableMesh>& GetMeshes() const;
+
     const Material& GetMaterial() const;
 
     // From Component
@@ -35,7 +42,6 @@ class MeshRenderer final : public Component
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<Transform> transform_;
 
-    std::optional<std::string> mesh_name_;
-    MaterialProperties material_properties_;
+    std::vector<RenderableMesh> meshes_;
     jss::object_ptr<Material> material_;
 };

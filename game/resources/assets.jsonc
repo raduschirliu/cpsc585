@@ -17,6 +17,10 @@
         /* Kart */
         {
             "path": "resources/models/kart/kart2-4.obj",
+            "name": "kart-old"
+        },
+        {
+            "path": "resources/models/kart/kart2-5.gltf",
             "name": "kart"
         },
 
@@ -44,16 +48,12 @@
 
         /* Track */
         {
-            "path": "resources/models/track3/track3-7.obj",
-            "name": "track3"
-        },
-        {
             "path": "resources/models/track3/track3-7collision.obj",
             "name": "track3-collision"
         },
         {
             "path": "resources/models/track3/track3-9.gltf",
-            "name": "track3new"
+            "name": "track3"
         }
     ],
 
@@ -138,6 +138,66 @@
         {
             "path": "resources/textures/ui/vampire.png",
             "name": "vampire"
+        },
+
+        /* Track Materials */
+        {
+            "path": "resources/textures/track3/orangeTrack.png",
+            "name": "track3@OrangeTrack"
+        },
+        {
+            "path": "resources/textures/track3/blueTrack.png",
+            "name": "track3@BlueTrack"
+        },
+        {
+            "path": "resources/textures/track3/screen.png",
+            "name": "track3@Screen"
+        },
+        {
+            "path": "resources/textures/track3/blocks.png",
+            "name": "track3@Blocks"
+        },
+        {
+            "path": "resources/textures/track3/globe.png",
+            "name": "track3@Globe"
+        },
+        {
+            "path": "resources/textures/track3/rings.png",
+            "name": "track3@Rings"
+        },
+
+        /* Kart Materials */
+        {
+            "path": "resources/textures/kart/body_top.png",
+            "name": "kart@BodyTop"
+        },
+        {
+            "path": "resources/textures/kart/body_underside.png",
+            "name": "kart@BodyUnderside"
+        },
+        {
+            "path": "resources/textures/kart/muffler.png",
+            "name": "kart@Muffler"
+        },
+        {
+            "path": "resources/textures/kart/wheels.png",
+            "name": "kart@Wheels"
+        },
+        {
+            "path": "resources/textures/kart/body_main_red.png",
+            "name": "kart@BodyMain-P1"
+        },
+        {
+            "path": "resources/textures/kart/body_main_blue.png",
+            "name": "kart@BodyMain-P2"
+        },
+        {
+            "path": "resources/textures/kart/body_main_green.png",
+            "name": "kart@BodyMain-P3"
+        },
+        {
+            "path": "resources/textures/kart/body_main_yellow.png",
+            "name": "kart@BodyMain-P4"
         }
     ]
 }

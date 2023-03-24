@@ -30,7 +30,8 @@ void AssetService::LoadMesh(const string &path, const string &name)
 {
     Assimp::Importer importer;
 
-    unsigned int flags = aiProcessPreset_TargetRealtime_Fast;
+    unsigned int flags =
+        aiProcessPreset_TargetRealtime_Fast | aiProcess_FlipUVs;
 
     const aiScene *scene = importer.ReadFile(path, flags);
 
@@ -69,6 +70,7 @@ const Mesh &AssetService::GetMesh(const std::string &name)
 void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
 {
     auto processed_mesh = make_unique<Mesh>();
+    processed_mesh->name = name;
 
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; i++)

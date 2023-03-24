@@ -14,11 +14,19 @@
 #include "engine/service/Service.h"
 
 class Camera;
+class MeshRenderer;
 class InputService;
+
+struct BufferMeshLayout
+{
+    size_t index_offset;
+    size_t index_count;
+};
 
 struct RenderData
 {
-    jss::object_ptr<const Entity> entity;
+    const Entity* entity;
+    std::vector<BufferMeshLayout> layout;
     VertexArray vertex_array;
     VertexBuffer vertex_buffer;
     ElementArrayBuffer element_buffer;
@@ -29,7 +37,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
   public:
     RenderService();
 
-    void RegisterRenderable(const Entity& entity);
+    void RegisterRenderable(const Entity& entity, const MeshRenderer& renderer);
     void UnregisterRenderable(const Entity& entity);
     void RegisterCamera(Camera& camera);
     void UnregisterCamera(Camera& camera);
@@ -60,6 +68,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     DebugDrawList debug_draw_list_;
     bool wireframe_;
     bool show_debug_menu_;
+    size_t num_draw_calls_;
 
     void RenderPrepare();
     void RenderCameraView(Camera& camera);
