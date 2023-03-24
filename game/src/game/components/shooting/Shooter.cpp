@@ -11,7 +11,7 @@ void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
     glm::vec3 direction = transform_->GetForwardDirection();
-    glm::vec3 offset = (hitbox_->GetSize() + 10.0f) * direction;
+    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * direction;
     glm::vec3 origin = transform_->GetPosition() + offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
@@ -22,11 +22,13 @@ void Shooter::Shoot()
         return;
     }
 
+    // play shoot sound
     audio_emitter_->AddSource(shoot_sound_file_);
     // slightly randomize pitch
     audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
     audio_emitter_->PlaySource(shoot_sound_file_);
 
+    // check if shot hit anything
     target_data_ = physics_service_->Raycast(origin, direction);
     if (!target_data_.has_value())
     {
@@ -35,14 +37,11 @@ void Shooter::Shoot()
         return;
     }
 
+    // get the entity that was hit
     RaycastData target_data_value = target_data_.value();
     Entity* target_entity = target_data_value.entity;
 
-    /* if (target_entity->HasComponent<>()) */
-    /* { */
-    /*  */
-    /* } */
-
+    // update that entity accordingly
     UpdateOnHit();
 
     // debugggg
@@ -56,23 +55,10 @@ void Shooter::ShootBuckshot()
     debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
-float Shooter::GetAmmoDamage()
-{
-    using enum AmmoPickupType;
-    float base_damage = 10.0f;
-    switch (current_ammo_type_)
-    {
-        case kDoubleDamage:
-            return 2.0f * base_damage;
-            break;
-        // TODO
-        case kBuckshot:          // do less for each shot ?
-        case kExploadingBullet:  // do a lot but slower ?
-        case kVampireBullet:     // do less ??
-        default:
-            return base_damage;
-    }
-}
+/* Timestep Shooter::GetCooldown() */
+/* { */
+/*      */
+/* } */
 
 void Shooter::UpdateOnHit()
 {
@@ -107,6 +93,24 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
         default:
             shoot_sound_file_ = "kart_shoot_01.ogg";
             break;
+    }
+}
+
+float Shooter::GetAmmoDamage()
+{
+    using enum AmmoPickupType;
+    float base_damage = 10.0f;
+    switch (current_ammo_type_)
+    {
+        case kDoubleDamage:
+            return 2.0f * base_damage;
+            break;
+        // TODO
+        case kBuckshot:          // do less for each shot ?
+        case kExploadingBullet:  // do a lot but slower ?
+        case kVampireBullet:     // do less ??
+        default:
+            return base_damage;
     }
 }
 

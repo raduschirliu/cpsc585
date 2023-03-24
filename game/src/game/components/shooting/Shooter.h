@@ -22,12 +22,10 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void Shoot();
 
     /**
-     *  gets the data of the shot and the actor that was hit, its position,
-     *  distance, etc. (may be null).
-     *
-     *  @return either std::null_opt or a struct containing all the shot data
+     *  get the amount of cooldown time inbetween shots.
+     *  cooldown length may differ depending on the type of ammo
      */
-    std::optional<RaycastData> GetTargetData();
+    Timestep GetCooldown();
 
     /* ----- from component ----- */
 
@@ -55,8 +53,8 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     void ShootBuckshot();
 
-    /// sets the sound of the shot depending on the ammo type
     float GetAmmoDamage();
+    /// sets the sound of the shot depending on the ammo type
     void SetShootSound(AmmoPickupType ammo_type);
     void UpdateOnHit();
 };
