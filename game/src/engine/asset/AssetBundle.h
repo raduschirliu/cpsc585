@@ -5,6 +5,15 @@
 #include <string>
 #include <vector>
 
+struct CubemapRecord
+{
+    std::string name;
+    std::string path_xneg, path_xpos, path_yneg, path_ypos, path_zneg,
+        path_zpos;
+
+    bool Deserialize(const rapidjson::Value& node);
+};
+
 struct AssetRecord
 {
     std::string path;
@@ -17,6 +26,7 @@ struct AssetBundle
 {
     std::vector<AssetRecord> meshes;
     std::vector<AssetRecord> textures;
+    std::vector<CubemapRecord> cubemaps;
 
     bool Deserialize(const rapidjson::Value& node);
 };

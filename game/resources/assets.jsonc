@@ -1,4 +1,15 @@
 {
+    "cubemaps": [
+        {
+            "name": "skybox",
+            "path_xneg": "resources/textures/skybox/Daylight_Box_Left.bmp",
+            "path_xpos": "resources/textures/skybox/Daylight_Box_Right.bmp",
+            "path_yneg": "resources/textures/skybox/Daylight_Box_Bottom.bmp",
+            "path_ypos": "resources/textures/skybox/Daylight_Box_Top.bmp",
+            "path_zneg": "resources/textures/skybox/Daylight_Box_Back.bmp",
+            "path_zpos": "resources/textures/skybox/Daylight_Box_Front.bmp"
+        }
+    ],
     "meshes": [
         /* Misc assets */
         {
