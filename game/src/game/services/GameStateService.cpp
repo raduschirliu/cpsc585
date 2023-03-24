@@ -125,7 +125,14 @@ void GameStateService::OnGui()
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
     }
-    if(input_service_->IsKeyDown(GLFW_KEY_TAB))
+    if (input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        DisplayScoreboard();
+    }
+
+    if (input_service_->IsGamepadActive(GLFW_JOYSTICK_1) &&
+        input_service_->IsGamepadButtonDown(GLFW_JOYSTICK_1,
+                                            GLFW_GAMEPAD_BUTTON_LEFT_THUMB))
     {
         DisplayScoreboard();
     }
@@ -705,12 +712,48 @@ double GameStateService::GetMaxCountdownSeconds()
 
 void GameStateService::DisplayScoreboard()
 {
+    /*auto& player_0 = players_[0];
+    auto player_0_state = player_0->state_component;
+    auto& player_1 = players_[1];
+    auto player_1_state = player_1->state_component;
+    auto& player_2 = players_[2];
+    auto player_2_state = player_2->state_component;
+    auto& player_3 = players_[3];
+    auto player_3_state = player_3->state_component;
+
+    if(player_0->is_human)
+    {
+        auto& human = player_0;
+    }
+    else if(player_1->is_human)
+    {
+        auto& human = player_1;
+    }
+
+    leaving this here because its funny
+
+    */
+
     ImGui::SetNextWindowPos(ImVec2(80, 40));
     ImGui::SetNextWindowSize(ImVec2(120, 80));
     ImGui::Text("Scoreboard");
-    ImGui::Text("Player   Kills   Deaths    Fastest Lap");
-    ImGui::Text("Player1    0       0         x.xx.xx");
-    ImGui::Text("CPU1       0       0         x.xx.xx");
-    ImGui::Text("CPU2       0       0         x.xx.xx");
-    ImGui::Text("CPU3       0       0         x.xx.xx");
+    ImGui::Text("Player     Kills       Deaths      Fastest Lap");
+
+    for (auto& player : players_)
+    {
+        auto index = player.first;
+        auto& state = player.second->state_component;
+        if (player.second->is_human)
+        {
+            ImGui::Text("Player %u,      %d,          %d,            %d", index + 1,
+                        state->GetKills(), state->GetDeaths(),
+                        state->GetLapsCompleted());
+        }
+        else
+        {
+            ImGui::Text("CPU %u,         %d,          %d,            %d", index,
+                        state->GetKills(), state->GetDeaths(),
+                        state->GetLapsCompleted());
+        }
+    }
 }
