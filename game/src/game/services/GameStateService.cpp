@@ -512,7 +512,9 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         {
             debug::LogInfo("AI finished game!");
         }
-        // audio_service_->PlayMusic("yay.ogg");
+
+        audio_service_->SetSource("game_yay.ogg");
+        audio_service_->PlaySource("game_yay.ogg");
 
         race_state_.finished_players++;
     }
