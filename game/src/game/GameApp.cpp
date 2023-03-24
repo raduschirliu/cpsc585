@@ -88,6 +88,10 @@ void GameApp::OnStart()
     AddScene("Setting");
 
     SetActiveScene("MainMenu");
+
+    auto* audio_service = &GetServiceProvider().GetService<AudioService>();
+    audio_service->SetMusic("test_music.ogg");
+    audio_service->PlayMusic();
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
@@ -517,6 +521,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
 void GameApp::LoadMainMenuScene(Scene& scene)
 {
+
     debug::LogInfo("Loading entities for MainMenu scene...");
 
     Entity& entity = scene.AddEntity("Menu");
