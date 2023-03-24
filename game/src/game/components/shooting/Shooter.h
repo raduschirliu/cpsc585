@@ -4,7 +4,7 @@
 
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
-#include "engine/physics/Hitbox.h"
+#include "game/components/shooting/Hitbox.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"

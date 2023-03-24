@@ -1,4 +1,4 @@
-#include "game/components/Shooter.h"
+#include "game/components/shooting/Shooter.h"
 
 #include <random>
 
@@ -35,11 +35,17 @@ void Shooter::Shoot()
         return;
     }
 
+    RaycastData target_data_value = target_data_.value();
+    Entity* target_entity = target_data_value.entity;
+    
+    /* if (target_entity->HasComponent<>()) */
+    /* { */
+    /*  */
+    /* } */
+
     UpdateOnHit();
 
     // debugggg
-    RaycastData target_data_value = target_data_.value();
-    Entity* target_entity = target_data_value.entity;
     uint32_t entity_id = GetEntity().GetId();
     debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
                     target_entity->GetId());

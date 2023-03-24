@@ -8,7 +8,7 @@
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/FwdGame.h"
-#include "game/components/Shooter.h"
+#include "game/components/shooting/Shooter.h"
 
 class PlayerState;
 
