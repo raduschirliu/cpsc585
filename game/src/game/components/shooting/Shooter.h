@@ -15,9 +15,8 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     /**
-     *  emits a raycast shot from the entity and stores the shot's data.
-     *
-     *  @see GetTargetData()
+     *  emits a raycast shot from the entity, updating the entity it hits
+     *  (if it hits)
      */
     void Shoot();
 
@@ -41,8 +40,10 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void ShootBuckshot();
     /// updates the target that was hit (health, etc.)
     void UpdateOnHit();
+
     /// sets the sound of the shot depending on the ammo type
     void SetShootSound(AmmoPickupType ammo_type);
+    /// gets the appropriate damage for the current ammo type
     float GetAmmoDamage();
 
     AmmoPickupType current_ammo_type_;
