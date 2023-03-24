@@ -1,6 +1,8 @@
 #pragma once
 
-#include "engine/physics/PhysicsService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdPhysx.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 
 class PlaneStaticBody final : public Component

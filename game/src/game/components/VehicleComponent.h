@@ -1,17 +1,18 @@
 #pragma once
 
+#include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
+
 #include <object_ptr.hpp>
 
-#include "engine/input/InputService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdPhysx.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
-#include "engine/physics/PhysicsService.h"
 #include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
-// #include "game/components/audio/SoundEmitter.h"  // debugging
-#include "game/services/GameStateService.h"
-#include "vehicle2/PxVehicleAPI.h"
+#include "game/FwdGame.h"
+#include "game/components/audio/AudioEmitter.h"
 
 class VehicleComponent final : public Component,
                                public IEventSubscriber<OnUpdateEvent>,
@@ -41,11 +42,11 @@ class VehicleComponent final : public Component,
     float GetSpeed() const;
 
   private:
-    // jss::object_ptr<SoundEmitter> sound_emitter_;  // debugging
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<AudioEmitter> audio_emitter_;
 
     // The vehicle with direct drivetrain
     snippetvehicle2::DirectDriveVehicle vehicle_;

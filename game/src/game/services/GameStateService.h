@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include <map>
 #include <memory>
 #include <object_ptr.hpp>
@@ -7,9 +9,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "engine/audio/AudioService.h"
 #include "engine/core/Colors.h"
 #include "engine/core/math/Timestep.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -21,6 +23,7 @@
 class Checkpoint;
 class PlayerState;
 class Transform;
+class Texture;
 
 enum class GameState : uint8_t
 {
@@ -107,6 +110,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<GuiService> gui_service_;
+    jss::object_ptr<AssetService> asset_service_;
+
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -135,4 +141,14 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
     void DisplayScoreboard();
+
+
+    const Texture* countdown3_;
+    const Texture* countdown2_;
+    const Texture* countdown1_;
+
+    ImFont* font_beya_;
+    ImFont* font_pado_;
+    ImFont* font_impact_;
+
 };

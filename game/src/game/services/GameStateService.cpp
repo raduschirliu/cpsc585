@@ -2,20 +2,27 @@
 
 #include <imgui.h>
 
+#include <algorithm>
 #include <array>
 #include <string>
 
 #include "engine/App.h"
+#include "engine/asset/AssetService.h"
+#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
+#include "engine/gui/GuiService.h"
 #include "engine/physics/Hitbox.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
+#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
-#include "game/components/RaycastComponent.h"
+#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
+#include "game/components/audio/AudioListener.h"
 #include "game/components/race/Checkpoint.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/PlayerHud.h"
@@ -30,8 +37,11 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(1.0);
+static const Timestep kCountdownTime = Timestep::Seconds(5.0);
 
+static const array<string, kMaxPlayers> kCarTextures = {
+    "kart@BodyMain-P1", "kart@BodyMain-P2", "kart@BodyMain-P3",
+    "kart@BodyMain-P4"};
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
 static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
@@ -61,10 +71,24 @@ void GameStateService::OnInit()
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
 {
+    // Services
     audio_service_ = &service_provider.GetService<AudioService>();
     input_service_ = &service_provider.GetService<InputService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
+    gui_service_ = &service_provider.GetService<GuiService>();
 
+
+    // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Assets
+    font_beya_ = gui_service_->GetFont("beya");
+    font_pado_ = gui_service_->GetFont("pado");
+    font_impact_ = gui_service_->GetFont("impact");
+
+    countdown3_ = &asset_service_->GetTexture("countdown3");
+    countdown2_ = &asset_service_->GetTexture("countdown2");
+    countdown1_ = &asset_service_->GetTexture("countdown1");
 }
 
 void GameStateService::OnUpdate()
@@ -92,38 +116,89 @@ void GameStateService::OnGui()
 
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
-    ImGui::SetNextWindowPos(ImVec2(40, 40));
-    ImGui::Begin("Game State", nullptr, flags);
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoInputs;
 
     if (race_state_.state == GameState::kCountdown)
     {
-        ImGui::Text(
-            "Countdown: %f sec",
-            (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds());
+        ImGui::SetNextWindowPos(ImVec2(425, 250));
+        ImGui::Begin("Game State", nullptr, flags);
+        double count =
+            (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds();
+        if (3 <= count && count < 4)
+        {
+            // ImGui::Text(
+            //     "Countdown: %f sec",
+            //     (kCountdownTime -
+            //     race_state_.countdown_elapsed_time).GetSeconds());
+            ImGui::Image(countdown3_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        else if (2 <= count && count < 3)
+        {
+            ImGui::Image(countdown2_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        else if (1 <= count && count < 2)
+        {
+            ImGui::Image(countdown1_->GetGuiHandle(), ImVec2(462, 227));
+        }
+        ImGui::End();
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::Text("Time: %.2f sec", race_state_.elapsed_time.GetSeconds());
-        ImGui::Text("Players:", players_.size());
-        ImGui::Indent(10.0f);
+        ImGui::SetNextWindowPos(ImVec2(220, 625));
+        ImGui::Begin("Timer", nullptr, flags);
 
+        // ImGui::Text("Players:", players_.size());
+        // ImGui::Indent(10.0f);
+
+        ImGui::PushFont(font_beya_);
+        int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
+        int second = (int)race_state_.elapsed_time.GetSeconds() % 60;
+        ImGui::Text(
+            "%02d:%02d:%02.0f", min, second,
+            (race_state_.elapsed_time.GetSeconds() - (min * 60 + second)) *
+                100);
+        ImGui::PopFont();
+        ImGui::End();
+
+        // ImGui::SameLine(0.f, 800.f);
+
+        ImGui::SetNextWindowPos(ImVec2(1090, 610));
+        ImGui::Begin("Ranking", nullptr, flags);
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
 
-            ImGui::PushID(entity->GetId());
-            ImGui::Text("%d) %s", place, entity->GetName().c_str());
-            ImGui::PopID();
+            if (race_state_.sorted_players[i]->is_human)
+            {
+                ImGui::PushID(entity->GetId());
+                ImGui::PushFont(font_pado_);
+                // ImGui::Text("%d) %s", place, entity->GetName().c_str());
+                if (place == 1)
+                    ImGui::Text("%dst", place);
+                else if (place == 2)
+                    ImGui::Text("%dnd", place);
+                else if (place == 3)
+                    ImGui::Text("%drd", place);
+                else if (place == 4)
+                    ImGui::Text("%dth", place);
+                ImGui::PopFont();
+                ImGui::PopID();
+            }
         }
-
-        ImGui::Unindent(10.0f);
+        // ImGui::Unindent(10.0f);
+        ImGui::End();
     }
     else if (race_state_.state == GameState::kPostRace)
     {
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::Begin("Game State", nullptr, flags);
+
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
+
     }
     if (input_service_->IsKeyDown(GLFW_KEY_TAB))
     {
@@ -137,7 +212,8 @@ void GameStateService::OnGui()
         DisplayScoreboard();
     }
 
-    ImGui::End();
+        ImGui::End();
+    }
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)
@@ -377,13 +453,13 @@ void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
             active_powerups_.erase(active_powerups_.begin() + i);
         }
     }
-    std::cout << "active : " << active_powerups_.size();
+    debug::LogDebug("active : {}", active_powerups_.size());
 }
 
 void GameStateService::StartCountdown()
 {
     race_state_.state = GameState::kCountdown;
-    Log::info("Race countdown started...");
+    debug::LogInfo("Race countdown started...");
 }
 
 void GameStateService::SetupRace()
@@ -394,7 +470,7 @@ void GameStateService::SetupRace()
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
                "Too many players added to the game");
-    Log::info("Spawning players...");
+    debug::LogInfo("Spawning players...");
 
     uint32_t player_idx = 0;
 
@@ -422,18 +498,18 @@ void GameStateService::StartRace()
         race_state_.sorted_players.push_back(entry.second.get());
     }
 
-    Log::info("Game started");
+    debug::LogInfo("Game started");
 }
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
     if (race_state_.state != GameState::kRaceInProgress)
     {
-        Log::error("Player finished lap before the game started");
+        debug::LogError("Player finished lap before the game started");
         return;
     }
 
-    Log::debug("Player {}, completed the lap", player.entity->GetName());
+    debug::LogDebug("Player {}, completed the lap", player.entity->GetName());
 
     if (!player.is_human)
     {
@@ -447,11 +523,11 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
     {
         if (player.is_human)
         {
-            Log::info("Player finished game!");
+            debug::LogInfo("Player finished game!");
         }
         else
         {
-            Log::info("AI finished game!");
+            debug::LogInfo("AI finished game!");
         }
         // audio_service_->PlayMusic("yay.ogg");
 
@@ -505,8 +581,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        Log::info("Player {} hit incorrect checkpoint {} (expected {})",
-                  iter->second->index, index, expected_checkpoint);
+        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
+                       iter->second->index, index, expected_checkpoint);
         return;
     }
 
@@ -523,7 +599,7 @@ void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
     {
-        Log::error("Cannot configure the race if it has already started");
+        debug::LogError("Cannot configure the race if it has already started");
         return;
     }
 
@@ -628,32 +704,62 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     // Create & configure car entity
     Entity& kart_entity = scene.AddEntity(entity_name);
 
-    // as we want the id of the entity to be as the same of the index, we will
-    // take care of that now.
-
-    // finding if the index is already assigned to any other entity.
-    // for (auto& e : scene.GetEntities())
-    // {
-    //     if (e->GetId() == index)
-    //     {
-    //         auto id = kart_entity.GetId();
-    //         auto swapping_id = e->GetId();
-    //         kart_entity.SetId(swapping_id);
-    //         e->SetId(id);
-    //     }
-    // }
-
-    Log::error("{}: entity_id", kart_entity.GetId());
-
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
     transform.RotateEulerDegrees(config.orientation_euler_degrees);
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh("kart");
-    renderer.SetMaterialProperties({.albedo_color = config.color,
-                                    .specular = vec3(1.0f, 1.0f, 1.0f),
-                                    .shininess = 64.0f});
+    renderer.SetMeshes({
+        {
+            &asset_service_->GetMesh("kart@BodyMain"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture(kCarTextures[index]),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyTop"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyUnderside"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture("kart@BodyUnderside"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Muffler"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Muffler"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Wheels"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Wheels"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+    });
+
+    kart_entity.AddComponent<AudioEmitter>();
 
     auto& player_state = kart_entity.AddComponent<PlayerState>();
 
@@ -664,10 +770,12 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
     hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
 
-    kart_entity.AddComponent<RaycastComponent>();
+    kart_entity.AddComponent<Shooter>();
 
     if (is_human)
     {
+        auto& audio_listener = kart_entity.AddComponent<AudioListener>();
+
         kart_entity.AddComponent<PlayerController>();
         kart_entity.AddComponent<PlayerHud>();
 
@@ -678,6 +786,8 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
+
+        // camera_entity.AddComponent<DebugCameraController>();
     }
     else
     {

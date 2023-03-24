@@ -8,8 +8,8 @@ using glm::vec2;
 using glm::vec3;
 using std::string_view;
 
-static constexpr float kMoveSpeed = 15.0f;
-static constexpr float kFastMoveSpeedMultiplier = 2.0f;
+static constexpr float kMoveSpeed = 20.0f;
+static constexpr float kFastMoveSpeedMultiplier = 5.0f;
 static constexpr float kPitchSensitivity = 160.0f;
 static constexpr float kYawSensitivity = 90.0f;
 

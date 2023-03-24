@@ -1,21 +1,13 @@
 #pragma once
 
-#include <AL/al.h>
 #include <AL/alc.h>
 
 #include <glm/glm.hpp>
 #include <map>
-#include <object_ptr.hpp>
-#include <optional>
-#include <string>
-#include <utility>
 
 #include "AudioFile.h"
 #include "engine/input/InputService.h"
-#include "engine/scene/Entity.h"
-#include "engine/scene/Transform.h"
 #include "engine/service/Service.h"
-#include "engine/service/ServiceProvider.h"
 
 class AudioService final : public Service
 {
@@ -36,7 +28,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void AddSource(std::string file_name, std::uint32_t entity_id);
+    void AddSource(uint32_t entity_id, std::string file_name);
 
     /**
      *  add a source to stream music from.
@@ -60,7 +52,7 @@ class AudioService final : public Service
      *
      *  @param entity_id the id of the associated entity.
      */
-    void PlaySource(std::uint32_t entity_id);
+    void PlaySource(uint32_t entity_id, std::string file_name);
 
     /**
      *  begin streaming a music file through a source.
@@ -84,7 +76,7 @@ class AudioService final : public Service
      *
      *  @overload
      */
-    void StopSource(std::uint32_t entity_id);
+    void StopSource(uint32_t entity_id, std::string);
 
     /// stop the playback of all sources (excluding the music source).
     void StopAllSources();
@@ -104,6 +96,13 @@ class AudioService final : public Service
     void SetLooping(std::string file_name, bool is_looping);
 
     /**
+     *  sets whether or not the playback of an audio file loops.
+     *
+     *  @overload
+     */
+    void SetLooping(uint32_t entity_id, std::string file_name, bool is_looping);
+
+    /**
      *  sets the gain of an audio file's playback.
      *
      *  @param file_name name of the audio file.
@@ -113,6 +112,15 @@ class AudioService final : public Service
      *    has no effect, > 1 is louder, and so on).
      */
     void SetGain(std::string file_name, float gain);
+
+    /**
+     *  sets the gain of an audio file's playback.
+     *
+     *  @overload
+     */
+    void SetGain(uint32_t entity_id, std::string file_name, float gain);
+
+    void SetMusicGain(float gain);
 
     /**
      *  offsets the pitch of an audio file.
@@ -126,12 +134,20 @@ class AudioService final : public Service
     void SetPitch(std::string file_name, float pitch_offset);
 
     /**
+     *  offsets the pitch of an audio file.
+     *
+     *  @overload
+     */
+    void SetPitch(uint32_t entity_id, std::string file_name,
+                  float pitch_offset);
+
+    /**
      *  set the world position of a source to play from.
      *
      *  @param entity_id the sources associated entity id.
      *  @param position the position to set the source at.
      */
-    void SetSourcePosition(std::uint32_t entity_id, glm::vec3 position);
+    void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
 
     /**
      *  set the position of the listener.
@@ -165,10 +181,15 @@ class AudioService final : public Service
     ALCdevice* audio_device_;    // the sound device to output audio to.
     ALCcontext* audio_context_;  // like an openGL context.
 
-    /// all of the currently active 2D sound sources.
-    std::map<std::string, std::pair<ALuint, ALuint>> non_diegetic_sources_;
-    /// all of the currently active 3D/spatial sound sources.
-    std::map<std::uint32_t, std::pair<ALuint, ALuint>> diegetic_sources_;
+    /// all of the active 2D sound sources.
+    using SourceBufferPair = std::pair<ALuint, ALuint>;
+    using FileName = std::string;
+    using EntityID = uint32_t;
+    std::map<FileName, SourceBufferPair> non_diegetic_sources_;
+
+    /// all of the active 3D/spatial sound sources and their entity's id.
+    using NameSourceMap = std::map<FileName, SourceBufferPair>;
+    std::map<EntityID, NameSourceMap> diegetic_sources_;
 
     /// the current music file to stream from
     AudioFile music_file_;
@@ -202,6 +223,10 @@ class AudioService final : public Service
     /// deletes all inactive sources and buffers
     void CullSources();
 
+    bool CheckAlError(std::string error_message = "");
+
+    /* ----- getters ----- */
+
     /// @brief determines whether or not an audio file's source
     ///   is currently playing.
     /// @param file_name name of the audio file the source may be playing.
@@ -210,7 +235,7 @@ class AudioService final : public Service
     /// @brief determines whether or not an audio file's source
     ///   is currently playing.
     /// @overload
-    bool IsPlaying(std::uint32_t entity_id);
+    bool IsPlaying(uint32_t entity_id, std::string file_name);
 
     /// @brief determines whether or not a source with a specified audio file
     ///   already exists.
@@ -220,5 +245,5 @@ class AudioService final : public Service
     /// @brief determines whether or not a source with an associated entity id
     ///   already exists.
     /// @overload
-    bool SourceExists(std::uint32_t entity_id);
+    bool SourceExists(uint32_t entity_id, std::string file_name);
 };

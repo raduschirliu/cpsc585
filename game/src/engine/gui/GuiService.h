@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <unordered_map>
+
 #include "engine/core/debug/Assert.h"
 #include "engine/core/event/EventBus.h"
 #include "engine/core/gfx/Window.h"
@@ -16,4 +18,11 @@ class GuiService final : public Service
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
+
+    ImFont* GetFont(const std::string& name);
+
+  private:
+    std::unordered_map<std::string, ImFont*> fonts_;
+
+    void AddFont(const std::string& name, ImFont* font);
 };

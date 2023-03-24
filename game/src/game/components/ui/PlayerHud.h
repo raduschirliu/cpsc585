@@ -2,13 +2,13 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Component.h"
+#include "game/FwdGame.h"
 
-class InputService;
-class VehicleComponent;
-class GameStateService;
-class PlayerState;
+class Texture;
+struct ImFont;
 
 class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -22,7 +22,22 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
 
   private:
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<GuiService> gui_service_;
+    jss::object_ptr<AssetService> asset_service_;
 
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<PlayerState> player_state_;
+
+    const Texture* disableHandling_;
+    const Texture* everyoneSlower_;
+    const Texture* increaseAimBox_;
+    const Texture* killAbilities_;
+
+    const Texture* buckshot_;
+    const Texture* doubleDamage_;
+    const Texture* exploadingBullet_;
+    const Texture* increaseFireRate_;
+    const Texture* vampireBullet_;
+
+    ImFont* font_;
 };
