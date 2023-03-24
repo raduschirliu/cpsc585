@@ -11,7 +11,7 @@
 class AudioService final : public Service
 {
   public:
-    /* ----- adding/setting sources -----*/
+    /* ----- sfx playback ----- */
 
     /**
      *  add a source to play an audio file from.
@@ -21,22 +21,13 @@ class AudioService final : public Service
     void AddSource(std::string file_name);
 
     /**
-     *  add a source to play an audio file from, identified by an entity's id.
+     *  add a 3D source to play an audio file from, identified by an entity's id.
      *
      *  @param entity_id the id of the entity to track its position from.
      *
      *  @overload
      */
     void AddSource(uint32_t entity_id, std::string file_name);
-
-    /**
-     *  add a source to stream music from.
-     *
-     *  @param file_name name of the music file to set the source to.
-     */
-    void SetMusic(std::string file_name);
-
-    /* ----- sfx playback ----- */
 
     /**
      *  play an audio file through its source.
@@ -74,6 +65,13 @@ class AudioService final : public Service
     /* ----- music playback ----- */
 
     /**
+     *  add a source to stream music from.
+     *
+     *  @param file_name name of the music file to set the source to.
+     */
+    void SetMusic(std::string file_name);
+    
+    /**
      *  begin streaming a music file through a source.
      *
      *  @note must set the music first before calling.
@@ -87,7 +85,7 @@ class AudioService final : public Service
     /// stop the playback of music.
     void StopMusic();
 
-    /* ----- source properties setters ----- */
+    /* ----- setting source properties ----- */
 
     /**
      *  sets the overall game volume.
@@ -134,6 +132,16 @@ class AudioService final : public Service
     void SetGain(uint32_t entity_id, std::string file_name, float gain);
 
     /**
+     *  sets the gain of the music's playback.
+     *
+     *  @param gain relative gain compensation to be applied.
+     *
+     *  @note gain is given as a positive float relative to 1 (i.e. a value of 1
+     *    has no effect, > 1 is louder, and so on).
+     */
+    void SetMusicGain(float gain);
+
+    /**
      *  offsets the pitch of an audio file.
      *
      *  @param file_name name of the audio file.
@@ -159,16 +167,6 @@ class AudioService final : public Service
      *  @param position the position to set the source at.
      */
     void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
-
-    /**
-     *  sets the gain of the music's playback.
-     *
-     *  @param gain relative gain compensation to be applied.
-     *
-     *  @note gain is given as a positive float relative to 1 (i.e. a value of 1
-     *    has no effect, > 1 is louder, and so on).
-     */
-    void SetMusicGain(float gain);
 
     /* ----- listener properties ------ */
 
