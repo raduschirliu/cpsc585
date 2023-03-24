@@ -114,9 +114,11 @@ void GameStateService::OnGui()
         {
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
+            PlayerState state = entity->GetComponent<PlayerState>();
 
             ImGui::PushID(entity->GetId());
             ImGui::Text("%d) %s", place, entity->GetName().c_str());
+            ImGui::Text("health: %f", state.GetHealth());
             ImGui::PopID();
         }
 
@@ -655,7 +657,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
+    hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
 
     kart_entity.AddComponent<Shooter>();
 
