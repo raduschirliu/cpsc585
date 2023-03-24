@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+static constexpr float kMaxDeathCooldown = 5.0f;
+
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
     game_state_service_ = &service_provider.GetService<GameStateService>();
@@ -25,6 +27,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
 {
     if (player_state_.is_dead)  // lol
     {
+        // cooldown up, no longer dead
         if (death_cooldown <= 0)
         {
             player_state_.is_dead = false;
@@ -37,11 +40,12 @@ void PlayerState::CheckDead(const Timestep& delta_time)
             death_cooldown -= delta_time_seconds;
         }
     }
-    else  // if u died, u died
+    else
     {
+        // player has deadge
         if (player_state_.health <= 0.0f)
         {
-            death_cooldown = 5.0f;
+            death_cooldown = kMaxDeathCooldown;
             player_state_.is_dead = true;
             player_state_.number_deaths++;
         }
