@@ -52,7 +52,8 @@ void PlayerHud::OnGui()
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
-        ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse;
+        ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoInputs;
     ImGui::SetNextWindowPos(ImVec2(30, 30));
     ImGui::Begin("Vehicle", nullptr, flags);
 

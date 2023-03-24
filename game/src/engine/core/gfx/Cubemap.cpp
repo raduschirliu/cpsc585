@@ -25,6 +25,7 @@ void Cubemap::LoadTexture(uint32_t target, const std::string& path)
         stbi_load(path.c_str(), &width, &height, &num_components, 0);
 
     ASSERT_MSG(data, "Texture must be loaded");
+    Bind();
 
     // Set number of components by format of the texture
     GLuint format = GL_RGB;
@@ -55,6 +56,7 @@ void Cubemap::LoadTexture(uint32_t target, const std::string& path)
 
 void Cubemap::Finalize()
 {
+    Bind();
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
