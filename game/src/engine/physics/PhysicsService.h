@@ -102,7 +102,7 @@ class PhysicsService final : public Service,
     std::optional<RaycastData> Raycast(const glm::vec3& origin,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
-    
+
     std::optional<RaycastData> Sweep();
 
     physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
