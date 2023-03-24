@@ -68,6 +68,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     DebugDrawList debug_draw_list_;
     bool wireframe_;
     bool show_debug_menu_;
+    size_t num_draw_calls_;
 
     void RenderPrepare();
     void RenderCameraView(Camera& camera);

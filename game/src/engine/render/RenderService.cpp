@@ -170,6 +170,8 @@ void RenderService::OnSceneLoaded(Scene& scene)
 
 void RenderService::OnUpdate()
 {
+    num_draw_calls_ = 0;
+
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
@@ -227,6 +229,7 @@ void RenderService::OnGui()
     ImGui::Text("Cameras: %zu", cameras_.size());
     ImGui::Text("Lights: %zu", lights_.size());
     ImGui::Text("Meshes: %zu", render_list_.size());
+    ImGui::Text("Draw calls: %zu", num_draw_calls_);
 
     ImGui::Checkbox("Wireframe", &wireframe_);
 
@@ -313,6 +316,8 @@ void RenderService::RenderCameraView(Camera& camera)
 
             glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,
                            index_offset);
+
+            num_draw_calls_++;
         }
     }
 
@@ -321,6 +326,8 @@ void RenderService::RenderCameraView(Camera& camera)
         debug_shader_.Use();
         debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
         debug_draw_list_.Draw();
+
+        num_draw_calls_++;
     }
 }
 
