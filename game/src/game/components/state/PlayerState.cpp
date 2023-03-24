@@ -88,12 +88,18 @@ void PlayerState::SetHealth(float health)
 
 void PlayerState::DecrementHealth(float health)
 {
-    player_state_.health -= health;
+    if (player_state_.health > health)
+    {
+        player_state_.health -= health;
+    }
 }
 
 void PlayerState::IncrementHealth(float health)
 {
-    player_state_.health += health;
+    if (player_state_.health < 100.0f-health)
+    {
+        player_state_.health += health;
+    }
 }
 
 void PlayerState::SetSpeedMultiplier(float value)
