@@ -120,15 +120,7 @@ float RandomPitchValue()
     std::mt19937 generator(seed());
     std::uniform_int_distribution<int> value(0, 500);
 
-    int coefficient;
-    if (value(generator) >= 250)
-    {
-        coefficient = -1;
-    }
-    else
-    {
-        coefficient = 1;
-    }
+    int coefficient = (value(generator) >= 250) ? -1 : 1;
 
     return 1 + coefficient * (value(generator) / 1000.0f);
 }

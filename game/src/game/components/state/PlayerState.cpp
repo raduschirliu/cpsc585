@@ -96,7 +96,7 @@ void PlayerState::DecrementHealth(float health)
 
 void PlayerState::IncrementHealth(float health)
 {
-    if (player_state_.health < 100.0f-health)
+    if (player_state_.health < 100.0f - health)
     {
         player_state_.health += health;
     }

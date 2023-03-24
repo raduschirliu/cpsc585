@@ -37,6 +37,14 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
   private:
+    /// hits multiple opponents in some range
+    void ShootBuckshot();
+    /// updates the target that was hit (health, etc.)
+    void UpdateOnHit();
+    /// sets the sound of the shot depending on the ammo type
+    void SetShootSound(AmmoPickupType ammo_type);
+    float GetAmmoDamage();
+
     AmmoPickupType current_ammo_type_;
     std::optional<RaycastData> target_data_;
     std::string shoot_sound_file_;
@@ -50,11 +58,4 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<Hitbox> hitbox_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<PlayerState> player_state_;
-
-    void ShootBuckshot();
-
-    float GetAmmoDamage();
-    /// sets the sound of the shot depending on the ammo type
-    void SetShootSound(AmmoPickupType ammo_type);
-    void UpdateOnHit();
 };
