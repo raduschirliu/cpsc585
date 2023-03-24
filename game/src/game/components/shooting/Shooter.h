@@ -25,7 +25,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
      *  get the amount of cooldown time inbetween shots.
      *  cooldown length may differ depending on the type of ammo
      */
-    Timestep GetCooldown();
+    Timestep GetCooldownTime();
 
     /* ----- from component ----- */
 

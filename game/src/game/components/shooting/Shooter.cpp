@@ -55,10 +55,26 @@ void Shooter::ShootBuckshot()
     debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
-/* Timestep Shooter::GetCooldown() */
-/* { */
-/*      */
-/* } */
+// NOT FINAL IN THE SLIGHTEST
+Timestep Shooter::GetCooldownTime()
+{
+    using enum AmmoPickupType;
+    switch (current_ammo_type_)
+    {
+        case kIncreaseFireRate:
+            return Timestep::Seconds(0.5f);
+            break;
+        case kBuckshot:
+        case kDoubleDamage:
+        case kExploadingBullet:
+        case kVampireBullet:
+            return Timestep::Seconds(2.0f);
+            break;
+        default:
+            return Timestep::Seconds(1.0f);
+            break;
+    }
+}
 
 void Shooter::UpdateOnHit()
 {
