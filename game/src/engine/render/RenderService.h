@@ -19,8 +19,8 @@ class InputService;
 
 struct BufferMeshLayout
 {
-  size_t index_offset;
-  size_t index_count;
+    size_t index_offset;
+    size_t index_count;
 };
 
 struct RenderData
