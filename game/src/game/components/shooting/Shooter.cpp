@@ -63,9 +63,11 @@ Timestep Shooter::GetCooldownTime()
         case kIncreaseFireRate:
             return Timestep::Seconds(0.5f);
             break;
+        case kExploadingBullet:
+            return Timestep::Seconds(2.5f);
+            break;
         case kBuckshot:
         case kDoubleDamage:
-        case kExploadingBullet:
         case kVampireBullet:
             return Timestep::Seconds(2.0f);
             break;
