@@ -16,10 +16,6 @@ static const std::string kMusicDirectory = "resources/audio/music/";
 static constexpr std::size_t kStreamBufferAmount = 4;
 static constexpr ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
-// for debugging
-static const std::string kTestFileName = "test_audio.ogg";
-static const std::string kTestMusic = "test_music.ogg";
-
 /* ----- setting sources ----- */
 
 void AudioService::AddSource(std::string file_name)
@@ -277,6 +273,16 @@ void AudioService::StopMusic()
 
 /* ----- setters ------ */
 
+void AudioService::SetMasterGain(float gain)
+{
+    alListenerf(AL_GAIN, gain);
+
+    if (CheckAlError())
+    {
+        debug::LogError("Couldn't set master volume.");
+    }
+}
+
 void AudioService::SetPitch(std::string file_name, float pitch_offset)
 {
     if (!SourceExists(file_name))
@@ -388,7 +394,7 @@ void AudioService::SetMusicGain(float gain)
     debug::LogDebug("Set gain of {} set {}", file_name, gain);
 }
 
-void AudioService::SetLooping(std::string file_name, bool is_looping)
+void AudioService::SetLoop(std::string file_name, bool is_looping)
 {
     if (!SourceExists(file_name))
     {
@@ -411,8 +417,8 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetLooping(uint32_t entity_id, std::string file_name,
-                              bool is_looping)
+void AudioService::SetLoop(uint32_t entity_id, std::string file_name,
+                           bool is_looping)
 {
     if (!SourceExists(entity_id, file_name))
     {
@@ -494,15 +500,7 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
 AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 {
     // determine which folder to search from
-    std::string file_path;
-    if (is_music)
-    {
-        file_path = kMusicDirectory;
-    }
-    else
-    {
-        file_path = kSfxDirectory;
-    }
+    std::string file_path = (is_music) ? kMusicDirectory : kSfxDirectory;
     file_path.append(file_name);
 
     // initialize AudioFile
@@ -768,15 +766,10 @@ void AudioService::OnInit()
 
 void AudioService::OnStart(ServiceProvider& service_provider)
 {
-    // debugging
-    input_service_ = &service_provider.GetService<InputService>();
 }
 
 void AudioService::OnSceneLoaded(Scene& scene)
 {
-    // debugging
-    /* SetMusic(kTestMusic); */
-    /* PlayMusic(kTestMusic); */
 }
 
 void AudioService::OnUpdate()

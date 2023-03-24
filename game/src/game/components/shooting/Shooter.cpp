@@ -133,7 +133,6 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
 
     // service dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
-    input_service_ = &service_provider.GetService<InputService>();
 
     // component dependencies
     transform_ = &GetEntity().GetComponent<Transform>();

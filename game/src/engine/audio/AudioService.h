@@ -6,13 +6,12 @@
 #include <map>
 
 #include "AudioFile.h"
-#include "engine/input/InputService.h"
 #include "engine/service/Service.h"
 
 class AudioService final : public Service
 {
   public:
-    /* ----- adding/setting sources functions -----*/
+    /* ----- adding/setting sources -----*/
 
     /**
      *  add a source to play an audio file from.
@@ -37,7 +36,7 @@ class AudioService final : public Service
      */
     void SetMusic(std::string file_name);
 
-    /* ----- playback functions ----- */
+    /* ----- sfx playback ----- */
 
     /**
      *  play an audio file through its source.
@@ -53,16 +52,6 @@ class AudioService final : public Service
      *  @param entity_id the id of the associated entity.
      */
     void PlaySource(uint32_t entity_id, std::string file_name);
-
-    /**
-     *  begin streaming a music file through a source.
-     *
-     *  @note must set the music first before calling.
-     *  @note can only have one file set at a time.
-     *
-     *  @see SetMusic();
-     */
-    void PlayMusic();
 
     /**
      *  stop a sources playback of an audio file.
@@ -82,10 +71,33 @@ class AudioService final : public Service
     /// stop the playback of all sources (excluding the music source).
     void StopAllSources();
 
+    /* ----- music playback ----- */
+
+    /**
+     *  begin streaming a music file through a source.
+     *
+     *  @note must set the music first before calling.
+     *  @note can only have one file set at a time.
+     *
+     *  @see SetMusic();
+     */
+
+    void PlayMusic();
+
     /// stop the playback of music.
     void StopMusic();
 
-    /* ----- public setters ----- */
+    /* ----- source properties setters ----- */
+
+    /**
+     *  sets the overall game volume.
+     *
+     *  @param gain relative gain compensation to be applied.
+     *
+     *  @note gain is given as a positive float relative to 1 (i.e. a value of 1
+     *    has no effect, > 1 is louder, and so on).
+     */
+    void SetMasterGain(float gain);
 
     /**
      *  sets whether or not the playback of an audio file loops.
@@ -94,14 +106,14 @@ class AudioService final : public Service
      *    optional).
      *  @param is_looping whether or not the playback loops.
      */
-    void SetLooping(std::string file_name, bool is_looping);
+    void SetLoop(std::string file_name, bool is_looping);
 
     /**
      *  sets whether or not the playback of an audio file loops.
      *
      *  @overload
      */
-    void SetLooping(uint32_t entity_id, std::string file_name, bool is_looping);
+    void SetLoop(uint32_t entity_id, std::string file_name, bool is_looping);
 
     /**
      *  sets the gain of an audio file's playback.
@@ -120,8 +132,6 @@ class AudioService final : public Service
      *  @overload
      */
     void SetGain(uint32_t entity_id, std::string file_name, float gain);
-
-    void SetMusicGain(float gain);
 
     /**
      *  offsets the pitch of an audio file.
@@ -151,6 +161,18 @@ class AudioService final : public Service
     void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
 
     /**
+     *  sets the gain of the music's playback.
+     *
+     *  @param gain relative gain compensation to be applied.
+     *
+     *  @note gain is given as a positive float relative to 1 (i.e. a value of 1
+     *    has no effect, > 1 is louder, and so on).
+     */
+    void SetMusicGain(float gain);
+
+    /* ----- listener properties ------ */
+
+    /**
      *  set the position of the listener.
      *
      *  @param position the position to set the listener at.
@@ -158,11 +180,12 @@ class AudioService final : public Service
     void SetListenerPosition(glm::vec3 position);
 
     /**
-     *  set the position of the listener.
+     *  set the orientation of the listener.
      *
-     *  @param position the position to set the listener at.
+     *  @param forward the forward vector of the listener.
+     *  @param up the up vector of the listener.
      *
-     *  @see SetListenerOrientation
+     *  @see SetListenerPosition
      */
     void SetListenerOrientation(glm::vec3 forward, glm::vec3 up);
 
@@ -176,29 +199,6 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
-    /// @note post-debugging we prob want to remove this.
-    jss::object_ptr<InputService> input_service_;
-
-    ALCdevice* audio_device_;    // the sound device to output audio to.
-    ALCcontext* audio_context_;  // like an openGL context.
-
-    /// all of the active 2D sound sources.
-    using SourceBufferPair = std::pair<ALuint, ALuint>;
-    using FileName = std::string;
-    using EntityID = uint32_t;
-    std::map<FileName, SourceBufferPair> non_diegetic_sources_;
-
-    /// all of the active 3D/spatial sound sources and their entity's id.
-    using NameSourceMap = std::map<FileName, SourceBufferPair>;
-    std::map<EntityID, NameSourceMap> diegetic_sources_;
-
-    /// the current music file to stream from
-    AudioFile music_file_;
-    /// the current music source.
-    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
-    /// keep track of how much of the file was played
-    ALsizei playhead_;
-
     /**
      *  load an audiofile's data into memory from the appropriate directory.
      *
@@ -223,7 +223,7 @@ class AudioService final : public Service
 
     /// deletes all inactive sources and buffers
     void CullSources();
-
+    /// OpenAl error handling
     bool CheckAlError(std::string error_message = "");
 
     /* ----- getters ----- */
@@ -247,4 +247,26 @@ class AudioService final : public Service
     ///   already exists.
     /// @overload
     bool SourceExists(uint32_t entity_id, std::string file_name);
+
+    /* ------ members ------ */
+
+    ALCdevice* audio_device_;    // the sound device to output audio to.
+    ALCcontext* audio_context_;  // like an openGL context.
+
+    /// all of the active 2D sound sources.
+    using SourceBufferPair = std::pair<ALuint, ALuint>;
+    using FileName = std::string;
+    using EntityID = uint32_t;
+    std::map<FileName, SourceBufferPair> non_diegetic_sources_;
+
+    /// all of the active 3D/spatial sound sources and their entity's id.
+    using NameSourceMap = std::map<FileName, SourceBufferPair>;
+    std::map<EntityID, NameSourceMap> diegetic_sources_;
+
+    /// the current music file to stream from
+    AudioFile music_file_;
+    /// the current music source.
+    std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
+    /// keep track of how much of the file was played
+    ALsizei playhead_;
 };
