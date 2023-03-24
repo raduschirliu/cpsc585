@@ -71,28 +71,8 @@ void PlayerHud::OnGui()
     // {
     //     ImGui::Text("Gear: Reverse");
     // }
-    // ImGui::Spacing();
-    // ImGui::Text("Test printing (powerup):...");
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
 
-    // ImGui::Text("Test printing (ammo):...");
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(buckshot_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(doubleDamage_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(exploadingBullet_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(increaseFireRate_->GetGuiHandle(), ImVec2(70, 70));
-    // ImGui::SameLine(0.f, 10.f);
-    // ImGui::Image(vampireBullet_->GetGuiHandle(), ImVec2(70, 70));
+    ImGui::Spacing();
 
     if (player_state_->GetCurrentPowerup() ==
         PowerupPickupType::kDisableHandling)
@@ -112,7 +92,36 @@ void PlayerHud::OnGui()
     else if (player_state_->GetCurrentPowerup() ==
              PowerupPickupType::kKillAbilities)
     {
-        ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(100, 100));
+        ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+    }
+
+    if (player_state_->GetCurrentAmmoType() != AmmoPickupType::kDefaultAmmo)
+    {
+        ImGui::SameLine(0.f, 10.f);
+        if (player_state_->GetCurrentAmmoType() == AmmoPickupType::kBuckshot)
+        {
+            ImGui::Image(buckshot_->GetGuiHandle(), ImVec2(50, 50));
+        }
+        else if (player_state_->GetCurrentAmmoType() ==
+                 AmmoPickupType::kDoubleDamage)
+        {
+            ImGui::Image(doubleDamage_->GetGuiHandle(), ImVec2(50, 50));
+        }
+        else if (player_state_->GetCurrentAmmoType() ==
+                 AmmoPickupType::kExploadingBullet)
+        {
+            ImGui::Image(exploadingBullet_->GetGuiHandle(), ImVec2(50, 50));
+        }
+        else if (player_state_->GetCurrentAmmoType() ==
+                 AmmoPickupType::kIncreaseFireRate)
+        {
+            ImGui::Image(increaseFireRate_->GetGuiHandle(), ImVec2(50, 50));
+        }
+        else if (player_state_->GetCurrentAmmoType() ==
+                 AmmoPickupType::kVampireBullet)
+        {
+            ImGui::Image(vampireBullet_->GetGuiHandle(), ImVec2(50, 50));
+        }
     }
 
     ImGui::SetCursorPos(ImVec2(0, 600));
@@ -126,9 +135,4 @@ void PlayerHud::OnGui()
 
     ImGui::PopFont();
     ImGui::End();
-
-    if (player_state_->GetLapsCompleted() ==
-        game_state_service_->GetRaceConfig().num_laps)
-    {
-    }
 }

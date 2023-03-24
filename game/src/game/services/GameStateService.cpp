@@ -15,6 +15,7 @@
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "engine/scene/SceneDebugService.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/FollowCamera.h"
@@ -71,6 +72,8 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     audio_service_ = &service_provider.GetService<AudioService>();
     asset_service_ = &service_provider.GetService<AssetService>();
     gui_service_ = &service_provider.GetService<GuiService>();
+    scene_service_ = &service_provider.GetService<SceneDebugService>();
+    input_service_ = &service_provider.GetService<InputService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -83,6 +86,8 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     countdown3_ = &asset_service_->GetTexture("countdown3");
     countdown2_ = &asset_service_->GetTexture("countdown2");
     countdown1_ = &asset_service_->GetTexture("countdown1");
+    home_button_ = &asset_service_->GetTexture("home_button");
+    ending_ = &asset_service_->GetTexture("ending");
 }
 
 void GameStateService::OnUpdate()
@@ -143,9 +148,6 @@ void GameStateService::OnGui()
         ImGui::SetNextWindowPos(ImVec2(220, 625));
         ImGui::Begin("Timer", nullptr, flags);
 
-        // ImGui::Text("Players:", players_.size());
-        // ImGui::Indent(10.0f);
-
         ImGui::PushFont(font_beya_);
         int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
         int second = (int)race_state_.elapsed_time.GetSeconds() % 60;
@@ -156,20 +158,20 @@ void GameStateService::OnGui()
         ImGui::PopFont();
         ImGui::End();
 
-        // ImGui::SameLine(0.f, 800.f);
-
         ImGui::SetNextWindowPos(ImVec2(1090, 610));
         ImGui::Begin("Ranking", nullptr, flags);
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
+            // ImGui::Text("Players:", players_.size());
+            // ImGui::Indent(10.0f);
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
+            // ImGui::Text("%d) %s", place, entity->GetName().c_str());
 
             if (race_state_.sorted_players[i]->is_human)
             {
                 ImGui::PushID(entity->GetId());
                 ImGui::PushFont(font_pado_);
-                // ImGui::Text("%d) %s", place, entity->GetName().c_str());
                 if (place == 1)
                     ImGui::Text("%dst", place);
                 else if (place == 2)
@@ -195,6 +197,112 @@ void GameStateService::OnGui()
 
         ImGui::End();
     }
+
+    if (input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        Garbage();
+    }
+}
+
+void GameStateService::Garbage()
+{
+    ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse;
+
+    ImGui::SetNextWindowPos(ImVec2(50, 50));
+    ImGui::Begin("a", nullptr, flags);
+    ImGui::Image(ending_->GetGuiHandle(), ImVec2(1119, 622));
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(80, 200));
+    ImGui::Begin("d", nullptr, flags);
+
+    std::pair<std::string, int> most_kills = {"what", -1};
+    std::pair<std::string, int> least_deaths = {"ever", 100};
+    for (uint32_t i = 0; i < players_.size(); ++i)
+    {
+        Entity* entity = players_[i]->entity;
+
+        if (most_kills.second < player_details_[entity->GetId()].number_kills)
+        {
+            most_kills.first = entity->GetName();
+            most_kills.second = player_details_[entity->GetId()].number_kills;
+        }
+        if (least_deaths.second >
+            player_details_[entity->GetId()].number_deaths)
+        {
+            least_deaths.first = entity->GetName();
+            least_deaths.second =
+                player_details_[entity->GetId()].number_deaths;
+        }
+    }
+
+    ImGui::PushFont(font_beya_);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
+    ImGui::Text("The most number of kills");
+    ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
+    ImGui::Text("The least number of deaths");
+    ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(600, 200));
+    ImGui::Begin("b", nullptr, flags);
+    // ImGui::Text("Players:", players_.size());
+    ImGui::Indent(10.0f);
+
+    for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
+    {
+        const int place = static_cast<int>(i + 1);
+        Entity* entity = race_state_.sorted_players[i]->entity;
+
+        ImGui::PushID(entity->GetId());
+        ImGui::PushFont(font_impact_);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
+        if (place == 1)
+            ImGui::Text("%dst %s", place, entity->GetName().c_str());
+        else if (place == 2)
+            ImGui::Text("%dnd %s", place, entity->GetName().c_str());
+        else if (place == 3)
+            ImGui::Text("%drd %s", place, entity->GetName().c_str());
+        else if (place == 4)
+            ImGui::Text("%dth %s", place, entity->GetName().c_str());
+
+        ImGui::SameLine(0.f, 100.f);
+        int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
+        int second = (int)race_state_.elapsed_time.GetSeconds() % 60;
+        ImGui::Text(
+            "%02d:%02d:%02.0f", min, second,
+            (race_state_.elapsed_time.GetSeconds() - (min * 60 + second)) *
+                100);
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+        ImGui::PopID();
+    }
+    ImGui::Unindent(10.0f);
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100,
+                                   ImGui::GetIO().DisplaySize.y - 100));
+    ImGui::Begin("c", nullptr, flags);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
+
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.f, 1.f, 1.f, 0.1f));
+    if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
+                           ImVec2(40, 37)))
+    {
+        scene_service_->SetActiveScene("MainMenu");
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::PopStyleVar(1);
+
+    ImGui::End();
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)
@@ -505,6 +613,10 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
+
+            player.finished_time = race_state_.elapsed_time.GetSeconds();
+
+            // garbage() should come here;
         }
         else
         {

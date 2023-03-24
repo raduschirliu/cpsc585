@@ -138,6 +138,10 @@
         {
             "path": "resources/textures/ui/vampire.png",
             "name": "vampire"
+        },
+        {
+            "path": "resources/textures/ui/ending.png",
+            "name": "ending"
         }
     ]
 }

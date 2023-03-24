@@ -42,6 +42,7 @@ struct PlayerRecord
     PlayerState* state_component;
     uint32_t checkpoint_count_accumulator;
     float progress_score;
+    float finished_time;
 };
 
 struct GlobalRaceState
@@ -111,6 +112,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<SceneDebugService> scene_service_;
+    jss::object_ptr<InputService> input_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -138,10 +141,13 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
+    void Garbage();
 
     const Texture* countdown3_;
     const Texture* countdown2_;
     const Texture* countdown1_;
+    const Texture* home_button_;
+    const Texture* ending_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;
