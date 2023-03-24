@@ -37,7 +37,7 @@ void Shooter::Shoot()
 
     RaycastData target_data_value = target_data_.value();
     Entity* target_entity = target_data_value.entity;
-    
+
     /* if (target_entity->HasComponent<>()) */
     /* { */
     /*  */

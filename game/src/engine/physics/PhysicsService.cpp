@@ -378,7 +378,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
     // get first hit only
     PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
     // don't query static shapes
-    PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC); 
+    PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC);
 
     PxRaycastBuffer raycast_result;
     kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
@@ -419,7 +419,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    // bundle all the data to send 
+    // bundle all the data to send
     RaycastData result(raycast_result, target_entity);
 
     return result;
