@@ -77,7 +77,6 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     asset_service_ = &service_provider.GetService<AssetService>();
     gui_service_ = &service_provider.GetService<GuiService>();
 
-
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
 
@@ -198,7 +197,6 @@ void GameStateService::OnGui()
 
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
-
     }
     if (input_service_->IsKeyDown(GLFW_KEY_TAB))
     {
@@ -212,8 +210,7 @@ void GameStateService::OnGui()
         DisplayScoreboard();
     }
 
-        ImGui::End();
-    }
+    // ImGui::End();
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)

@@ -113,7 +113,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
 
-
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
     GlobalRaceState race_state_;
@@ -142,7 +141,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void StartCountdown();
     void DisplayScoreboard();
 
-
     const Texture* countdown3_;
     const Texture* countdown2_;
     const Texture* countdown1_;
@@ -150,5 +148,4 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     ImFont* font_beya_;
     ImFont* font_pado_;
     ImFont* font_impact_;
-
 };
