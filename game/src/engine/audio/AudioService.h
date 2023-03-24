@@ -57,11 +57,12 @@ class AudioService final : public Service
     /**
      *  begin streaming a music file through a source.
      *
-     *  @param file_name name of music file to stream from.
+     *  @note must set the music first before calling.
+     *  @note can only have one file set at a time.
      *
-     *  @note can only play one music file at a time.
+     *  @see SetMusic();
      */
-    void PlayMusic(std::string file_name);
+    void PlayMusic();
 
     /**
      *  stop a sources playback of an audio file.

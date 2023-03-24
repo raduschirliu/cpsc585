@@ -217,13 +217,12 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
     debug::LogDebug("AudioListener position: {}, {}, {}", x, y, z);
 }
 
-void AudioService::PlayMusic(std::string file_name)
+void AudioService::PlayMusic()
 {
     //  music wasn't set yet
     if (music_source_.first == "")
     {
-        debug::LogError("Source wasn't set for {}", file_name);
-        debug::LogError("Source wasn't set for {}", file_name);
+        debug::LogWarn("Source wasn't set yet");
         return;
     }
 
@@ -236,11 +235,11 @@ void AudioService::PlayMusic(std::string file_name)
 
     if (CheckAlError())
     {
-        debug::LogError("Couldn't play music for {}.", file_name);
+        debug::LogError("Couldn't play music.");
         return;
     }
 
-    debug::LogDebug("Starting playing music: {}", file_name);
+    debug::LogDebug("Starting playing music.");
 }
 
 void AudioService::StopSource(std::string file_name)
