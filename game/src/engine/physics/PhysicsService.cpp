@@ -375,11 +375,14 @@ std::optional<RaycastData> PhysicsService::Raycast(
     PxVec3 px_origin = GlmToPx(origin);
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // set flags
+    // get first hit only
     PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
+    // don't query static shapes
+    PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC); 
 
     PxRaycastBuffer raycast_result;
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flags, filter_data);
 
     if (debug_draw_raycast_)
     {
@@ -395,15 +398,15 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
+    // check if the actor hit even exists
     PxActor* target_actor = raycast_result.block.actor;
     if (actors_.count(target_actor) == 0)
     {
         return std::nullopt;
     }
-
     Entity* target_entity = actors_[target_actor];
 
-    // data validity guard checks; ensure that data is available:
+    // guard checks to ensure that data is available:
     if (!PxHitFlag::ePOSITION)
     {
         debug::LogDebug("[Raycast]: Invalid Position");
@@ -416,7 +419,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    // so we don't have to do these conversions everywhere
+    // bundle all the data to send 
     RaycastData result(raycast_result, target_entity);
 
     return result;
