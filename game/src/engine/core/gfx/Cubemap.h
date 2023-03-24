@@ -10,6 +10,7 @@ class Cubemap
     Cubemap();
 
     void LoadTexture(uint32_t target, const std::string& path);
+    void Finalize();
     void Bind(uint32_t slot = 0) const;
 
   private:

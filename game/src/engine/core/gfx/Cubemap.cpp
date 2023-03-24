@@ -18,18 +18,13 @@ void Cubemap::LoadTexture(uint32_t target, const std::string& path)
                "Invalid cubemap texture target");
 
     int num_components;
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(false);
 
     int width, height;
     unsigned char* data =
         stbi_load(path.c_str(), &width, &height, &num_components, 0);
 
     ASSERT_MSG(data, "Texture must be loaded");
-
-    // Set alignment to be 1
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    Bind();
 
     // Set number of components by format of the texture
     GLuint format = GL_RGB;
@@ -56,7 +51,10 @@ void Cubemap::LoadTexture(uint32_t target, const std::string& path)
     glTexImage2D(target, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE,
                  data);
     stbi_image_free(data);
+}
 
+void Cubemap::Finalize()
+{
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -41,6 +41,7 @@ bool CubemapRecord::Deserialize(const Value& node)
     }
 
     bool status = false;
+    status |= json::GetString(node, "name", name);
     status |= json::GetString(node, "path_xneg", path_xneg);
     status |= json::GetString(node, "path_xpos", path_xpos);
     status |= json::GetString(node, "path_yneg", path_yneg);

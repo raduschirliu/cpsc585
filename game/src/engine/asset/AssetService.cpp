@@ -134,12 +134,14 @@ void AssetService::LoadCubemap(const CubemapRecord &record)
                "Cubemap must have unique name");
 
     auto cubemap = make_unique<Cubemap>();
+    cubemap->Bind();
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, record.path_xneg);
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, record.path_xpos);
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, record.path_yneg);
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, record.path_ypos);
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, record.path_zneg);
     cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, record.path_zpos);
+    cubemap->Finalize();
 
     cubemaps_[record.name] = std::move(cubemap);
 }
