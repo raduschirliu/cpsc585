@@ -142,6 +142,10 @@
         {
             "path": "resources/textures/ui/ending.png",
             "name": "ending"
+        },
+        {
+            "path": "resources/textures/ui/record.png",
+            "name": "record"
         }
     ]
 }

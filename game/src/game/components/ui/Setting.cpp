@@ -4,6 +4,7 @@
 
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
+#include "engine/gui/GuiService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/Texture.h"
 #include "engine/scene/Entity.h"
@@ -22,10 +23,13 @@ void Setting::OnInit(const ServiceProvider& service_provider)
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     asset_service_ = &service_provider.GetService<AssetService>();
     audio_service_ = &service_provider.GetService<AudioService>();
+    gui_service_ = &service_provider.GetService<GuiService>();
 
     background_ = &asset_service_->GetTexture("background");
     home_button_ = &asset_service_->GetTexture("home_button");
 
+    font_cookie_ = gui_service_->GetFont("cookie");
+    
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
 }
@@ -62,9 +66,11 @@ void Setting::OnGui()
     static bool check = true;
     ImGui::PushStyleColor(ImGuiCol_CheckMark, ImVec4(0.f, 0.f, 0.f, 1.f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.f, 1.f, 1.f, 1.f));
+    ImGui::PushFont(font_cookie_);
     ImGui::Checkbox("Music", &check);
+    ImGui::PopFont();
     ImGui::PopStyleColor(2);
-    ImGui::PopStyleVar(1);
+    ImGui::PopStyleVar();
 
     // TODO: hook up audio button to where the background music plays
 

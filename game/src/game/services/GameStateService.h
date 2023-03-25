@@ -42,7 +42,7 @@ struct PlayerRecord
     PlayerState* state_component;
     uint32_t checkpoint_count_accumulator;
     float progress_score;
-    float finished_time;
+    double finished_time;
 };
 
 struct GlobalRaceState
@@ -148,8 +148,16 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* countdown1_;
     const Texture* home_button_;
     const Texture* ending_;
+    const Texture* record_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;
     ImFont* font_impact_;
+    ImFont* font_cookie_;
+    ImFont* font_koverwatch_;
+    ImFont* font_mandu_;
+    ImFont* font_pixel_;
+
+    std::pair<std::string, int> most_kills = {"", -1};
+    std::pair<std::string, int> least_deaths = {"", 1000};
 };

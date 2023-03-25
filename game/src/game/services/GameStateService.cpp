@@ -82,12 +82,17 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     font_beya_ = gui_service_->GetFont("beya");
     font_pado_ = gui_service_->GetFont("pado");
     font_impact_ = gui_service_->GetFont("impact");
+    font_cookie_ = gui_service_->GetFont("cookie");
+    font_koverwatch_ = gui_service_->GetFont("koverwatch");
+    font_mandu_ = gui_service_->GetFont("mandu");
+    font_pixel_ = gui_service_->GetFont("pixel");
 
     countdown3_ = &asset_service_->GetTexture("countdown3");
     countdown2_ = &asset_service_->GetTexture("countdown2");
     countdown1_ = &asset_service_->GetTexture("countdown1");
     home_button_ = &asset_service_->GetTexture("home_button");
     ending_ = &asset_service_->GetTexture("ending");
+    record_ = &asset_service_->GetTexture("record");
 }
 
 void GameStateService::OnUpdate()
@@ -211,25 +216,19 @@ void GameStateService::Garbage()
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse;
 
-    ImGui::SetNextWindowPos(ImVec2(50, 50));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::Begin("a", nullptr, flags);
-    ImGui::Image(ending_->GetGuiHandle(), ImVec2(1119, 622));
+    ImGui::Image(ending_->GetGuiHandle(), ImVec2(ImGui::GetIO().DisplaySize.x,
+                                                 ImGui::GetIO().DisplaySize.y));
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(80, 200));
+    ImGui::SetNextWindowPos(ImVec2(30, 200));
     ImGui::Begin("d", nullptr, flags);
 
-    std::pair<std::string, int> most_kills = {"what", -1};
-    std::pair<std::string, int> least_deaths = {"ever", 100};
     for (uint32_t i = 0; i < players_.size(); ++i)
     {
         Entity* entity = players_[i]->entity;
 
-        if (most_kills.second < player_details_[entity->GetId()].number_kills)
-        {
-            most_kills.first = entity->GetName();
-            most_kills.second = player_details_[entity->GetId()].number_kills;
-        }
         if (least_deaths.second >
             player_details_[entity->GetId()].number_deaths)
         {
@@ -237,23 +236,29 @@ void GameStateService::Garbage()
             least_deaths.second =
                 player_details_[entity->GetId()].number_deaths;
         }
+        if (most_kills.second < player_details_[entity->GetId()].number_kills)
+        {
+            most_kills.first = entity->GetName();
+            most_kills.second = player_details_[entity->GetId()].number_kills;
+        }
     }
 
-    ImGui::PushFont(font_beya_);
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
-    ImGui::Text("The most number of kills");
-    ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
+    ImGui::PushFont(font_mandu_);
     ImGui::Text("The least number of deaths");
+    ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+    ImGui::SameLine(0.f, 50.0f);
     ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
-    ImGui::PopStyleColor();
+    ImGui::NewLine();
+    ImGui::Text("The most number of kills");
+    ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+    ImGui::SameLine(0.f, 50.0f);
+    ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
     ImGui::PopFont();
 
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(600, 200));
+    ImGui::SetNextWindowPos(ImVec2(635, 270));
     ImGui::Begin("b", nullptr, flags);
-    // ImGui::Text("Players:", players_.size());
-    ImGui::Indent(10.0f);
 
     for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
     {
@@ -261,16 +266,23 @@ void GameStateService::Garbage()
         Entity* entity = race_state_.sorted_players[i]->entity;
 
         ImGui::PushID(entity->GetId());
-        ImGui::PushFont(font_impact_);
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
-        if (place == 1)
-            ImGui::Text("%dst %s", place, entity->GetName().c_str());
-        else if (place == 2)
-            ImGui::Text("%dnd %s", place, entity->GetName().c_str());
-        else if (place == 3)
-            ImGui::Text("%drd %s", place, entity->GetName().c_str());
-        else if (place == 4)
-            ImGui::Text("%dth %s", place, entity->GetName().c_str());
+        ImGui::PushFont(font_cookie_);
+        if (place == 1 && race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+        else if (place == 1 && !race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+        else if (place == 2 && race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+        else if (place == 2 && !race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+        else if (place == 3 && race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+        else if (place == 3 && !race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+        else if (place == 4 && race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+        else if (place == 4 && !race_state_.sorted_players[i]->is_human)
+            ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
 
         ImGui::SameLine(0.f, 100.f);
         int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
@@ -279,15 +291,13 @@ void GameStateService::Garbage()
             "%02d:%02d:%02.0f", min, second,
             (race_state_.elapsed_time.GetSeconds() - (min * 60 + second)) *
                 100);
-        ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::PopID();
     }
-    ImGui::Unindent(10.0f);
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100,
-                                   ImGui::GetIO().DisplaySize.y - 100));
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
+                                   ImGui::GetIO().DisplaySize.y - 80));
     ImGui::Begin("c", nullptr, flags);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
@@ -616,7 +626,113 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 
             player.finished_time = race_state_.elapsed_time.GetSeconds();
 
-            // garbage() should come here;
+            ImGuiWindowFlags flags =
+                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse;
+
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Background", nullptr, flags);
+            ImGui::Image(ending_->GetGuiHandle(),
+                         ImVec2(ImGui::GetIO().DisplaySize.x,
+                                ImGui::GetIO().DisplaySize.y));
+            ImGui::End();
+
+            ImGui::SetNextWindowPos(ImVec2(30, 200));
+            ImGui::Begin("Record", nullptr, flags);
+
+            for (uint32_t i = 0; i < players_.size(); ++i)
+            {
+                Entity* entity = players_[i]->entity;
+
+                if (least_deaths.second >
+                    player_details_[entity->GetId()].number_deaths)
+                {
+                    least_deaths.first = entity->GetName();
+                    least_deaths.second =
+                        player_details_[entity->GetId()].number_deaths;
+                }
+                if (most_kills.second <
+                    player_details_[entity->GetId()].number_kills)
+                {
+                    most_kills.first = entity->GetName();
+                    most_kills.second =
+                        player_details_[entity->GetId()].number_kills;
+                }
+            }
+
+            ImGui::PushFont(font_mandu_);
+            ImGui::Text("The least number of deaths");
+            ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+            ImGui::SameLine(0.f, 50.0f);
+            ImGui::Text("%s: %d", least_deaths.first.c_str(),
+                        least_deaths.second);
+            ImGui::NewLine();
+            ImGui::Text("The most number of kills");
+            ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+            ImGui::SameLine(0.f, 50.0f);
+            ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
+            ImGui::PopFont();
+
+            ImGui::End();
+
+            ImGui::SetNextWindowPos(ImVec2(635, 270));
+            ImGui::Begin("Result", nullptr, flags);
+
+            for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
+            {
+                const int place = static_cast<int>(i + 1);
+                Entity* entity = race_state_.sorted_players[i]->entity;
+
+                ImGui::PushID(entity->GetId());
+                ImGui::PushFont(font_cookie_);
+                if (place == 1 && race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+                else if (place == 1 && !race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+                else if (place == 2 && race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+                else if (place == 2 && !race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+                else if (place == 3 && race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+                else if (place == 3 && !race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+                else if (place == 4 && race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+                else if (place == 4 && !race_state_.sorted_players[i]->is_human)
+                    ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+
+                ImGui::SameLine(0.f, 100.f);
+                int min = (int)player.finished_time / 60;
+                int second = (int)player.finished_time % 60;
+                ImGui::Text("%02d:%02d:%02.0f", min, second,
+                            (player.finished_time - (min * 60 + second)) * 100);
+                ImGui::PopFont();
+                ImGui::PopID();
+            }
+            ImGui::End();
+
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
+                                           ImGui::GetIO().DisplaySize.y - 80));
+            ImGui::Begin("home", nullptr, flags);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
+
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                                  ImVec4(0.f, 0.f, 0.f, 0.f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                                  ImVec4(1.f, 1.f, 1.f, 0.1f));
+            if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
+                                   ImVec2(40, 37)))
+            {
+                scene_service_->SetActiveScene("MainMenu");
+            }
+            ImGui::PopStyleColor(3);
+            ImGui::PopStyleVar(1);
+
+            ImGui::End();
         }
         else
         {
