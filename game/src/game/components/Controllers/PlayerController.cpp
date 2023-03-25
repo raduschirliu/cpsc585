@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/App.h"
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
@@ -48,7 +49,7 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     }
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
-    CheckShoot();
+    CheckShoot(delta_time);
 }
 
 std::string_view PlayerController::GetName() const
@@ -56,12 +57,11 @@ std::string_view PlayerController::GetName() const
     return "Player Controller";
 }
 
-void PlayerController::CheckShoot()
+void PlayerController::CheckShoot(const Timestep& delta_time)
 {
-    if (cooldown_timer > 0.0f)
+    if (shoot_cooldown_ > 0.0f)
     {
-        const Timestep& delta_time = GetApp().GetDeltaTime();
-        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconda());
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
         return;
     }
 

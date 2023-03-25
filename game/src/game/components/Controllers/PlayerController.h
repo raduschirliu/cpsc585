@@ -39,7 +39,7 @@ class PlayerController final : public Component,
     float handling_multiplier_ = 1.0f;
     VehicleCommand command_;
 
-    void CheckShoot();
+    void CheckShoot(const Timestep& delta_time);
     void UpdatePowerupControls(const Timestep& delta_time);
     void UpdateCarControls(const Timestep& delta_time);
     void UpdateGear();
