@@ -2,13 +2,13 @@
 
 #include <optional>
 
+#include "engine/audio/AudioService.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/audio/AudioEmitter.h"
-#include "engine/audio/AudioService.h"
 #include "game/components/shooting/Hitbox.h"
 #include "game/components/state/PlayerState.h"
 
@@ -55,7 +55,6 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<AudioService> audio_service_;
-
 
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<Hitbox> hitbox_;

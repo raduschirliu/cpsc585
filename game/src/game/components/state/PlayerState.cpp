@@ -1,6 +1,5 @@
 #include "PlayerState.h"
 
-
 #include <iostream>
 
 static constexpr float kMaxDeathCooldown = 5.0f;

@@ -21,7 +21,8 @@ class AudioService final : public Service
     void AddSource(std::string file_name);
 
     /**
-     *  add a 3D source to play an audio file from, identified by an entity's id.
+     *  add a 3D source to play an audio file from, identified by an entity's
+     * id.
      *
      *  @param entity_id the id of the entity to track its position from.
      *
@@ -70,7 +71,7 @@ class AudioService final : public Service
      *  @param file_name name of the music file to set the source to.
      */
     void SetMusic(std::string file_name);
-    
+
     /**
      *  begin streaming a music file through a source.
      *
