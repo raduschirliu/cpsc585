@@ -430,6 +430,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
+
     {
         // Alleged finish line
         Entity& entity = scene.AddEntity("Finish Line");

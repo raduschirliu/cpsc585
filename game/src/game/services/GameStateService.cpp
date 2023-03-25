@@ -489,7 +489,41 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     {
         Log::info("Player {} hit incorrect checkpoint {} (expected {})",
                   iter->second->index, index, expected_checkpoint);
+
+        // if this is an AI Controller then activate the timer which helps us in
+        // resetting the AI to the correct checkpoint
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(true);
+            }
+        }
+        else
+        {
+            // TODO: Add the UI which tells the player that they are going the
+            // wrong way and should circle back to follow the right way.
+        }
+
         return;
+    }
+    else
+    {
+        // this means that the AI are following the right way / started to
+        // follow the right way, no need to respawn them
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(false);
+            }
+        }
     }
 
     iter->second->state_component->SetLastCheckpoint(index);
@@ -515,7 +549,7 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
         return -1;
     }
 
-    std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+    // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
 
     int checkpoint_index = iter->second->checkpoint_count_accumulator - 2;
 

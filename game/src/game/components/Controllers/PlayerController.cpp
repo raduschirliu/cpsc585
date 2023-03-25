@@ -143,6 +143,23 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
     // to respawn the car
 }
 
+void PlayerController::FixRespawnOrientation(
+    const glm::vec3& next_checkpoint_location,
+    const glm::vec3& checkpoint_location)
+{
+    auto current_orientation = transform_->GetOrientation();
+
+    glm::vec3 direction =
+        glm::normalize(next_checkpoint_location - checkpoint_location);
+    glm::vec3 forward =
+        transform_->GetForwardDirection();  // assume car is initially oriented
+                                            // along the negative z-axis
+    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    float angle = glm::acos(glm::dot(forward, direction));
+    transform_->SetOrientation(glm::angleAxis(angle, axis) *
+                               current_orientation);
+}
+
 void PlayerController::RespawnCar()
 {
     // need this so that we can change the transform of this car to be that.
@@ -159,11 +176,7 @@ void PlayerController::RespawnCar()
         return;
 
     transform_->SetPosition(checkpoint_location);
-
-    // TODO: Ask Radu for this on how to properly set this up. (orientation)
-
-    // transform_->SetOrientation(glm::quat(glm::normalize(
-    //     glm::vec3(next_checkpoint_location - checkpoint_location))));
+    FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
 
     game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
 }

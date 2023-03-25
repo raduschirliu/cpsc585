@@ -40,6 +40,8 @@ class VehicleComponent final : public Component,
     VehicleGear GetGear() const;
     float GetSpeed() const;
 
+    void SetMaxVelocity(float vel);
+
   private:
     // jss::object_ptr<SoundEmitter> sound_emitter_;  // debugging
     jss::object_ptr<Transform> transform_;
@@ -58,6 +60,8 @@ class VehicleComponent final : public Component,
     std::string g_vehicle_name_;
 
     PlayerStateData* player_data_;
+
+    float max_velocity_ = 200.f;
 
     void InitVehicle();
     void InitMaterialFrictionTable();

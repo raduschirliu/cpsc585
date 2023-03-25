@@ -23,6 +23,14 @@ class AIController final : public Component,
     std::string_view GetName() const override;
     void ResetForNextLap();
 
+    // RESPAWN
+
+    // starting the timer to carry out the respawning logic
+    void SetRespawnLastCheckpointTimer(bool b_value);
+
+    // Returns boolean if the timer is on or not.
+    bool GetRespawnLastCheckpointTimer();
+
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
@@ -32,8 +40,12 @@ class AIController final : public Component,
 
     // variable which changes when the speed slower powerup is picked up.
     float speed_multiplier_ = 1.f;
-
     float handling_multiplier_ = 1.f;
+    // as we want the car to move from current to next command, and so on until
+    // the end.
+    int next_path_index_;
+
+    std::set<int> path_traced_;
 
     // variables for car
 
@@ -47,12 +59,6 @@ class AIController final : public Component,
     void DrawDebugLine(glm::vec3 from, glm::vec3 to);
     void UpdatePowerup();
 
-    // as we want the car to move from current to next command, and so on until
-    // the end.
-    int next_path_index_;
-
-    std::set<int> path_traced_;
-
     // respawn handling
 
     // this will be set in the onstart of the controller, so that the we can
@@ -60,8 +66,14 @@ class AIController final : public Component,
     // if the height difference is more than 500 then we can respawn the car.
     float initial_height_ = 0.f;
 
+    double respawn_timer_missed_checkpoint_ = 0.f;
+    bool b_respawn_timer_missed_checkpoint_ = false;
+
     double respawn_timer_min_speed = 0.f;
     void HandleRespawn(const Timestep& delta_time);
     void HandleMinSpeedThresholdRespawn(const Timestep& delta_time);
     void HandleFreefallRespawn(const Timestep& delta_time);
+    void HandleMissedCheckpointRespawn(const Timestep& delta_time);
+    void FixRespawnOrientation(const glm::vec3& next_checkpoint_location,
+                               const glm::vec3& checkpoint_location);
 };

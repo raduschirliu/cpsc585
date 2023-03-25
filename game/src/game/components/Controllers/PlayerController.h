@@ -47,4 +47,6 @@ class PlayerController final : public Component,
     float GetRearBrake();
     bool GetGearChangeButton();
     void RespawnCar();
+    void FixRespawnOrientation(const glm::vec3& next_checkpoint_location,
+                               const glm::vec3& checkpoint_location);
 };
