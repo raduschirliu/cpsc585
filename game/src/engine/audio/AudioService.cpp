@@ -540,10 +540,10 @@ void AudioService::UpdateStreamBuffer()
 
     auto audio_data = music_file_.data_.get();
 
-    // for every buffer in queue that was played
+    // for every buffer in queue that has been played
     while (buffers_processed > 0)
     {
-        // pop off already played buffer
+        // pop off the already played buffer
         ALuint buffer;
         alSourceUnqueueBuffers(source, 1, &buffer);
 
@@ -553,28 +553,34 @@ void AudioService::UpdateStreamBuffer()
 
         ALsizei new_data_size = kStreamBufferSize;
 
-        // for when the remainder of the file is less than a buffer size
+        // when the remainder of the file
+        // is less than the buffer size (i.e. about to loop)
         if (playhead_ + kStreamBufferSize > music_file_.GetSizeBytes())
         {
             new_data_size = music_file_.GetSizeBytes() - playhead_;
         }
 
-        // get new data
+        // read the new data
         std::memcpy(&new_data[0], &audio_data[playhead_ / sizeof(short)],
                     new_data_size);
 
-        // advance playhead
+        // advance playhead by amount of data read
         playhead_ += new_data_size;
 
-        // when remainder is less than buffer size, fill buffer with the
-        // beginning of the file for a seamless loop
+        // when remainder is less than buffer size,
+        // fill buffer with the beginning of the file for a seamless loop
         if (new_data_size < kStreamBufferSize)
         {
             // loop back to beginning of song
             playhead_ = 0;
-            int buffer_size = kStreamBufferSize - new_data_size;
+
+            int buffer_remainder = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
-                        &audio_data[playhead_ / sizeof(short)], buffer_size);
+                        &audio_data[playhead_ / sizeof(short)],
+                        buffer_remainder);
+
+            // UPDATE THE PLAYHEAD
+            playhead_ = kStreamBufferSize - new_data_size;
         }
 
         // copy new data into buffer and queue it
