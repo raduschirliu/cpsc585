@@ -5,6 +5,7 @@
 #include <physx/CommonVehicleFiles/directdrivetrain/DirectDrivetrain.h>
 
 #include <glm/fwd.hpp>
+#include <map>
 #include <optional>
 #include <vector>
 
@@ -15,6 +16,7 @@
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/physics/OnPhysicsUpdateEvent.h"
+#include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
@@ -49,7 +51,8 @@ class PhysicsService final : public Service,
     physx::PxDefaultCpuDispatcher* kDispatcher_ = nullptr;
     physx::PxCooking* cooking_ = nullptr;
     physx::vehicle2::PxVehiclePhysXSimulationContext vehicle_context_;
-    std::vector<snippetvehicle2::BaseVehicle*> vehicles_;
+    std::map<physx::PxActor*, Entity*> actors_;
+    std::map<snippetvehicle2::BaseVehicle*, Entity*> vehicles_;
 
     Timestep time_accumulator_;
 
@@ -66,10 +69,11 @@ class PhysicsService final : public Service,
                               physx::PxVisualizationParameter::Enum parameter);
 
   public:
-    void RegisterActor(physx::PxActor* actor);
-    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
-    void UnregisterActor(physx::PxActor* actor);
-    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle);
+    void RegisterActor(physx::PxActor* actor, Entity* entity);
+    void RegisterVehicle(snippetvehicle2::BaseVehicle* vehicle, Entity* entity);
+    void UnregisterActor(physx::PxActor* actor, Entity* entity);
+    void UnregisterVehicle(snippetvehicle2::BaseVehicle* vehicle,
+                           Entity* entity);
 
     /* From PxSimulationEventCallback */
     void onConstraintBreak(physx::PxConstraintInfo* constraints,
@@ -98,6 +102,8 @@ class PhysicsService final : public Service,
     std::optional<RaycastData> Raycast(const glm::vec3& origin,
                                        const glm::vec3& unit_dir,
                                        float max_distance = 100000);
+
+    std::optional<RaycastData> Sweep();
 
     physx::PxShape* CreateShape(const physx::PxGeometry& geometry);
     physx::PxRigidStatic* CreatePlaneRigidStatic(

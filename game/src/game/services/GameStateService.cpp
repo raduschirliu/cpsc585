@@ -11,7 +11,6 @@
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
-#include "engine/physics/Hitbox.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -19,11 +18,12 @@
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
-#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/race/Checkpoint.h"
+#include "game/components/shooting/Hitbox.h"
+#include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/PlayerHud.h"
 
@@ -168,7 +168,9 @@ void GameStateService::OnGui()
         {
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
+            PlayerState state = entity->GetComponent<PlayerState>();
 
+            ImGui::Text("health: %f", state.GetHealth());
             if (race_state_.sorted_players[i]->is_human)
             {
                 ImGui::PushID(entity->GetId());
@@ -514,7 +516,9 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         {
             debug::LogInfo("AI finished game!");
         }
-        // audio_service_->PlayMusic("yay.ogg");
+
+        audio_service_->AddSource("game_yay.ogg");
+        audio_service_->PlaySource("game_yay.ogg");
 
         race_state_.finished_players++;
     }
@@ -753,7 +757,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
+    hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
 
     kart_entity.AddComponent<Shooter>();
 

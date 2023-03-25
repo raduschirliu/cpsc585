@@ -16,10 +16,6 @@ static const std::string kMusicDirectory = "resources/audio/music/";
 static constexpr std::size_t kStreamBufferAmount = 4;
 static constexpr ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
-// for debugging
-static const std::string kTestFileName = "test_audio.ogg";
-static const std::string kTestMusic = "test_music.ogg";
-
 /* ----- setting sources ----- */
 
 void AudioService::AddSource(std::string file_name)
@@ -51,6 +47,7 @@ void AudioService::AddSource(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't create audio source for {}", file_name);
+        debug::LogError("Couldn't create audio source for {}", file_name);
         return;
     }
 
@@ -73,6 +70,7 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     {
         debug::LogError("Couldn't buffer audio data for {}.", file_name);
         return;
+        return;
     }
 
     // create and initialise source
@@ -82,7 +80,8 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
     // set properties for spatial audio
-    alSourcef(source, AL_MAX_DISTANCE, 300.0f);  // distance until silent
+    alSourcef(source, AL_MAX_DISTANCE, 400.0f);  // distance until silent
+    alSourcef(source, AL_REFERENCE_DISTANCE, 100.0f);
     alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
 
     SourceBufferPair source_buffer_pair = {source, buffer};
@@ -90,6 +89,7 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't create source for {}", file_name);
+        return;
         return;
     }
 
@@ -107,6 +107,7 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't create buffer stream for {}.", file_name);
+        debug::LogError("Couldn't create buffer stream for {}.", file_name);
         return;
     }
 
@@ -123,6 +124,7 @@ void AudioService::SetMusic(std::string file_name)
         {
             debug::LogError("Couldn't buffer audio data for {}.", file_name);
             return;
+            return;
         }
     }
     playhead_ = kStreamBufferSize * kStreamBufferAmount;
@@ -136,6 +138,7 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn'create audio source for {}.", file_name);
+        debug::LogError("Couldn'create audio source for {}.", file_name);
         return;
     }
 
@@ -145,6 +148,7 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't queue audio buffers for {}.", file_name);
+        return;
         return;
     }
 
@@ -210,12 +214,12 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
     debug::LogDebug("AudioListener position: {}, {}, {}", x, y, z);
 }
 
-void AudioService::PlayMusic(std::string file_name)
+void AudioService::PlayMusic()
 {
     //  music wasn't set yet
     if (music_source_.first == "")
     {
-        debug::LogError("Source wasn't set for {}", file_name);
+        debug::LogWarn("Source wasn't set yet");
         return;
     }
 
@@ -228,11 +232,11 @@ void AudioService::PlayMusic(std::string file_name)
 
     if (CheckAlError())
     {
-        debug::LogError("Couldn't play music for {}.", file_name);
+        debug::LogError("Couldn't play music.");
         return;
     }
 
-    debug::LogDebug("Starting playing music: {}", file_name);
+    debug::LogDebug("Starting playing music.");
 }
 
 void AudioService::StopSource(std::string file_name)
@@ -270,10 +274,21 @@ void AudioService::StopMusic()
 
 /* ----- setters ------ */
 
+void AudioService::SetMasterGain(float gain)
+{
+    alListenerf(AL_GAIN, gain);
+
+    if (CheckAlError())
+    {
+        debug::LogError("Couldn't set master volume.");
+    }
+}
+
 void AudioService::SetPitch(std::string file_name, float pitch_offset)
 {
     if (!SourceExists(file_name))
     {
+        debug::LogError("Source wasn't set for {}", file_name);
         debug::LogError("Source wasn't set for {}", file_name);
         return;
     }
@@ -380,7 +395,7 @@ void AudioService::SetMusicGain(float gain)
     debug::LogDebug("Set gain of {} set {}", file_name, gain);
 }
 
-void AudioService::SetLooping(std::string file_name, bool is_looping)
+void AudioService::SetLoop(std::string file_name, bool is_looping)
 {
     if (!SourceExists(file_name))
     {
@@ -403,8 +418,8 @@ void AudioService::SetLooping(std::string file_name, bool is_looping)
     }
 }
 
-void AudioService::SetLooping(uint32_t entity_id, std::string file_name,
-                              bool is_looping)
+void AudioService::SetLoop(uint32_t entity_id, std::string file_name,
+                           bool is_looping)
 {
     if (!SourceExists(entity_id, file_name))
     {
@@ -486,15 +501,7 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
 AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
 {
     // determine which folder to search from
-    std::string file_path;
-    if (is_music)
-    {
-        file_path = kMusicDirectory;
-    }
-    else
-    {
-        file_path = kSfxDirectory;
-    }
+    std::string file_path = (is_music) ? kMusicDirectory : kSfxDirectory;
     file_path.append(file_name);
 
     // initialize AudioFile
@@ -760,15 +767,10 @@ void AudioService::OnInit()
 
 void AudioService::OnStart(ServiceProvider& service_provider)
 {
-    // debugging
-    input_service_ = &service_provider.GetService<InputService>();
 }
 
 void AudioService::OnSceneLoaded(Scene& scene)
 {
-    // debugging
-    /* SetMusic(kTestMusic); */
-    /* PlayMusic(kTestMusic); */
 }
 
 void AudioService::OnUpdate()

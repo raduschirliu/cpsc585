@@ -1,4 +1,4 @@
-#include "engine/physics/Hitbox.h"
+#include "game/components/shooting/Hitbox.h"
 
 #include <glm/glm.hpp>
 #include <iostream>
@@ -40,10 +40,6 @@ void Hitbox::OnUpdate(const Timestep& delta_time)
         {
             // setting the size of the hitbox for all the other cars.
             SetSize(vec3(20.0f, 20.0f, 20.0f));
-        }
-        else
-        {
-            // this is the entity which started the powerup, so do nothing.
         }
     }
 

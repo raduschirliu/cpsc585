@@ -20,12 +20,12 @@ void MeshStaticBody::OnInit(const ServiceProvider& service_provider)
     static_ = physics_service_->CreateRigidStatic(transform_->GetPosition(),
                                                   transform_->GetOrientation());
     static_->userData = &GetEntity();
-    physics_service_->RegisterActor(static_);
+    physics_service_->RegisterActor(static_, &GetEntity());
 }
 
 void MeshStaticBody::OnDestroy()
 {
-    physics_service_->UnregisterActor(static_);
+    physics_service_->UnregisterActor(static_, &GetEntity());
 
     PX_RELEASE(shape_);
     PX_RELEASE(static_);

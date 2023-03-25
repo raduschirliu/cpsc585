@@ -6,13 +6,14 @@ class Entity;
 
 struct PlayerStateData
 {
+    float health;
+    bool is_dead;
     float speed_multiplier;
     int number_kills;
     int number_deaths;
     int laps_completed;
     int last_checkpoint;
     int place;
-    float health;
     Entity* nemesis;
     Entity* bullied;
     PowerupPickupType current_powerup;  // will be decided by the enum defined
@@ -27,6 +28,7 @@ struct PlayerStateData
 
     void Reset()
     {
+        health = 100.0f;
         speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;
@@ -34,7 +36,6 @@ struct PlayerStateData
         last_checkpoint = 0;
         current_powerup = PowerupPickupType::kDefaultPowerup;
         place = 0;
-        health = 1.f;
         nemesis = nullptr;
         bullied = nullptr;
         accuracy = 0.0f;

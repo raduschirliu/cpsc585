@@ -1,37 +1,31 @@
 #pragma once
 
-#include <object_ptr.hpp>
 #include <optional>
 
-#include "engine/input/InputService.h"
-#include "engine/physics/BoxRigidBody.h"
-#include "engine/physics/Hitbox.h"
-#include "engine/physics/PhysicsService.h"
+#include "engine/audio/AudioService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/physics/RaycastData.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
-#include "game/components/Pickups/PickupType.h"
 #include "game/components/audio/AudioEmitter.h"
+#include "game/components/shooting/Hitbox.h"
 #include "game/components/state/PlayerState.h"
 
 class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
     /**
-     *  emits a raycast shot from the entity and stores the shot's data.
-     *
-     *  @see GetTargetData()
+     *  emits a raycast shot from the entity, updating the entity it hits
+     *  (if it hits)
      */
     void Shoot();
 
     /**
-     *  gets the data of the shot and the actor that was hit, its position,
-     *  distance, etc. (may be null).
-     *
-     *  @return either std::null_opt or a struct containing all the shot data
+     *  get the amount of cooldown time inbetween shots.
+     *  cooldown length may differ depending on the type of ammo
      */
-    std::optional<RaycastData> GetTargetData();
+    float GetCooldownTime();
 
     /* ----- from component ----- */
 
@@ -43,6 +37,16 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
   private:
+    /// hits multiple opponents in some range
+    void ShootBuckshot();
+    /// updates the target that was hit (health, etc.)
+    void UpdateOnHit();
+
+    /// sets the sound of the shot depending on the ammo type
+    void SetShootSound(AmmoPickupType ammo_type);
+    /// gets the appropriate damage for the current ammo type
+    float GetAmmoDamage();
+
     AmmoPickupType current_ammo_type_;
     std::optional<RaycastData> target_data_;
     std::string shoot_sound_file_;
@@ -50,15 +54,10 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     /* ----- service and component dependencies ----- */
 
     jss::object_ptr<PhysicsService> physics_service_;
-    jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<AudioService> audio_service_;
 
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<Hitbox> hitbox_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<PlayerState> player_state_;
-
-    void ShootBuckshot();
-
-    /// sets the sound of the shot depending on the ammo type
-    void SetShootSound(AmmoPickupType ammo_type);
 };

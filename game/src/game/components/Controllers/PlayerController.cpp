@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/App.h"
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
@@ -11,6 +12,7 @@
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
@@ -27,6 +29,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+    shooter_ = &GetEntity().GetComponent<Shooter>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -36,14 +39,39 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (game_state_service_->GetRaceState()
             .countdown_elapsed_time.GetSeconds() <=
         game_state_service_->GetMaxCountdownSeconds())
+    {
         return;
+    }
+
+    if (player_data_->IsDead())
+    {
+        return;
+    }
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
+    CheckShoot(delta_time);
 }
 
 std::string_view PlayerController::GetName() const
 {
     return "Player Controller";
+}
+
+void PlayerController::CheckShoot(const Timestep& delta_time)
+{
+    if (shoot_cooldown_ > 0.0f)
+    {
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
+        return;
+    }
+
+    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_B))
+    {
+        shooter_->Shoot();
+        shoot_cooldown_ = shooter_->GetCooldownTime();
+    }
 }
 
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)

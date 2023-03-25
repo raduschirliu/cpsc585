@@ -29,7 +29,7 @@ void AudioEmitter::SetGain(std::string file_name, float gain)
 
 void AudioEmitter::SetLoop(std::string file_name, bool is_looping)
 {
-    audio_service_->SetLooping(GetEntity().GetId(), file_name, is_looping);
+    audio_service_->SetLoop(GetEntity().GetId(), file_name, is_looping);
 }
 
 /* ----- from Component -----*/
