@@ -90,7 +90,7 @@ void GameApp::OnStart()
     SetActiveScene("MainMenu");
 
     auto* audio_service = &GetServiceProvider().GetService<AudioService>();
-    audio_service->SetMusic("test_music_loop.ogg");
+    audio_service->SetMusic("test_music.ogg");
     audio_service->PlayMusic();
 }
 
