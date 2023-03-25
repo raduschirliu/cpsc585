@@ -1,5 +1,6 @@
 #include "PlayerState.h"
 
+
 #include <iostream>
 
 static constexpr float kMaxDeathCooldown = 5.0f;
@@ -7,8 +8,14 @@ static constexpr float kMaxDeathCooldown = 5.0f;
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
     death_cooldown = 0.f;
 
+    // load sounds
+    audio_emitter_->AddSource("kart_hit_01.ogg");
+    audio_emitter_->SetGain("kart_hit_01.ogg", 0.5f);
+    audio_emitter_->AddSource("player_die_01.ogg");
+    audio_emitter_->SetGain("player_die_01.ogg", 4.0f);
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     player_state_.Reset();
@@ -48,6 +55,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
             death_cooldown = kMaxDeathCooldown;
             player_state_.is_dead = true;
             player_state_.number_deaths++;
+            audio_emitter_->PlaySource("player_die_01.ogg");
         }
     }
 }
@@ -58,6 +66,7 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
+
 bool PlayerState::IsDead() const
 {
     return player_state_.is_dead;
@@ -119,6 +128,7 @@ PlayerStateData* PlayerState::GetStateData()
 }
 
 // setters
+
 void PlayerState::SetHealth(float health)
 {
     player_state_.health = health;
@@ -126,9 +136,10 @@ void PlayerState::SetHealth(float health)
 
 void PlayerState::DecrementHealth(float health)
 {
-    if (player_state_.health > health)
+    if (player_state_.health >= health)
     {
         player_state_.health -= health;
+        audio_emitter_->PlaySource("kart_hit_01.ogg");
     }
 }
 
