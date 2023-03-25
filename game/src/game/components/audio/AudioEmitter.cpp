@@ -5,15 +5,12 @@
 
 void AudioEmitter::AddSource(std::string file_name)
 {
-    debug::LogDebug("Entity: {} just added a source for {}",
-                    GetEntity().GetId(), file_name);
     file_name_ = file_name;
     audio_service_->AddSource(GetEntity().GetId(), file_name);
 }
 
 void AudioEmitter::PlaySource(std::string file_name)
 {
-    debug::LogDebug("Entity: {} is playing {}", GetEntity().GetId(), file_name);
     audio_service_->PlaySource(GetEntity().GetId(), file_name);
 }
 
@@ -36,16 +33,15 @@ void AudioEmitter::SetLoop(std::string file_name, bool is_looping)
 
 void AudioEmitter::OnInit(const ServiceProvider& service_provider)
 {
+    uint32_t entity_id = GetEntity().GetId();
     debug::LogInfo("{} - Init", GetName());
+    debug::LogInfo("Entity {} can emit sound.", entity_id);
 
     // service dependencies
     audio_service_ = &service_provider.GetService<AudioService>();
 
     // component dependencies
     transform_ = &GetEntity().GetComponent<Transform>();
-
-    uint32_t entity = GetEntity().GetId();
-    debug::LogDebug("Entity {} can emit sound.", entity);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
