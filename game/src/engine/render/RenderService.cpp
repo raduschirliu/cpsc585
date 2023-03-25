@@ -15,9 +15,7 @@ using glm::mat4;
 using glm::vec3;
 using std::make_unique;
 using std::unique_ptr;
-
-static VertexArray* kDebugVertexArray = nullptr;
-static VertexBuffer* kDebugVertexBuffer = nullptr;
+using std::vector;
 
 RenderService::RenderService()
     : render_list_{},
@@ -34,11 +32,12 @@ RenderService::RenderService()
 {
 }
 
-void RenderService::RegisterRenderable(const Entity& entity)
+void RenderService::RegisterRenderable(const Entity& entity,
+                                       const MeshRenderer& renderer)
 {
-    // TODO(radu): This shouldn't need to be done here...
     auto data = make_unique<RenderData>(RenderData{
         .entity = &entity,
+        .layout = {},
         .vertex_array = VertexArray(),
         .vertex_buffer = VertexBuffer(),
         .element_buffer = ElementArrayBuffer(),
@@ -53,16 +52,40 @@ void RenderService::RegisterRenderable(const Entity& entity)
                                            offsetof(Vertex, position));
     data->vertex_buffer.ConfigureAttribute(1, 3, GL_FLOAT, sizeof(Vertex),
                                            offsetof(Vertex, normal));
-    data->vertex_buffer.ConfigureAttribute(2, 3, GL_FLOAT, sizeof(Vertex),
-                                           offsetof(Vertex, color));
-    data->vertex_buffer.ConfigureAttribute(3, 2, GL_FLOAT, sizeof(Vertex),
+    data->vertex_buffer.ConfigureAttribute(2, 2, GL_FLOAT, sizeof(Vertex),
                                            offsetof(Vertex, uv));
 
-    const Mesh& mesh = entity.GetComponent<MeshRenderer>().GetMesh();
-    data->vertex_buffer.Upload(mesh.vertices, GL_STATIC_DRAW);
-    data->element_buffer.Upload(mesh.indices, GL_STATIC_DRAW);
+    constexpr size_t index_size = sizeof(uint32_t);
+    vector<Vertex> vertices;
+    vector<uint32_t> indices;
 
-    // TODO(radu): Unbind vertex array?
+    for (const auto& mesh : renderer.GetMeshes())
+    {
+        const uint32_t vertex_offset = static_cast<uint32_t>(vertices.size());
+        const uint32_t index_offset = static_cast<uint32_t>(indices.size());
+
+        BufferMeshLayout layout = {
+            .index_offset = indices.size() * index_size,
+            .index_count = mesh.mesh->indices.size(),
+        };
+
+        vertices.insert(vertices.end(), mesh.mesh->vertices.begin(),
+                        mesh.mesh->vertices.end());
+        indices.insert(indices.end(), mesh.mesh->indices.begin(),
+                       mesh.mesh->indices.end());
+
+        for (size_t i = 0; i < layout.index_count; i++)
+        {
+            indices[index_offset + i] += vertex_offset;
+        }
+
+        data->layout.push_back(layout);
+    }
+
+    data->vertex_buffer.Upload(vertices, GL_STATIC_DRAW);
+    data->element_buffer.Upload(indices, GL_STATIC_DRAW);
+
+    VertexArray::Unbind();
 
     // Add to render list
     render_list_.push_back(std::move(data));
@@ -147,6 +170,8 @@ void RenderService::OnSceneLoaded(Scene& scene)
 
 void RenderService::OnUpdate()
 {
+    num_draw_calls_ = 0;
+
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
@@ -181,8 +206,6 @@ void RenderService::OnUpdate()
 
 void RenderService::OnCleanup()
 {
-    delete kDebugVertexArray;
-    delete kDebugVertexBuffer;
 }
 
 std::string_view RenderService::GetName() const
@@ -206,6 +229,7 @@ void RenderService::OnGui()
     ImGui::Text("Cameras: %zu", cameras_.size());
     ImGui::Text("Lights: %zu", lights_.size());
     ImGui::Text("Meshes: %zu", render_list_.size());
+    ImGui::Text("Draw calls: %zu", num_draw_calls_);
 
     ImGui::Checkbox("Wireframe", &wireframe_);
 
@@ -250,35 +274,51 @@ void RenderService::RenderCameraView(Camera& camera)
         // identity, so we don't need to multiply by it
         const mat4 normal_matrix = transform.GetNormalMatrix();
 
-        const MaterialProperties& material_properties =
-            renderer.GetMaterialProperties();
-
-        // TODO(radu): Move this logic to Material
-
         // Vert shader vars
         shader_.SetUniform("uModelMatrix", model_matrix);
         shader_.SetUniform("uNormalMatrix", normal_matrix);
 
-        // Frags shader vars
-        // TODO(radu): Don't hardcode
-        shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
+        // Lighting information
         shader_.SetUniform("uCameraPos", camera_pos);
-        shader_.SetUniform("uMaterial.specularColor",
-                           material_properties.specular);
-        shader_.SetUniform("uMaterial.shininess",
-                           material_properties.shininess);
-        // shader_.SetUniform("uMaterial.albedoTexture", 0);
-        shader_.SetUniform("uMaterial.albedoColor",
-                           material_properties.albedo_color);
+        shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
         shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
-        shader_.SetUniform("uLight.diffuse", vec3(0.7f, 0.7f, 0.7f));
+        shader_.SetUniform("uLight.diffuse", vec3(0.5f, 0.5f, 0.5f));
 
         obj->vertex_array.Bind();
 
-        GLsizei index_count =
-            static_cast<GLsizei>(renderer.GetMesh().indices.size());
+        // Draw all meshes that are part of this object
+        const auto& meshes = renderer.GetMeshes();
+        ASSERT_MSG(meshes.size() == obj->layout.size(),
+                   "Mesh data out of sync with renderer");
 
-        glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+        for (size_t i = 0; i < meshes.size(); i++)
+        {
+            const MaterialProperties& material_properties =
+                meshes[i].material_properties;
+
+            if (material_properties.albedo_texture)
+            {
+                material_properties.albedo_texture->Bind();
+            }
+
+            shader_.SetUniform("uMaterial.specularColor",
+                               material_properties.specular);
+            shader_.SetUniform("uMaterial.shininess",
+                               material_properties.shininess);
+            shader_.SetUniform("uMaterial.albedoTexture", 0);
+            shader_.SetUniform("uMaterial.albedoColor",
+                               material_properties.albedo_color);
+
+            GLsizei index_count =
+                static_cast<GLsizei>(obj->layout[i].index_count);
+            void* index_offset = reinterpret_cast<void*>(
+                static_cast<intptr_t>(obj->layout[i].index_offset));
+
+            glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,
+                           index_offset);
+
+            num_draw_calls_++;
+        }
     }
 
     if (debug_draw_list_.HasItems())
@@ -286,6 +326,8 @@ void RenderService::RenderCameraView(Camera& camera)
         debug_shader_.Use();
         debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
         debug_draw_list_.Draw();
+
+        num_draw_calls_++;
     }
 }
 

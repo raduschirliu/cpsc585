@@ -2,6 +2,11 @@
 
 #include <utility>
 
+void VertexArray::Unbind()
+{
+    glBindVertexArray(0);
+}
+
 VertexArray::VertexArray() : handle_{}
 {
     Bind();
