@@ -426,12 +426,12 @@ std::optional<RaycastData> PhysicsService::Raycast(
 }
 
 // TODO !!!!
-std::optional<RaycastData> PhysicsService::Sweep()
-{
-    /* PxSweepCallback sweep_result; */
-    /* PxGeometryType shape = PxGeometryType::eCONVEXMESH; */
-    /* kScene_->sweep(shape,); */
-}
+/* std::optional<RaycastData> PhysicsService::Sweep() */
+/* { */
+/*     PxSweepCallback sweep_result; */
+/*     PxGeometryType shape = PxGeometryType::eCONVEXMESH; */
+/*     kScene_->sweep(shape,); */
+/* } */
 
 /* ---------- PhysX ----------*/
 void PhysicsService::InitPhysX()
