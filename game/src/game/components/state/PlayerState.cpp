@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "engine/core/debug/Log.h"
+
 static constexpr float kMaxDeathCooldown = 5.0f;
 
 void PlayerState::OnInit(const ServiceProvider& service_provider)
@@ -38,6 +40,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         {
             player_state_.is_dead = false;
             player_state_.health = 100.0f;
+            debug::LogDebug("Entity {} recovered!", GetEntity().GetId());
         }
         else
         {
@@ -55,6 +58,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
             player_state_.is_dead = true;
             player_state_.number_deaths++;
             audio_emitter_->PlaySource("player_die_01.ogg");
+            debug::LogDebug("Entity {} has died!", GetEntity().GetId());
         }
     }
 }
