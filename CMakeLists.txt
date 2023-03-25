@@ -3,7 +3,7 @@ project(cpsc585)
 
 include(FetchContent)
 
-set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fetched CACHE PATH "Missing description." FORCE)
+# set(FETCHCONTENT_BASE_DIR ${PROJECT_SOURCE_DIR}/thirdparty/fetched CACHE PATH "Missing description." FORCE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #-------------------------------------------------------------------------------

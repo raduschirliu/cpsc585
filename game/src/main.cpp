@@ -26,12 +26,12 @@ int main()
     initGFLW();
 
     // Create and start app
-    Log::debug("Starting app");
+    debug::LogDebug("Starting app");
     std::shared_ptr game = make_shared<GameApp>();
     game->Run();
 
     // GLFW cleanup
-    Log::debug("Cleaning up");
+    debug::LogDebug("Cleaning up");
     glfwTerminate();
     return 0;
 }
@@ -39,7 +39,7 @@ int main()
 void initGFLW()
 {
     // GFLW init
-    Log::debug("Initializing GLFW");
+    debug::LogDebug("Initializing GLFW");
     int glfw_status = glfwInit();
     ASSERT_MSG(glfw_status == GLFW_TRUE, "GLFW must be initialized");
 }

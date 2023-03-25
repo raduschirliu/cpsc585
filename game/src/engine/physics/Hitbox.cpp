@@ -5,6 +5,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/VehicleComponent.h"
 
@@ -34,7 +35,7 @@ void Hitbox::OnUpdate(const Timestep& delta_time)
 {
     if (uint32_t id = game_state_service_->GetHitBoxMultiplier() != NULL)
     {
-        Log::info("Updated hitbox size");
+        debug::LogInfo("Updated hitbox size");
         if (GetEntity().GetId() != id)
         {
             // setting the size of the hitbox for all the other cars.

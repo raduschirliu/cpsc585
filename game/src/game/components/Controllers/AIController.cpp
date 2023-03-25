@@ -5,6 +5,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 

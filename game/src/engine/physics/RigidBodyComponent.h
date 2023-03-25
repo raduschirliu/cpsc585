@@ -1,9 +1,10 @@
 #pragma once
 
-#include "engine/physics/PhysicsService.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdPhysx.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
 
 class RigidBodyComponent : public Component,
                            public IEventSubscriber<OnUpdateEvent>

@@ -26,7 +26,8 @@ class Texture
     static void Unbind();
 
     Texture(std::string path,
-            InterpolationMode interpolation_mode = InterpolationMode::kLinear);
+            InterpolationMode interpolation_mode = InterpolationMode::kLinear,
+            bool flip_vertically = false);
 
     glm::uvec2 GetDimensions() const;
     void Bind(Slot slot = Slot::kTexture0) const;

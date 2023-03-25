@@ -2,12 +2,12 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/physics/VehicleCommands.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
-#include "engine/scene/Transform.h"
-#include "game/components/VehicleComponent.h"
-#include "game/services/GameStateService.h"
+#include "game/FwdGame.h"
 
 class PlayerState;
 

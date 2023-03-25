@@ -12,6 +12,7 @@
 
 #include "engine/asset/AssetBundle.h"
 #include "engine/core/debug/Log.h"
+#include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
 
 using glm::vec3;
@@ -29,14 +30,15 @@ void AssetService::LoadMesh(const string &path, const string &name)
 {
     Assimp::Importer importer;
 
-    unsigned int flags = aiProcessPreset_TargetRealtime_Fast;
+    unsigned int flags =
+        aiProcessPreset_TargetRealtime_Fast | aiProcess_FlipUVs;
 
     const aiScene *scene = importer.ReadFile(path, flags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
         !scene->mRootNode)
     {
-        Log::error("Failed to import: {}", importer.GetErrorString());
+        debug::LogError("Failed to import: {}", importer.GetErrorString());
         ASSERT_MSG(false, "Import must be successful");
     }
 
@@ -68,6 +70,7 @@ const Mesh &AssetService::GetMesh(const std::string &name)
 void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
 {
     auto processed_mesh = make_unique<Mesh>();
+    processed_mesh->name = name;
 
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; i++)
@@ -128,8 +131,8 @@ void AssetService::OnInit()
 {
     LoadAssetFile(kAssetFilePath);
 
-    Log::info("Loaded meshes: {}", meshes_.size());
-    Log::info("Loaded textures: {}", textures_.size());
+    debug::LogInfo("Loaded meshes: {}", meshes_.size());
+    debug::LogInfo("Loaded textures: {}", textures_.size());
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)

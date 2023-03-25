@@ -1,11 +1,26 @@
-#include "AIService.h"
+#include "engine/AI/AIService.h"
 
 #include <fstream>
+#include <glm/glm.hpp>
 #include <limits>
 #include <sstream>
+#include <stack>
 #include <string>
 
 #include "engine/core/debug/Log.h"
+
+glm::vec3 Faces::CalculateCentroid() const
+{
+    return (f_v1 + f_v2 + f_v3) / 3.0f;
+}
+
+Faces::Faces(glm::vec3& f1, glm::vec3& f2, glm::vec3& f3)
+{
+    f_v1 = f1;
+    f_v2 = f2;
+    f_v3 = f3;
+    centroid = CalculateCentroid();
+}
 
 AIService::AIService()
 {
@@ -28,7 +43,7 @@ std::vector<glm::vec3> AIService::GetPath()
 
 void AIService::OnInit()
 {
-    Log::debug("AIService initialized");
+    debug::LogDebug("AIService initialized");
     ReadVertices();
 }
 
@@ -55,7 +70,7 @@ void AIService::ReadVertices()
     file.open("resources/models/track3/track3-7navmesh2.obj", std::ios::in);
     if (!file)
     {
-        Log::error("Cannot open the navmesh file.");
+        debug::LogError("Cannot open the navmesh file.");
     }
     else
     {

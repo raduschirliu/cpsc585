@@ -2,12 +2,10 @@
 
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec3 inColor;
-layout (location = 3) in vec2 inTextureCoord;
+layout (location = 2) in vec2 inTextureCoord;
 
 out vec3 aPos;
 out vec3 aNormal;
-out vec3 aColor;
 out vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
@@ -23,7 +21,6 @@ void main()
 
 	aPos = vec3(modelPos);
 	aNormal = vec3(normals);
-	aColor = inColor;
 	aTextureCoord = inTextureCoord;
 
 	gl_Position = uViewProjMatrix * modelPos;

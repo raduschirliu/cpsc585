@@ -15,7 +15,7 @@ void DoubleDamagePickup::OnTriggerEnter(const OnTriggerEvent& data)
     if (data.other->GetName() == "PlayerVehicle" && power_visible_)
     {
         SetPowerVisibility(false);
-        Log::debug("Bullet will deal double damage");
+        debug::LogDebug("Bullet will deal double damage");
     }
 }
 
