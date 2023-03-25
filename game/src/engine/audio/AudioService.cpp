@@ -107,7 +107,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't create buffer stream for {}.", file_name);
-        debug::LogError("Couldn't create buffer stream for {}.", file_name);
         return;
     }
 
@@ -124,7 +123,6 @@ void AudioService::SetMusic(std::string file_name)
         {
             debug::LogError("Couldn't buffer audio data for {}.", file_name);
             return;
-            return;
         }
     }
     playhead_ = kStreamBufferSize * kStreamBufferAmount;
@@ -138,7 +136,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn'create audio source for {}.", file_name);
-        debug::LogError("Couldn'create audio source for {}.", file_name);
         return;
     }
 
@@ -148,7 +145,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't queue audio buffers for {}.", file_name);
-        return;
         return;
     }
 
@@ -548,7 +544,7 @@ void AudioService::UpdateStreamBuffer()
         alSourceUnqueueBuffers(source, 1, &buffer);
 
         // reserve memory for new audio data
-        ALshort* new_data = new ALshort[kStreamBufferSize / sizeof(short)];
+        ALshort* new_data = new ALshort[kStreamBufferSize];
         std::memset(new_data, 0, kStreamBufferSize);
 
         ALsizei new_data_size = kStreamBufferSize;
@@ -574,10 +570,9 @@ void AudioService::UpdateStreamBuffer()
             // loop back to beginning of song
             playhead_ = 0;
 
-            int buffer_remainder = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
                         &audio_data[playhead_ / sizeof(short)],
-                        buffer_remainder);
+                        kStreamBufferSize - new_data_size);
 
             // UPDATE THE PLAYHEAD
             playhead_ = kStreamBufferSize - new_data_size;
