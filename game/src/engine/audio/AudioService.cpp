@@ -535,6 +535,7 @@ void AudioService::UpdateStreamBuffer()
     }
 
     auto audio_data = music_file_.data_.get();
+    ALsizei music_file_size = music_file_.GetSizeBytes();
 
     // for every buffer in queue that has been played
     while (buffers_processed > 0)
@@ -547,35 +548,29 @@ void AudioService::UpdateStreamBuffer()
         ALshort* new_data = new ALshort[kStreamBufferSize];
         std::memset(new_data, 0, kStreamBufferSize);
 
-        ALsizei new_data_size = kStreamBufferSize;
+        // determine amount to read (don't over-read)
+        ALsizei size_to_read = playhead_ + kStreamBufferSize;
+        ALsizei new_data_size = (size_to_read > music_file_size)
+                                    ? music_file_size - playhead_
+                                    : kStreamBufferSize;
 
-        // when the remainder of the file
-        // is less than the buffer size (i.e. about to loop)
-        if (playhead_ + kStreamBufferSize > music_file_.GetSizeBytes())
-        {
-            new_data_size = music_file_.GetSizeBytes() - playhead_;
-        }
-
-        // read the new data
-        std::memcpy(&new_data[0], &audio_data[playhead_ / sizeof(short)],
-                    new_data_size);
-
-        // advance playhead by amount of data read
+        // read new data; advance playhead
+        ALsizei playhead_bytes = playhead_ / sizeof(short);
+        std::memcpy(&new_data[0], &audio_data[playhead_bytes], new_data_size);
         playhead_ += new_data_size;
 
-        // when remainder is less than buffer size,
-        // fill buffer with the beginning of the file for a seamless loop
+        // when at end of file fill next buffer with the beginning of the file
         if (new_data_size < kStreamBufferSize)
         {
             // loop back to beginning of song
             playhead_ = 0;
 
+            ALsizei leftover_size = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
-                        &audio_data[playhead_ / sizeof(short)],
-                        kStreamBufferSize - new_data_size);
+                        &audio_data[playhead_ / sizeof(short)], leftover_size);
 
             // UPDATE THE PLAYHEAD
-            playhead_ = kStreamBufferSize - new_data_size;
+            playhead_ += leftover_size;
         }
 
         // copy new data into buffer and queue it
