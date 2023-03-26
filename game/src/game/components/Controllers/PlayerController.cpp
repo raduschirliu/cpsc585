@@ -93,8 +93,10 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     }
 
     // this means that the everyone slower pickup is active right now.
-    if (uint32_t id =
-            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
+    int id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
+            // debug::LogDebug("{}", id);
+    
+    if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.
@@ -102,7 +104,9 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         {
             // if any AI picked up the powerup then the player's speed should be
             // reduced.
-            speed_multiplier_ = 0.2f;
+            speed_multiplier_ = 0.0f;
+            
+
         }
         else
         {
@@ -191,7 +195,7 @@ float PlayerController::GetThrottle()
     {
         if (input_service_->IsKeyDown(GLFW_KEY_W))
         {
-            return 1.0f;
+            return 1.0f * speed_multiplier_;
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_S))
         {

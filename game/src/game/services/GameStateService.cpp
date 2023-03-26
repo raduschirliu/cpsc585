@@ -435,7 +435,15 @@ int GameStateService::GetEveryoneSlowerSpeedMultiplier()
     {
         if (a.second == PowerupPickupType::kEveryoneSlower)
         {
-            return a.first;
+            // due to how our player entities are set up :(
+            if(a.first == 1)
+            {
+                return a.first + 1;
+            }
+            else
+            {
+                return a.first + 2;
+            }
         }
     }
     return -1;
@@ -539,7 +547,6 @@ void GameStateService::SetupPowerups()
         transform.SetPosition(powerup.second);
 
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-                
 
         switch (powerup.first)
         {

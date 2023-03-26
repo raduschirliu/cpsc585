@@ -11,6 +11,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
 #include "game/services/GameStateService.h"
+#include "game/components/state/PlayerState.h"
 
 class AIController final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
@@ -30,6 +31,8 @@ class AIController final : public Component,
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
+    jss::object_ptr<PlayerState> player_state_;
+
     // variable which changes when the speed slower powerup is picked up.
     float speed_multiplier_ = 1.f;
 
@@ -46,6 +49,8 @@ class AIController final : public Component,
     void NextWaypoint(glm::vec3& current_car_position, glm::vec3 next_waypoint);
     void DrawDebugLine(glm::vec3 from, glm::vec3 to);
     void UpdatePowerup();
+    void ExecutePowerup();
+    void PowerupDecision();
 
     // as we want the car to move from current to next command, and so on until
     // the end.

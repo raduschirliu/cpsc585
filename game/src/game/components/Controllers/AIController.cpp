@@ -31,6 +31,11 @@ void AIController::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
+    if (GetEntity().HasComponent<PlayerState>())
+    {
+        player_state_ = &GetEntity().GetComponent<PlayerState>();
+    }
+
     path_to_follow_ = ai_service_->GetPath();
     path_traced_.insert(next_path_index_);
 }
@@ -90,6 +95,31 @@ void AIController::OnUpdate(const Timestep& delta_time)
     UpdatePowerup();
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
+    PowerupDecision();
+}
+
+// Decision for Powerup.
+void AIController::PowerupDecision()
+{
+    // srand(time(0));
+    // as this is happening every loop, we need to make sure that the
+    // probability to execute the powerup is really low
+    int probability_powerup_execution = (rand() % 100);
+
+    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(), probability_powerup_execution);
+
+    if (probability_powerup_execution == 99)
+    {
+        ExecutePowerup();
+    }
+
+}
+
+// Execute the powerup.
+void AIController::ExecutePowerup()
+{
+    game_state_service_->AddPlayerPowerup(GetEntity().GetId(),
+                                          player_state_->GetCurrentPowerup());
 }
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
@@ -111,11 +141,12 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     if (speed <= 99)
     {
         // debug::LogWarn("{}", speed_multiplier_);
-        if(speed > 30)
-        temp_command.throttle = 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) * speed_multiplier_;
-        else 
-        temp_command.throttle = 1.0f ;
-
+        if (speed > 30)
+            temp_command.throttle =
+                1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
+                speed_multiplier_;
+        else
+            temp_command.throttle = 1.0f;
     }
     else
     {
