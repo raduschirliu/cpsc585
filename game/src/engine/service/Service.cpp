@@ -23,6 +23,11 @@ void Service::OnSceneUnloaded(Scene& scene)
     // To be overridden
 }
 
+void Service::OnWindowSizeChanged(int width, int height)
+{
+    // To be overridden
+}
+
 void Service::OnInit()
 {
     // To be overridden

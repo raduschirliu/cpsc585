@@ -63,6 +63,7 @@ class ServiceProvider
     void DispatchSceneLoaded(Scene& scene);
     void DispatchSceneUnloaded(Scene& scene);
     void DispatchUpdate();
+    void DispatchWindowSizeChanged(int width, int height);
     void DispatchCleanup();
 
   private:

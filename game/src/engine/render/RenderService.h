@@ -67,6 +67,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
     void OnSceneLoaded(Scene& scene) override;
+    void OnWindowSizeChanged(int width, int height) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
@@ -92,6 +93,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     bool wireframe_;
     bool show_debug_menu_;
     size_t num_draw_calls_;
+    glm::ivec2 screen_size_;
 
     void RenderPrepare();
     void PrepareCameraView(Camera& camera);

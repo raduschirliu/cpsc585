@@ -52,13 +52,15 @@ class Window
     void SetTitle(const std::string& title);
 
     glm::ivec2 GetPos() const;
-    glm::ivec2 GetSize() const;
+    const glm::ivec2& GetSize() const;
     GLFWwindow* GetWindowHandle() const;
 
   private:
     // owning ptr (from GLFW)
     std::unique_ptr<GLFWwindow, WindowDeleter> handle_;
     std::shared_ptr<IWindowEventListener> callbacks_;
+
+    glm::ivec2 size_;
 
     void ConnectCallbacks();
 

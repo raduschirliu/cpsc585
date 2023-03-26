@@ -16,8 +16,11 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
   public:
     Camera();
 
-    const glm::mat4& GetProjectionMatrix() const;
-    const glm::mat4& GetViewMatrix() const;
+    void SetFov(float fov_degrees);
+    /**
+     * Set camera's screen aspect ratio, where `aspect_ratio = width / height` 
+     */
+    void SetAspectRatio(float aspect_ratio);
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
@@ -27,6 +30,9 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
+
+    const glm::mat4& GetProjectionMatrix() const;
+    const glm::mat4& GetViewMatrix() const;
 
   private:
     float fov_degrees_;

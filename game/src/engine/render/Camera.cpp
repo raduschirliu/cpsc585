@@ -14,12 +14,14 @@ using glm::mat4;
 using glm::vec3;
 
 static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
+static constexpr float kDefaultFovDegrees = 90.0f;
+static constexpr float kDefaultNearPlane = 0.5f;
 static constexpr float kDefaultFarPlane = 5000.0f;
 
 Camera::Camera()
-    : fov_degrees_(90.0f),
+    : fov_degrees_(kDefaultFovDegrees),
       aspect_ratio_(1.0f),
-      near_plane_(1.0f),
+      near_plane_(kDefaultNearPlane),
       far_plane_(kDefaultFarPlane),
       projection_matrix_(1.0f),
       view_matrix_(1.0f),
@@ -68,6 +70,18 @@ void Camera::OnDestroy()
 std::string_view Camera::GetName() const
 {
     return "Camera";
+}
+
+void Camera::SetFov(float fov_degrees)
+{
+    fov_degrees_ = fov_degrees;
+    UpdateProjectionMatrix();
+}
+
+void Camera::SetAspectRatio(float aspect_ratio)
+{
+    aspect_ratio_ = aspect_ratio;
+    UpdateProjectionMatrix();
 }
 
 const mat4& Camera::GetProjectionMatrix() const

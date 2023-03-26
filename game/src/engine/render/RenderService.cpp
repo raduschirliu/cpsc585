@@ -12,6 +12,7 @@
 #include "engine/render/PointLight.h"
 #include "engine/service/ServiceProvider.h"
 
+using glm::ivec2;
 using glm::mat4;
 using glm::vec3;
 using std::make_unique;
@@ -45,7 +46,9 @@ RenderService::RenderService()
       skybox_texture_(nullptr),
       debug_draw_list_(),
       wireframe_(false),
-      show_debug_menu_(false)
+      show_debug_menu_(false),
+      num_draw_calls_(0),
+      screen_size_(1.0f, 1.0f)
 {
 }
 
@@ -126,6 +129,10 @@ void RenderService::UnregisterRenderable(const Entity& entity)
 
 void RenderService::RegisterCamera(Camera& camera)
 {
+    const float aspect_ratio =
+        static_cast<float>(screen_size_.x) / static_cast<float>(screen_size_.y);
+
+    camera.SetAspectRatio(aspect_ratio);
     cameras_.push_back(&camera);
 }
 
@@ -200,6 +207,20 @@ void RenderService::OnSceneLoaded(Scene& scene)
     cameras_.clear();
 }
 
+void RenderService::OnWindowSizeChanged(int width, int height)
+{
+    debug::LogInfo("Window size changed: {}x{}", width, height);
+    screen_size_ = ivec2(width, height);
+
+    const float aspect_ratio =
+        static_cast<float>(width) / static_cast<float>(height);
+
+    for (auto& camera : cameras_)
+    {
+        camera->SetAspectRatio(aspect_ratio);
+    }
+}
+
 void RenderService::OnUpdate()
 {
     num_draw_calls_ = 0;
@@ -211,6 +232,7 @@ void RenderService::OnUpdate()
     }
 
     // Rendering
+    glViewport(0, 0, screen_size_.x, screen_size_.y);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
