@@ -548,7 +548,12 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 {
     uint32_t entity_id = entity.GetId();
     // to tackle the problem for not changing the entity.
-    if (entity_id >= 2 && entity_id <= 4)
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
     {
         entity_id = entity_id - 1;
     }
@@ -567,7 +572,7 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        Log::info("Player {} hit incorrect checkpoint {} (expected {})",
+        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
                   iter->second->index, index, expected_checkpoint);
 
         // if this is an AI Controller then activate the timer which helps us in
