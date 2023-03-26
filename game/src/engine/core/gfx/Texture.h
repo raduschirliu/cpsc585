@@ -10,14 +10,6 @@
 class Texture
 {
   public:
-    enum class Slot : GLenum
-    {
-        kTexture0 = GL_TEXTURE0,
-        kTexture1 = GL_TEXTURE1,
-        kTexture2 = GL_TEXTURE2,
-        kTexture3 = GL_TEXTURE3
-    };
-
     enum class InterpolationMode : GLint
     {
         kLinear = GL_LINEAR,
@@ -30,7 +22,7 @@ class Texture
             bool flip_vertically = false);
 
     glm::uvec2 GetDimensions() const;
-    void Bind(Slot slot = Slot::kTexture0) const;
+    void Bind(uint32_t slot = 0) const;
     const TextureHandle& GetHandle() const;
     void* GetGuiHandle() const;
 
