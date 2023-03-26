@@ -37,7 +37,7 @@ using std::string;
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
 
-static const Timestep kCountdownTime = Timestep::Seconds(5.0);
+static const Timestep kCountdownTime = Timestep::Seconds(3.5);
 
 static const array<string, kMaxPlayers> kCarTextures = {
     "kart@BodyMain-P1", "kart@BodyMain-P2", "kart@BodyMain-P3",
@@ -551,7 +551,12 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 {
     uint32_t entity_id = entity.GetId();
     // to tackle the problem for not changing the entity.
-    if (entity_id >= 2 && entity_id <= 4)
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
     {
         entity_id = entity_id - 1;
     }
@@ -563,6 +568,14 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
         return;
     }
 
+    // USE entity for FURTHER STUFF AS PLAYERS_ has wrong value for entty.
+
+    debug::LogInfo("Player {} with id {}", iter->second->entity->GetName(), entity.GetName());
+
+    // debug::LogInfo("Player {} hit  checkpoint {})",
+    //                    iter->second->index, index);
+        
+
     const uint32_t last_checkpoint =
         iter->second->state_component->GetLastCheckpoint();
     const uint32_t expected_checkpoint =
@@ -570,8 +583,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
-                       iter->second->index, index, expected_checkpoint);
+        // debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
+        //                iter->second->index, index, expected_checkpoint);
         return;
     }
 

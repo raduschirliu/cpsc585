@@ -1,4 +1,4 @@
-#include "game/components/shooting/Hitbox.h"
+#include "Hitbox.h"
 
 #include <glm/glm.hpp>
 #include <iostream>
