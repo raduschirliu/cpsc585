@@ -107,7 +107,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't create buffer stream for {}.", file_name);
-        debug::LogError("Couldn't create buffer stream for {}.", file_name);
         return;
     }
 
@@ -124,7 +123,6 @@ void AudioService::SetMusic(std::string file_name)
         {
             debug::LogError("Couldn't buffer audio data for {}.", file_name);
             return;
-            return;
         }
     }
     playhead_ = kStreamBufferSize * kStreamBufferAmount;
@@ -138,7 +136,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn'create audio source for {}.", file_name);
-        debug::LogError("Couldn'create audio source for {}.", file_name);
         return;
     }
 
@@ -148,7 +145,6 @@ void AudioService::SetMusic(std::string file_name)
     if (CheckAlError())
     {
         debug::LogError("Couldn't queue audio buffers for {}.", file_name);
-        return;
         return;
     }
 
@@ -176,8 +172,6 @@ void AudioService::PlaySource(std::string file_name)
         debug::LogError("Couldn't play audio for {}.", file_name);
         return;
     }
-
-    debug::LogDebug("Playing audio: {}", file_name);
 }
 
 void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
@@ -202,16 +196,6 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
                         file_name);
         return;
     }
-
-    debug::LogDebug("Entity {} playing audio.", entity_id);
-
-    float x, y, z;
-
-    alGetSource3f(source, AL_POSITION, &x, &y, &z);
-    debug::LogDebug("Source position: {}, {}, {}", x, y, z);
-
-    alGetListener3f(AL_POSITION, &x, &y, &z);
-    debug::LogDebug("AudioListener position: {}, {}, {}", x, y, z);
 }
 
 void AudioService::PlayMusic()
@@ -235,8 +219,6 @@ void AudioService::PlayMusic()
         debug::LogError("Couldn't play music.");
         return;
     }
-
-    debug::LogDebug("Starting playing music.");
 }
 
 void AudioService::StopSource(std::string file_name)
@@ -302,8 +284,6 @@ void AudioService::SetPitch(std::string file_name, float pitch_offset)
     {
         debug::LogError("Couldn't set pitch for {}.", file_name);
     }
-
-    debug::LogDebug("Offset pitch of {} by {}", file_name, pitch_offset);
 }
 
 void AudioService::SetPitch(uint32_t entity_id, std::string file_name,
@@ -325,9 +305,6 @@ void AudioService::SetPitch(uint32_t entity_id, std::string file_name,
     {
         debug::LogError("Couldn't set pitch for {}.", entity_id);
     }
-
-    debug::LogDebug("Offset pitch for Entity: {}'s sound {} by {}", entity_id,
-                    file_name, pitch_offset);
 }
 
 void AudioService::SetGain(std::string file_name, float gain)
@@ -347,8 +324,6 @@ void AudioService::SetGain(std::string file_name, float gain)
     {
         debug::LogError("Couldn't set gain for {}.", file_name);
     }
-
-    debug::LogDebug("Set gain of {} set {}", file_name, gain);
 }
 
 void AudioService::SetGain(uint32_t entity_id, std::string file_name,
@@ -370,9 +345,6 @@ void AudioService::SetGain(uint32_t entity_id, std::string file_name,
     {
         debug::LogError("Couldn't set gain for {}.", entity_id);
     }
-
-    debug::LogDebug("Set gain for Entity: {}'s sound {} by {}", entity_id,
-                    file_name, gain);
 }
 
 void AudioService::SetMusicGain(float gain)
@@ -391,8 +363,6 @@ void AudioService::SetMusicGain(float gain)
     {
         debug::LogError("Couldn't set gain for {}.", file_name);
     }
-
-    debug::LogDebug("Set gain of {} set {}", file_name, gain);
 }
 
 void AudioService::SetLoop(std::string file_name, bool is_looping)
@@ -409,12 +379,10 @@ void AudioService::SetLoop(std::string file_name, bool is_looping)
     if (is_looping)
     {
         alSourcef(source, AL_LOOPING, AL_TRUE);
-        debug::LogDebug("Set {} to loop.", file_name);
     }
     else
     {
         alSourcef(source, AL_LOOPING, AL_FALSE);
-        debug::LogDebug("Set {} to not loop.", file_name);
     }
 }
 
@@ -434,14 +402,10 @@ void AudioService::SetLoop(uint32_t entity_id, std::string file_name,
     if (is_looping)
     {
         alSourcef(source, AL_LOOPING, AL_TRUE);
-        debug::LogDebug("Set source for Entity {}'s sound {} to loop.",
-                        entity_id, file_name);
     }
     else
     {
         alSourcef(source, AL_LOOPING, AL_FALSE);
-        debug::LogDebug("Set source for Entity {}'s sound {} to not loop.",
-                        entity_id, file_name);
     }
 }
 
@@ -513,15 +477,6 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
         &audio_file.sample_rate_, &file_data);
     audio_file.data_ = std::unique_ptr<short>(file_data);
 
-    debug::LogDebug("Succesfully opened audio file: {}", file_name);
-    debug::LogDebug(
-        "File properties:\n"
-        "\t\tnum of channels: {}\n"
-        "\t\tnum of samples: {}\n"
-        "\t\tsample rate: {}\n",
-        audio_file.number_of_channels_, audio_file.samples_per_channel,
-        audio_file.sample_rate_);
-
     // determine format
     // (unless something is terribly wrong, should always be 16 bits)
     if (audio_file.number_of_channels_ == 2)
@@ -536,6 +491,7 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
     return audio_file;
 }
 
+// TODO (but low priority): cull diegetic sources too
 void AudioService::CullSources()
 {
     // iterate through active sources
@@ -547,13 +503,12 @@ void AudioService::CullSources()
         next_pair++;
         if (!IsPlaying(pair->first))
         {
-            debug::LogDebug("{} stopped playing.", pair->first);
             alDeleteSources(1, &pair->second.first);
             alDeleteBuffers(1, &pair->second.second);
 
             if (CheckAlError())
             {
-                debug::LogError("While culling Sources for {}.", pair->first);
+                debug::LogWarn("While culling Sources for {}.", pair->first);
             }
 
             non_diegetic_sources_.erase(pair);
@@ -580,42 +535,42 @@ void AudioService::UpdateStreamBuffer()
     }
 
     auto audio_data = music_file_.data_.get();
+    ALsizei music_file_size = music_file_.GetSizeBytes();
 
-    // for every buffer in queue that was played
+    // for every buffer in queue that has been played
     while (buffers_processed > 0)
     {
-        // pop off already played buffer
+        // pop off the already played buffer
         ALuint buffer;
         alSourceUnqueueBuffers(source, 1, &buffer);
 
         // reserve memory for new audio data
-        ALshort* new_data = new ALshort[kStreamBufferSize / sizeof(short)];
+        ALshort* new_data = new ALshort[kStreamBufferSize];
         std::memset(new_data, 0, kStreamBufferSize);
 
-        ALsizei new_data_size = kStreamBufferSize;
+        // determine amount to read (don't over-read)
+        ALsizei size_to_read = playhead_ + kStreamBufferSize;
+        ALsizei new_data_size = (size_to_read > music_file_size)
+                                    ? music_file_size - playhead_
+                                    : kStreamBufferSize;
 
-        // for when the remainder of the file is less than a buffer size
-        if (playhead_ + kStreamBufferSize > music_file_.GetSizeBytes())
-        {
-            new_data_size = music_file_.GetSizeBytes() - playhead_;
-        }
-
-        // get new data
-        std::memcpy(&new_data[0], &audio_data[playhead_ / sizeof(short)],
-                    new_data_size);
-
-        // advance playhead
+        // read new data; advance playhead
+        ALsizei playhead_bytes = playhead_ / sizeof(short);
+        std::memcpy(&new_data[0], &audio_data[playhead_bytes], new_data_size);
         playhead_ += new_data_size;
 
-        // when remainder is less than buffer size, fill buffer with the
-        // beginning of the file for a seamless loop
+        // when at end of file fill next buffer with the beginning of the file
         if (new_data_size < kStreamBufferSize)
         {
             // loop back to beginning of song
             playhead_ = 0;
-            int buffer_size = kStreamBufferSize - new_data_size;
+
+            ALsizei leftover_size = kStreamBufferSize - new_data_size;
             std::memcpy(&new_data[new_data_size],
-                        &audio_data[playhead_ / sizeof(short)], buffer_size);
+                        &audio_data[playhead_ / sizeof(short)], leftover_size);
+
+            // UPDATE THE PLAYHEAD
+            playhead_ += leftover_size;
         }
 
         // copy new data into buffer and queue it

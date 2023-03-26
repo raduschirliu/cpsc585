@@ -32,7 +32,6 @@ void Shooter::Shoot()
     if (!target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
-        debug::LogDebug("Entity: {} did not hit anything.", entity_id);
         return;
     }
 
