@@ -4,8 +4,8 @@
 #pragma once
 
 #include <object_ptr.hpp>
-#include <unordered_set>
 #include <string>
+#include <unordered_set>
 
 #include "PickupType.h"
 #include "engine/scene/Component.h"

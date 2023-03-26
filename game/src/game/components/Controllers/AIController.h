@@ -10,8 +10,8 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
-#include "game/services/GameStateService.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 class AIController final : public Component,
                            public IEventSubscriber<OnUpdateEvent>

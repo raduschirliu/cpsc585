@@ -423,7 +423,7 @@ int GameStateService::GetDisableHandlingMultiplier()
         if (a.second == PowerupPickupType::kDisableHandling)
         {
             // due to how our player entities are set up :(
-            if(a.first == 0)
+            if (a.first == 0)
             {
                 return a.first + 1;
             }
@@ -444,7 +444,7 @@ int GameStateService::GetEveryoneSlowerSpeedMultiplier()
         if (a.second == PowerupPickupType::kEveryoneSlower)
         {
             // due to how our player entities are set up :(
-            if(a.first == 0)
+            if (a.first == 0)
             {
                 return a.first + 1;
             }
@@ -465,7 +465,7 @@ int GameStateService::GetHitBoxMultiplier()
         if (a.second == PowerupPickupType::kIncreaseAimBox)
         {
             // due to how our player entities are set up :(
-            if(a.first == 0)
+            if (a.first == 0)
             {
                 return a.first + 1;
             }
