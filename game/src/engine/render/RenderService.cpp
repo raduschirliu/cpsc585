@@ -194,6 +194,11 @@ void RenderService::OnGui()
         geometry_pass_.SetWireframe(wireframe_);
     }
 
+    if (ImGui::CollapsingHeader("Depth Map"))
+    {
+        ImGui::Image(depth_pass_.GetDepthMap().ValueRaw(), ImVec2(512, 512));
+    }
+
     ImGui::End();
 }
 
