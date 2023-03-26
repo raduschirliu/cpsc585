@@ -62,8 +62,9 @@ void AIController::UpdatePowerup()
         vehicle_->SetMaxAchievableVelocity(100.f);
     }
 
-    if (uint32_t id =
-            game_state_service_->GetDisableHandlingMultiplier() != NULL)
+    id = game_state_service_->GetDisableHandlingMultiplier();
+
+    if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.

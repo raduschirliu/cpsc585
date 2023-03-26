@@ -415,17 +415,25 @@ void GameStateService::RemovePlayerPowerup(uint32_t id)
     player_powers_.insert_or_assign(id, PowerupPickupType::kDefaultPowerup);
 }
 
-uint32_t GameStateService::GetDisableHandlingMultiplier()
+int GameStateService::GetDisableHandlingMultiplier()
 {
     // just return the ID which executed this powerup
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kDisableHandling)
         {
-            return a.first;
+            // due to how our player entities are set up :(
+            if(a.first == 0)
+            {
+                return a.first + 1;
+            }
+            else
+            {
+                return a.first + 2;
+            }
         }
     }
-    return NULL;
+    return -1;
 }
 
 int GameStateService::GetEveryoneSlowerSpeedMultiplier()
@@ -449,17 +457,25 @@ int GameStateService::GetEveryoneSlowerSpeedMultiplier()
     return -1;
 }
 
-uint32_t GameStateService::GetHitBoxMultiplier()
+int GameStateService::GetHitBoxMultiplier()
 {
     // just return the ID which executed this powerup
     for (auto& a : active_powerups_)
     {
         if (a.second == PowerupPickupType::kIncreaseAimBox)
         {
-            return a.first;
+            // due to how our player entities are set up :(
+            if(a.first == 0)
+            {
+                return a.first + 1;
+            }
+            else
+            {
+                return a.first + 2;
+            }
         }
     }
-    return NULL;
+    return -1;
 }
 
 void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
