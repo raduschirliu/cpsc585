@@ -11,13 +11,19 @@
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
+#include "engine/physics/BoxTrigger.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/Checkpoints.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
+#include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
+#include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
+#include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
+#include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
@@ -46,8 +52,9 @@ static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
 static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
                                                           "CPU 3", "CPU 4"};
-
-
+static const array<string, 5> kPowerups = {
+    "kDefaultPowerup", "kDisableHandling", "kEveryoneSlower", "kIncreaseAimBox",
+    "kKillAbilities"};
 
 void GlobalRaceState::Reset()
 {
@@ -69,6 +76,9 @@ void GameStateService::OnInit()
     race_config_.num_laps = 2;
 
     race_state_.Reset();
+
+    // Get where the powerups should be spawned and what type.
+    UpdatePowerupInfo();
 }
 
 void GameStateService::OnStart(ServiceProvider& service_provider)
@@ -384,7 +394,8 @@ GameStateService::PowerupsActive()
     return powerups;
 }
 
-void GameStateService::AddPlayerPowerup(uint32_t entity_id, PowerupPickupType power)
+void GameStateService::AddPlayerPowerup(uint32_t entity_id,
+                                        PowerupPickupType power)
 {
     // to tackle the problem for not changing the entity.
     if (entity_id >= 3 && entity_id <= 5)
@@ -483,6 +494,110 @@ void GameStateService::SetupRace()
     {
         CreatePlayer(player_idx, false);
         player_idx++;
+    }
+
+    SetupPowerups();
+}
+
+void GameStateService::SetupPowerups()
+{
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+    for (const auto& powerup : powerup_info)
+    {
+        int powerup_to_int = 0;
+        switch (powerup.first)
+        {
+            case PowerupPickupType::kDefaultPowerup:
+                powerup_to_int = 0;
+                break;
+
+            case PowerupPickupType::kDisableHandling:
+                powerup_to_int = 1;
+                break;
+
+            case PowerupPickupType::kEveryoneSlower:
+                powerup_to_int = 2;
+                break;
+
+            case PowerupPickupType::kIncreaseAimBox:
+                powerup_to_int = 3;
+                break;
+
+            case PowerupPickupType::kKillAbilities:
+                powerup_to_int = 4;
+                break;
+        }
+        // make entities for powerups here.
+        string entity_name = kPowerups[powerup_to_int] + "  " +
+                             std::to_string(powerup.second.x) + ", " +
+                             std::to_string(powerup.second.y) + ", " +
+                             std::to_string(powerup.second.z);
+
+        Entity& entity = scene.AddEntity(entity_name);
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(powerup.second);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+                
+
+        switch (powerup.first)
+        {
+            case PowerupPickupType::kDisableHandling:
+                entity.AddComponent<DisableHandlingPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("coin"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+            case PowerupPickupType::kEveryoneSlower:
+                entity.AddComponent<EveryoneSlowerPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("energy"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case PowerupPickupType::kIncreaseAimBox:
+                entity.AddComponent<IncreaseAimBoxPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("defence"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case PowerupPickupType::kKillAbilities:
+                entity.AddComponent<KillAbilitiesPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("defence_shield"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+        }
+        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 }
 
@@ -838,13 +953,50 @@ double GameStateService::GetMaxCountdownSeconds()
 std::unordered_set<std::string> GameStateService::GetPlayerStaticNames()
 {
     std::unordered_set<std::string> names;
-    for(int i = 0; i < kHumanPlayerNames.size(); i++)
+    for (int i = 0; i < kHumanPlayerNames.size(); i++)
     {
         names.insert(kHumanPlayerNames[i]);
     }
-    for(int i = 0; i < kAiPlayerNames.size(); i++)
+    for (int i = 0; i < kAiPlayerNames.size(); i++)
     {
         names.insert(kAiPlayerNames[i]);
     }
     return names;
+}
+
+void GameStateService::UpdatePowerupInfo()
+{
+    // assigning powerup info here.
+
+    // extract the information from obj file about every powerup location.
+    Checkpoints checkpoints;
+    auto locations = checkpoints.GetCheckpoints();
+
+    // locations.second = orientation, we do not care about that, ignore that
+    // for now
+
+    for (const auto& l : locations)
+    {
+        // randomly generating what kind of powerup should spawn here.
+        uint16_t random_powerup = rand() % 4 + 1;  // as 0 is default powerup.
+        switch (random_powerup)
+        {
+            case 1:
+                powerup_info.push_back(
+                    {PowerupPickupType::kDisableHandling, l.first});
+                break;
+            case 2:
+                powerup_info.push_back(
+                    {PowerupPickupType::kEveryoneSlower, l.first});
+                break;
+            case 3:
+                powerup_info.push_back(
+                    {PowerupPickupType::kIncreaseAimBox, l.first});
+                break;
+            case 4:
+                powerup_info.push_back(
+                    {PowerupPickupType::kKillAbilities, l.first});
+                break;
+        }
+    }
 }

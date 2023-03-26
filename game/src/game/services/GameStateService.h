@@ -76,8 +76,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
     // setters
-    void AddPlayerDetails(uint32_t id, PlayerStateData details);
-    void AddPlayerStates(uint32_t id, PlayerState* states);
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
     std::vector<std::pair<uint32_t, PowerupPickupType>> PowerupsActive();
@@ -107,7 +105,10 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     double GetMaxCountdownSeconds();
 
     // Powerups
+    
+    
     std::unordered_set<std::string> GetPlayerStaticNames();
+
 
   private:
     jss::object_ptr<AudioService> audio_service_;
@@ -128,14 +129,18 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
+    // To store the powerup's information along with where it should be spawned in the map.
+    std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
+
     GameState stats_;
 
-    void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
+    void UpdatePowerupInfo();
 
     void SetupRace();
     void StartRace();
+    void SetupPowerups();
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);

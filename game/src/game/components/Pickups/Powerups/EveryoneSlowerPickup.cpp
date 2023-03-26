@@ -12,8 +12,6 @@ void EveryoneSlowerPickup::OnInit(const ServiceProvider& service_provider)
 
 void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    debug::LogError("{}", data.other->GetName());
-
     // the pickup always collides with floor, so avoid that first
     if (k_player_names_.find(data.other->GetName()) != k_player_names_.end())
     {
