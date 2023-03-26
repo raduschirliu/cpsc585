@@ -129,6 +129,9 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
 
 void GeometryPass::UnregisterRenderable(const Entity& entity)
 {
+    const uint32_t target_id = entity.GetId();
+    std::erase_if(render_data_.entities, [target_id](const Entity* x)
+                  { return x->GetId() == target_id; });
 }
 
 void GeometryPass::Init()
@@ -293,7 +296,6 @@ void GeometryPass::RenderSkybox(const CameraView& camera)
     glDrawArrays(GL_TRIANGLES, 0, kSkyboxVertices.size());
     glDepthFunc(GL_LESS);
 }
-
 
 void GeometryPass::ResetState()
 {

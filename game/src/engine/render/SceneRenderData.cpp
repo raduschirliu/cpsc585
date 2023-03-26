@@ -1,7 +1,7 @@
 #include "engine/render/SceneRenderData.h"
 
 SceneRenderData::SceneRenderData()
-    : screen_size(1.0f),
+    : screen_size(1, 1),
       cameras{},
       entities{},
       point_lights{},

@@ -4,22 +4,14 @@
 #include <vector>
 
 #include "engine/core/gfx/ShaderProgram.h"
-#include "engine/core/gfx/VertexArray.h"
-#include "engine/core/gfx/VertexBuffer.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/render/DebugDrawList.h"
+#include "engine/render/RenderBuffers.h"
 #include "engine/render/SceneRenderData.h"
 
 struct CameraView;
 struct MeshRenderData;
 class Cubemap;
-
-struct RenderBuffers
-{
-    VertexArray vertex_array;
-    VertexBuffer vertex_buffer;
-    ElementArrayBuffer element_buffer;
-};
 
 class GeometryPass
 {

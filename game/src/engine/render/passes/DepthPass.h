@@ -1,6 +1,9 @@
 #pragma once
 
+#include "engine/core/gfx/GLHandles.h"
+#include "engine/core/gfx/ShaderProgram.h"
 #include "engine/fwd/FwdComponents.h"
+#include "engine/render/RenderBuffers.h"
 #include "engine/render/SceneRenderData.h"
 
 class DepthPass
@@ -17,4 +20,7 @@ class DepthPass
 
   private:
     SceneRenderData& render_data_;
+    FramebufferHandle fbo_;
+    TextureHandle depth_map_;
+    ShaderProgram shader_;
 };
