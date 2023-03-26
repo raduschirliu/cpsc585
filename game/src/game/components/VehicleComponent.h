@@ -41,6 +41,7 @@ class VehicleComponent final : public Component,
     VehicleGear GetGear() const;
     float GetSpeed() const;
     float GetAdjustedSpeedMultiplier();
+    void SetMaxAchievableVelocity(float max_velocity);
 
   private:
     jss::object_ptr<Transform> transform_;

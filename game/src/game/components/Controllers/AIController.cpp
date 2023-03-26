@@ -48,6 +48,7 @@ void AIController::UpdatePowerup()
         if (id != GetEntity().GetId())
         {
             speed_multiplier_ = 0.2f;
+            vehicle_->SetMaxAchievableVelocity(40.f);
         }
         else
         {
@@ -58,6 +59,7 @@ void AIController::UpdatePowerup()
     {
         // this is the entity which started the powerup, so do nothing.
         speed_multiplier_ = kSpeedMultiplierReset;
+        vehicle_->SetMaxAchievableVelocity(100.f);
     }
 
     if (uint32_t id =
@@ -106,13 +108,13 @@ void AIController::PowerupDecision()
     // probability to execute the powerup is really low
     int probability_powerup_execution = (rand() % 100);
 
-    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(), probability_powerup_execution);
+    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(),
+    // probability_powerup_execution);
 
     if (probability_powerup_execution == 99)
     {
         ExecutePowerup();
     }
-
 }
 
 // Execute the powerup.

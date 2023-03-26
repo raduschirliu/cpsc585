@@ -436,7 +436,7 @@ int GameStateService::GetEveryoneSlowerSpeedMultiplier()
         if (a.second == PowerupPickupType::kEveryoneSlower)
         {
             // due to how our player entities are set up :(
-            if(a.first == 1)
+            if(a.first == 0)
             {
                 return a.first + 1;
             }

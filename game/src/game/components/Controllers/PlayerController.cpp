@@ -94,19 +94,18 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 
     // this means that the everyone slower pickup is active right now.
     int id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
-            // debug::LogDebug("{}", id);
-    
+
     if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.
-        if (GetEntity().GetId() != id)
+        int entity_id = GetEntity().GetId();
+        if (entity_id != id)
         {
             // if any AI picked up the powerup then the player's speed should be
             // reduced.
-            speed_multiplier_ = 0.0f;
-            
-
+            speed_multiplier_ = 0.2f;
+            vehicle_->SetMaxAchievableVelocity(40.f);
         }
         else
         {
@@ -116,6 +115,7 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     else
     {
         speed_multiplier_ = kSpeedMultiplier;
+        vehicle_->SetMaxAchievableVelocity(100.f);
     }
 
     if (uint32_t id =
