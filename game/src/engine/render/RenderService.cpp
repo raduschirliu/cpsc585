@@ -213,8 +213,12 @@ void RenderService::OnUpdate()
     // Rendering
     glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Disabling back-face culling until we add more faces to the track
+    // glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
 
     RenderPrepare();
 
@@ -226,6 +230,8 @@ void RenderService::OnUpdate()
 
     // Post-render cleanup
     debug_draw_list_.Clear();
+
+    glDisable(GL_MULTISAMPLE);
 }
 
 void RenderService::OnCleanup()
