@@ -10,7 +10,7 @@ void DisableHandlingPickup::OnInit(const ServiceProvider& service_provider)
 
 void DisableHandlingPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    if (data.other->GetName() == "PlayerVehicle")
+    if (k_player_names_.find(data.other->GetName()) != k_player_names_.end())
     {
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)

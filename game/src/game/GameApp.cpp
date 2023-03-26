@@ -507,7 +507,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(i + 2);
+        checkpoint.SetCheckpointIndex(i + 1);
     }
 }
 

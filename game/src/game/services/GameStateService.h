@@ -8,6 +8,8 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <unordered_set>
+#include <string>
 
 #include "engine/core/Colors.h"
 #include "engine/core/math/Timestep.h"
@@ -97,15 +99,15 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const GlobalRaceState& GetGlobalRaceState() const;
     const uint32_t GetNumCheckpoints() const;
 
-    void PlayerFinished(Entity& entity);
-    void PlayerCompletedLap(Entity& entity);
-
     GlobalRaceState& GetRaceState()
     {
         return race_state_;
     }
 
     double GetMaxCountdownSeconds();
+
+    // Powerups
+    std::unordered_set<std::string> GetPlayerStaticNames();
 
   private:
     jss::object_ptr<AudioService> audio_service_;

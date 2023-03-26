@@ -1,4 +1,4 @@
-#include "game/components/shooting/Shooter.h"
+#include "Shooter.h"
 
 #include <random>
 

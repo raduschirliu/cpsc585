@@ -47,6 +47,8 @@ static const array<string, kMaxPlayers> kHumanPlayerNames = {
 static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
                                                           "CPU 3", "CPU 4"};
 
+
+
 void GlobalRaceState::Reset()
 {
     state = GameState::kNotRunning;
@@ -570,11 +572,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     // USE entity for FURTHER STUFF AS PLAYERS_ has wrong value for entty.
 
-    debug::LogInfo("Player {} with id {}", iter->second->entity->GetName(), entity.GetName());
-
     // debug::LogInfo("Player {} hit  checkpoint {})",
     //                    iter->second->index, index);
-        
 
     const uint32_t last_checkpoint =
         iter->second->state_component->GetLastCheckpoint();
@@ -583,13 +582,17 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        // debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
-        //                iter->second->index, index, expected_checkpoint);
+        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
+                       iter->second->index, index, expected_checkpoint);
         return;
     }
 
     iter->second->state_component->SetLastCheckpoint(index);
     iter->second->checkpoint_count_accumulator++;
+
+    debug::LogInfo("Player {} with id {} checkpoint accumulator #{}",
+                   iter->second->entity->GetName(), entity.GetName(),
+                   iter->second->checkpoint_count_accumulator);
 
     if (index == 0)
     {
@@ -820,4 +823,18 @@ CheckpointRecord& GameStateService::GetNextCheckpoint(uint32_t current_index)
 double GameStateService::GetMaxCountdownSeconds()
 {
     return kCountdownTime.GetSeconds();
+}
+
+std::unordered_set<std::string> GameStateService::GetPlayerStaticNames()
+{
+    std::unordered_set<std::string> names;
+    for(int i = 0; i < kHumanPlayerNames.size(); i++)
+    {
+        names.insert(kHumanPlayerNames[i]);
+    }
+    for(int i = 0; i < kAiPlayerNames.size(); i++)
+    {
+        names.insert(kAiPlayerNames[i]);
+    }
+    return names;
 }
