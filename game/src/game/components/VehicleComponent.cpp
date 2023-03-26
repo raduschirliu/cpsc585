@@ -131,6 +131,16 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     audio_emitter_->SetGain(kDrivingAudioFile, 0.05f);
     audio_emitter_->SetLoop(kDrivingAudioFile, true);
     audio_emitter_->PlaySource(kDrivingAudioFile);
+    
+    // speed adjuster for the AI.
+    speed_adjuster_ = rand() % 60;
+
+}
+
+// to adjust the throttle for AIs.
+float VehicleComponent::GetAdjustedSpeedMultiplier()
+{
+    return speed_adjuster_;
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)

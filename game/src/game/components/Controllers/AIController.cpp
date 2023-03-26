@@ -37,8 +37,8 @@ void AIController::OnInit(const ServiceProvider& service_provider)
 
 void AIController::UpdatePowerup()
 {
-    if (uint32_t id =
-            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
+    uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
+    if (id != -1)
     {
         if (id != GetEntity().GetId())
         {
@@ -87,6 +87,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     glm::vec3 current_car_position = transform_->GetPosition();
     glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
 
+    UpdatePowerup();
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
 }
@@ -107,16 +108,21 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     VehicleCommand temp_command;
 
     float speed = vehicle_->GetSpeed();
-    if (speed <= 45)
+    if (speed <= 99)
     {
-        temp_command.throttle = 1.0f * speed_multiplier_;
+        // debug::LogWarn("{}", speed_multiplier_);
+        if(speed > 30)
+        temp_command.throttle = 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) * speed_multiplier_;
+        else 
+        temp_command.throttle = 1.0f ;
+
     }
     else
     {
         temp_command.throttle = 0.0f;
     }
 
-    if (speed > 45)
+    if (speed > 99)
     {
         temp_command.front_brake = 0.5f;
         temp_command.rear_brake = 0.5f;

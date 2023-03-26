@@ -384,9 +384,19 @@ GameStateService::PowerupsActive()
     return powerups;
 }
 
-void GameStateService::AddPlayerPowerup(uint32_t id, PowerupPickupType power)
+void GameStateService::AddPlayerPowerup(uint32_t entity_id, PowerupPickupType power)
 {
-    player_powers_.insert_or_assign(id, power);
+    // to tackle the problem for not changing the entity.
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
+    {
+        entity_id = entity_id - 1;
+    }
+    player_powers_.insert_or_assign(entity_id, power);
 }
 
 void GameStateService::RemovePlayerPowerup(uint32_t id)
@@ -407,7 +417,7 @@ uint32_t GameStateService::GetDisableHandlingMultiplier()
     return NULL;
 }
 
-uint32_t GameStateService::GetEveryoneSlowerSpeedMultiplier()
+int GameStateService::GetEveryoneSlowerSpeedMultiplier()
 {
     // just return the ID which executed this powerup
     for (auto& a : active_powerups_)
@@ -417,7 +427,7 @@ uint32_t GameStateService::GetEveryoneSlowerSpeedMultiplier()
             return a.first;
         }
     }
-    return NULL;
+    return -1;
 }
 
 uint32_t GameStateService::GetHitBoxMultiplier()
@@ -590,9 +600,9 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     iter->second->state_component->SetLastCheckpoint(index);
     iter->second->checkpoint_count_accumulator++;
 
-    debug::LogInfo("Player {} with id {} checkpoint accumulator #{}",
-                   iter->second->entity->GetName(), entity.GetName(),
-                   iter->second->checkpoint_count_accumulator);
+    // debug::LogInfo("Player {} with id {} checkpoint accumulator #{}",
+    //                iter->second->entity->GetName(), entity.GetName(),
+    //                iter->second->checkpoint_count_accumulator);
 
     if (index == 0)
     {

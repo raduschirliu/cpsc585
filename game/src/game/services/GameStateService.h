@@ -92,7 +92,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void SetRaceConfig(const RaceConfig& config);
     const RaceConfig& GetRaceConfig() const;
 
-    uint32_t GetEveryoneSlowerSpeedMultiplier();
+    int GetEveryoneSlowerSpeedMultiplier();
     uint32_t GetDisableHandlingMultiplier();
     uint32_t GetHitBoxMultiplier();
 

@@ -40,6 +40,7 @@ class VehicleComponent final : public Component,
 
     VehicleGear GetGear() const;
     float GetSpeed() const;
+    float GetAdjustedSpeedMultiplier();
 
   private:
     jss::object_ptr<Transform> transform_;
@@ -59,6 +60,8 @@ class VehicleComponent final : public Component,
     std::string g_vehicle_name_;
 
     PlayerStateData* player_data_;
+
+    float speed_adjuster_;
 
     void InitVehicle();
     void InitMaterialFrictionTable();
