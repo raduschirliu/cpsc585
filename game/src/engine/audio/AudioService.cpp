@@ -80,9 +80,9 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
 
     // set properties for spatial audio
-    alSourcef(source, AL_MAX_DISTANCE, 400.0f);  // distance until silent
-    alSourcef(source, AL_REFERENCE_DISTANCE, 100.0f);
-    alSourcef(source, AL_ROLLOFF_FACTOR, 0.5f);
+    alSourcef(source, AL_MAX_DISTANCE, 500.0f);  // distance until silent
+    alSourcef(source, AL_REFERENCE_DISTANCE, 150.0f);
+    alSourcef(source, AL_ROLLOFF_FACTOR, 0.6f);
 
     SourceBufferPair source_buffer_pair = {source, buffer};
 
@@ -718,6 +718,8 @@ void AudioService::OnInit()
 
     // set distance model, apparently this one is the best?
     alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
+
+    SetMasterGain(0.5f);
 }
 
 void AudioService::OnStart(ServiceProvider& service_provider)
