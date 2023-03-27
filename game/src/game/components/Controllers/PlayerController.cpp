@@ -291,12 +291,10 @@ void PlayerController::UpdateGear()
 
         if (forward_gear_)
         {
-            debug::LogInfo("Switched into drive gear");
             vehicle_->SetGear(VehicleGear::kForward);
         }
         else
         {
-            debug::LogInfo("Switched into reverse gear");
             vehicle_->SetGear(VehicleGear::kReverse);
         }
     }

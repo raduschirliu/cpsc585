@@ -120,17 +120,17 @@ void AIController::FixRespawnOrientation(
     const glm::vec3& next_checkpoint_location,
     const glm::vec3& checkpoint_location)
 {
-    auto current_orientation = transform_->GetOrientation();
+    // auto current_orientation = transform_->GetOrientation();
 
-    glm::vec3 direction =
-        glm::normalize(next_checkpoint_location - checkpoint_location);
-    glm::vec3 forward = glm::vec3(0, 0, -1.0f);
-    // transform_->GetForwardDirection();  // assume car is initially oriented
-    // along the negative z-axis
-    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
-    float angle = glm::acos(glm::dot(forward, direction));
-    transform_->SetOrientation(glm::angleAxis(angle, axis) *
-                               current_orientation);
+    // glm::vec3 direction =
+    //     glm::normalize(next_checkpoint_location - checkpoint_location);
+    // glm::vec3 forward = glm::vec3(0, 0, -1.0f);
+    // // transform_->GetForwardDirection();  // assume car is initially oriented
+    // // along the negative z-axis
+    // glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    // float angle = glm::acos(glm::dot(forward, direction));
+    // transform_->SetOrientation(glm::angleAxis(angle, axis) *
+    //                            current_orientation);
 }
 
 void AIController::HandleRespawn(const Timestep& delta_time)

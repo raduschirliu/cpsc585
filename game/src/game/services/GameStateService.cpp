@@ -232,8 +232,7 @@ void GameStateService::OnGui()
         ImGuiWindowFlags scoreboard_flags =
             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoInputs;
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::Begin("Background", nullptr, scoreboard_flags);
@@ -391,6 +390,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -401,8 +401,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
@@ -421,6 +419,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -431,8 +430,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
@@ -448,6 +445,7 @@ void GameStateService::RemoveActivePowerup()
                         active_powerups_.clear();
                         same_powerup_.erase(a);
                         player_powers_.erase(a.first);
+                        timer_.erase(a);
 
                         // TODO: bandaid fix for issues with invalid player
                         // IDs
@@ -458,8 +456,6 @@ void GameStateService::RemoveActivePowerup()
                             players_[a.first]
                                 ->state_component->SetCurrentPowerup(
                                     PowerupPickupType::kDefaultPowerup);
-
-                            timer_.erase(a);
                         }
                     }
                 }
@@ -477,6 +473,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -487,8 +484,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
