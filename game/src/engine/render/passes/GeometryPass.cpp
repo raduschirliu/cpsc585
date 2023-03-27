@@ -1,5 +1,7 @@
 #include "engine/render/passes/GeometryPass.h"
 
+#include <imgui.h>
+
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/Cubemap.h"
@@ -62,7 +64,8 @@ GeometryPass::GeometryPass(SceneRenderData& render_data)
       wireframe_(false),
       skybox_buffers_(),
       skybox_texture_(nullptr),
-      debug_draw_list_()
+      depth_map_(0),
+      light_space_(1.0f)
 {
 }
 
@@ -175,7 +178,12 @@ void GeometryPass::Render()
     glDisable(GL_MULTISAMPLE);
 
     // Cleanup
-    debug_draw_list_.Clear();
+    render_data_.debug_draw_list->Clear();
+}
+
+void GeometryPass::RenderDebugGui()
+{
+    ImGui::Checkbox("Wireframe", &wireframe_);
 }
 
 CameraView GeometryPass::PrepareCameraView(Camera& camera)
@@ -210,6 +218,11 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
 
     shader_.Use();
     shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
+    shader_.SetUniform("uLightSpaceMatrix", light_space_);
+    shader_.SetUniform("uDepthMap", 1);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, depth_map_);
 
     // Render each object
     for (const auto& obj : meshes_)
@@ -247,7 +260,7 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
 
             if (material_properties.albedo_texture)
             {
-                material_properties.albedo_texture->Bind();
+                material_properties.albedo_texture->Bind(0);
             }
 
             shader_.SetUniform("uMaterial.specularColor",
@@ -271,12 +284,12 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
 
 void GeometryPass::RenderDebugDrawList(const CameraView& camera)
 {
-    if (debug_draw_list_.HasItems())
+    if (render_data_.debug_draw_list->HasItems())
     {
-        debug_draw_list_.Prepare();
+        render_data_.debug_draw_list->Prepare();
         debug_shader_.Use();
         debug_shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
-        debug_draw_list_.Draw();
+        render_data_.debug_draw_list->Draw();
     }
 }
 
@@ -307,7 +320,12 @@ void GeometryPass::SetWireframe(bool state)
     wireframe_ = state;
 }
 
-DebugDrawList& GeometryPass::GetDebugDrawList()
+void GeometryPass::SetDepthMap(GLuint depth_map_id)
 {
-    return debug_draw_list_;
+    depth_map_ = depth_map_id;
+}
+
+void GeometryPass::SetLightSpaceTransformation(const mat4& light_space)
+{
+    light_space_ = light_space;
 }

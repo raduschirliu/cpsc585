@@ -26,7 +26,7 @@ RenderService::RenderService()
       render_data_(make_unique<SceneRenderData>()),
       depth_pass_(*render_data_),
       geometry_pass_(*render_data_),
-      wireframe_(false),
+      debug_draw_list_(),
       show_debug_menu_(false),
       num_draw_calls_(0)
 {
@@ -119,6 +119,7 @@ void RenderService::OnStart(ServiceProvider& service_provider)
 
     // Render passes
     render_data_->asset_service = asset_service_.get();
+    render_data_->debug_draw_list = &debug_draw_list_;
 
     depth_pass_.Init();
     geometry_pass_.Init();
@@ -158,7 +159,13 @@ void RenderService::OnUpdate()
         show_debug_menu_ = !show_debug_menu_;
     }
 
+    glFrontFace(GL_CCW);
+
     depth_pass_.Render();
+
+    geometry_pass_.SetDepthMap(depth_pass_.GetDepthMap());
+    geometry_pass_.SetLightSpaceTransformation(
+        depth_pass_.GetLightSpaceTransformation());
     geometry_pass_.Render();
 }
 
@@ -184,25 +191,34 @@ void RenderService::OnGui()
         return;
     }
 
-    ImGui::Text("Cameras: %zu", render_data_->cameras.size());
-    ImGui::Text("Point Lights: %zu", render_data_->point_lights.size());
-    ImGui::Text("Entities: %zu", render_data_->entities.size());
-    ImGui::Text("Draw calls: %zu", num_draw_calls_);
+    ImGui::BeginTabBar("##RenderService Tabs");
 
-    if (ImGui::Checkbox("Wireframe", &wireframe_))
+    if (ImGui::BeginTabItem("General"))
     {
-        geometry_pass_.SetWireframe(wireframe_);
+        ImGui::Text("Cameras: %zu", render_data_->cameras.size());
+        ImGui::Text("Point Lights: %zu", render_data_->point_lights.size());
+        ImGui::Text("Entities: %zu", render_data_->entities.size());
+        ImGui::Text("Draw calls: %zu", num_draw_calls_);
+        ImGui::EndTabItem();
     }
 
-    if (ImGui::CollapsingHeader("Depth Map"))
+    if (ImGui::BeginTabItem("Depth Pass"))
     {
-        ImGui::Image(depth_pass_.GetDepthMap().ValueRaw(), ImVec2(512, 512));
+        depth_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
     }
 
+    if (ImGui::BeginTabItem("Geometry Pass"))
+    {
+        geometry_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::EndTabBar();
     ImGui::End();
 }
 
 DebugDrawList& RenderService::GetDebugDrawList()
 {
-    return geometry_pass_.GetDebugDrawList();
+    return debug_draw_list_;
 }

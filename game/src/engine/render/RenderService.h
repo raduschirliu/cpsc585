@@ -7,6 +7,7 @@
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
+#include "engine/render/DebugDrawList.h"
 #include "engine/render/SceneRenderData.h"
 #include "engine/render/passes/DepthPass.h"
 #include "engine/render/passes/GeometryPass.h"
@@ -48,7 +49,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     std::unique_ptr<SceneRenderData> render_data_;
     DepthPass depth_pass_;
     GeometryPass geometry_pass_;
-    bool wireframe_;
+    DebugDrawList debug_draw_list_;
     bool show_debug_menu_;
     size_t num_draw_calls_;
 };

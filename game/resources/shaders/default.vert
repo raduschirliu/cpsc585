@@ -5,12 +5,14 @@ layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inTextureCoord;
 
 out vec3 aPos;
+out vec4 aPosLightSpace;
 out vec3 aNormal;
 out vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjMatrix;
 uniform mat4 uNormalMatrix;
+uniform mat4 uLightSpaceMatrix;
 
 void main()
 {
@@ -20,6 +22,7 @@ void main()
 	vec4 normals = uNormalMatrix * vec4(inNormal, 1.0f);
 
 	aPos = vec3(modelPos);
+	aPosLightSpace = uLightSpaceMatrix * modelPos;
 	aNormal = vec3(normals);
 	aTextureCoord = inTextureCoord;
 

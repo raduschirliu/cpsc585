@@ -51,7 +51,7 @@ void DebugCameraController::OnUpdate(const Timestep& delta_time)
         const vec3& pos = Transform().GetPosition();
         vec3 delta = move_dir * kMoveSpeed;
 
-        if (input_service_->IsKeyDown(GLFW_KEY_LEFT_SHIFT))
+        if (input_service_->IsKeyDown(GLFW_KEY_B))
         {
             delta *= kFastMoveSpeedMultiplier;
         }
@@ -107,14 +107,14 @@ void DebugCameraController::OnUpdate(const Timestep& delta_time)
 vec3 DebugCameraController::GetMovementDir()
 {
     float forward_input =
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_W)) -
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_S));
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_I)) -
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_K));
     float up_input =
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_SPACE)) -
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_C));
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_O)) -
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_COMMA));
     float right_input =
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_A)) -
-        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_D));
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_J)) -
+        static_cast<float>(input_service_->IsKeyDown(GLFW_KEY_L));
 
     vec3 forward_move = transform_->GetForwardDirection() * forward_input;
     vec3 up_move = transform_->GetUpDirection() * up_input;

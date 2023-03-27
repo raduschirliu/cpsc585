@@ -24,10 +24,12 @@ class GeometryPass
 
     void Init();
     void Render();
+    void RenderDebugGui();
     void ResetState();
 
+    void SetDepthMap(GLuint depth_map_id);
+    void SetLightSpaceTransformation(const glm::mat4& light_space);
     void SetWireframe(bool state);
-    DebugDrawList& GetDebugDrawList();
 
   private:
     SceneRenderData& render_data_;
@@ -35,8 +37,9 @@ class GeometryPass
     ShaderProgram shader_, debug_shader_, skybox_shader_;
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
-    DebugDrawList debug_draw_list_;
     bool wireframe_;
+    GLuint depth_map_;
+    glm::mat4 light_space_;
 
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);
