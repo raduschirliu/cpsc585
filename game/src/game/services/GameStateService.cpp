@@ -229,15 +229,21 @@ void GameStateService::OnGui()
 
         // ImGui::End();
 
+        ImGuiWindowFlags scoreboard_flags =
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoInputs;
+
         ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::Begin("Background", nullptr, flags);
+        ImGui::Begin("Background", nullptr, scoreboard_flags);
         ImGui::Image(
             ending_->GetGuiHandle(),
             ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(30, 200));
-        ImGui::Begin("Record", nullptr, flags);
+        ImGui::Begin("Record", nullptr, scoreboard_flags);
 
         for (uint32_t i = 0; i < players_.size(); ++i)
         {
@@ -274,7 +280,7 @@ void GameStateService::OnGui()
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(635, 270));
-        ImGui::Begin("Result", nullptr, flags);
+        ImGui::Begin("Result", nullptr, scoreboard_flags);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
@@ -314,7 +320,7 @@ void GameStateService::OnGui()
 
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
                                        ImGui::GetIO().DisplaySize.y - 80));
-        ImGui::Begin("home", nullptr, flags);
+        ImGui::Begin("home", nullptr, scoreboard_flags);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
@@ -374,7 +380,7 @@ void GameStateService::RemoveActivePowerup()
             // active_powerup_ so that cars can go back to normal speed.
             if (a.second == PowerupPickupType::kEveryoneSlower)
             {
-                if (timer_[a] > 5.0f)
+                if (timer_[a] > 3.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -404,7 +410,7 @@ void GameStateService::RemoveActivePowerup()
             }
             else if (a.second == PowerupPickupType::kDisableHandling)
             {
-                if (timer_[a] > 2.0f)
+                if (timer_[a] > 1.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -899,7 +905,8 @@ void GameStateService::StartRace()
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
-    if (race_state_.state != GameState::kRaceInProgress)
+    if (race_state_.state != GameState::kRaceInProgress &&
+        race_state_.state != GameState::kPostRace)
     {
         debug::LogError("Player finished lap before the game started");
         return;
