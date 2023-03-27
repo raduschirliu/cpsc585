@@ -14,9 +14,9 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
 
     // load sounds
     audio_emitter_->AddSource("kart_hit_01.ogg");
-    audio_emitter_->SetGain("kart_hit_01.ogg", 0.5f);
+    audio_emitter_->SetGain("kart_hit_01.ogg", 0.3f);
     audio_emitter_->AddSource("player_die_01.ogg");
-    audio_emitter_->SetGain("player_die_01.ogg", 4.0f);
+    audio_emitter_->SetGain("player_die_01.ogg", 2.0f);
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     player_state_.Reset();

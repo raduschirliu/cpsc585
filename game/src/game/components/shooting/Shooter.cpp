@@ -253,6 +253,7 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
             break;
     }
     audio_emitter_->AddSource(shoot_sound_file_);
+    audio_emitter_->SetGain(shoot_sound_file_, 0.2f);
 }
 
 float Shooter::GetAmmoDamage()
@@ -310,6 +311,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";
     audio_emitter_->AddSource(shoot_sound_file_);
+    audio_emitter_->SetGain(shoot_sound_file_, 0.2f);
 
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
