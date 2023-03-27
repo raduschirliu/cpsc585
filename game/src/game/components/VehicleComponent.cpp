@@ -95,6 +95,17 @@ void VehicleComponent::InitVehicle()
         shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, false);
         shape->setFlag(PxShapeFlag::eVISUALIZATION, true);
     }
+
+    // setting the max speed to be 200;
+    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
+        max_velocity_);
+}
+
+void VehicleComponent::SetMaxVelocity(float vel)
+{
+    max_velocity_ = vel;
+    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
+        max_velocity_);
 }
 
 void VehicleComponent::InitMaterialFrictionTable()
@@ -108,6 +119,43 @@ void VehicleComponent::InitMaterialFrictionTable()
     gPhysXMaterialFrictions_[0].friction = 75.0f;
     gPhysXMaterialFrictions_[0].material = physics_service_->GetKMaterial();
     gNbPhysXMaterialFrictions_ = 1;
+}
+
+void VehicleComponent::HandleVehicleTransform()
+{
+    if (game_state_service_->GetRespawnRequested(this->GetEntity().GetId()))
+    {
+        // Adding 4.f in y axis, so that when the car respawns, if it is
+        // oriented at a weird angle, it just doesnt go inside the track and be
+        // half cut lol
+        vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
+            CreatePxTransform(
+                transform_->GetPosition() + glm::vec3(0.f, 15.f, 0.f),
+                transform_->GetOrientation()));
+
+        // float maxVelocity =
+        // vehicle_.mPhysXState.physxActor.rigidBody->getMaxLinearVelocity();
+
+        // now remove this from the list in gameservice so that it doesnt
+        // respawn again and again until requested again later.
+        game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
+        // Log::debug("{}", maxVelocity);
+        // set the velocity of this car to be 0, as it just respawned
+        vehicle_.mBaseState.rigidBodyState.linearVelocity = physx::PxVec3(0.f);
+    }
+
+    else
+    {
+        vehicle_.mBaseState.rigidBodyState.linearVelocity =
+            physx::PxVec3(max_velocity_);
+
+        const PxTransform& pose =
+            vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
+
+        const GlmTransform transform = PxToGlm(pose);
+        transform_->SetPosition(transform.position);
+        transform_->SetOrientation(transform.orientation);
+    }
 }
 
 void VehicleComponent::OnInit(const ServiceProvider& service_provider)
@@ -150,12 +198,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         debug::LogInfo("Reloaded vehicle params from JSON files...");
     }
 
-    const PxTransform& pose =
-        vehicle_.mPhysXState.physxActor.rigidBody->getGlobalPose();
-
-    const GlmTransform transform = PxToGlm(pose);
-    transform_->SetPosition(transform.position);
-    transform_->SetOrientation(transform.orientation);
+    HandleVehicleTransform();
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
