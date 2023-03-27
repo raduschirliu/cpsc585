@@ -149,6 +149,11 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
 
+    if (input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        DisplayScoreboard();
+    }
+
     if (race_state_.state == GameState::kCountdown)
     {
         ImGui::SetNextWindowPos(ImVec2(425, 250));
@@ -1421,4 +1426,53 @@ void GameStateService::RemoveRespawnPlayers(uint32_t entity_id)
 void GameStateService::AddRespawnPlayers(uint32_t entity_id)
 {
     players_respawn_.insert(entity_id);
+}
+
+void GameStateService::DisplayScoreboard()
+{
+    ImGui::SetNextWindowPos(ImVec2(80, 40));
+    ImGui::SetNextWindowSize(ImVec2(130, 100));
+
+    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+
+    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    {
+        ImGui::TableSetupColumn("Player");
+        ImGui::TableSetupColumn("Kills");
+        ImGui::TableSetupColumn("Deaths");
+        ImGui::TableSetupColumn("Laps Completed");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+
+        for (auto& player : players_)
+        {
+            auto index = player.first;
+            auto& state = player.second->state_component;
+            if (player.second->is_human)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("Player %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
+            else
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("CPU %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
+        }
+        ImGui::EndTable();
+    }
 }
