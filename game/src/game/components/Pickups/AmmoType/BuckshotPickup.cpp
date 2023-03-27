@@ -15,14 +15,19 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)
         {
-            if (power_visible_ && player_state_->GetCurrentAmmoType() ==
-                                      AmmoPickupType::kDefaultAmmo)
+            bool current_ammo = (player_state_->GetCurrentAmmoType() ==
+                                     AmmoPickupType::kDefaultAmmo ||
+                                 player_state_->GetCurrentAmmoType() ==
+                                     AmmoPickupType::kDoubleDamage) ||
+                                player_state_->GetCurrentAmmoType() ==
+                                    AmmoPickupType::kIncreaseFireRate;
+            if (power_visible_ && current_ammo)
             {
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
-                // Add the game state service here which takes care of how to
-                // assign the ammo type properly
+                // Add the game state service here which takes care of how
+                // to assign the ammo type properly
                 player_state_->SetCurrentAmmoType(AmmoPickupType::kBuckshot);
             }
             else
