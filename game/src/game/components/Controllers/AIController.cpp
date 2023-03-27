@@ -131,6 +131,8 @@ void AIController::FixRespawnOrientation(
     // float angle = glm::acos(glm::dot(forward, direction));
     // transform_->SetOrientation(glm::angleAxis(angle, axis) *
     //                            current_orientation);
+
+    transform_->SetOrientation(kIdentityQuat);
 }
 
 void AIController::HandleRespawn(const Timestep& delta_time)
@@ -139,14 +141,14 @@ void AIController::HandleRespawn(const Timestep& delta_time)
     //          doesnt correct itself then respawn it.
 
     // if the velocity of car is less than some amount then respawn the car.
-    HandleMinSpeedThresholdRespawn(delta_time);
+    // HandleMinSpeedThresholdRespawn(delta_time);
 
     // if the car falls off the map
     HandleFreefallRespawn(delta_time);
 
     // if the AI is following the wrong path for more than 6 seconds, missed a
     // checkpoint (reset it to the last checkpoint it crossed).
-    HandleMissedCheckpointRespawn(delta_time);
+    // HandleMissedCheckpointRespawn(delta_time);
 }
 
 void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)

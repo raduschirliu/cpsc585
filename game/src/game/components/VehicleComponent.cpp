@@ -130,7 +130,7 @@ void VehicleComponent::HandleVehicleTransform()
         // half cut lol
         vehicle_.mPhysXState.physxActor.rigidBody->setGlobalPose(
             CreatePxTransform(
-                transform_->GetPosition() + glm::vec3(0.0f, 22.5f, 0.0f),
+                transform_->GetPosition() + glm::vec3(0.0f, 16.5f, 0.0f),
                 transform_->GetOrientation()));
 
         // float maxVelocity =
