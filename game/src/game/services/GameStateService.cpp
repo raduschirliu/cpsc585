@@ -178,7 +178,7 @@ void GameStateService::OnGui()
             // ImGui::Text("%d) %s", place, entity->GetName().c_str());
             PlayerState state = entity->GetComponent<PlayerState>();
 
-            ImGui::Text("health: %f", state.GetHealth());
+            // ImGui::Text("health: %f", state.GetHealth());
             if (race_state_.sorted_players[i]->is_human)
             {
                 ImGui::PushID(entity->GetId());
