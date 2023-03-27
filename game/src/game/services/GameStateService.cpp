@@ -1378,3 +1378,20 @@ void GameStateService::UpdatePowerupInfo()
         }
     }
 }
+
+bool GameStateService::GetRespawnRequested(uint32_t entity_id)
+{
+    if (players_respawn_.find(entity_id) == players_respawn_.end())
+        return false;
+    return true;
+}
+
+void GameStateService::RemoveRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.erase(entity_id);
+}
+
+void GameStateService::AddRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
+}

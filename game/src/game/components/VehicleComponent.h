@@ -65,6 +65,7 @@ class VehicleComponent final : public Component,
     PlayerStateData* player_data_;
 
     float speed_adjuster_;
+    float max_velocity_ = 130.f;
 
     void InitVehicle();
     void InitMaterialFrictionTable();

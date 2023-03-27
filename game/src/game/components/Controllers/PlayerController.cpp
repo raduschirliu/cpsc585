@@ -152,7 +152,9 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
     vehicle_->SetCommand(command_);
 
     // key to respawn the car using.
-    if (input_service_->IsKeyDown(GLFW_KEY_F))
+    if (input_service_->IsKeyDown(GLFW_KEY_F) ||
+        input_service_->IsGamepadButtonDown(kGamepadId,
+                                            GLFW_GAMEPAD_BUTTON_GUIDE))
     {
         // start the timer.
         button_down_respawn_timer += delta_time.GetSeconds();
@@ -168,7 +170,9 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
             RespawnCar();
         }
     }
-    else if (!input_service_->IsKeyDown(GLFW_KEY_F))
+    else if (!input_service_->IsKeyDown(GLFW_KEY_F) ||
+             !input_service_->IsGamepadButtonDown(kGamepadId,
+                                                  GLFW_GAMEPAD_BUTTON_GUIDE))
     {
         // reset the timer
         button_down_respawn_timer = 0.f;
