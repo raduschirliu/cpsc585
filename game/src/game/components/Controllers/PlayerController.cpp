@@ -129,13 +129,12 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         }
         else
         {
-            // this is the entity which started the powerup, so do nothing.
-            handling_multiplier_ = kHanldingMultiplier;
         }
     }
     else
     {
-        speed_multiplier_ = kSpeedMultiplier;
+        // this is the entity which started the powerup, so do nothing.
+        handling_multiplier_ = kHanldingMultiplier;
     }
 }
 

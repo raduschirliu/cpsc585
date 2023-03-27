@@ -45,6 +45,26 @@
             "path": "resources/models/pickups/pickup_defence.obj",
             "name": "defence_shield"
         },
+        {
+            "path": "resources/models/pickups/buckshot.obj",
+            "name": "buckshot"
+        },
+        {
+            "path": "resources/models/pickups/damage.obj",
+            "name": "damage"
+        },
+        {
+            "path": "resources/models/pickups/exploding.obj",
+            "name": "exploding"
+        },
+        {
+            "path": "resources/models/pickups/increase.obj",
+            "name": "increase"
+        },
+        {
+            "path": "resources/models/pickups/vampire.obj",
+            "name": "vampire"
+        },
 
         /* Track */
         {
