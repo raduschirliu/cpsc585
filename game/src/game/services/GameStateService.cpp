@@ -819,28 +819,6 @@ double GameStateService::GetMaxCountdownSeconds()
 
 void GameStateService::DisplayScoreboard()
 {
-    /*auto& player_0 = players_[0];
-    auto player_0_state = player_0->state_component;
-    auto& player_1 = players_[1];
-    auto player_1_state = player_1->state_component;
-    auto& player_2 = players_[2];
-    auto player_2_state = player_2->state_component;
-    auto& player_3 = players_[3];
-    auto player_3_state = player_3->state_component;
-
-    if(player_0->is_human)
-    {
-        auto& human = player_0;
-    }
-    else if(player_1->is_human)
-    {
-        auto& human = player_1;
-    }
-
-    leaving this here because its funny
-
-    */
-
     ImGui::SetNextWindowPos(ImVec2(80, 40));
     ImGui::SetNextWindowSize(ImVec2(130, 100));
 
