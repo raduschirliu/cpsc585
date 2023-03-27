@@ -133,6 +133,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // To store the powerup's information along with where it should be spawned
     // in the map.
     std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
+    std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
 
     GameState stats_;
 

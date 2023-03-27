@@ -10,6 +10,7 @@
 #include "engine/scene/Entity.h"
 
 float kSpeedMultiplierReset(1.0f);
+static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 float kHandlingMultiplierReset(1.0f);
 
 AIController::AIController()
@@ -28,6 +29,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+    shooter_ = &GetEntity().GetComponent<Shooter>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
@@ -99,6 +101,19 @@ void AIController::OnUpdate(const Timestep& delta_time)
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
     PowerupDecision();
+    CheckShoot(delta_time);
+}
+
+void AIController::CheckShoot(const Timestep& delta_time)
+{
+    if (shoot_cooldown_ > 0.0f)
+    {
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
+        return;
+    }
+
+    shooter_->Shoot();
+    shoot_cooldown_ = shooter_->GetCooldownTime();
 }
 
 // Decision for Powerup.

@@ -21,6 +21,11 @@
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
+#include "game/components/Pickups/AmmoType/BuckshotPickup.h"
+#include "game/components/Pickups/AmmoType/DoubleDamagePickup.h"
+#include "game/components/Pickups/AmmoType/ExploadingBulletPickup.h"
+#include "game/components/Pickups/AmmoType/IncreaseFireRatePickup.h"
+#include "game/components/Pickups/AmmoType/VampireBulletPickup.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
@@ -56,6 +61,10 @@ static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
 static const array<string, 5> kPowerups = {
     "kDefaultPowerup", "kDisableHandling", "kEveryoneSlower", "kIncreaseAimBox",
     "kKillAbilities"};
+
+static const array<string, 6> kAmmos = {
+    "kDefaultAmmo",      "kBuckshot",         "kDoubleDamage",
+    "kExploadingBullet", "kIncreaseFireRate", "kVampireBullet"};
 
 void GlobalRaceState::Reset()
 {
@@ -636,6 +645,10 @@ void GameStateService::SetupRace()
 void GameStateService::SetupPowerups()
 {
     Scene& scene = GetApp().GetSceneList().GetActiveScene();
+    for (int i = 0, j = 0; i < powerup_info.size(), j < ammo_info_.size();
+         i++, j++)
+    {
+    }
     for (const auto& powerup : powerup_info)
     {
         int powerup_to_int = 0;
@@ -731,6 +744,120 @@ void GameStateService::SetupPowerups()
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
+    }
+
+    for (const auto& powerup : ammo_info_)
+    {
+        int powerup_to_int = 0;
+        switch (powerup.first)
+        {
+            case AmmoPickupType::kDefaultAmmo:
+                powerup_to_int = 0;
+                break;
+
+            case AmmoPickupType::kBuckshot:
+                powerup_to_int = 1;
+                break;
+
+            case AmmoPickupType::kDoubleDamage:
+                powerup_to_int = 2;
+                break;
+
+            case AmmoPickupType::kExploadingBullet:
+                powerup_to_int = 3;
+                break;
+
+            case AmmoPickupType::kIncreaseFireRate:
+                powerup_to_int = 4;
+                break;
+
+            case AmmoPickupType::kVampireBullet:
+                powerup_to_int = 5;
+                break;
+        }
+        // make entities for powerups here.
+        string entity_name = kAmmos[powerup_to_int] + "  " +
+                             std::to_string(powerup.second.x) + ", " +
+                             std::to_string(powerup.second.y) + ", " +
+                             std::to_string(powerup.second.z);
+
+        Entity& entity = scene.AddEntity(entity_name);
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(powerup.second);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+
+        switch (powerup.first)
+        {
+            case AmmoPickupType::kBuckshot:
+                entity.AddComponent<BuckshotPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("buckshot"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+            case AmmoPickupType::kDoubleDamage:
+                entity.AddComponent<DoubleDamagePickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("damage"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kExploadingBullet:
+                entity.AddComponent<ExploadingBulletPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("exploding"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kIncreaseFireRate:
+                entity.AddComponent<IncreaseFireRatePickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("increase"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kVampireBullet:
+                entity.AddComponent<VampireBulletPickup>();
+                // mesh_renderer.SetMesh({
+                //     &asset_service_->GetMesh("vampire"),
+                //     MaterialProperties{
+                //         .albedo_texture = nullptr,
+                //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                //         .specular = vec3(1.0f, 1.0f, 1.0f),
+                //         .shininess = 64.0f,
+                //     },
+                // });
+                break;
+        }
+        transform.SetScale(vec3(4.f, 4.f, 4.f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
     }
 }
 
@@ -1112,26 +1239,60 @@ void GameStateService::UpdatePowerupInfo()
 
     for (const auto& l : locations)
     {
-        // randomly generating what kind of powerup should spawn here.
-        uint16_t random_powerup = rand() % 4 + 1;  // as 0 is default powerup.
-        switch (random_powerup)
+        // adding a random statement which will select to spawn ammo type or
+        // powerup at the lcoation randomly generating what kind of powerup
+        uint8_t selector = rand() % 2 + 1;
+        if (selector == 1)
         {
-            case 1:
-                powerup_info.push_back(
-                    {PowerupPickupType::kDisableHandling, l.first});
-                break;
-            case 2:
-                powerup_info.push_back(
-                    {PowerupPickupType::kEveryoneSlower, l.first});
-                break;
-            case 3:
-                powerup_info.push_back(
-                    {PowerupPickupType::kIncreaseAimBox, l.first});
-                break;
-            case 4:
-                powerup_info.push_back(
-                    {PowerupPickupType::kKillAbilities, l.first});
-                break;
+            // means ammo should spawn
+            uint8_t random_ammo = rand() % 5 + 1;
+            switch (random_ammo)
+            {
+                case 1:
+                    ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
+                    break;
+                case 2:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kDoubleDamage, l.first});
+                    break;
+                case 3:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kExploadingBullet, l.first});
+                    break;
+                case 4:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kIncreaseFireRate, l.first});
+                    break;
+                case 5:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kVampireBullet, l.first});
+                    break;
+            }
+        }
+        else
+        {
+            // should spawn here.
+            uint8_t random_powerup =
+                rand() % 4 + 1;  // as 0 is default powerup.
+            switch (random_powerup)
+            {
+                case 1:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kDisableHandling, l.first});
+                    break;
+                case 2:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kEveryoneSlower, l.first});
+                    break;
+                case 3:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kIncreaseAimBox, l.first});
+                    break;
+                case 4:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kKillAbilities, l.first});
+                    break;
+            }
         }
     }
 }

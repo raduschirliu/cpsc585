@@ -1,5 +1,6 @@
 #include "Shooter.h"
 
+#include <array>
 #include <random>
 
 #include "engine/core/debug/Log.h"
@@ -8,52 +9,174 @@
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
 
+// the buckshot will have 10 different pellets from the barrel
+static constexpr uint8_t kNumberPellets = 10;
+static constexpr double kMaxTimer = 4.0f;
+
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    glm::vec3 direction = transform_->GetForwardDirection();
-    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * direction;
+    glm::vec3 fwd_direction = transform_->GetForwardDirection();
+    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
     glm::vec3 origin = transform_->GetPosition() + offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
-
-    if (current_ammo_type_ == AmmoPickupType::kBuckshot)
-    {
-        ShootBuckshot();
-        return;
-    }
 
     // play shoot sound; slightly randomize pitch
     audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
     audio_emitter_->PlaySource(shoot_sound_file_);
 
+    if (current_ammo_type_ == AmmoPickupType::kBuckshot)
+    {
+        // shotgun type bullet, spread.
+        ShootBuckshot(origin, fwd_direction);
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
+    {
+        ShootDoubleDamage(origin, fwd_direction);
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kExploadingBullet)
+    {
+        ShootExploading(origin, fwd_direction);
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kIncreaseFireRate)
+    {
+        IncreaseFireRate();
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
+    {
+        ShootVampire(origin, fwd_direction);
+        return;
+    }
+    else
+    {
+        ShootDefault(origin, fwd_direction);
+    }
+}
+
+void Shooter::ShootDefault(const glm::vec3& origin,
+                           const glm::vec3& fwd_direction)
+{
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, direction);
-    if (!target_data_.has_value())
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    if (target_data_ && !target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
         return;
     }
+    else
+    {
+    }
 
     // get the entity that was hit
-    RaycastData target_data_value = target_data_.value();
-    Entity* target_entity = target_data_value.entity;
+    if (target_data_)
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
 
-    // update that entity accordingly
-    UpdateOnHit();
-
-    // debugggg
-    uint32_t entity_id = GetEntity().GetId();
-    debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                    target_entity->GetId());
+        UpdateOnHit();
+    }
 }
 
-void Shooter::ShootBuckshot()
+void Shooter::ShootBuckshot(const glm::vec3& origin,
+                            const glm::vec3& fwd_direction)
 {
-    debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 1);
+
+    std::vector<std::optional<RaycastData>> target_datas;
+    // as we want the shots to scatter
+    for (int i = 0; i < kNumberPellets; i++)
+    {
+        std::array<float, 3> spread = {dis(gen) / 4.f, dis(gen) / 4.f,
+                                       dis(gen) / 4.f};
+        target_data_ = physics_service_->Raycast(
+            origin, glm::normalize(fwd_direction +
+                                   glm::vec3(spread[0], 0.f, spread[2])));
+        if (!target_data_ && !target_data_.has_value())
+        {
+            // do nothing as this raycast failed...
+        }
+        else
+        {
+            // add this value to the target_datas.
+            target_datas.push_back(target_data_);
+        }
+    }
+    Entity* target_entity = target_datas[0].value().entity;
+
+    if (!target_entity->HasComponent<PlayerState>())
+    {
+        return;
+    }
+
+    jss::object_ptr<PlayerState> target_state =
+        &target_entity->GetComponent<PlayerState>();
+
+    // TODO: fix this, as the pellets spread, they can hit multiple car, rn we
+    // apply the hit to only one car. FIX THIS as this many pellets hit the car.
+    target_state->DecrementHealth(GetAmmoDamage() * target_datas.size());
 }
 
-// NOT FINAL IN THE SLIGHTEST
+/// @brief handles the vampire bullets
+void Shooter::ShootVampire(const glm::vec3& origin,
+                           const glm::vec3& fwd_direction)
+{
+    // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+        UpdateOnHit();
+    }
+}
+
+/// @brief handles the double damage bullets
+void Shooter::ShootDoubleDamage(const glm::vec3& origin,
+                                const glm::vec3& fwd_direction)
+{
+    // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+
+        UpdateOnHit();
+    }
+}
+
+/// @brief handles the exploading damage bullets
+void Shooter::ShootExploading(const glm::vec3& origin,
+                              const glm::vec3& fwd_direction)
+{
+    // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+        UpdateOnHit();
+    }
+}
+
+/// @brief handles the increase fire rate
+void Shooter::IncreaseFireRate()
+{
+    // doubling the bullets speed which can be fired at a time.
+    increase_fire_speed_multiplier_ = 0.5f;
+}
+
+// The duration between which the 2 consecutive bullets will shoot.
 float Shooter::GetCooldownTime()
 {
     using enum AmmoPickupType;
@@ -66,34 +189,41 @@ float Shooter::GetCooldownTime()
             return 2.5f;
             break;
         case kBuckshot:
+            return 1.5f;
+            break;
         case kDoubleDamage:
+            return 2.f;
+            break;
         case kVampireBullet:
             return 2.0f;
             break;
         default:
-            return 1.0f;
+            return 1.0f * increase_fire_speed_multiplier_;
             break;
     }
 }
 
 void Shooter::UpdateOnHit()
 {
-    Entity* target_entity = target_data_.value().entity;
-
-    if (!target_entity->HasComponent<PlayerState>())
+    if (target_data_)
     {
-        return;
-    }
+        Entity* target_entity = target_data_.value().entity;
 
-    jss::object_ptr<PlayerState> target_state =
-        &target_entity->GetComponent<PlayerState>();
+        if (!target_entity->HasComponent<PlayerState>())
+        {
+            return;
+        }
 
-    target_state->DecrementHealth(GetAmmoDamage());
+        jss::object_ptr<PlayerState> target_state =
+            &target_entity->GetComponent<PlayerState>();
 
-    // vampire bullet increases own players health
-    if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
-    {
-        player_state_->IncrementHealth(GetAmmoDamage());
+        target_state->DecrementHealth(GetAmmoDamage());
+
+        // vampire bullet increases own players health
+        if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
+        {
+            player_state_->IncrementHealth(GetAmmoDamage());
+        }
     }
 }
 
@@ -191,6 +321,28 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     if (current_ammo_type_ != player_state_->GetCurrentAmmoType())
     {
         current_ammo_type_ = player_state_->GetCurrentAmmoType();
+        // so that timer starts only once.
+        if (timer_.find(current_ammo_type_) == timer_.end())
+        {
+            timer_.insert_or_assign(current_ammo_type_, 0.f);
+        }
         SetShootSound(current_ammo_type_);
+    }
+
+    for (auto& timer : timer_)
+    {
+        if (timer.second <= kMaxTimer)
+        {
+            timer.second += delta_time.GetSeconds();
+            continue;
+        }
+        else
+        {
+            // reset the powerup to default
+            if (player_state_)
+            {
+                player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
+            }
+        }
     }
 }
