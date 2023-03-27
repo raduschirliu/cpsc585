@@ -41,13 +41,13 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void ShootBuckshot(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// @brief handles the vampire bullets
-    void ShootVampire();
+    void ShootVampire(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// @brief handles the double damage bullets
-    void ShootDoubleDamage();
+    void ShootDoubleDamage(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// @brief handles the exploading damage bullets
-    void ShootExploading();
+    void ShootExploading(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// @brief handles the increase fire rate
     void IncreaseFireRate();
@@ -66,6 +66,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     AmmoPickupType current_ammo_type_;
     std::optional<RaycastData> target_data_;
     std::string shoot_sound_file_;
+    float increase_fire_speed_multiplier_ = 1.f;
 
     /* ----- service and component dependencies ----- */
 

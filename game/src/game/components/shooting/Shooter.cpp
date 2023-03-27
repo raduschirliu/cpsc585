@@ -145,23 +145,88 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
 }
 
 /// @brief handles the vampire bullets
-void Shooter::ShootVampire()
+void Shooter::ShootVampire(const glm::vec3& origin, const glm::vec3& fwd_direction)
 {
+     // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+
+        // TODO: apply the logic of what is supposed to happen here. 
+
+        if (target_entity)
+        {
+            // debugggg
+            uint32_t entity_id = GetEntity().GetId();
+            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                            target_entity->GetId());
+        }
+        else
+        {
+        }
+    }
 }
 
 /// @brief handles the double damage bullets
-void Shooter::ShootDoubleDamage()
+void Shooter::ShootDoubleDamage(const glm::vec3& origin, const glm::vec3& fwd_direction)
 {
+     // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+
+        // TODO: apply the logic of what is supposed to happen here. 
+
+        if (target_entity)
+        {
+            // debugggg
+            uint32_t entity_id = GetEntity().GetId();
+            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                            target_entity->GetId());
+        }
+        else
+        {
+        }
+    }
 }
 
 /// @brief handles the exploading damage bullets
-void Shooter::ShootExploading()
+void Shooter::ShootExploading(const glm::vec3& origin, const glm::vec3& fwd_direction)
 {
+     // check if shot hit anything
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    // get the entity that was hit
+    if (target_data_.has_value())
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
+
+        // TODO: apply the logic of what is supposed to happen here. 
+
+        if (target_entity)
+        {
+            // debugggg
+            uint32_t entity_id = GetEntity().GetId();
+            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                            target_entity->GetId());
+        }
+        else
+        {
+        }
+    }
 }
 
 /// @brief handles the increase fire rate
 void Shooter::IncreaseFireRate()
 {
+    // doubling the bullets speed which can be fired at a time.
+    increase_fire_speed_multiplier_ = 0.5f;
 }
 
 // The duration between which the 2 consecutive bullets will shoot.
@@ -186,7 +251,7 @@ float Shooter::GetCooldownTime()
             return 2.0f;
             break;
         default:
-            return 1.0f;
+            return 1.0f * increase_fire_speed_multiplier_;
             break;
     }
 }
