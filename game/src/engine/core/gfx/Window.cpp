@@ -103,6 +103,7 @@ void Window::Create(int width, int height, const char* title)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  // needed for mac?
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA
 
     // create window
     handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(

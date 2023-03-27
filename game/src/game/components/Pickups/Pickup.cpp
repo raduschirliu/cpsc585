@@ -7,17 +7,19 @@ void Pickup::OnInit(const ServiceProvider& service_provider)
 {
     transform_ = &GetEntity().GetComponent<Transform>();
     game_state_ = &service_provider.GetService<GameStateService>();
+
+    if (game_state_)
+    {
+        k_player_names_ = game_state_->GetPlayerStaticNames();
+    }
+}
+
+void Pickup::OnStart()
+{
 }
 
 void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    // // add the clause for AI here as well.
-    // if (power_visible_ && data.other->GetName() == "PlayerVehicle" &&
-    //     player_state_->GetCurrentPowerup() ==
-    //         PowerupPickupType::kDefaultPowerup)
-    // {
-
-    // }
 }
 
 void Pickup::OnUpdate(const Timestep& delta_time)

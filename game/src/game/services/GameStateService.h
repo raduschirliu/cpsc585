@@ -6,7 +6,9 @@
 #include <memory>
 #include <object_ptr.hpp>
 #include <set>
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "engine/core/Colors.h"
@@ -42,6 +44,7 @@ struct PlayerRecord
     PlayerState* state_component;
     uint32_t checkpoint_count_accumulator;
     float progress_score;
+    double finished_time;
 };
 
 struct GlobalRaceState
@@ -74,8 +77,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
     // setters
-    void AddPlayerDetails(uint32_t id, PlayerStateData details);
-    void AddPlayerStates(uint32_t id, PlayerState* states);
     void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
     void RemovePlayerPowerup(uint32_t id);
     std::vector<std::pair<uint32_t, PowerupPickupType>> PowerupsActive();
@@ -90,15 +91,12 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void SetRaceConfig(const RaceConfig& config);
     const RaceConfig& GetRaceConfig() const;
 
-    uint32_t GetEveryoneSlowerSpeedMultiplier();
-    uint32_t GetDisableHandlingMultiplier();
-    uint32_t GetHitBoxMultiplier();
+    int GetEveryoneSlowerSpeedMultiplier();
+    int GetDisableHandlingMultiplier();
+    int GetHitBoxMultiplier();
 
     const GlobalRaceState& GetGlobalRaceState() const;
     const uint32_t GetNumCheckpoints() const;
-
-    void PlayerFinished(Entity& entity);
-    void PlayerCompletedLap(Entity& entity);
 
     GlobalRaceState& GetRaceState()
     {
@@ -107,11 +105,17 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     double GetMaxCountdownSeconds();
 
+    // Powerups
+
+    std::unordered_set<std::string> GetPlayerStaticNames();
+
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<SceneDebugService> scene_service_;
+    jss::object_ptr<InputService> input_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -127,25 +131,42 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
+    // To store the powerup's information along with where it should be spawned
+    // in the map.
+    std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
+    std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
+
     GameState stats_;
 
-    void CheckTimer(double timer_limit, PowerupPickupType pickup_type);
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
+    void UpdatePowerupInfo();
 
     void SetupRace();
     void StartRace();
+    void SetupPowerups();
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
     void DisplayScoreboard();
+    void Garbage();
 
     const Texture* countdown3_;
     const Texture* countdown2_;
     const Texture* countdown1_;
+    const Texture* home_button_;
+    const Texture* ending_;
+    const Texture* record_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;
     ImFont* font_impact_;
+    ImFont* font_cookie_;
+    ImFont* font_koverwatch_;
+    ImFont* font_mandu_;
+    ImFont* font_pixel_;
+
+    std::pair<std::string, int> most_kills = {"", -1};
+    std::pair<std::string, int> least_deaths = {"", 1000};
 };

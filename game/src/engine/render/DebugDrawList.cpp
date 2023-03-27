@@ -23,8 +23,8 @@ void DebugDrawList::AddLine(const LineVertex& start, const LineVertex& end)
 
 void DebugDrawList::Prepare()
 {
-    // OPTIMIZATION: Would be better to allocate buffer at start and only upload
-    // to part of the buffer instead
+    // TODO(radu): OPTIMIZATION - Would be better to allocate buffer at start
+    // and only upload to part of the buffer instead
     vertex_buffer_.Upload(lines_, GL_DYNAMIC_DRAW);
 }
 

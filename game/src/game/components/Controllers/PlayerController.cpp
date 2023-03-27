@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include "engine/App.h"
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
@@ -11,6 +12,7 @@
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
@@ -27,6 +29,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     transform_ = &GetEntity().GetComponent<Transform>();
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
+    shooter_ = &GetEntity().GetComponent<Shooter>();
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -36,14 +39,39 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     if (game_state_service_->GetRaceState()
             .countdown_elapsed_time.GetSeconds() <=
         game_state_service_->GetMaxCountdownSeconds())
+    {
         return;
+    }
+
+    if (player_data_->IsDead())
+    {
+        return;
+    }
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
+    CheckShoot(delta_time);
 }
 
 std::string_view PlayerController::GetName() const
 {
     return "Player Controller";
+}
+
+void PlayerController::CheckShoot(const Timestep& delta_time)
+{
+    if (shoot_cooldown_ > 0.0f)
+    {
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
+        return;
+    }
+
+    if (input_service_->IsKeyPressed(GLFW_KEY_R) ||
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_B))
+    {
+        shooter_->Shoot();
+        shoot_cooldown_ = shooter_->GetCooldownTime();
+    }
 }
 
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
@@ -65,16 +93,18 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     }
 
     // this means that the everyone slower pickup is active right now.
-    if (uint32_t id =
-            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
+    int id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
+    if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.
-        if (GetEntity().GetId() != id)
+        int entity_id = GetEntity().GetId();
+        if (entity_id != id)
         {
             // if any AI picked up the powerup then the player's speed should be
             // reduced.
             speed_multiplier_ = 0.2f;
+            vehicle_->SetMaxAchievableVelocity(40.f);
         }
         else
         {
@@ -84,10 +114,10 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     else
     {
         speed_multiplier_ = kSpeedMultiplier;
+        vehicle_->SetMaxAchievableVelocity(100.f);
     }
-
-    if (uint32_t id =
-            game_state_service_->GetDisableHandlingMultiplier() != NULL)
+    id = game_state_service_->GetDisableHandlingMultiplier();
+    if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.
@@ -99,13 +129,12 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         }
         else
         {
-            // this is the entity which started the powerup, so do nothing.
-            handling_multiplier_ = kHanldingMultiplier;
         }
     }
     else
     {
-        speed_multiplier_ = kSpeedMultiplier;
+        // this is the entity which started the powerup, so do nothing.
+        handling_multiplier_ = kHanldingMultiplier;
     }
 }
 
@@ -126,11 +155,11 @@ float PlayerController::GetSteerDirection()
 {
     if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        return 1.0f;
+        return 1.0f * handling_multiplier_;
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_D))
     {
-        return -1.0f;
+        return -1.0f * handling_multiplier_;
     }
 
     if (input_service_->IsGamepadActive(kGamepadId))
@@ -163,7 +192,7 @@ float PlayerController::GetThrottle()
     {
         if (input_service_->IsKeyDown(GLFW_KEY_W))
         {
-            return 1.0f;
+            return 1.0f * speed_multiplier_;
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_S))
         {

@@ -48,6 +48,8 @@ void BoxTrigger::SetSize(const vec3& size)
     shape_ = physics_service_->CreateShape(geometry);
     shape_->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
     shape_->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+    // so that shooting queries don't get blocked
+    shape_->setFlag(PxShapeFlag::eSCENE_QUERY_SHAPE, false);
 
     dynamic_->attachShape(*shape_);
 }
