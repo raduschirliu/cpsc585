@@ -25,11 +25,6 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 // Assigns this powerup to the player/AI who picked it up
                 SetVehiclePowerup(PowerupPickupType::kKillAbilities, data);
             }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another powerup");
-            }
         }
     }
 }

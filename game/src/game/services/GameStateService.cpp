@@ -993,7 +993,40 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
+        // if this is an AI Controller then activate the timer which helps us in
+        // resetting the AI to the correct checkpoint
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(true);
+            }
+        }
+        else
+        {
+            // TODO: Add the UI which tells the player that they are going the
+            // wrong way and should circle back to follow the right way.
+        }
+
         return;
+    }
+    else
+    {
+        // this means that the AI are following the right way / started to
+        // follow the right way, no need to respawn them
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(false);
+            }
+        }
     }
 
     iter->second->state_component->SetLastCheckpoint(index);
@@ -1007,6 +1040,53 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     {
         PlayerCompletedLap(*iter->second);
     }
+}
+
+// the second parameter is an out parameter.
+// the third will be used to find out the direction where the car should aim at.
+int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
+                                           glm::vec3& out_checkpoint_location1,
+                                           glm::vec3& out_checkpoint_location2)
+{
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
+    {
+        entity_id = entity_id - 1;
+    }
+    auto iter = players_.find(entity_id);
+    if (iter == players_.end())
+    {
+        // so that player not found with the given entity_id
+        // return -1 to detect the error.
+        return -1;
+    }
+
+    // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+
+    int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
+
+    Checkpoints temp_checkpoint_obj;
+    out_checkpoint_location1 =
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
+            .first;
+    out_checkpoint_location2 =
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
+            .first;
+
+    // return the checkpoint the player/AI who calls this function is at right
+    // now
+    return checkpoint_index;
+}
+
+void GameStateService::SetRespawnEntity(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
 }
 
 void GameStateService::SetRaceConfig(const RaceConfig& config)
@@ -1317,4 +1397,21 @@ void GameStateService::UpdatePowerupInfo()
             }
         }
     }
+}
+
+bool GameStateService::GetRespawnRequested(uint32_t entity_id)
+{
+    if (players_respawn_.find(entity_id) == players_respawn_.end())
+        return false;
+    return true;
+}
+
+void GameStateService::RemoveRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.erase(entity_id);
+}
+
+void GameStateService::AddRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
 }
