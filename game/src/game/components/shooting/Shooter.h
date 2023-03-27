@@ -68,6 +68,9 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     std::string shoot_sound_file_;
     float increase_fire_speed_multiplier_ = 1.f;
 
+    // as we can have multiple ammo powerups up at a time
+    std::unordered_map<AmmoPickupType, double> timer_;
+
     /* ----- service and component dependencies ----- */
 
     jss::object_ptr<PhysicsService> physics_service_;

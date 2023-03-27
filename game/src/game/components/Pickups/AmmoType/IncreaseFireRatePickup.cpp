@@ -15,8 +15,15 @@ void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)
         {
-            if (power_visible_ && player_state_->GetCurrentAmmoType() ==
-                                      AmmoPickupType::kDefaultAmmo)
+            bool current_ammo = (player_state_->GetCurrentAmmoType() ==
+                                     AmmoPickupType::kDefaultAmmo ||
+                                 player_state_->GetCurrentAmmoType() ==
+                                     AmmoPickupType::kBuckshot) ||
+                                player_state_->GetCurrentAmmoType() ==
+                                    AmmoPickupType::kExploadingBullet ||
+                                player_state_->GetCurrentAmmoType() ==
+                                    AmmoPickupType::kVampireBullet;
+            if (power_visible_ && current_ammo)
             {
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);

@@ -11,6 +11,7 @@ static constexpr float kBaseDamage = 10.0f;
 
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
+static constexpr double kMaxTimer = 4.0f;
 
 void Shooter::Shoot()
 {
@@ -320,6 +321,28 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     if (current_ammo_type_ != player_state_->GetCurrentAmmoType())
     {
         current_ammo_type_ = player_state_->GetCurrentAmmoType();
+        // so that timer starts only once.
+        if (timer_.find(current_ammo_type_) == timer_.end())
+        {
+            timer_.insert_or_assign(current_ammo_type_, 0.f);
+        }
         SetShootSound(current_ammo_type_);
+    }
+
+    for (auto& timer : timer_)
+    {
+        if (timer.second <= kMaxTimer)
+        {
+            timer.second += delta_time.GetSeconds();
+            continue;
+        }
+        else
+        {
+            // reset the powerup to default
+            if (player_state_)
+            {
+                player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
+            }
+        }
     }
 }
