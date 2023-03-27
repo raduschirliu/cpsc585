@@ -12,7 +12,6 @@
 #include "engine/input/InputService.h"
 #include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/BoxTrigger.h"
-#include "engine/physics/Hitbox.h"
 #include "engine/physics/MeshStaticBody.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
@@ -31,11 +30,12 @@
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
 #include "game/components/Pickups/Powerups/KillAbilitiesPickup.h"
-#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/race/Checkpoint.h"
+#include "game/components/shooting/Hitbox.h"
+#include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/HowToPlay.h"
 #include "game/components/ui/MainMenu.h"
@@ -88,6 +88,10 @@ void GameApp::OnStart()
     AddScene("Setting");
 
     SetActiveScene("MainMenu");
+
+    auto* audio_service = &GetServiceProvider().GetService<AudioService>();
+    audio_service->SetMusic("test_music.ogg");
+    audio_service->PlayMusic();
 }
 
 void GameApp::OnSceneLoaded(Scene& scene)
@@ -442,7 +446,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(-500.0f, 2.0f, -475.0f));
+        transform.SetPosition(vec3(10.0, 2.0f, 80.0f));
 
         auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -503,7 +507,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(i + 2);
+        checkpoint.SetCheckpointIndex(i + 1);
     }
 }
 

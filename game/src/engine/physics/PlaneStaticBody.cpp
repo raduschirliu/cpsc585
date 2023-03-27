@@ -18,12 +18,12 @@ void PlaneStaticBody::OnInit(const ServiceProvider& service_provider)
     static_ = physics_service_->CreatePlaneRigidStatic(plane_dimensions);
     static_->userData = &GetEntity();
 
-    physics_service_->RegisterActor(static_);
+    physics_service_->RegisterActor(static_, &GetEntity());
 }
 
 void PlaneStaticBody::OnDestroy()
 {
-    physics_service_->UnregisterActor(static_);
+    physics_service_->UnregisterActor(static_, &GetEntity());
 
     PX_RELEASE(static_);
 }
