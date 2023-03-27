@@ -565,6 +565,10 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
         return;
     }
 
+    // DBEUG
+        debug::LogDebug("Player crossed {}, with id: {}", index, iter->second->entity->GetName());
+    //
+
     const uint32_t last_checkpoint =
         iter->second->state_component->GetLastCheckpoint();
     const uint32_t expected_checkpoint =
@@ -614,6 +618,8 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     iter->second->state_component->SetLastCheckpoint(index);
     iter->second->checkpoint_count_accumulator++;
 
+    debug::LogInfo("{}", iter->second->checkpoint_count_accumulator);
+
     if (index == 0)
     {
         PlayerCompletedLap(*iter->second);
@@ -626,6 +632,15 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
                                            glm::vec3& out_checkpoint_location1,
                                            glm::vec3& out_checkpoint_location2)
 {
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
+    {
+        entity_id = entity_id - 1;
+    }
     auto iter = players_.find(entity_id);
     if (iter == players_.end())
     {
@@ -636,7 +651,8 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
 
     // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
 
-    int checkpoint_index = iter->second->checkpoint_count_accumulator - 2;
+    int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
+
 
     Checkpoints temp_checkpoint_obj;
     out_checkpoint_location1 =
