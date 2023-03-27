@@ -163,7 +163,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
-    void Garbage();
     void DisplayScoreboard();
 
     const Texture* countdown3_;

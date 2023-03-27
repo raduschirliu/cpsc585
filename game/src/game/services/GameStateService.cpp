@@ -134,6 +134,12 @@ void GameStateService::OnUpdate()
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
+
+    if (race_state_.state == GameState::kRaceInProgress &&
+        input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        DisplayScoreboard();
+    }
 }
 
 void GameStateService::OnGui()
@@ -148,11 +154,6 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
-
-    if (input_service_->IsKeyDown(GLFW_KEY_TAB))
-    {
-        DisplayScoreboard();
-    }
 
     if (race_state_.state == GameState::kCountdown)
     {
