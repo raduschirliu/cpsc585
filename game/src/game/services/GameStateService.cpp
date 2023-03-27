@@ -232,7 +232,8 @@ void GameStateService::OnGui()
         ImGuiWindowFlags scoreboard_flags =
             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse;
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoScrollbar;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::Begin("Background", nullptr, scoreboard_flags);
@@ -265,12 +266,12 @@ void GameStateService::OnGui()
         }
 
         ImGui::PushFont(font_mandu_);
-        ImGui::Text("The least number of deaths");
+        ImGui::Text("Least deaths");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
         ImGui::NewLine();
-        ImGui::Text("The most number of kills");
+        ImGui::Text("Most kills");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
