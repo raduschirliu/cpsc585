@@ -33,12 +33,12 @@ void Shooter::Shoot()
     }
     else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
     {
-        ShootDoubleDamage();
+        ShootDoubleDamage(origin, fwd_direction);
         return;
     }
     else if (current_ammo_type_ == AmmoPickupType::kExploadingBullet)
     {
-        ShootExploading();
+        ShootExploading(origin, fwd_direction);
         return;
     }
     else if (current_ammo_type_ == AmmoPickupType::kIncreaseFireRate)
@@ -48,16 +48,13 @@ void Shooter::Shoot()
     }
     else if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
     {
-        ShootVampire();
+        ShootVampire(origin, fwd_direction);
         return;
     }
     else
     {
         ShootDefault(origin, fwd_direction);
     }
-
-    // update that entity accordingly
-    UpdateOnHit();
 }
 
 void Shooter::ShootDefault(const glm::vec3& origin,
@@ -80,16 +77,7 @@ void Shooter::ShootDefault(const glm::vec3& origin,
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
 
-        if (target_entity)
-        {
-            // debugggg
-            uint32_t entity_id = GetEntity().GetId();
-            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                            target_entity->GetId());
-        }
-        else
-        {
-        }
+        UpdateOnHit();
     }
 }
 
@@ -104,9 +92,11 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
     // as we want the shots to scatter
     for (int i = 0; i < kNumberPellets; i++)
     {
-        std::array<float, 3> spread = {dis(gen)/4.f, dis(gen)/4.f, dis(gen)/4.f};
+        std::array<float, 3> spread = {dis(gen) / 4.f, dis(gen) / 4.f,
+                                       dis(gen) / 4.f};
         target_data_ = physics_service_->Raycast(
-            origin, glm::normalize(fwd_direction + glm::vec3(spread[0], 0.f, spread[2])));
+            origin, glm::normalize(fwd_direction +
+                                   glm::vec3(spread[0], 0.f, spread[2])));
         if (!target_data_ && !target_data_.has_value())
         {
             // do nothing as this raycast failed...
@@ -117,63 +107,41 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
             target_datas.push_back(target_data_);
         }
     }
+    Entity* target_entity = target_datas[0].value().entity;
 
-    // get the entity that was hit per pellet
-    for (int i = 0; i < target_datas.size(); i++)
+    if (!target_entity->HasComponent<PlayerState>())
     {
-        // check if the value actually exists.
-        if (target_datas[i])
-        {
-            RaycastData target_data_value = target_datas[i].value();
-            Entity* target_entity = target_data_value.entity;
+        return;
+    }
 
-            if (target_entity)
-            {
-                // debugggg
-                uint32_t entity_id = GetEntity().GetId();
-                debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                                target_entity->GetId());
-            }
-            else
-            {
-            }
-        }
-    }
-    if (target_data_)
-    {
-    }
+    jss::object_ptr<PlayerState> target_state =
+        &target_entity->GetComponent<PlayerState>();
+
+    // TODO: fix this, as the pellets spread, they can hit multiple car, rn we
+    // apply the hit to only one car. FIX THIS as this many pellets hit the car.
+    target_state->DecrementHealth(GetAmmoDamage() * target_datas.size());
 }
 
 /// @brief handles the vampire bullets
-void Shooter::ShootVampire(const glm::vec3& origin, const glm::vec3& fwd_direction)
+void Shooter::ShootVampire(const glm::vec3& origin,
+                           const glm::vec3& fwd_direction)
 {
-     // check if shot hit anything
+    // check if shot hit anything
     target_data_ = physics_service_->Raycast(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
     {
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
-
-        // TODO: apply the logic of what is supposed to happen here. 
-
-        if (target_entity)
-        {
-            // debugggg
-            uint32_t entity_id = GetEntity().GetId();
-            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                            target_entity->GetId());
-        }
-        else
-        {
-        }
+        UpdateOnHit();
     }
 }
 
 /// @brief handles the double damage bullets
-void Shooter::ShootDoubleDamage(const glm::vec3& origin, const glm::vec3& fwd_direction)
+void Shooter::ShootDoubleDamage(const glm::vec3& origin,
+                                const glm::vec3& fwd_direction)
 {
-     // check if shot hit anything
+    // check if shot hit anything
     target_data_ = physics_service_->Raycast(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
@@ -181,44 +149,22 @@ void Shooter::ShootDoubleDamage(const glm::vec3& origin, const glm::vec3& fwd_di
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
 
-        // TODO: apply the logic of what is supposed to happen here. 
-
-        if (target_entity)
-        {
-            // debugggg
-            uint32_t entity_id = GetEntity().GetId();
-            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                            target_entity->GetId());
-        }
-        else
-        {
-        }
+        UpdateOnHit();
     }
 }
 
 /// @brief handles the exploading damage bullets
-void Shooter::ShootExploading(const glm::vec3& origin, const glm::vec3& fwd_direction)
+void Shooter::ShootExploading(const glm::vec3& origin,
+                              const glm::vec3& fwd_direction)
 {
-     // check if shot hit anything
+    // check if shot hit anything
     target_data_ = physics_service_->Raycast(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
     {
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
-
-        // TODO: apply the logic of what is supposed to happen here. 
-
-        if (target_entity)
-        {
-            // debugggg
-            uint32_t entity_id = GetEntity().GetId();
-            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                            target_entity->GetId());
-        }
-        else
-        {
-        }
+        UpdateOnHit();
     }
 }
 
