@@ -1,5 +1,6 @@
 #include "Shooter.h"
 
+#include <array>
 #include <random>
 
 #include "engine/core/debug/Log.h"
@@ -20,10 +21,14 @@ void Shooter::Shoot()
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
+    // play shoot sound; slightly randomize pitch
+    audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
+    audio_emitter_->PlaySource(shoot_sound_file_);
+
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
         // shotgun type bullet, spread.
-        ShootBuckshot(fwd_direction);
+        ShootBuckshot(origin, fwd_direction);
         return;
     }
     else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
@@ -55,32 +60,88 @@ void Shooter::Shoot()
     UpdateOnHit();
 }
 
-void Shooter::ShootDefault(glm::vec3 origin, glm::vec3 fwd_direction)
+void Shooter::ShootDefault(const glm::vec3& origin,
+                           const glm::vec3& fwd_direction)
 {
-    // play shoot sound; slightly randomize pitch
-    audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
-    audio_emitter_->PlaySource(shoot_sound_file_);
-
     // check if shot hit anything
     target_data_ = physics_service_->Raycast(origin, fwd_direction);
-    if (!target_data_.has_value())
+    if (target_data_ && !target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
         return;
     }
+    else
+    {
+    }
 
     // get the entity that was hit
-    RaycastData target_data_value = target_data_.value();
-    Entity* target_entity = target_data_value.entity;
+    if (target_data_)
+    {
+        RaycastData target_data_value = target_data_.value();
+        Entity* target_entity = target_data_value.entity;
 
-    // debugggg
-    uint32_t entity_id = GetEntity().GetId();
-    debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
-                    target_entity->GetId());
+        if (target_entity)
+        {
+            // debugggg
+            uint32_t entity_id = GetEntity().GetId();
+            debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                            target_entity->GetId());
+        }
+        else
+        {
+        }
+    }
 }
 
-void Shooter::ShootBuckshot(glm::vec3 fwd_direction)
+void Shooter::ShootBuckshot(const glm::vec3& origin,
+                            const glm::vec3& fwd_direction)
 {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 1);
+
+    std::vector<std::optional<RaycastData>> target_datas;
+    // as we want the shots to scatter
+    for (int i = 0; i < kNumberPellets; i++)
+    {
+        std::array<float, 3> spread = {dis(gen)/4.f, dis(gen)/4.f, dis(gen)/4.f};
+        target_data_ = physics_service_->Raycast(
+            origin, glm::normalize(fwd_direction + glm::vec3(spread[0], 0.f, spread[2])));
+        if (!target_data_ && !target_data_.has_value())
+        {
+            // do nothing as this raycast failed...
+        }
+        else
+        {
+            // add this value to the target_datas.
+            target_datas.push_back(target_data_);
+        }
+    }
+
+    // get the entity that was hit per pellet
+    for (int i = 0; i < target_datas.size(); i++)
+    {
+        // check if the value actually exists.
+        if (target_datas[i])
+        {
+            RaycastData target_data_value = target_datas[i].value();
+            Entity* target_entity = target_data_value.entity;
+
+            if (target_entity)
+            {
+                // debugggg
+                uint32_t entity_id = GetEntity().GetId();
+                debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
+                                target_entity->GetId());
+            }
+            else
+            {
+            }
+        }
+    }
+    if (target_data_)
+    {
+    }
 }
 
 /// @brief handles the vampire bullets
@@ -132,22 +193,25 @@ float Shooter::GetCooldownTime()
 
 void Shooter::UpdateOnHit()
 {
-    Entity* target_entity = target_data_.value().entity;
-
-    if (!target_entity->HasComponent<PlayerState>())
+    if (target_data_)
     {
-        return;
-    }
+        Entity* target_entity = target_data_.value().entity;
 
-    jss::object_ptr<PlayerState> target_state =
-        &target_entity->GetComponent<PlayerState>();
+        if (!target_entity->HasComponent<PlayerState>())
+        {
+            return;
+        }
 
-    target_state->DecrementHealth(GetAmmoDamage());
+        jss::object_ptr<PlayerState> target_state =
+            &target_entity->GetComponent<PlayerState>();
 
-    // vampire bullet increases own players health
-    if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
-    {
-        player_state_->IncrementHealth(GetAmmoDamage());
+        target_state->DecrementHealth(GetAmmoDamage());
+
+        // vampire bullet increases own players health
+        if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
+        {
+            player_state_->IncrementHealth(GetAmmoDamage());
+        }
     }
 }
 

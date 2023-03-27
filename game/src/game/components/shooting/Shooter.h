@@ -38,9 +38,9 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 
   private:
     /// hits multiple opponents in some range
-    void ShootBuckshot(glm::vec3 fwd_direction);
+    void ShootBuckshot(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
-    /// @brief handles the vampire bullets 
+    /// @brief handles the vampire bullets
     void ShootVampire();
 
     /// @brief handles the double damage bullets
@@ -53,7 +53,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void IncreaseFireRate();
 
     /// @brief handles shooting normal rounds.
-    void ShootDefault(glm::vec3 origin, glm::vec3 fwd_dirction);
+    void ShootDefault(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// updates the target that was hit (health, etc.)
     void UpdateOnHit();
