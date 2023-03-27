@@ -14,6 +14,7 @@
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "engine/scene/SceneDebugService.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
@@ -75,6 +76,8 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     audio_service_ = &service_provider.GetService<AudioService>();
     asset_service_ = &service_provider.GetService<AssetService>();
     gui_service_ = &service_provider.GetService<GuiService>();
+    scene_service_ = &service_provider.GetService<SceneDebugService>();
+    input_service_ = &service_provider.GetService<InputService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -83,10 +86,17 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     font_beya_ = gui_service_->GetFont("beya");
     font_pado_ = gui_service_->GetFont("pado");
     font_impact_ = gui_service_->GetFont("impact");
+    font_cookie_ = gui_service_->GetFont("cookie");
+    font_koverwatch_ = gui_service_->GetFont("koverwatch");
+    font_mandu_ = gui_service_->GetFont("mandu");
+    font_pixel_ = gui_service_->GetFont("pixel");
 
     countdown3_ = &asset_service_->GetTexture("countdown3");
     countdown2_ = &asset_service_->GetTexture("countdown2");
     countdown1_ = &asset_service_->GetTexture("countdown1");
+    home_button_ = &asset_service_->GetTexture("home_button");
+    ending_ = &asset_service_->GetTexture("ending");
+    record_ = &asset_service_->GetTexture("record");
 }
 
 void GameStateService::OnUpdate()
@@ -147,9 +157,6 @@ void GameStateService::OnGui()
         ImGui::SetNextWindowPos(ImVec2(220, 625));
         ImGui::Begin("Timer", nullptr, flags);
 
-        // ImGui::Text("Players:", players_.size());
-        // ImGui::Indent(10.0f);
-
         ImGui::PushFont(font_beya_);
         int min = (int)race_state_.elapsed_time.GetSeconds() / 60;
         int second = (int)race_state_.elapsed_time.GetSeconds() % 60;
@@ -160,22 +167,22 @@ void GameStateService::OnGui()
         ImGui::PopFont();
         ImGui::End();
 
-        // ImGui::SameLine(0.f, 800.f);
-
         ImGui::SetNextWindowPos(ImVec2(1090, 610));
         ImGui::Begin("Ranking", nullptr, flags);
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
+            // ImGui::Text("Players:", players_.size());
+            // ImGui::Indent(10.0f);
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
+            // ImGui::Text("%d) %s", place, entity->GetName().c_str());
             PlayerState state = entity->GetComponent<PlayerState>();
 
-            ImGui::Text("health: %f", state.GetHealth());
+            // ImGui::Text("health: %f", state.GetHealth());
             if (race_state_.sorted_players[i]->is_human)
             {
                 ImGui::PushID(entity->GetId());
                 ImGui::PushFont(font_pado_);
-                // ImGui::Text("%d) %s", place, entity->GetName().c_str());
                 if (place == 1)
                     ImGui::Text("%dst", place);
                 else if (place == 2)
@@ -193,11 +200,114 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kPostRace)
     {
-        ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::Begin("Game State", nullptr, flags);
+        // ImGui::SetNextWindowPos(ImVec2(0, 0));
+        // ImGui::Begin("Game State", nullptr, flags);
 
-        ImGui::Text("Finished!");
-        ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
+        // ImGui::Text("Finished!");
+        // ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
+
+        // ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::Begin("Background", nullptr, flags);
+        ImGui::Image(
+            ending_->GetGuiHandle(),
+            ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(30, 200));
+        ImGui::Begin("Record", nullptr, flags);
+
+        for (uint32_t i = 0; i < players_.size(); ++i)
+        {
+            Entity* entity = players_[i]->entity;
+
+            if (least_deaths.second >
+                player_details_[entity->GetId()].number_deaths)
+            {
+                least_deaths.first = entity->GetName();
+                least_deaths.second =
+                    player_details_[entity->GetId()].number_deaths;
+            }
+            if (most_kills.second <
+                player_details_[entity->GetId()].number_kills)
+            {
+                most_kills.first = entity->GetName();
+                most_kills.second =
+                    player_details_[entity->GetId()].number_kills;
+            }
+        }
+
+        ImGui::PushFont(font_mandu_);
+        ImGui::Text("The least number of deaths");
+        ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+        ImGui::SameLine(0.f, 50.0f);
+        ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
+        ImGui::NewLine();
+        ImGui::Text("The most number of kills");
+        ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
+        ImGui::SameLine(0.f, 50.0f);
+        ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
+        ImGui::PopFont();
+
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(635, 270));
+        ImGui::Begin("Result", nullptr, flags);
+
+        for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
+        {
+            const int place = static_cast<int>(i + 1);
+            Entity* entity = race_state_.sorted_players[i]->entity;
+
+            ImGui::PushID(entity->GetId());
+            ImGui::PushFont(font_cookie_);
+            if (place == 1 && race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+            else if (place == 1 && !race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+            else if (place == 2 && race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+            else if (place == 2 && !race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+            else if (place == 3 && race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+            else if (place == 3 && !race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+            else if (place == 4 && race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+            else if (place == 4 && !race_state_.sorted_players[i]->is_human)
+                ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+
+            ImGui::SameLine(0.f, 100.f);
+            int min = (int)race_state_.sorted_players[i]->finished_time / 60;
+            int second = (int)race_state_.sorted_players[i]->finished_time % 60;
+            ImGui::Text("%02d:%02d:%02.0f", min, second,
+                        (race_state_.sorted_players[i]->finished_time -
+                         (min * 60 + second)) *
+                            100);
+            ImGui::PopFont();
+            ImGui::PopID();
+        }
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
+                                       ImGui::GetIO().DisplaySize.y - 80));
+        ImGui::Begin("home", nullptr, flags);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                              ImVec4(0.f, 0.f, 0.f, 0.f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                              ImVec4(1.f, 1.f, 1.f, 0.1f));
+        if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
+                               ImVec2(40, 37)))
+        {
+            scene_service_->SetActiveScene("MainMenu");
+        }
+        ImGui::PopStyleColor(3);
+        ImGui::PopStyleVar(1);
 
         ImGui::End();
     }
@@ -508,6 +618,8 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 
     if (laps == race_config_.num_laps)
     {
+        player.finished_time = race_state_.elapsed_time.GetSeconds();
+
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
