@@ -1,4 +1,15 @@
 {
+    "cubemaps": [
+        {
+            "name": "skybox",
+            "path_xneg": "resources/textures/skybox/mountain/nx.jpg",
+            "path_xpos": "resources/textures/skybox/mountain/px.jpg",
+            "path_yneg": "resources/textures/skybox/mountain/ny.jpg",
+            "path_ypos": "resources/textures/skybox/mountain/py.jpg",
+            "path_zneg": "resources/textures/skybox/mountain/nz.jpg",
+            "path_zpos": "resources/textures/skybox/mountain/pz.jpg"
+        }
+    ],
     "meshes": [
         /* Misc assets */
         {
@@ -44,6 +55,26 @@
         {
             "path": "resources/models/pickups/pickup_defence.obj",
             "name": "defence_shield"
+        },
+        {
+            "path": "resources/models/pickups/buckshot.obj",
+            "name": "buckshot"
+        },
+        {
+            "path": "resources/models/pickups/damage.obj",
+            "name": "damage"
+        },
+        {
+            "path": "resources/models/pickups/exploding.obj",
+            "name": "exploding"
+        },
+        {
+            "path": "resources/models/pickups/increase.obj",
+            "name": "increase"
+        },
+        {
+            "path": "resources/models/pickups/vampire.obj",
+            "name": "vampire"
         },
 
         /* Track */
@@ -138,6 +169,14 @@
         {
             "path": "resources/textures/ui/vampire.png",
             "name": "vampire"
+        },
+        {
+            "path": "resources/textures/ui/ending.png",
+            "name": "ending"
+        },
+        {
+            "path": "resources/textures/ui/record.png",
+            "name": "record"
         },
 
         /* Track Materials */
