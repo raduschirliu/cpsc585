@@ -28,7 +28,8 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
 
                 // Add the game state service here which takes care of how to
                 // assign the ammo type properly
-                player_state_->SetCurrentAmmoType(AmmoPickupType::kVampireBullet);
+                player_state_->SetCurrentAmmoType(
+                    AmmoPickupType::kVampireBullet);
             }
             else
             {

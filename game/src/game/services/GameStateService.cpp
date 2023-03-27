@@ -535,9 +535,9 @@ void GameStateService::SetupRace()
 void GameStateService::SetupPowerups()
 {
     Scene& scene = GetApp().GetSceneList().GetActiveScene();
-    for(int i = 0, j = 0; i < powerup_info.size(), j < ammo_info_.size(); i++, j++)
+    for (int i = 0, j = 0; i < powerup_info.size(), j < ammo_info_.size();
+         i++, j++)
     {
-
     }
     for (const auto& powerup : powerup_info)
     {

@@ -44,10 +44,12 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     void ShootVampire(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
     /// @brief handles the double damage bullets
-    void ShootDoubleDamage(const glm::vec3& origin, const glm::vec3& fwd_direction);
+    void ShootDoubleDamage(const glm::vec3& origin,
+                           const glm::vec3& fwd_direction);
 
     /// @brief handles the exploading damage bullets
-    void ShootExploading(const glm::vec3& origin, const glm::vec3& fwd_direction);
+    void ShootExploading(const glm::vec3& origin,
+                         const glm::vec3& fwd_direction);
 
     /// @brief handles the increase fire rate
     void IncreaseFireRate();
