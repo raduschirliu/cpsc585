@@ -111,7 +111,7 @@ void AIController::OnUpdate(const Timestep& delta_time)
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
 
-    HandleRespawn(delta_time);    
+    HandleRespawn(delta_time);
     PowerupDecision();
     CheckShoot(delta_time);
 }

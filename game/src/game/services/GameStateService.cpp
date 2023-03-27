@@ -970,7 +970,7 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     if (index != expected_checkpoint)
     {
         debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
-                  iter->second->index, index, expected_checkpoint);
+                       iter->second->index, index, expected_checkpoint);
 
         // if this is an AI Controller then activate the timer which helps us in
         // resetting the AI to the correct checkpoint
@@ -1047,7 +1047,6 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
     // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
 
     int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
-
 
     Checkpoints temp_checkpoint_obj;
     out_checkpoint_location1 =
