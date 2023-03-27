@@ -120,17 +120,20 @@ void AIController::FixRespawnOrientation(
     const glm::vec3& next_checkpoint_location,
     const glm::vec3& checkpoint_location)
 {
-    auto current_orientation = transform_->GetOrientation();
+    // auto current_orientation = transform_->GetOrientation();
 
-    glm::vec3 direction =
-        glm::normalize(next_checkpoint_location - checkpoint_location);
-    glm::vec3 forward = glm::vec3(0, 0, -1.0f);
-    // transform_->GetForwardDirection();  // assume car is initially oriented
-    // along the negative z-axis
-    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
-    float angle = glm::acos(glm::dot(forward, direction));
-    transform_->SetOrientation(glm::angleAxis(angle, axis) *
-                               current_orientation);
+    // glm::vec3 direction =
+    //     glm::normalize(next_checkpoint_location - checkpoint_location);
+    // glm::vec3 forward = glm::vec3(0, 0, -1.0f);
+    // // transform_->GetForwardDirection();  // assume car is initially
+    // oriented
+    // // along the negative z-axis
+    // glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    // float angle = glm::acos(glm::dot(forward, direction));
+    // transform_->SetOrientation(glm::angleAxis(angle, axis) *
+    //                            current_orientation);
+
+    transform_->SetOrientation(kIdentityQuat);
 }
 
 void AIController::HandleRespawn(const Timestep& delta_time)
@@ -139,14 +142,14 @@ void AIController::HandleRespawn(const Timestep& delta_time)
     //          doesnt correct itself then respawn it.
 
     // if the velocity of car is less than some amount then respawn the car.
-    HandleMinSpeedThresholdRespawn(delta_time);
+    // HandleMinSpeedThresholdRespawn(delta_time);
 
     // if the car falls off the map
     HandleFreefallRespawn(delta_time);
 
     // if the AI is following the wrong path for more than 6 seconds, missed a
     // checkpoint (reset it to the last checkpoint it crossed).
-    HandleMissedCheckpointRespawn(delta_time);
+    // HandleMissedCheckpointRespawn(delta_time);
 }
 
 void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)

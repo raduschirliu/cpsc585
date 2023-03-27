@@ -233,7 +233,7 @@ void GameStateService::OnGui()
             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoInputs;
+            ImGuiWindowFlags_NoScrollbar;
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::Begin("Background", nullptr, scoreboard_flags);
@@ -266,12 +266,12 @@ void GameStateService::OnGui()
         }
 
         ImGui::PushFont(font_mandu_);
-        ImGui::Text("The least number of deaths");
+        ImGui::Text("Least deaths");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
         ImGui::NewLine();
-        ImGui::Text("The most number of kills");
+        ImGui::Text("Most kills");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
@@ -391,6 +391,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -401,8 +402,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
@@ -421,6 +420,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -431,8 +431,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
@@ -448,6 +446,7 @@ void GameStateService::RemoveActivePowerup()
                         active_powerups_.clear();
                         same_powerup_.erase(a);
                         player_powers_.erase(a.first);
+                        timer_.erase(a);
 
                         // TODO: bandaid fix for issues with invalid player
                         // IDs
@@ -458,8 +457,6 @@ void GameStateService::RemoveActivePowerup()
                             players_[a.first]
                                 ->state_component->SetCurrentPowerup(
                                     PowerupPickupType::kDefaultPowerup);
-
-                            timer_.erase(a);
                         }
                     }
                 }
@@ -477,6 +474,7 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
+                            timer_.erase(a);
 
                             // TODO: bandaid fix for issues with invalid player
                             // IDs
@@ -487,8 +485,6 @@ void GameStateService::RemoveActivePowerup()
                                 players_[a.first]
                                     ->state_component->SetCurrentPowerup(
                                         PowerupPickupType::kDefaultPowerup);
-
-                                timer_.erase(a);
                             }
                         }
                     }
