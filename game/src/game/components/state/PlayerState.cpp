@@ -29,8 +29,8 @@ void PlayerState::OnStart()
 void PlayerState::OnUpdate(const Timestep& delta_time)
 {
     CheckDead(delta_time);
-    debug::LogError("{} of entity: {}", player_state_.health,
-                    GetEntity().GetName());
+    // debug::LogError("{} of entity: {}", player_state_.health,
+    //                 GetEntity().GetName());
 }
 
 void PlayerState::CheckDead(const Timestep& delta_time)
