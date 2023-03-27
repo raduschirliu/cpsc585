@@ -31,18 +31,24 @@ void AIController::OnInit(const ServiceProvider& service_provider)
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
+    if (GetEntity().HasComponent<PlayerState>())
+    {
+        player_state_ = &GetEntity().GetComponent<PlayerState>();
+    }
+
     path_to_follow_ = ai_service_->GetPath();
     path_traced_.insert(next_path_index_);
 }
 
 void AIController::UpdatePowerup()
 {
-    if (uint32_t id =
-            game_state_service_->GetEveryoneSlowerSpeedMultiplier() != NULL)
+    uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
+    if (id != -1)
     {
         if (id != GetEntity().GetId())
         {
             speed_multiplier_ = 0.2f;
+            vehicle_->SetMaxAchievableVelocity(40.f);
         }
         else
         {
@@ -53,10 +59,12 @@ void AIController::UpdatePowerup()
     {
         // this is the entity which started the powerup, so do nothing.
         speed_multiplier_ = kSpeedMultiplierReset;
+        vehicle_->SetMaxAchievableVelocity(100.f);
     }
 
-    if (uint32_t id =
-            game_state_service_->GetDisableHandlingMultiplier() != NULL)
+    id = game_state_service_->GetDisableHandlingMultiplier();
+
+    if (id != -1)
     {
         // now except for the entity who launched it, all the entities should
         // slow down.
@@ -87,8 +95,34 @@ void AIController::OnUpdate(const Timestep& delta_time)
     glm::vec3 current_car_position = transform_->GetPosition();
     glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
 
+    UpdatePowerup();
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
+    PowerupDecision();
+}
+
+// Decision for Powerup.
+void AIController::PowerupDecision()
+{
+    // srand(time(0));
+    // as this is happening every loop, we need to make sure that the
+    // probability to execute the powerup is really low
+    int probability_powerup_execution = (rand() % 100);
+
+    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(),
+    // probability_powerup_execution);
+
+    if (probability_powerup_execution == 99)
+    {
+        ExecutePowerup();
+    }
+}
+
+// Execute the powerup.
+void AIController::ExecutePowerup()
+{
+    game_state_service_->AddPlayerPowerup(GetEntity().GetId(),
+                                          player_state_->GetCurrentPowerup());
 }
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
@@ -107,16 +141,22 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     VehicleCommand temp_command;
 
     float speed = vehicle_->GetSpeed();
-    if (speed <= 45)
+    if (speed <= 99)
     {
-        temp_command.throttle = 1.0f * speed_multiplier_;
+        // debug::LogWarn("{}", speed_multiplier_);
+        if (speed > 30)
+            temp_command.throttle =
+                1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
+                speed_multiplier_;
+        else
+            temp_command.throttle = 1.0f;
     }
     else
     {
         temp_command.throttle = 0.0f;
     }
 
-    if (speed > 45)
+    if (speed > 99)
     {
         temp_command.front_brake = 0.5f;
         temp_command.rear_brake = 0.5f;

@@ -446,7 +446,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
 
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(-500.0f, 2.0f, -475.0f));
+        transform.SetPosition(vec3(10.0, 2.0f, 80.0f));
 
         auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -507,7 +507,7 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(i + 2);
+        checkpoint.SetCheckpointIndex(i + 1);
     }
 }
 
