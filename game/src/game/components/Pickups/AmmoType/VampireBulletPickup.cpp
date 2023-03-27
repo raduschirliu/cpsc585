@@ -10,12 +10,27 @@ void VampireBulletPickup::OnInit(const ServiceProvider& service_provider)
 
 void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    // do what the parent class does
-    Pickup::OnTriggerEnter(data);
-    if (data.other->GetName() == "PlayerVehicle" && power_visible_)
+    if (k_player_names_.find(data.other->GetName()) != k_player_names_.end())
     {
-        SetPowerVisibility(false);
-        debug::LogDebug("Bullet will deal vampire damage.");
+        player_state_ = &data.other->GetComponent<PlayerState>();
+        if (player_state_)
+        {
+            if (power_visible_ && player_state_->GetCurrentAmmoType() ==
+                                      AmmoPickupType::kDefaultAmmo)
+            {
+                transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
+                SetPowerVisibility(false);
+
+                // Add the game state service here which takes care of how to
+                // assign the ammo type properly
+                player_state_->SetCurrentAmmoType(AmmoPickupType::kVampireBullet);
+            }
+            else
+            {
+                debug::LogDebug(
+                    "Ignoring as the player already as another type of ammo");
+            }
+        }
     }
 }
 
