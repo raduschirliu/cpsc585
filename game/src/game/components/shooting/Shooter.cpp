@@ -93,11 +93,11 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
     // as we want the shots to scatter
     for (int i = 0; i < kNumberPellets; i++)
     {
-        std::array<float, 3> spread = {dis(gen) / 4.f, dis(gen) / 4.f,
-                                       dis(gen) / 4.f};
+        std::array<float, 3> spread = {dis(gen) / 4.0f, dis(gen) / 4.0f,
+                                       dis(gen) / 4.0f};
         target_data_ = physics_service_->Raycast(
             origin, glm::normalize(fwd_direction +
-                                   glm::vec3(spread[0], 0.f, spread[2])));
+                                   glm::vec3(spread[0], 0.0f, spread[2])));
         if (!target_data_ && !target_data_.has_value())
         {
             // do nothing as this raycast failed...
@@ -108,6 +108,12 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
             target_datas.push_back(target_data_);
         }
     }
+
+    if (target_datas.size() == 0 || !target_datas[0].has_value())
+    {
+        return;
+    }
+
     Entity* target_entity = target_datas[0].value().entity;
 
     if (!target_entity->HasComponent<PlayerState>())
@@ -192,7 +198,7 @@ float Shooter::GetCooldownTime()
             return 1.5f;
             break;
         case kDoubleDamage:
-            return 2.f;
+            return 2.0f;
             break;
         case kVampireBullet:
             return 2.0f;
@@ -247,6 +253,7 @@ void Shooter::SetShootSound(AmmoPickupType ammo_type)
             break;
     }
     audio_emitter_->AddSource(shoot_sound_file_);
+    audio_emitter_->SetGain(shoot_sound_file_, 0.2f);
 }
 
 float Shooter::GetAmmoDamage()
@@ -304,6 +311,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";
     audio_emitter_->AddSource(shoot_sound_file_);
+    audio_emitter_->SetGain(shoot_sound_file_, 0.2f);
 
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -324,7 +332,7 @@ void Shooter::OnUpdate(const Timestep& delta_time)
         // so that timer starts only once.
         if (timer_.find(current_ammo_type_) == timer_.end())
         {
-            timer_.insert_or_assign(current_ammo_type_, 0.f);
+            timer_.insert_or_assign(current_ammo_type_, 0.0f);
         }
         SetShootSound(current_ammo_type_);
     }

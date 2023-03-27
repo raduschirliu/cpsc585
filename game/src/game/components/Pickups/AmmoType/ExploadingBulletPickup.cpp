@@ -31,11 +31,6 @@ void ExploadingBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 player_state_->SetCurrentAmmoType(
                     AmmoPickupType::kExploadingBullet);
             }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another type of ammo");
-            }
         }
     }
 }

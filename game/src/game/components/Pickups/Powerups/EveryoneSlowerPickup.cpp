@@ -28,11 +28,6 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 // Assigns this powerup to the player/AI who picked it up
                 SetVehiclePowerup(PowerupPickupType::kEveryoneSlower, data);
             }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another powerup");
-            }
         }
     }
 }
