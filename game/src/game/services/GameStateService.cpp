@@ -235,13 +235,15 @@ void GameStateService::OnGui()
         ImGui::Image(
             ending_->GetGuiHandle(),
             ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
-        ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(30, 200));
+        ImGui::End();
+
         ImGui::Begin("Record", nullptr, flags);
 
         ImGui::Text("Finished!");
         ImGui::Text("Time: %f", race_state_.elapsed_time.GetSeconds());
+        ImGui::End();
     }
     if (input_service_->IsKeyDown(GLFW_KEY_TAB))
     {
@@ -277,8 +279,6 @@ void GameStateService::OnGui()
     ImGui::SameLine(0.f, 50.0f);
     ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
     ImGui::PopFont();
-
-    ImGui::End();
 
     ImGui::SetNextWindowPos(ImVec2(635, 270));
     ImGui::Begin("Result", nullptr, flags);
@@ -342,7 +342,7 @@ void GameStateService::OnGui()
         DisplayScoreboard();
     }
 
-    // ImGui::End();
+    ImGui::End();
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)

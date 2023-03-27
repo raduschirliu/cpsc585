@@ -115,7 +115,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
-    jss::object_ptr<InputService> input_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
