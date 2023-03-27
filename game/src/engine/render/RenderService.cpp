@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/render/Camera.h"
@@ -17,6 +18,18 @@ using std::make_unique;
 using std::unique_ptr;
 using std::vector;
 
+const static vector<float> kSkyboxVertices = {
+    -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
+    -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f,
+    -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,
+    -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
+    1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
+    1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,
+    -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f,
+    1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
+    1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
+
 RenderService::RenderService()
     : render_list_{},
       cameras_{},
@@ -26,6 +39,10 @@ RenderService::RenderService()
               "resources/shaders/blinnphong.frag"),
       debug_shader_("resources/shaders/debug.vert",
                     "resources/shaders/debug.frag"),
+      skybox_shader_("resources/shaders/skybox.vert",
+                     "resources/shaders/skybox.frag"),
+      skybox_buffers_(),
+      skybox_texture_(nullptr),
       debug_draw_list_(),
       wireframe_(false),
       show_debug_menu_(false)
@@ -156,9 +173,24 @@ void RenderService::OnInit()
 
 void RenderService::OnStart(ServiceProvider& service_provider)
 {
+    // Service dependencies
     input_service_ = &service_provider.GetService<InputService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
 
+    // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
+
+    // Setup skybox
+    skybox_buffers_.vertex_array.Bind();
+    skybox_buffers_.vertex_buffer.Bind();
+    skybox_buffers_.element_buffer.Bind();
+
+    skybox_buffers_.vertex_buffer.ConfigureAttribute(0, 3, GL_FLOAT,
+                                                     sizeof(float) * 3, 0);
+    skybox_buffers_.vertex_buffer.Upload(kSkyboxVertices, GL_STATIC_DRAW);
+    skybox_texture_ = &asset_service_->GetCubemap("skybox");
+
+    VertexArray::Unbind();
 }
 
 void RenderService::OnSceneLoaded(Scene& scene)
@@ -179,29 +211,27 @@ void RenderService::OnUpdate()
     }
 
     // Rendering
-    RenderPrepare();
-
     glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (wireframe_)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
+    // Disabling back-face culling until we add more faces to the track
+    // glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
+
+    RenderPrepare();
 
     for (auto& camera : cameras_)
     {
+        PrepareCameraView(*camera);
         RenderCameraView(*camera);
     }
 
     // Post-render cleanup
     debug_draw_list_.Clear();
+
+    glDisable(GL_MULTISAMPLE);
 }
 
 void RenderService::OnCleanup()
@@ -246,21 +276,37 @@ void RenderService::RenderPrepare()
     debug_draw_list_.Prepare();
 }
 
+void RenderService::PrepareCameraView(Camera& camera)
+{
+    render_pass_data_.camera_transform =
+        &camera.GetEntity().GetComponent<Transform>();
+    render_pass_data_.camera_pos =
+        render_pass_data_.camera_transform->GetPosition();
+
+    render_pass_data_.view_matrix = camera.GetViewMatrix();
+    render_pass_data_.proj_matrix = camera.GetProjectionMatrix();
+    render_pass_data_.view_proj_matrix =
+        render_pass_data_.proj_matrix * render_pass_data_.view_matrix;
+}
+
 void RenderService::RenderCameraView(Camera& camera)
 {
-    auto& camera_transform = camera.GetEntity().GetComponent<Transform>();
-    const vec3& camera_pos = camera_transform.GetPosition();
-
-    const mat4& view_matrix = camera.GetViewMatrix();
-    const mat4& projection_matrix = camera.GetProjectionMatrix();
-    const mat4 view_proj_matrix = projection_matrix * view_matrix;
+    // Geometry pass
+    if (wireframe_)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 
     // TODO(radu): Allow for more than one light, and actually use light props
     // auto light_entity = lights_[0];
     // PointLight& light = light_entity->GetComponent<PointLight>();
 
     shader_.Use();
-    shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+    shader_.SetUniform("uViewProjMatrix", render_pass_data_.view_proj_matrix);
 
     // Render each object
     for (const auto& obj : render_list_)
@@ -279,7 +325,7 @@ void RenderService::RenderCameraView(Camera& camera)
         shader_.SetUniform("uNormalMatrix", normal_matrix);
 
         // Lighting information
-        shader_.SetUniform("uCameraPos", camera_pos);
+        shader_.SetUniform("uCameraPos", render_pass_data_.camera_pos);
         shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
         shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
         shader_.SetUniform("uLight.diffuse", vec3(0.5f, 0.5f, 0.5f));
@@ -321,17 +367,43 @@ void RenderService::RenderCameraView(Camera& camera)
         }
     }
 
+    // Debug items
+    RenderDebugDrawList();
+    RenderSkybox();
+}
+
+void RenderService::RegisterMaterial(unique_ptr<Material> material)
+{
+    materials_.push_back(std::move(material));
+}
+
+void RenderService::RenderDebugDrawList()
+{
     if (debug_draw_list_.HasItems())
     {
         debug_shader_.Use();
-        debug_shader_.SetUniform("uViewProjMatrix", view_proj_matrix);
+        debug_shader_.SetUniform("uViewProjMatrix",
+                                 render_pass_data_.view_proj_matrix);
         debug_draw_list_.Draw();
 
         num_draw_calls_++;
     }
 }
 
-void RenderService::RegisterMaterial(unique_ptr<Material> material)
+void RenderService::RenderSkybox()
 {
-    materials_.push_back(std::move(material));
+    skybox_buffers_.vertex_array.Bind();
+
+    const mat4 view_no_transform =
+        glm::mat4(glm::mat3(render_pass_data_.view_matrix));
+    const mat4 view_proj = render_pass_data_.proj_matrix * view_no_transform;
+
+    skybox_shader_.Use();
+    skybox_shader_.SetUniform("uViewProjMatrix", view_proj);
+
+    skybox_texture_->Bind();
+
+    glDepthFunc(GL_LEQUAL);
+    glDrawArrays(GL_TRIANGLES, 0, kSkyboxVertices.size());
+    glDepthFunc(GL_LESS);
 }
