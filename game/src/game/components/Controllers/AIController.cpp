@@ -125,7 +125,8 @@ void AIController::FixRespawnOrientation(
     // glm::vec3 direction =
     //     glm::normalize(next_checkpoint_location - checkpoint_location);
     // glm::vec3 forward = glm::vec3(0, 0, -1.0f);
-    // // transform_->GetForwardDirection();  // assume car is initially oriented
+    // // transform_->GetForwardDirection();  // assume car is initially
+    // oriented
     // // along the negative z-axis
     // glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
     // float angle = glm::acos(glm::dot(forward, direction));
