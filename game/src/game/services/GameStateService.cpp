@@ -386,13 +386,18 @@ void GameStateService::RemoveActivePowerup()
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
 
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
 
-                            timer_.erase(a);
+                                timer_.erase(a);
+                            }
                         }
                     }
                 }
@@ -411,13 +416,18 @@ void GameStateService::RemoveActivePowerup()
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
 
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
 
-                            timer_.erase(a);
+                                timer_.erase(a);
+                            }
                         }
                     }
                 }
@@ -433,12 +443,18 @@ void GameStateService::RemoveActivePowerup()
                         same_powerup_.erase(a);
                         player_powers_.erase(a.first);
 
-                        // to reset the powerup back to nothing. The player
-                        // can pick up the new powerup now.
-                        players_[a.first]->state_component->SetCurrentPowerup(
-                            PowerupPickupType::kDefaultPowerup);
+                        // TODO: bandaid fix for issues with invalid player
+                        // IDs
+                        if (players_.find(a.first) != players_.end())
+                        {
+                            // to reset the powerup back to nothing. The player
+                            // can pick up the new powerup now.
+                            players_[a.first]
+                                ->state_component->SetCurrentPowerup(
+                                    PowerupPickupType::kDefaultPowerup);
 
-                        timer_.erase(a);
+                            timer_.erase(a);
+                        }
                     }
                 }
             }
@@ -456,13 +472,18 @@ void GameStateService::RemoveActivePowerup()
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
 
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
 
-                            timer_.erase(a);
+                                timer_.erase(a);
+                            }
                         }
                     }
                 }
@@ -639,6 +660,7 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
+    race_state_.total_players = player_idx + 1;
     SetupPowerups();
 }
 
@@ -900,14 +922,16 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
+            audio_service_->AddSource("game_yay.ogg");
+            audio_service_->PlaySource("game_yay.ogg");
+
+            debug::LogInfo("Game over!");
+            race_state_.state = GameState::kPostRace;
         }
         else
         {
             debug::LogInfo("AI finished game!");
         }
-
-        audio_service_->AddSource("game_yay.ogg");
-        audio_service_->PlaySource("game_yay.ogg");
 
         race_state_.finished_players++;
     }
@@ -969,9 +993,6 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
-                       iter->second->index, index, expected_checkpoint);
-
         // if this is an AI Controller then activate the timer which helps us in
         // resetting the AI to the correct checkpoint
         if (!iter->second->is_human)  // checking if the player is AI.

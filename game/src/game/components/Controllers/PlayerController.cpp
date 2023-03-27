@@ -82,7 +82,7 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         if (player_data_->GetCurrentPowerup() ==
             PowerupPickupType::kDefaultPowerup)
         {
-            debug::LogDebug("You currently do not have any powerup.");
+            return;
         }
         else
         {

@@ -51,6 +51,7 @@ struct GlobalRaceState
 {
     GameState state;
     uint32_t finished_players;
+    uint32_t total_players;
     Timestep elapsed_time;
     Timestep countdown_elapsed_time;
     std::vector<PlayerRecord*> sorted_players;
