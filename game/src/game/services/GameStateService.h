@@ -164,6 +164,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
     void Garbage();
+    void DisplayScoreboard();
 
     const Texture* countdown3_;
     const Texture* countdown2_;
