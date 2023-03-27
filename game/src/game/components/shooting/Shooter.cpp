@@ -8,27 +8,61 @@
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
 
+// the buckshot will have 10 different pellets from the barrel
+static constexpr uint8_t kNumberPellets = 10;
+
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    glm::vec3 direction = transform_->GetForwardDirection();
-    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * direction;
+    glm::vec3 fwd_direction = transform_->GetForwardDirection();
+    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
     glm::vec3 origin = transform_->GetPosition() + offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
-        ShootBuckshot();
+        // shotgun type bullet, spread.
+        ShootBuckshot(fwd_direction);
         return;
     }
+    else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
+    {
+        ShootDoubleDamage();
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kExploadingBullet)
+    {
+        ShootExploading();
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kIncreaseFireRate)
+    {
+        IncreaseFireRate();
+        return;
+    }
+    else if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
+    {
+        ShootVampire();
+        return;
+    }
+    else
+    {
+        ShootDefault(origin, fwd_direction);
+    }
 
+    // update that entity accordingly
+    UpdateOnHit();
+}
+
+void Shooter::ShootDefault(glm::vec3 origin, glm::vec3 fwd_direction)
+{
     // play shoot sound; slightly randomize pitch
     audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
     audio_emitter_->PlaySource(shoot_sound_file_);
 
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, direction);
+    target_data_ = physics_service_->Raycast(origin, fwd_direction);
     if (!target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
@@ -39,21 +73,37 @@ void Shooter::Shoot()
     RaycastData target_data_value = target_data_.value();
     Entity* target_entity = target_data_value.entity;
 
-    // update that entity accordingly
-    UpdateOnHit();
-
     // debugggg
     uint32_t entity_id = GetEntity().GetId();
     debug::LogDebug("Entity: {} hit Entity {}!", entity_id,
                     target_entity->GetId());
 }
 
-void Shooter::ShootBuckshot()
+void Shooter::ShootBuckshot(glm::vec3 fwd_direction)
 {
-    debug::LogDebug("NOT IMPLEMENTED YET OOOOPS");
 }
 
-// NOT FINAL IN THE SLIGHTEST
+/// @brief handles the vampire bullets
+void Shooter::ShootVampire()
+{
+}
+
+/// @brief handles the double damage bullets
+void Shooter::ShootDoubleDamage()
+{
+}
+
+/// @brief handles the exploading damage bullets
+void Shooter::ShootExploading()
+{
+}
+
+/// @brief handles the increase fire rate
+void Shooter::IncreaseFireRate()
+{
+}
+
+// The duration between which the 2 consecutive bullets will shoot.
 float Shooter::GetCooldownTime()
 {
     using enum AmmoPickupType;
@@ -66,7 +116,11 @@ float Shooter::GetCooldownTime()
             return 2.5f;
             break;
         case kBuckshot:
+            return 1.5f;
+            break;
         case kDoubleDamage:
+            return 2.f;
+            break;
         case kVampireBullet:
             return 2.0f;
             break;

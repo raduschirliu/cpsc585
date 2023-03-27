@@ -38,7 +38,23 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 
   private:
     /// hits multiple opponents in some range
-    void ShootBuckshot();
+    void ShootBuckshot(glm::vec3 fwd_direction);
+
+    /// @brief handles the vampire bullets 
+    void ShootVampire();
+
+    /// @brief handles the double damage bullets
+    void ShootDoubleDamage();
+
+    /// @brief handles the exploading damage bullets
+    void ShootExploading();
+
+    /// @brief handles the increase fire rate
+    void IncreaseFireRate();
+
+    /// @brief handles shooting normal rounds.
+    void ShootDefault(glm::vec3 origin, glm::vec3 fwd_dirction);
+
     /// updates the target that was hit (health, etc.)
     void UpdateOnHit();
 
