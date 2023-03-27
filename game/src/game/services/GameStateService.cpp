@@ -851,6 +851,7 @@ void GameStateService::DisplayScoreboard()
             }
             else
             {
+                // useless comment
                 ImGui::TableNextColumn();
                 ImGui::Text("CPU %u", index + 1);
                 ImGui::TableNextColumn();
