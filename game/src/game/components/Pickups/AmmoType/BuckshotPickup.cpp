@@ -10,12 +10,15 @@ void BuckshotPickup::OnInit(const ServiceProvider& service_provider)
 
 void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    // do what the parent class does
-    Pickup::OnTriggerEnter(data);
-    if (data.other->GetName() == "PlayerVehicle" && power_visible_)
+    if (k_player_names_.find(data.other->GetName()) != k_player_names_.end())
     {
-        SetPowerVisibility(false);
-        debug::LogDebug("Buckshot Ammo Type");
+        // do what the parent class does
+        Pickup::OnTriggerEnter(data);
+        if (data.other->GetName() == "PlayerVehicle" && power_visible_)
+        {
+            SetPowerVisibility(false);
+            debug::LogDebug("Buckshot Ammo Type");
+        }
     }
 }
 
