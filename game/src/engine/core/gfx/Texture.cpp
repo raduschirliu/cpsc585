@@ -6,13 +6,17 @@
 
 #include "engine/core/debug/Assert.h"
 
-Texture::Texture(std::string path, InterpolationMode interpolation_mode)
+Texture::Texture(std::string path, InterpolationMode interpolation_mode,
+                 bool flip_vertically)
     : handle_(),
       path_(path),
       interpolation_(interpolation_mode)
 {
     int num_components;
-    stbi_set_flip_vertically_on_load(false);
+    if (flip_vertically)
+    {
+        stbi_set_flip_vertically_on_load(true);
+    }
     unsigned char* data =
         stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
 
@@ -40,12 +44,13 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode)
             format = GL_RED;
             break;
         default:
-            std::cout << "Invalid Texture Format" << std::endl;
+            ASSERT_ALWAYS("Invalid Texture Format");
             break;
     };
     // Loads texture data into bound texture
     glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
                  GL_UNSIGNED_BYTE, data);
+    stbi_image_free(data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -64,9 +69,12 @@ glm::uvec2 Texture::GetDimensions() const
     return glm::uvec2(width_, height_);
 }
 
-void Texture::Bind(Texture::Slot slot) const
+void Texture::Bind(uint32_t slot) const
 {
-    glActiveTexture(static_cast<GLenum>(slot));
+    ASSERT_MSG(GL_TEXTURE0 + slot <= GL_TEXTURE31,
+               "Exceeded max bound texture amount");
+
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, handle_);
 }
 

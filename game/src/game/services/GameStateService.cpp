@@ -11,19 +11,20 @@
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
-#include "engine/physics/Hitbox.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
+#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
-#include "game/components/Shooter.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/audio/AudioListener.h"
 #include "game/components/race/Checkpoint.h"
+#include "game/components/shooting/Hitbox.h"
+#include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/PlayerHud.h"
 
@@ -39,6 +40,9 @@ static constexpr uint32_t kMaxPlayers = 4;
 
 static const Timestep kCountdownTime = Timestep::Seconds(5.0);
 
+static const array<string, kMaxPlayers> kCarTextures = {
+    "kart@BodyMain-P1", "kart@BodyMain-P2", "kart@BodyMain-P3",
+    "kart@BodyMain-P4"};
 static const array<string, kMaxPlayers> kHumanPlayerNames = {
     "Player 1", "Player 2", "Player 3", "Player 4"};
 static const array<string, kMaxPlayers> kAiPlayerNames = {"CPU 1", "CPU 2",
@@ -172,7 +176,9 @@ void GameStateService::OnGui()
             const int place = static_cast<int>(i + 1);
             Entity* entity = race_state_.sorted_players[i]->entity;
             // ImGui::Text("%d) %s", place, entity->GetName().c_str());
+            PlayerState state = entity->GetComponent<PlayerState>();
 
+            ImGui::Text("health: %f", state.GetHealth());
             if (race_state_.sorted_players[i]->is_human)
             {
                 ImGui::PushID(entity->GetId());
@@ -622,7 +628,9 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         {
             debug::LogInfo("AI finished game!");
         }
-        // audio_service_->PlayMusic("yay.ogg");
+
+        audio_service_->AddSource("game_yay.ogg");
+        audio_service_->PlaySource("game_yay.ogg");
 
         race_state_.finished_players++;
     }
@@ -797,32 +805,60 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     // Create & configure car entity
     Entity& kart_entity = scene.AddEntity(entity_name);
 
-    // as we want the id of the entity to be as the same of the index, we will
-    // take care of that now.
-
-    // finding if the index is already assigned to any other entity.
-    // for (auto& e : scene.GetEntities())
-    // {
-    //     if (e->GetId() == index)
-    //     {
-    //         auto id = kart_entity.GetId();
-    //         auto swapping_id = e->GetId();
-    //         kart_entity.SetId(swapping_id);
-    //         e->SetId(id);
-    //     }
-    // }
-
-    debug::LogError("{}: entity_id", kart_entity.GetId());
-
     auto& transform = kart_entity.AddComponent<Transform>();
     transform.SetPosition(config.position);
     transform.RotateEulerDegrees(config.orientation_euler_degrees);
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
-    renderer.SetMesh("kart");
-    renderer.SetMaterialProperties({.albedo_color = config.color,
-                                    .specular = vec3(1.0f, 1.0f, 1.0f),
-                                    .shininess = 64.0f});
+    renderer.SetMeshes({
+        {
+            &asset_service_->GetMesh("kart@BodyMain"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture(kCarTextures[index]),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyTop"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@BodyUnderside"),
+            MaterialProperties{
+                .albedo_texture =
+                    &asset_service_->GetTexture("kart@BodyUnderside"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Muffler"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Muffler"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+        {
+            &asset_service_->GetMesh("kart@Wheels"),
+            MaterialProperties{
+                .albedo_texture = &asset_service_->GetTexture("kart@Wheels"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
+                .shininess = 64.0f,
+            },
+        },
+    });
 
     kart_entity.AddComponent<AudioEmitter>();
 
@@ -833,7 +869,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
-    hitbox_component.SetSize(vec3(6.0f, 6.0f, 6.0f));
+    hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
 
     kart_entity.AddComponent<Shooter>();
 
@@ -851,6 +887,8 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
+
+        // camera_entity.AddComponent<DebugCameraController>();
     }
     else
     {

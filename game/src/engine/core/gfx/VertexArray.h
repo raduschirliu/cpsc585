@@ -7,6 +7,8 @@
 class VertexArray
 {
   public:
+    static void Unbind();
+
     VertexArray();
 
     void Bind() const;

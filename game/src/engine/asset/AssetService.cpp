@@ -12,6 +12,7 @@
 
 #include "engine/asset/AssetBundle.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/gfx/Cubemap.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
 
@@ -30,7 +31,8 @@ void AssetService::LoadMesh(const string &path, const string &name)
 {
     Assimp::Importer importer;
 
-    unsigned int flags = aiProcessPreset_TargetRealtime_Fast;
+    unsigned int flags =
+        aiProcessPreset_TargetRealtime_Fast | aiProcess_FlipUVs;
 
     const aiScene *scene = importer.ReadFile(path, flags);
 
@@ -69,6 +71,7 @@ const Mesh &AssetService::GetMesh(const std::string &name)
 void AssetService::ProcessMesh(aiMesh *mesh, const string &name)
 {
     auto processed_mesh = make_unique<Mesh>();
+    processed_mesh->name = name;
 
     // Vertex information
     for (uint32_t i = 0; i < mesh->mNumVertices; i++)
@@ -125,12 +128,38 @@ const Texture &AssetService::GetTexture(const string &name)
     return *iter->second;
 }
 
+void AssetService::LoadCubemap(const CubemapRecord &record)
+{
+    ASSERT_MSG(cubemaps_.find(record.name) == cubemaps_.end(),
+               "Cubemap must have unique name");
+
+    auto cubemap = make_unique<Cubemap>();
+    cubemap->Bind();
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, record.path_xneg);
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_X, record.path_xpos);
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, record.path_yneg);
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, record.path_ypos);
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, record.path_zneg);
+    cubemap->LoadTexture(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, record.path_zpos);
+    cubemap->Finalize();
+
+    cubemaps_[record.name] = std::move(cubemap);
+}
+
+const Cubemap &AssetService::GetCubemap(const string &name)
+{
+    auto iter = cubemaps_.find(name);
+    ASSERT_MSG(iter != cubemaps_.end(), "Cubemap with given name must exist");
+    return *iter->second;
+}
+
 void AssetService::OnInit()
 {
     LoadAssetFile(kAssetFilePath);
 
     debug::LogInfo("Loaded meshes: {}", meshes_.size());
     debug::LogInfo("Loaded textures: {}", textures_.size());
+    debug::LogInfo("Loaded cubemaps: {}", cubemaps_.size());
 }
 
 void AssetService::OnStart(ServiceProvider &service_provider)
@@ -173,6 +202,12 @@ void AssetService::OnGui()
         ImGui::TreePop();
     }
 
+    if (ImGui::TreeNode("Cubemaps"))
+    {
+        DrawDebugCubemapGui();
+        ImGui::TreePop();
+    }
+
     ImGui::End();
 }
 
@@ -208,6 +243,11 @@ void AssetService::LoadAssetFile(const string &path)
     {
         LoadTexture(texture.path, texture.name);
     }
+
+    for (auto &cubemap : bundle.cubemaps)
+    {
+        LoadCubemap(cubemap);
+    }
 }
 
 void AssetService::DrawDebugMeshGui()
@@ -236,6 +276,19 @@ void AssetService::DrawDebugTextureGui()
             ImGui::Bullet();
             ImGui::SameLine();
             ImGui::Image(entry.second->GetGuiHandle(), ImVec2(150, 150));
+
+            ImGui::TreePop();
+        }
+    }
+}
+
+void AssetService::DrawDebugCubemapGui()
+{
+    for (auto &entry : cubemaps_)
+    {
+        if (ImGui::TreeNode(entry.first.c_str()))
+        {
+            ImGui::Text("TODO: how does one draw a cubemap in 2d...?");
 
             ImGui::TreePop();
         }

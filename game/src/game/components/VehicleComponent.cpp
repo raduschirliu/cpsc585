@@ -125,10 +125,10 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     LoadParams();
     InitVehicle();
 
-    physics_service_->RegisterVehicle(&vehicle_);
+    physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
 
     audio_emitter_->AddSource(kDrivingAudioFile);
-    audio_emitter_->SetGain(kDrivingAudioFile, 0.2f);
+    audio_emitter_->SetGain(kDrivingAudioFile, 0.05f);
     audio_emitter_->SetLoop(kDrivingAudioFile, true);
     audio_emitter_->PlaySource(kDrivingAudioFile);
 }
@@ -155,7 +155,7 @@ void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
 
 void VehicleComponent::OnDestroy()
 {
-    physics_service_->UnregisterVehicle(&vehicle_);
+    physics_service_->UnregisterVehicle(&vehicle_, &GetEntity());
     vehicle_.destroy();
 }
 
