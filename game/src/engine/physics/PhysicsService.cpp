@@ -286,42 +286,64 @@ PxRigidStatic* PhysicsService::CreateRigidStatic(const glm::vec3& position,
     return rigid_static;
 }
 
-void PhysicsService::RegisterActor(PxActor* actor)
+void PhysicsService::RegisterActor(PxActor* actor, Entity* entity)
 {
     ASSERT_MSG(actor, "Actor must be valid");
     kScene_->addActor(*actor);
+    actors_.insert({actor, entity});
 }
 
-void PhysicsService::RegisterVehicle(BaseVehicle* vehicle)
+void PhysicsService::RegisterVehicle(BaseVehicle* vehicle, Entity* entity)
 {
     ASSERT_MSG(vehicle, "Vehicle must be valid");
-    vehicles_.push_back(vehicle);
+    vehicles_.insert({vehicle, entity});
 }
 
-void PhysicsService::UnregisterActor(PxActor* actor)
+void PhysicsService::UnregisterActor(PxActor* actor, Entity* entity)
 {
     ASSERT_MSG(actor, "Actor must be valid");
     kScene_->removeActor(*actor);
+    for (auto pair = actors_.begin(), next_pair = pair; pair != actors_.end();
+         pair = next_pair)
+    {
+        next_pair++;
+        if (pair->first == actor)
+        {
+            actors_.erase(actor);
+            return;
+        }
+    }
 }
 
-void PhysicsService::UnregisterVehicle(BaseVehicle* vehicle)
+void PhysicsService::UnregisterVehicle(BaseVehicle* vehicle, Entity* entity)
 {
     ASSERT_MSG(vehicle, "Vehicle must be valid");
 
-    auto iter = vehicles_.begin();
-
-    while (iter != vehicles_.end())
+    for (auto pair = vehicles_.begin(), next_pair = pair;
+         pair != vehicles_.end(); pair = next_pair)
     {
-        // TODO: This may be an issue if the address of a BaseVehicle ever
-        // changes
-        if (*iter == vehicle)
+        next_pair++;
+        if (pair->first == vehicle)
         {
-            vehicles_.erase(iter);
+            vehicles_.erase(vehicle);
             return;
         }
-
-        iter++;
     }
+
+    /* auto iter = vehicles_.begin(); */
+    /*  */
+    /* while (iter != vehicles_.end()) */
+    /* { */
+    /*     // TODO: This may be an issue if the address of a BaseVehicle ever */
+    /*     // changes */
+    /*     if (*iter == vehicle) */
+    /*     { */
+    /*         vehicles_.erase(iter); */
+    /*         return; */
+    /*     } */
+    /*  */
+    /*     iter++; */
+    /* } */
 }
 
 PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)
@@ -353,11 +375,14 @@ std::optional<RaycastData> PhysicsService::Raycast(
     PxVec3 px_origin = GlmToPx(origin);
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // set flags
+    // get first hit only
     PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
+    // don't query static shapes
+    PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC);
 
     PxRaycastBuffer raycast_result;
-    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result);
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flags, filter_data);
 
     if (debug_draw_raycast_)
     {
@@ -373,7 +398,15 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    // data validity guard checks; ensure that data is available:
+    // check if the actor hit even exists
+    PxActor* target_actor = raycast_result.block.actor;
+    if (actors_.count(target_actor) == 0)
+    {
+        return std::nullopt;
+    }
+    Entity* target_entity = actors_[target_actor];
+
+    // guard checks to ensure that data is available:
     if (!PxHitFlag::ePOSITION)
     {
         debug::LogDebug("[Raycast]: Invalid Position");
@@ -386,11 +419,19 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
 
-    // so we don't have to do these conversions everywhere
-    RaycastData result(raycast_result);
+    // bundle all the data to send
+    RaycastData result(raycast_result, target_entity);
 
     return result;
 }
+
+// TODO !!!!
+/* std::optional<RaycastData> PhysicsService::Sweep() */
+/* { */
+/*     PxSweepCallback sweep_result; */
+/*     PxGeometryType shape = PxGeometryType::eCONVEXMESH; */
+/*     kScene_->sweep(shape,); */
+/* } */
 
 /* ---------- PhysX ----------*/
 void PhysicsService::InitPhysX()
@@ -464,8 +505,9 @@ void PhysicsService::StepPhysics()
                 &kPhysicsUpdateEventData);
 
             // Update vehicles
-            for (BaseVehicle* vehicle : vehicles_)
+            for (auto& vehicle_entity : vehicles_)
             {
+                BaseVehicle* vehicle = vehicle_entity.first;
                 vehicle->step(timestep_sec, vehicle_context_);
             }
 

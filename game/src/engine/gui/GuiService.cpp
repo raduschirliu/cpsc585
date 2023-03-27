@@ -31,6 +31,14 @@ void GuiService::OnInit()
                         "resources/fonts/beya.ttf", 72.f));
     AddFont("pado", ImGui::GetIO().Fonts->AddFontFromFileTTF(
                         "resources/fonts/padosori.ttf", 72.f));
+    AddFont("cookie", ImGui::GetIO().Fonts->AddFontFromFileTTF(
+                          "resources/fonts/cookie.ttf", 54.f));
+    AddFont("koverwatch", ImGui::GetIO().Fonts->AddFontFromFileTTF(
+                              "resources/fonts/koverwatch.ttf", 48.f));
+    AddFont("mandu", ImGui::GetIO().Fonts->AddFontFromFileTTF(
+                         "resources/fonts/mandu.ttf", 48.f));
+    AddFont("pixel", ImGui::GetIO().Fonts->AddFontFromFileTTF(
+                         "resources/fonts/pixel.ttf", 48.f));
 }
 
 void GuiService::OnStart(ServiceProvider& service_provider)

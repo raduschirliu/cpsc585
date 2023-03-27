@@ -57,7 +57,7 @@ void MainMenu::OnGui()
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDecoration;
 
-    // ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
 
     // const ImVec2& screen_size = ImGui::GetIO().DisplaySize;
 

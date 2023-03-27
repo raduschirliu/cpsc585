@@ -4,6 +4,8 @@
 #pragma once
 
 #include <object_ptr.hpp>
+#include <string>
+#include <unordered_set>
 
 #include "PickupType.h"
 #include "engine/scene/Component.h"
@@ -19,6 +21,7 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
   public:
     // From Component
     virtual void OnInit(const ServiceProvider& service_provider) override;
+    virtual void OnStart();
     virtual void OnTriggerEnter(const OnTriggerEvent& data) override;
     virtual void OnTriggerExit(const OnTriggerEvent& data) override;
     virtual std::string_view GetName() const override;
@@ -32,6 +35,10 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
   protected:
     jss::object_ptr<Transform> transform_;
     bool power_visible_ = true;
+
+    // Get the names from game service, to check for which pickup picked the car
+    // up.
+    std::unordered_set<std::string> k_player_names_;
 
     PlayerState* player_state_ = nullptr;
 

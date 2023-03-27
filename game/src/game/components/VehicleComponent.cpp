@@ -173,12 +173,21 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     LoadParams();
     InitVehicle();
 
-    physics_service_->RegisterVehicle(&vehicle_);
+    physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
 
     audio_emitter_->AddSource(kDrivingAudioFile);
-    audio_emitter_->SetGain(kDrivingAudioFile, 0.2f);
+    audio_emitter_->SetGain(kDrivingAudioFile, 0.05f);
     audio_emitter_->SetLoop(kDrivingAudioFile, true);
     audio_emitter_->PlaySource(kDrivingAudioFile);
+
+    // speed adjuster for the AI.
+    speed_adjuster_ = rand() % 60;
+}
+
+// to adjust the throttle for AIs.
+float VehicleComponent::GetAdjustedSpeedMultiplier()
+{
+    return speed_adjuster_;
 }
 
 void VehicleComponent::OnUpdate(const Timestep& delta_time)
@@ -198,7 +207,7 @@ void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
 
 void VehicleComponent::OnDestroy()
 {
-    physics_service_->UnregisterVehicle(&vehicle_);
+    physics_service_->UnregisterVehicle(&vehicle_, &GetEntity());
     vehicle_.destroy();
 }
 
@@ -317,4 +326,10 @@ float VehicleComponent::GetSpeed() const
     const vec3 velocity =
         PxToGlm(vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity());
     return glm::length(velocity);
+}
+
+void VehicleComponent::SetMaxAchievableVelocity(float max_velocity)
+{
+    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
+        max_velocity);
 }

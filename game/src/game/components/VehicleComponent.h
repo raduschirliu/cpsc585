@@ -40,6 +40,8 @@ class VehicleComponent final : public Component,
 
     VehicleGear GetGear() const;
     float GetSpeed() const;
+    float GetAdjustedSpeedMultiplier();
+    void SetMaxAchievableVelocity(float max_velocity);
 
     void SetMaxVelocity(float vel);
 
@@ -62,7 +64,7 @@ class VehicleComponent final : public Component,
 
     PlayerStateData* player_data_;
 
-    float max_velocity_ = 200.f;
+    float speed_adjuster_;
 
     void InitVehicle();
     void InitMaterialFrictionTable();

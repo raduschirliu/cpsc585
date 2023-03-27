@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include <memory>
 #include <object_ptr.hpp>
 
@@ -12,6 +14,7 @@ class Texture;
 class SceneDebugService;
 class AssetService;
 class AudioService;
+class GuiService;
 
 class Setting final : public Component, public IEventSubscriber<OnGuiEvent>
 {
@@ -26,10 +29,13 @@ class Setting final : public Component, public IEventSubscriber<OnGuiEvent>
   private:
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<AudioService> audio_service_;
 
     const Texture* background_;
     const Texture* home_button_;
+
+    ImFont* font_cookie_;
 };
