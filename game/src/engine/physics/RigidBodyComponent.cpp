@@ -28,7 +28,7 @@ void RigidBodyComponent::OnInit(const ServiceProvider& service_provider)
 
     PxRigidBodyExt::updateMassAndInertia(*dynamic_, kDefaultDenisty);
 
-    physics_service_->RegisterActor(dynamic_);
+    physics_service_->RegisterActor(dynamic_, &GetEntity());
 }
 
 void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
@@ -41,7 +41,7 @@ void RigidBodyComponent::OnUpdate(const Timestep& delta_time)
 
 void RigidBodyComponent::OnDestroy()
 {
-    physics_service_->UnregisterActor(dynamic_);
+    physics_service_->UnregisterActor(dynamic_, &GetEntity());
     PX_RELEASE(dynamic_);
 }
 

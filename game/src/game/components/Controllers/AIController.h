@@ -10,6 +10,8 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/shooting/Shooter.h"
+#include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
 class AIController final : public Component,
@@ -29,10 +31,13 @@ class AIController final : public Component,
     jss::object_ptr<AIService> ai_service_;
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<Shooter> shooter_;
+
+    jss::object_ptr<PlayerState> player_state_;
 
     // variable which changes when the speed slower powerup is picked up.
     float speed_multiplier_ = 1.f;
-
+    float shoot_cooldown_;
     float handling_multiplier_ = 1.f;
 
     // variables for car
@@ -46,6 +51,9 @@ class AIController final : public Component,
     void NextWaypoint(glm::vec3& current_car_position, glm::vec3 next_waypoint);
     void DrawDebugLine(glm::vec3 from, glm::vec3 to);
     void UpdatePowerup();
+    void ExecutePowerup();
+    void PowerupDecision();
+    void CheckShoot(const Timestep& delta_time);
 
     // as we want the car to move from current to next command, and so on until
     // the end.

@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "engine/core/gfx/Cubemap.h"
 #include "engine/core/gfx/Texture.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
@@ -14,6 +15,8 @@ struct aiScene;
 struct aiMesh;
 struct aiNode;
 
+struct CubemapRecord;
+
 class AssetService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
@@ -22,6 +25,9 @@ class AssetService final : public Service, public IEventSubscriber<OnGuiEvent>
 
     void LoadTexture(const std::string &path, const std::string &name);
     const Texture &GetTexture(const std::string &name);
+
+    void LoadCubemap(const CubemapRecord &record);
+    const Cubemap &GetCubemap(const std::string &name);
 
     // From Service
     void OnInit() override;
@@ -38,10 +44,12 @@ class AssetService final : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_map<std::string, std::unique_ptr<Texture>> textures_;
     std::unordered_map<std::string, std::unique_ptr<Mesh>> meshes_;
+    std::unordered_map<std::string, std::unique_ptr<Cubemap>> cubemaps_;
     bool show_menu_;
 
     void ProcessMesh(aiMesh *mesh, const std::string &name);
     void LoadAssetFile(const std::string &path);
     void DrawDebugMeshGui();
     void DrawDebugTextureGui();
+    void DrawDebugCubemapGui();
 };

@@ -10,8 +10,7 @@ void KillAbilitiesPickup::OnInit(const ServiceProvider& service_provider)
 
 void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
 {
-    // the pickup always collides with floor, so avoid that first
-    if (data.other->GetName() == "PlayerVehicle")
+    if (k_player_names_.find(data.other->GetName()) != k_player_names_.end())
     {
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)
@@ -25,6 +24,11 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
 
                 // Assigns this powerup to the player/AI who picked it up
                 SetVehiclePowerup(PowerupPickupType::kKillAbilities, data);
+            }
+            else
+            {
+                debug::LogDebug(
+                    "Ignoring as the player already as another powerup");
             }
         }
     }
