@@ -229,21 +229,15 @@ void GameStateService::OnGui()
 
         // ImGui::End();
 
-        ImGuiWindowFlags scoreboard_flags =
-            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
-            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoScrollbar;
-
         ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::Begin("Background", nullptr, scoreboard_flags);
+        ImGui::Begin("Background", nullptr, flags);
         ImGui::Image(
             ending_->GetGuiHandle(),
             ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(30, 200));
-        ImGui::Begin("Record", nullptr, scoreboard_flags);
+        ImGui::Begin("Record", nullptr, flags);
 
         for (uint32_t i = 0; i < players_.size(); ++i)
         {
@@ -280,7 +274,7 @@ void GameStateService::OnGui()
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(635, 270));
-        ImGui::Begin("Result", nullptr, scoreboard_flags);
+        ImGui::Begin("Result", nullptr, flags);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
@@ -318,9 +312,15 @@ void GameStateService::OnGui()
         }
         ImGui::End();
 
+        ImGuiWindowFlags button_window_flags =
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoScrollbar;
+
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
                                        ImGui::GetIO().DisplaySize.y - 80));
-        ImGui::Begin("home", nullptr, scoreboard_flags);
+        ImGui::Begin("home", nullptr, button_window_flags);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
