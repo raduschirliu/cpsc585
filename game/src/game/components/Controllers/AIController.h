@@ -39,16 +39,17 @@ class AIController final : public Component,
     jss::object_ptr<AIService> ai_service_;
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<GameStateService> game_state_service_;
-    jss::object_ptr<Shooter> shooter_;
+    jss::object_ptr<PhysicsService> physics_service_;
 
+    jss::object_ptr<Shooter> shooter_;
     jss::object_ptr<PlayerState> player_state_;
 
     // variable which changes when the speed slower powerup is picked up.
     float speed_multiplier_ = 1.f;
     float shoot_cooldown_;
     float handling_multiplier_ = 1.f;
-    // as we want the car to move from current to next command, and so on until
-    // the end.
+    // as we want the car to move from current to next command, and so on
+    // until the end.
     int next_path_index_;
 
     std::set<int> path_traced_;
@@ -66,6 +67,10 @@ class AIController final : public Component,
     void UpdatePowerup();
     void ExecutePowerup();
     void PowerupDecision();
+
+    /// @brief will randomly determine whether the AI will shoot or not.
+    ///   the higher the chance, the more likely it shoots.
+    bool WillShoot(float chance = 0.5f);
     void CheckShoot(const Timestep& delta_time);
 
     // respawn handling
