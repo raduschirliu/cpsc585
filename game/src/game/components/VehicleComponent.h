@@ -43,6 +43,8 @@ class VehicleComponent final : public Component,
     float GetAdjustedSpeedMultiplier();
     void SetMaxAchievableVelocity(float max_velocity);
 
+    void SetMaxVelocity(float vel);
+
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<PhysicsService> physics_service_;
@@ -63,8 +65,10 @@ class VehicleComponent final : public Component,
     PlayerStateData* player_data_;
 
     float speed_adjuster_;
+    float max_velocity_ = 130.f;
 
     void InitVehicle();
     void InitMaterialFrictionTable();
     void LoadParams();
+    void HandleVehicleTransform();
 };

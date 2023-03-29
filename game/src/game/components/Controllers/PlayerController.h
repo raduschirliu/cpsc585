@@ -39,6 +39,9 @@ class PlayerController final : public Component,
     float handling_multiplier_ = 1.0f;
     VehicleCommand command_;
 
+    // to respawn the car
+    double button_down_respawn_timer = 0.0f;
+
     void CheckShoot(const Timestep& delta_time);
     void UpdatePowerupControls(const Timestep& delta_time);
     void UpdateCarControls(const Timestep& delta_time);
@@ -48,4 +51,7 @@ class PlayerController final : public Component,
     float GetFrontBrake();
     float GetRearBrake();
     bool GetGearChangeButton();
+    void RespawnCar();
+    void FixRespawnOrientation(const glm::vec3& next_checkpoint_location,
+                               const glm::vec3& checkpoint_location);
 };

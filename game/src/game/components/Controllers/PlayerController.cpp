@@ -17,6 +17,7 @@
 #include "game/services/GameStateService.h"
 
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 1.0f;
 static constexpr float kHanldingMultiplier = 1.0f;
@@ -81,7 +82,7 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         if (player_data_->GetCurrentPowerup() ==
             PowerupPickupType::kDefaultPowerup)
         {
-            debug::LogDebug("You currently do not have any powerup.");
+            return;
         }
         else
         {
@@ -149,6 +150,72 @@ void PlayerController::UpdateCarControls(const Timestep& delta_time)
     command_.front_brake = GetFrontBrake();
     command_.rear_brake = GetRearBrake();
     vehicle_->SetCommand(command_);
+
+    // key to respawn the car using.
+    if (input_service_->IsKeyDown(GLFW_KEY_F) ||
+        input_service_->IsGamepadButtonDown(kGamepadId,
+                                            GLFW_GAMEPAD_BUTTON_GUIDE))
+    {
+        // start the timer.
+        button_down_respawn_timer += delta_time.GetSeconds();
+
+        // as the button was held down for 3 seconds, we respawn the car at the
+        // previous checkpoint location.
+        if (button_down_respawn_timer >= kRespawnSeconds)
+        {
+            // reset the transform of the car of that of the last checkpoint it
+            // crossed over. using game service to find out the information
+            // about this car and getting the last crossed checkpoint.
+            button_down_respawn_timer = 0.0f;
+            RespawnCar();
+        }
+    }
+    else if (!input_service_->IsKeyDown(GLFW_KEY_F) ||
+             !input_service_->IsGamepadButtonDown(kGamepadId,
+                                                  GLFW_GAMEPAD_BUTTON_GUIDE))
+    {
+        // reset the timer
+        button_down_respawn_timer = 0.f;
+    }
+    // to respawn the car
+}
+
+void PlayerController::FixRespawnOrientation(
+    const glm::vec3& next_checkpoint_location,
+    const glm::vec3& checkpoint_location)
+{
+    auto current_orientation = transform_->GetOrientation();
+
+    glm::vec3 direction =
+        glm::normalize(next_checkpoint_location - checkpoint_location);
+    glm::vec3 forward =
+        transform_->GetForwardDirection();  // assume car is initially oriented
+                                            // along the negative z-axis
+    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    float angle = glm::acos(glm::dot(forward, direction));
+    transform_->SetOrientation(glm::angleAxis(angle, axis) *
+                               current_orientation);
+}
+
+void PlayerController::RespawnCar()
+{
+    // need this so that we can change the transform of this car to be that.
+    // this will act as out parameter and have information in it when the
+    // function returns.
+    glm::vec3 checkpoint_location;
+    glm::vec3 next_checkpoint_location;
+
+    int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
+        this->GetEntity().GetId(), checkpoint_location,
+        next_checkpoint_location);
+
+    if (current_checkpoint == -1)
+        return;
+
+    transform_->SetPosition(checkpoint_location);
+    FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
+
+    game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
 }
 
 float PlayerController::GetSteerDirection()
@@ -224,12 +291,10 @@ void PlayerController::UpdateGear()
 
         if (forward_gear_)
         {
-            debug::LogInfo("Switched into drive gear");
             vehicle_->SetGear(VehicleGear::kForward);
         }
         else
         {
-            debug::LogInfo("Switched into reverse gear");
             vehicle_->SetGear(VehicleGear::kReverse);
         }
     }

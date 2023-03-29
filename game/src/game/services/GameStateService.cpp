@@ -21,6 +21,11 @@
 #include "game/components/Controllers/PlayerController.h"
 #include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
+#include "game/components/Pickups/AmmoType/BuckshotPickup.h"
+#include "game/components/Pickups/AmmoType/DoubleDamagePickup.h"
+#include "game/components/Pickups/AmmoType/ExploadingBulletPickup.h"
+#include "game/components/Pickups/AmmoType/IncreaseFireRatePickup.h"
+#include "game/components/Pickups/AmmoType/VampireBulletPickup.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
 #include "game/components/Pickups/Powerups/IncreaseAimBoxPickup.h"
@@ -57,6 +62,10 @@ static const array<string, 5> kPowerups = {
     "kDefaultPowerup", "kDisableHandling", "kEveryoneSlower", "kIncreaseAimBox",
     "kKillAbilities"};
 
+static const array<string, 6> kAmmos = {
+    "kDefaultAmmo",      "kBuckshot",         "kDoubleDamage",
+    "kExploadingBullet", "kIncreaseFireRate", "kVampireBullet"};
+
 void GlobalRaceState::Reset()
 {
     state = GameState::kNotRunning;
@@ -74,7 +83,7 @@ void GameStateService::OnInit()
 {
     race_config_.num_human_players = 1;
     race_config_.num_ai_players = 3;
-    race_config_.num_laps = 2;
+    race_config_.num_laps = 1;
 
     race_state_.Reset();
 
@@ -136,6 +145,12 @@ void GameStateService::OnGui()
     if (race_state_.state == GameState::kNotRunning)
     {
         return;
+    }
+
+    if (race_state_.state == GameState::kRaceInProgress &&
+        input_service_->IsKeyDown(GLFW_KEY_TAB))
+    {
+        DisplayScoreboard();
     }
 
     ImGuiWindowFlags flags =
@@ -280,12 +295,12 @@ void GameStateService::OnGui()
         }
 
         ImGui::PushFont(font_mandu_);
-        ImGui::Text("The least number of deaths");
+        ImGui::Text("Least deaths");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", least_deaths.first.c_str(), least_deaths.second);
         ImGui::NewLine();
-        ImGui::Text("The most number of kills");
+        ImGui::Text("Most kills");
         ImGui::Image(record_->GetGuiHandle(), ImVec2(75, 65));
         ImGui::SameLine(0.f, 50.0f);
         ImGui::Text("%s: %d", most_kills.first.c_str(), most_kills.second);
@@ -332,9 +347,15 @@ void GameStateService::OnGui()
         }
         ImGui::End();
 
+        ImGuiWindowFlags button_window_flags =
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoScrollbar;
+
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 80,
                                        ImGui::GetIO().DisplaySize.y - 80));
-        ImGui::Begin("home", nullptr, flags);
+        ImGui::Begin("home", nullptr, button_window_flags);
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
@@ -394,7 +415,7 @@ void GameStateService::RemoveActivePowerup()
             // active_powerup_ so that cars can go back to normal speed.
             if (a.second == PowerupPickupType::kEveryoneSlower)
             {
-                if (timer_[a] > 5.0f)
+                if (timer_[a] > 3.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -405,21 +426,25 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
-
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
-
                             timer_.erase(a);
+
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
+                            }
                         }
                     }
                 }
             }
             else if (a.second == PowerupPickupType::kDisableHandling)
             {
-                if (timer_[a] > 2.0f)
+                if (timer_[a] > 1.0f)
                 {
                     for (int i = 0; i < active_powerups_.size(); i++)
                     {
@@ -430,14 +455,18 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
-
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
-
                             timer_.erase(a);
+
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
+                            }
                         }
                     }
                 }
@@ -452,13 +481,18 @@ void GameStateService::RemoveActivePowerup()
                         active_powerups_.clear();
                         same_powerup_.erase(a);
                         player_powers_.erase(a.first);
-
-                        // to reset the powerup back to nothing. The player
-                        // can pick up the new powerup now.
-                        players_[a.first]->state_component->SetCurrentPowerup(
-                            PowerupPickupType::kDefaultPowerup);
-
                         timer_.erase(a);
+
+                        // TODO: bandaid fix for issues with invalid player
+                        // IDs
+                        if (players_.find(a.first) != players_.end())
+                        {
+                            // to reset the powerup back to nothing. The player
+                            // can pick up the new powerup now.
+                            players_[a.first]
+                                ->state_component->SetCurrentPowerup(
+                                    PowerupPickupType::kDefaultPowerup);
+                        }
                     }
                 }
             }
@@ -475,14 +509,18 @@ void GameStateService::RemoveActivePowerup()
                                                    i);
                             same_powerup_.erase(a);
                             player_powers_.erase(a.first);
-
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
-
                             timer_.erase(a);
+
+                            // TODO: bandaid fix for issues with invalid player
+                            // IDs
+                            if (players_.find(a.first) != players_.end())
+                            {
+                                // to reset the powerup back to nothing. The
+                                // player can pick up the new powerup now.
+                                players_[a.first]
+                                    ->state_component->SetCurrentPowerup(
+                                        PowerupPickupType::kDefaultPowerup);
+                            }
                         }
                     }
                 }
@@ -659,12 +697,17 @@ void GameStateService::SetupRace()
         player_idx++;
     }
 
+    race_state_.total_players = player_idx + 1;
     SetupPowerups();
 }
 
 void GameStateService::SetupPowerups()
 {
     Scene& scene = GetApp().GetSceneList().GetActiveScene();
+    for (int i = 0, j = 0; i < powerup_info.size(), j < ammo_info_.size();
+         i++, j++)
+    {
+    }
     for (const auto& powerup : powerup_info)
     {
         int powerup_to_int = 0;
@@ -761,6 +804,120 @@ void GameStateService::SetupPowerups()
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
+
+    for (const auto& powerup : ammo_info_)
+    {
+        int powerup_to_int = 0;
+        switch (powerup.first)
+        {
+            case AmmoPickupType::kDefaultAmmo:
+                powerup_to_int = 0;
+                break;
+
+            case AmmoPickupType::kBuckshot:
+                powerup_to_int = 1;
+                break;
+
+            case AmmoPickupType::kDoubleDamage:
+                powerup_to_int = 2;
+                break;
+
+            case AmmoPickupType::kExploadingBullet:
+                powerup_to_int = 3;
+                break;
+
+            case AmmoPickupType::kIncreaseFireRate:
+                powerup_to_int = 4;
+                break;
+
+            case AmmoPickupType::kVampireBullet:
+                powerup_to_int = 5;
+                break;
+        }
+        // make entities for powerups here.
+        string entity_name = kAmmos[powerup_to_int] + "  " +
+                             std::to_string(powerup.second.x) + ", " +
+                             std::to_string(powerup.second.y) + ", " +
+                             std::to_string(powerup.second.z);
+
+        Entity& entity = scene.AddEntity(entity_name);
+
+        auto& transform = entity.AddComponent<Transform>();
+        transform.SetPosition(powerup.second);
+
+        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
+
+        switch (powerup.first)
+        {
+            case AmmoPickupType::kBuckshot:
+                entity.AddComponent<BuckshotPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("buckshot"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+            case AmmoPickupType::kDoubleDamage:
+                entity.AddComponent<DoubleDamagePickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("damage"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kExploadingBullet:
+                entity.AddComponent<ExploadingBulletPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("exploding"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kIncreaseFireRate:
+                entity.AddComponent<IncreaseFireRatePickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("increase"),
+                    MaterialProperties{
+                        .albedo_texture = nullptr,
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case AmmoPickupType::kVampireBullet:
+                entity.AddComponent<VampireBulletPickup>();
+                // mesh_renderer.SetMesh({
+                //     &asset_service_->GetMesh("vampire"),
+                //     MaterialProperties{
+                //         .albedo_texture = nullptr,
+                //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                //         .specular = vec3(1.0f, 1.0f, 1.0f),
+                //         .shininess = 64.0f,
+                //     },
+                // });
+                break;
+        }
+        transform.SetScale(vec3(4.f, 4.f, 4.f));
+
+        auto& trigger = entity.AddComponent<BoxTrigger>();
+        trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
+    }
 }
 
 void GameStateService::StartRace()
@@ -779,7 +936,8 @@ void GameStateService::StartRace()
 
 void GameStateService::PlayerCompletedLap(PlayerRecord& player)
 {
-    if (race_state_.state != GameState::kRaceInProgress)
+    if (race_state_.state != GameState::kRaceInProgress &&
+        race_state_.state != GameState::kPostRace)
     {
         debug::LogError("Player finished lap before the game started");
         return;
@@ -802,14 +960,16 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
+            audio_service_->AddSource("game_yay.ogg");
+            audio_service_->PlaySource("game_yay.ogg");
+
+            debug::LogInfo("Game over!");
+            race_state_.state = GameState::kPostRace;
         }
         else
         {
             debug::LogInfo("AI finished game!");
         }
-
-        audio_service_->AddSource("game_yay.ogg");
-        audio_service_->PlaySource("game_yay.ogg");
 
         race_state_.finished_players++;
     }
@@ -871,9 +1031,40 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
 
     if (index != expected_checkpoint)
     {
-        debug::LogInfo("Player {} hit incorrect checkpoint {} (expected {})",
-                       iter->second->index, index, expected_checkpoint);
+        // if this is an AI Controller then activate the timer which helps us in
+        // resetting the AI to the correct checkpoint
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(true);
+            }
+        }
+        else
+        {
+            // TODO: Add the UI which tells the player that they are going the
+            // wrong way and should circle back to follow the right way.
+        }
+
         return;
+    }
+    else
+    {
+        // this means that the AI are following the right way / started to
+        // follow the right way, no need to respawn them
+        if (!iter->second->is_human)  // checking if the player is AI.
+        {
+            if (entity.HasComponent<AIController>())
+            {
+                auto& PlayerController = entity.GetComponent<AIController>();
+
+                // so that
+                PlayerController.SetRespawnLastCheckpointTimer(false);
+            }
+        }
     }
 
     iter->second->state_component->SetLastCheckpoint(index);
@@ -887,6 +1078,53 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     {
         PlayerCompletedLap(*iter->second);
     }
+}
+
+// the second parameter is an out parameter.
+// the third will be used to find out the direction where the car should aim at.
+int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
+                                           glm::vec3& out_checkpoint_location1,
+                                           glm::vec3& out_checkpoint_location2)
+{
+    if (entity_id >= 3 && entity_id <= 5)
+    {
+        entity_id = entity_id - 2;
+    }
+    // for player
+    else if (entity_id == 1)
+    {
+        entity_id = entity_id - 1;
+    }
+    auto iter = players_.find(entity_id);
+    if (iter == players_.end())
+    {
+        // so that player not found with the given entity_id
+        // return -1 to detect the error.
+        return -1;
+    }
+
+    // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+
+    int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
+
+    Checkpoints temp_checkpoint_obj;
+    out_checkpoint_location1 =
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
+            .first;
+    out_checkpoint_location2 =
+        temp_checkpoint_obj
+            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
+            .first;
+
+    // return the checkpoint the player/AI who calls this function is at right
+    // now
+    return checkpoint_index;
+}
+
+void GameStateService::SetRespawnEntity(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
 }
 
 void GameStateService::SetRaceConfig(const RaceConfig& config)
@@ -1141,26 +1379,126 @@ void GameStateService::UpdatePowerupInfo()
 
     for (const auto& l : locations)
     {
-        // randomly generating what kind of powerup should spawn here.
-        uint16_t random_powerup = rand() % 4 + 1;  // as 0 is default powerup.
-        switch (random_powerup)
+        // adding a random statement which will select to spawn ammo type or
+        // powerup at the lcoation randomly generating what kind of powerup
+        uint8_t selector = rand() % 2 + 1;
+        if (selector == 1)
         {
-            case 1:
-                powerup_info.push_back(
-                    {PowerupPickupType::kDisableHandling, l.first});
-                break;
-            case 2:
-                powerup_info.push_back(
-                    {PowerupPickupType::kEveryoneSlower, l.first});
-                break;
-            case 3:
-                powerup_info.push_back(
-                    {PowerupPickupType::kIncreaseAimBox, l.first});
-                break;
-            case 4:
-                powerup_info.push_back(
-                    {PowerupPickupType::kKillAbilities, l.first});
-                break;
+            // means ammo should spawn
+            uint8_t random_ammo = rand() % 5 + 1;
+            switch (random_ammo)
+            {
+                case 1:
+                    ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
+                    break;
+                case 2:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kDoubleDamage, l.first});
+                    break;
+                case 3:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kExploadingBullet, l.first});
+                    break;
+                case 4:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kIncreaseFireRate, l.first});
+                    break;
+                case 5:
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kVampireBullet, l.first});
+                    break;
+            }
         }
+        else
+        {
+            // should spawn here.
+            uint8_t random_powerup =
+                rand() % 4 + 1;  // as 0 is default powerup.
+            switch (random_powerup)
+            {
+                case 1:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kDisableHandling, l.first});
+                    break;
+                case 2:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kEveryoneSlower, l.first});
+                    break;
+                case 3:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kIncreaseAimBox, l.first});
+                    break;
+                case 4:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kKillAbilities, l.first});
+                    break;
+            }
+        }
+    }
+}
+
+bool GameStateService::GetRespawnRequested(uint32_t entity_id)
+{
+    if (players_respawn_.find(entity_id) == players_respawn_.end())
+        return false;
+    return true;
+}
+
+void GameStateService::RemoveRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.erase(entity_id);
+}
+
+void GameStateService::AddRespawnPlayers(uint32_t entity_id)
+{
+    players_respawn_.insert(entity_id);
+}
+
+void GameStateService::DisplayScoreboard()
+{
+    ImGui::SetNextWindowPos(ImVec2(80, 40));
+    ImGui::SetNextWindowSize(ImVec2(130, 100));
+
+    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+
+    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    {
+        ImGui::TableSetupColumn("Player");
+        ImGui::TableSetupColumn("Kills");
+        ImGui::TableSetupColumn("Deaths");
+        ImGui::TableSetupColumn("Laps Completed");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextRow();
+
+        for (auto& player : players_)
+        {
+            auto index = player.first;
+            auto& state = player.second->state_component;
+            if (player.second->is_human)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("Player %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
+            else
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("CPU %u", index + 1);
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetKills());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetDeaths());
+                ImGui::TableNextColumn();
+                ImGui::Text("%d", state->GetLapsCompleted());
+                ImGui::TableNextRow();
+            }
+        }
+        ImGui::EndTable();
     }
 }

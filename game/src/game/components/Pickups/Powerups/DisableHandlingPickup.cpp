@@ -14,9 +14,7 @@ void DisableHandlingPickup::OnTriggerEnter(const OnTriggerEvent& data)
     {
         player_state_ = &data.other->GetComponent<PlayerState>();
         if (player_state_)
-        {  // make sure to check that the data is not floor or any other object.
-           // it
-            // should be only a player.
+        {
             if (power_visible_ && player_state_->GetCurrentPowerup() ==
                                       PowerupPickupType::kDefaultPowerup)
             {
@@ -25,11 +23,6 @@ void DisableHandlingPickup::OnTriggerEnter(const OnTriggerEvent& data)
 
                 // Assigns this powerup to the player/AI who picked it up
                 SetVehiclePowerup(PowerupPickupType::kDisableHandling, data);
-            }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another powerup");
             }
         }
     }
