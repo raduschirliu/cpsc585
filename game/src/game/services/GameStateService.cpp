@@ -102,6 +102,10 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     font_koverwatch_ = gui_service_->GetFont("koverwatch");
     font_mandu_ = gui_service_->GetFont("mandu");
     font_pixel_ = gui_service_->GetFont("pixel");
+    disableHandling_ = &asset_service_->GetTexture("disable");
+    everyoneSlower_ = &asset_service_->GetTexture("slower");
+    increaseAimBox_ = &asset_service_->GetTexture("double");
+    killAbilities_ = &asset_service_->GetTexture("kill");
 
     countdown3_ = &asset_service_->GetTexture("countdown3");
     countdown2_ = &asset_service_->GetTexture("countdown2");
@@ -166,6 +170,31 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100, 30));
+        ImGui::Begin("Penalty", nullptr, flags);
+
+        for (auto& a : active_powerups_)
+        {
+            if (a.second == PowerupPickupType::kDisableHandling)
+            {
+                ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kEveryoneSlower)
+            {
+                ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            {
+                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kKillAbilities)
+            {
+                ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+            }
+        }
+
+        ImGui::End();
+
         ImGui::SetNextWindowPos(ImVec2(220, 625));
         ImGui::Begin("Timer", nullptr, flags);
 

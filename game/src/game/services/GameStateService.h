@@ -154,6 +154,10 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* home_button_;
     const Texture* ending_;
     const Texture* record_;
+    const Texture* disableHandling_;
+    const Texture* everyoneSlower_;
+    const Texture* increaseAimBox_;
+    const Texture* killAbilities_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;

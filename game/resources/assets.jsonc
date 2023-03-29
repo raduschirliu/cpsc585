@@ -178,6 +178,10 @@
             "path": "resources/textures/ui/record.png",
             "name": "record"
         },
+        {
+            "path": "resources/textures/ui/pause.png",
+            "name": "pause"
+        },
 
         /* Track Materials */
         {
