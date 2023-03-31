@@ -167,12 +167,17 @@ void GeometryPass::Render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render each camera
-    for (auto& camera : render_data_.cameras)
+    for (size_t i = 0; i < render_data_.cameras.size(); i++)
     {
-        CameraView view = PrepareCameraView(*camera);
-        RenderMeshes(view);
-        RenderDebugDrawList(view);
-        RenderSkybox(view);
+        // TODO(radu): FOR DEBUG Don't hardcode this
+        if (i == 1)
+        {
+            Camera* camera = render_data_.cameras[i];
+            CameraView view = PrepareCameraView(*camera);
+            RenderMeshes(view);
+            RenderDebugDrawList(view);
+            RenderSkybox(view);
+        }
     }
 
     glDisable(GL_MULTISAMPLE);

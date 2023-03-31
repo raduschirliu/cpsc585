@@ -34,8 +34,7 @@ const float MIN_SHADOW_BIAS = 0.005f;
 float getShadowAmount(vec3 normal, vec3 lightDir)
 {
     // Perform perspective division
-    // vec3 projectedCoords = aPosLightSpace.xyz / aPosLightSpace.w;
-    vec3 projectedCoords = aPosLightSpace.xyz;
+    vec3 projectedCoords = aPosLightSpace.xyz / aPosLightSpace.w;
 
     // Transform from NDC to range [0, 1]
     projectedCoords = projectedCoords * 0.5f + 0.5f;

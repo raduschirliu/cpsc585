@@ -51,5 +51,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     GeometryPass geometry_pass_;
     DebugDrawList debug_draw_list_;
     bool show_debug_menu_;
-    size_t num_draw_calls_;
+    bool debug_draw_camera_frustums_;
+
+    void DrawCameraFrustums();
 };

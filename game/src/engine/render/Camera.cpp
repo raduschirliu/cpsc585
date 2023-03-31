@@ -12,21 +12,26 @@
 
 using glm::mat4;
 using glm::vec3;
+using glm::vec4;
 
 static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
 static constexpr float kDefaultFovDegrees = 90.0f;
 static constexpr float kDefaultNearPlane = 0.5f;
-static constexpr float kDefaultFarPlane = 5000.0f;
+static constexpr float kDefaultFarPlane = 1500.0f;
 
 Camera::Camera()
     : fov_degrees_(kDefaultFovDegrees),
       aspect_ratio_(1.0f),
       near_plane_(kDefaultNearPlane),
       far_plane_(kDefaultFarPlane),
+      frustum_world_(),
+      is_debug_camera_(false),
       projection_matrix_(1.0f),
       view_matrix_(1.0f),
+      inverse_view_proj_(1.0f),
       render_service_(nullptr),
-      input_service_(nullptr)
+      input_service_(nullptr),
+      transform_(nullptr)
 {
 }
 
@@ -46,6 +51,7 @@ void Camera::OnInit(const ServiceProvider& service_provider)
     render_service_->RegisterCamera(*this);
     UpdateProjectionMatrix();
     UpdateViewMatrix();
+    UpdateFrustumVertices();
 }
 
 void Camera::OnDebugGui()
@@ -76,12 +82,24 @@ void Camera::SetFov(float fov_degrees)
 {
     fov_degrees_ = fov_degrees;
     UpdateProjectionMatrix();
+    UpdateFrustumVertices();
 }
 
 void Camera::SetAspectRatio(float aspect_ratio)
 {
     aspect_ratio_ = aspect_ratio;
     UpdateProjectionMatrix();
+    UpdateFrustumVertices();
+}
+
+void Camera::SetIsDebugCamera(bool is_debug_camera)
+{
+    is_debug_camera_ = is_debug_camera;
+}
+
+const Cuboid& Camera::GetFrustumWorldVertices() const
+{
+    return frustum_world_;
 }
 
 const mat4& Camera::GetProjectionMatrix() const
@@ -94,9 +112,15 @@ const mat4& Camera::GetViewMatrix() const
     return view_matrix_;
 }
 
+const bool Camera::IsDebugCamera() const
+{
+    return is_debug_camera_;
+}
+
 void Camera::OnUpdate(const Timestep& delta_time)
 {
     UpdateViewMatrix();
+    UpdateFrustumVertices();
 }
 
 void Camera::UpdateViewMatrix()
@@ -111,4 +135,9 @@ void Camera::UpdateProjectionMatrix()
 {
     projection_matrix_ = glm::perspective(
         glm::radians(fov_degrees_), aspect_ratio_, near_plane_, far_plane_);
+}
+
+void Camera::UpdateFrustumVertices()
+{
+    frustum_world_.BoundsFromNdcs(projection_matrix_ * view_matrix_);
 }

@@ -40,7 +40,10 @@ class DepthPass
     Transform* target_transform_;
     glm::vec3 target_pos_;
     glm::vec3 source_pos_;
+    glm::mat4 light_proj_;
+    glm::mat4 light_view_;
 
-    void RenderMeshes();
     void RenderPrepare();
+    void RenderMeshes();
+    void RenderDebugBounds();
 };

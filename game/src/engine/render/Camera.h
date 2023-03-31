@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <object_ptr.hpp>
 
+#include "engine/core/math/Cuboid.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -10,7 +11,6 @@
 class RenderService;
 class InputService;
 
-// TODO(radu): Need to have a way to update the Camera's FoV and aspect ratio
 class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
@@ -18,7 +18,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     void SetFov(float fov_degrees);
     /**
-     * Set camera's screen aspect ratio, where `aspect_ratio = width / height` 
+     * Set camera's screen aspect ratio, where `aspect_ratio = width / height`
      */
     void SetAspectRatio(float aspect_ratio);
 
@@ -31,6 +31,10 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
+    void SetIsDebugCamera(bool is_debug_camera);
+
+    const bool IsDebugCamera() const;
+    const Cuboid& GetFrustumWorldVertices() const;
     const glm::mat4& GetProjectionMatrix() const;
     const glm::mat4& GetViewMatrix() const;
 
@@ -39,9 +43,12 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     float aspect_ratio_;
     float near_plane_;
     float far_plane_;
+    Cuboid frustum_world_;
+    bool is_debug_camera_;
 
     glm::mat4 projection_matrix_;
     glm::mat4 view_matrix_;
+    glm::mat4 inverse_view_proj_;
 
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<InputService> input_service_;
@@ -49,4 +56,5 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();
+    void UpdateFrustumVertices();
 };

@@ -2,11 +2,14 @@
 
 #include <imgui.h>
 
+#include <limits>
+
 #include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/VertexArray.h"
 #include "engine/core/gfx/VertexBuffer.h"
 #include "engine/core/gui/PropertyWidgets.h"
+#include "engine/core/math/Rect2d.h"
 #include "engine/render/Camera.h"
 #include "engine/render/DebugDrawList.h"
 #include "engine/render/MeshRenderer.h"
@@ -16,6 +19,7 @@ using glm::ivec2;
 using glm::mat4;
 using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 using std::make_unique;
 using std::vector;
 
@@ -26,13 +30,15 @@ struct MeshRenderData
     RenderBuffers buffers;
 };
 
-static constexpr uint32_t kShadowMapWidth = 4096;
-static constexpr uint32_t kShadowMapHeight = 4096;
+static constexpr float kFloatMax = std::numeric_limits<float>::max();
+static constexpr float kFloatMin = std::numeric_limits<float>::lowest();
+static constexpr uint32_t kShadowMapWidth = 2048;
+static constexpr uint32_t kShadowMapHeight = 2048;
 static vec3 kLightUp(0.0f, 1.0f, 0.0f);
 static vec3 kLightPos(45.0f, 20.0f, 0.0f);
-static float kNearPlane = -25.0f;
+static float kNearPlane = 0.5f;
 static float kFarPlane = 110.0f;
-static vec2 kMapBounds(128.0f, 128.0f);
+static Rect2d kMapBounds(vec2(-64.0f, -64.0f), vec2(64.0f, 64.0f));
 
 DepthPass::DepthPass(SceneRenderData& render_data)
     : render_data_(render_data),
@@ -146,70 +152,15 @@ void DepthPass::Render()
 
     glCullFace(GL_FRONT);
 
-    RenderPrepare();
-    RenderMeshes();
+    if (target_transform_)
+    {
+        RenderPrepare();
+        RenderMeshes();
+        RenderDebugBounds();
+    }
 
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // Debug drawing
-    if (debug_draw_bounds_)
-    {
-        const vec3 fwd_dir = glm::normalize(target_pos_ - source_pos_);
-        const vec3 right_dir = glm::normalize(glm::cross(fwd_dir, kLightUp));
-        const vec3 near_plane_center = source_pos_ + fwd_dir * kNearPlane;
-        const vec3 far_plane_center = source_pos_ + fwd_dir * kFarPlane;
-
-        const vec3 x_offset = right_dir * kMapBounds.x / 2.0f;
-        const vec3 y_offset = kLightUp * kMapBounds.y / 2.0f;
-
-        const vec3 top_left_offset = -x_offset + y_offset;
-        const vec3 bot_left_offset = -x_offset - y_offset;
-        const vec3 top_right_offset = x_offset + y_offset;
-        const vec3 bot_right_offset = x_offset - y_offset;
-
-        // Connecting
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + top_left_offset),
-            LineVertex(far_plane_center + top_left_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + top_right_offset),
-            LineVertex(far_plane_center + top_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + bot_right_offset),
-            LineVertex(far_plane_center + bot_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + bot_left_offset),
-            LineVertex(far_plane_center + bot_left_offset));
-
-        // Near
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + top_left_offset),
-            LineVertex(near_plane_center + bot_left_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + bot_left_offset),
-            LineVertex(near_plane_center + bot_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + bot_right_offset),
-            LineVertex(near_plane_center + top_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(near_plane_center + top_right_offset),
-            LineVertex(near_plane_center + top_left_offset));
-
-        // Far
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(far_plane_center + top_left_offset),
-            LineVertex(far_plane_center + bot_left_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(far_plane_center + bot_left_offset),
-            LineVertex(far_plane_center + bot_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(far_plane_center + bot_right_offset),
-            LineVertex(far_plane_center + top_right_offset));
-        render_data_.debug_draw_list->AddLine(
-            LineVertex(far_plane_center + top_right_offset),
-            LineVertex(far_plane_center + top_left_offset));
-    }
 }
 
 void DepthPass::RenderDebugGui()
@@ -222,8 +173,8 @@ void DepthPass::RenderDebugGui()
     ImGui::Checkbox("Draw Shadow Map Bounds", &debug_draw_bounds_);
     gui::EditProperty("Ortho Projection Bounds", kMapBounds);
     gui::EditProperty("Light Pos", kLightPos);
-    ImGui::DragFloat("Near Plane", &kNearPlane, -1000.0f, 1000.0f);
-    ImGui::DragFloat("Far Plane", &kFarPlane, -1000.0f, 1000.0f);
+    ImGui::DragFloat("Near Plane", &kNearPlane, 1.0f, -1000.0f, 1000.0f);
+    ImGui::DragFloat("Far Plane", &kFarPlane, 1.0f, -1000.0f, 1000.0f);
 }
 
 void DepthPass::ResetState()
@@ -238,14 +189,7 @@ const TextureHandle& DepthPass::GetDepthMap() const
 
 mat4 DepthPass::GetLightSpaceTransformation() const
 {
-    const mat4 light_view = glm::lookAt(source_pos_, target_pos_, kLightUp);
-
-    const mat4 light_proj = glm::ortho(
-        -kMapBounds.x / 2.0f, kMapBounds.x / 2.0f, -kMapBounds.y / 2.0f,
-        kMapBounds.y / 2.0f, kNearPlane, kFarPlane);
-
-    const mat4 light_space = light_proj * light_view;
-    return light_space;
+    return light_proj_ * light_view_;
 }
 
 void DepthPass::SetDrawDebugBounds(bool state)
@@ -255,16 +199,52 @@ void DepthPass::SetDrawDebugBounds(bool state)
 
 void DepthPass::RenderPrepare()
 {
-    if (target_transform_)
+    // Determine target position
+    Camera* camera = render_data_.cameras[0];
+    const mat4 camera_proj_segment = glm::perspective(
+        glm::radians(90.0f), 1280.0f / 720.0f, kNearPlane, kFarPlane);
+    Cuboid frustum;
+    frustum.BoundsFromNdcs(camera_proj_segment * camera->GetViewMatrix());
+    render_data_.debug_draw_list->AddCuboid(frustum, Color4u(0, 255, 0, 255));
+
+    target_pos_ = frustum.GetCentroidMidpoint(0.5f);
+    source_pos_ = target_pos_ + kLightPos;
+
+    // Build proj and view matrices
+    light_view_ = glm::lookAt(source_pos_, target_pos_, kLightUp);
+    // light_proj_ =
+    //     glm::ortho(kMapBounds.pos.x, kMapBounds.pos.x + kMapBounds.size.x,
+    //                kMapBounds.pos.y + kMapBounds.size.y, kMapBounds.pos.y,
+    //                kNearPlane, kFarPlane);
+
+    // TODO(radu): Do do cascaded shadow maps, need to calc various different
+    // proj matrices for the camera (with different values for near/far), and
+    // perform these calcs for each subsection to get a different ortho matrix +
+    // CSM for each one
+    vec3 min(kFloatMax, kFloatMax, kFloatMax);
+    vec3 max(kFloatMin, kFloatMin, kFloatMin);
+    const vec3* vertex = frustum.GetVertexList();
+
+    for (size_t i = 0; i < frustum.GetVertexCount(); i++)
     {
-        target_pos_ = target_transform_->GetPosition();
-    }
-    else
-    {
-        target_pos_ = vec3(0.0f, 0.0f, 0.0f);
+        const vec4 temp = light_view_ * vec4(*vertex, 1.0f);
+
+        // TODO: could this be wrong?
+        min = glm::min(min, vec3(temp));
+        max = glm::max(max, vec3(temp));
+
+        vertex++;
     }
 
-    source_pos_ = target_pos_ + kLightPos;
+    const float x_mult = 10.0f;
+    const float y_mult = 10.0f;
+
+    min.x *= (min.x < 0.0f ? x_mult : 1.0f / x_mult);
+    max.x *= (max.x < 0.0f ? x_mult : 1.0f / x_mult);
+    min.y *= (min.y < 0.0f ? y_mult : 1.0f / y_mult);
+    max.y *= (max.y < 0.0f ? y_mult : 1.0f / y_mult);
+
+    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, -10.0f, 200.0f);
 }
 
 void DepthPass::RenderMeshes()
@@ -292,4 +272,16 @@ void DepthPass::RenderMeshes()
         const GLsizei index_count = static_cast<GLsizei>(obj->index_count);
         glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
     }
+}
+
+void DepthPass::RenderDebugBounds()
+{
+    if (!debug_draw_bounds_)
+    {
+        return;
+    }
+
+    Cuboid bounds;
+    bounds.BoundsFromNdcs(light_proj_ * light_view_);
+    render_data_.debug_draw_list->AddCuboid(bounds, Color4u(255, 255, 0, 255));
 }

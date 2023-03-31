@@ -28,7 +28,7 @@ RenderService::RenderService()
       geometry_pass_(*render_data_),
       debug_draw_list_(),
       show_debug_menu_(false),
-      num_draw_calls_(0)
+      debug_draw_camera_frustums_(false)
 {
 }
 
@@ -151,8 +151,6 @@ void RenderService::OnWindowSizeChanged(int width, int height)
 
 void RenderService::OnUpdate()
 {
-    num_draw_calls_ = 0;
-
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
@@ -160,6 +158,11 @@ void RenderService::OnUpdate()
     }
 
     glFrontFace(GL_CCW);
+
+    if (debug_draw_camera_frustums_)
+    {
+        DrawCameraFrustums();
+    }
 
     depth_pass_.Render();
 
@@ -195,10 +198,25 @@ void RenderService::OnGui()
 
     if (ImGui::BeginTabItem("General"))
     {
-        ImGui::Text("Cameras: %zu", render_data_->cameras.size());
-        ImGui::Text("Point Lights: %zu", render_data_->point_lights.size());
-        ImGui::Text("Entities: %zu", render_data_->entities.size());
-        ImGui::Text("Draw calls: %zu", num_draw_calls_);
+        if (ImGui::TreeNode("cameras", "Cameras: %zu",
+                            render_data_->cameras.size()))
+        {
+            for (size_t i = 0; i < render_data_->cameras.size(); i++)
+            {
+                ImGui::TreeNode(
+                    reinterpret_cast<void*>(i), "(%zu) %s", i,
+                    render_data_->cameras[i]->GetEntity().GetName().c_str());
+            }
+            ImGui::TreePop();
+        }
+
+        ImGui::TreeNode("point lights", "Point Lights: %zu",
+                        render_data_->point_lights.size());
+        ImGui::TreeNode("entities", "Entities: %zu",
+                        render_data_->entities.size());
+
+        ImGui::Checkbox("Draw Camera Frustums", &debug_draw_camera_frustums_);
+
         ImGui::EndTabItem();
     }
 
@@ -221,4 +239,16 @@ void RenderService::OnGui()
 DebugDrawList& RenderService::GetDebugDrawList()
 {
     return debug_draw_list_;
+}
+
+void RenderService::DrawCameraFrustums()
+{
+    for (Camera* camera : render_data_->cameras)
+    {
+        if (!camera->IsDebugCamera())
+        {
+            debug_draw_list_.AddCuboid(camera->GetFrustumWorldVertices(),
+                                       Color4u(0, 255, 255, 255));
+        }
+    }
 }
