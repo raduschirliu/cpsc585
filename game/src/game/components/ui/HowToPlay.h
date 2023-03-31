@@ -6,6 +6,7 @@
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Component.h"
+#include "engine/audio/AudioService.h"
 
 class GameStateService;
 class Texture;
@@ -27,6 +28,7 @@ class HowToPlay final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<AudioService> audio_service_;
 
     const Texture* instruction_;
     const Texture* home_button_;
