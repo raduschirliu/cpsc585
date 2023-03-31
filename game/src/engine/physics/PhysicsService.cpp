@@ -367,7 +367,7 @@ void PhysicsService::DrawDebugParamWidget(
 }
 
 /* ---------- raycasting ---------- */
-std::optional<RaycastData> PhysicsService::Raycast(
+std::optional<RaycastData> PhysicsService::RaycastDynamic(
     const glm::vec3& origin, const glm::vec3& unit_dir,
     float max_distance /* default = 100000 */)
 {
@@ -424,14 +424,6 @@ std::optional<RaycastData> PhysicsService::Raycast(
 
     return result;
 }
-
-// TODO !!!!
-/* std::optional<RaycastData> PhysicsService::Sweep() */
-/* { */
-/*     PxSweepCallback sweep_result; */
-/*     PxGeometryType shape = PxGeometryType::eCONVEXMESH; */
-/*     kScene_->sweep(shape,); */
-/* } */
 
 /* ---------- PhysX ----------*/
 void PhysicsService::InitPhysX()
