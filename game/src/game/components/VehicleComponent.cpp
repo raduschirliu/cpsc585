@@ -74,7 +74,6 @@ void VehicleComponent::InitVehicle()
 
     rigidbody->userData = &GetEntity();
     rigidbody->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
-    // rigidbody->setCMassLocalPose();
     const uint32_t num_shapes = rigidbody->getNbShapes();
     PxShape* shape = nullptr;
 
@@ -199,6 +198,26 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     }
 
     HandleVehicleTransform();
+    AdjustCentreOfMass();
+}
+
+void VehicleComponent::AdjustCentreOfMass()
+{
+    PxRigidBody* rigidbody = vehicle_.mPhysXState.physxActor.rigidBody;
+
+    glm::vec3 position = transform_->GetPosition();
+    glm::vec3 down = -transform_->GetUpDirection();
+    // check if vehicle is grounded
+
+    auto raycast_data = physics_service_->RaycastStatic(position, down, 50.0f);
+    if (!raycast_data.has_value())
+        debug::LogDebug("{} not grounded.", GetEntity().GetId());
+
+    /* PxTransform cmass = (raycast_data.has_value())        // */
+    /*                         ? PxTransform{0.f, 0.f, 0.f}  // */
+    /*                         : PxTransform{0.f, 2.f, 5.f}; */
+
+    /* rigidbody->setCMassLocalPose(cmass); */
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)

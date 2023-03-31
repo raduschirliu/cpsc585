@@ -66,6 +66,8 @@ class VehicleComponent final : public Component,
 
     float speed_adjuster_;
     float max_velocity_ = 130.f;
+    
+    void AdjustCentreOfMass();
 
     void InitVehicle();
     void InitMaterialFrictionTable();
