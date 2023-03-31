@@ -429,9 +429,9 @@ std::optional<RaycastData> PhysicsService::RaycastStatic(
 
     if (debug_draw_raycast_)
     {
-        LineVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
+        LineVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
         LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
-                       Color4u(0, 255, 0, 255));
+                       Color4u(0, 0, 255, 255));
         render_service_->GetDebugDrawList().AddLine(start, end);
     }
 
