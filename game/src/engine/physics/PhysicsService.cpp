@@ -375,9 +375,8 @@ std::optional<RaycastData> PhysicsService::RaycastDynamic(
     PxVec3 px_origin = GlmToPx(origin);
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // get first hit only
-    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
-    // don't query static shapes
+    // get filter data
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;  // get first hit only
     PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC);
 
     PxRaycastBuffer raycast_result;
@@ -406,18 +405,49 @@ std::optional<RaycastData> PhysicsService::RaycastDynamic(
     }
     Entity* target_entity = actors_[target_actor];
 
-    // guard checks to ensure that data is available:
-    if (!PxHitFlag::ePOSITION)
+    // bundle all the data to send
+    RaycastData result(raycast_result, target_entity);
+
+    return result;
+}
+
+std::optional<RaycastData> PhysicsService::RaycastStatic(
+    const glm::vec3& origin, const glm::vec3& unit_dir,
+    float max_distance /* default = 100000 */)
+{
+    // convert coordinates to PhysX units
+    PxVec3 px_origin = GlmToPx(origin);
+    PxVec3 px_unit_dir = GlmToPx(unit_dir);
+
+    // get filter data
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;  // get first hit only
+    PxQueryFilterData filter_data(PxQueryFlag::eSTATIC);
+
+    PxRaycastBuffer raycast_result;
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flags, filter_data);
+
+    if (debug_draw_raycast_)
     {
-        debug::LogDebug("[Raycast]: Invalid Position");
+        LineVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
+        LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                       Color4u(0, 255, 0, 255));
+        render_service_->GetDebugDrawList().AddLine(start, end);
+    }
+
+    // check if hit successful
+    if (!raycast_result.hasBlock)
+    {
         return std::nullopt;
     }
 
-    if (!PxHitFlag::eNORMAL)
+    // check if the actor hit even exists
+    PxActor* target_actor = raycast_result.block.actor;
+    if (actors_.count(target_actor) == 0)
     {
-        debug::LogDebug("[Raycast]: Invalid Normal");
         return std::nullopt;
     }
+    Entity* target_entity = actors_[target_actor];
 
     // bundle all the data to send
     RaycastData result(raycast_result, target_entity);
