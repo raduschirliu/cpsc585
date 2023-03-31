@@ -51,6 +51,7 @@ struct GlobalRaceState
 {
     GameState state;
     uint32_t finished_players;
+    uint32_t total_players;
     Timestep elapsed_time;
     Timestep countdown_elapsed_time;
     std::vector<PlayerRecord*> sorted_players;
@@ -104,6 +105,17 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     }
 
     double GetMaxCountdownSeconds();
+    int GetCurrentCheckpoint(uint32_t entity_id,
+                             glm::vec3& out_checkpoint_location,
+                             glm::vec3& out_checkpoint_location2);
+    void SetRespawnEntity(uint32_t entity_id);
+
+    // getter for respawn
+    bool GetRespawnRequested(uint32_t entity_id);
+
+    // setter for respawn
+    void AddRespawnPlayers(uint32_t entity_id);
+    void RemoveRespawnPlayers(uint32_t entity_id);
 
     // Powerups
 
@@ -127,6 +139,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::map<uint32_t, PowerupPickupType> player_powers_;
     std::set<std::pair<uint32_t, PowerupPickupType>> same_powerup_;
 
+    // players requesting to respawn will be handled by this.
+    std::unordered_set<uint32_t> players_respawn_;
+
     std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
@@ -148,7 +163,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
-    void Garbage();
+    void DisplayScoreboard();
 
     const Texture* countdown3_;
     const Texture* countdown2_;

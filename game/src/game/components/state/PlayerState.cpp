@@ -13,10 +13,14 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     death_cooldown = 0.f;
 
     // load sounds
+    audio_emitter_->AddSource("pickup_get_01.ogg");
+    audio_emitter_->SetGain("pickup_get_01.ogg", 0.3f);
+    audio_emitter_->AddSource("pickup_get_02.ogg");
+    audio_emitter_->SetGain("pickup_get_02.ogg", 0.3f);
     audio_emitter_->AddSource("kart_hit_01.ogg");
-    audio_emitter_->SetGain("kart_hit_01.ogg", 0.5f);
+    audio_emitter_->SetGain("kart_hit_01.ogg", 0.3f);
     audio_emitter_->AddSource("player_die_01.ogg");
-    audio_emitter_->SetGain("player_die_01.ogg", 4.0f);
+    audio_emitter_->SetGain("player_die_01.ogg", 2.0f);
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 
     player_state_.Reset();
@@ -164,11 +168,13 @@ void PlayerState::SetSpeedMultiplier(float value)
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
     player_state_.current_powerup = type;
+    audio_emitter_->PlaySource("pickup_get_01.ogg");
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
 {
     player_state_.current_ammo_type = type;
+    /* audio_emitter_->PlaySource("pickup_get_02.ogg"); */
 }
 
 void PlayerState::SetLapsCompleted(int laps)

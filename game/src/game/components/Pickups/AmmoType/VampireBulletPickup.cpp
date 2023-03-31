@@ -31,11 +31,6 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 player_state_->SetCurrentAmmoType(
                     AmmoPickupType::kVampireBullet);
             }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another type of ammo");
-            }
         }
     }
 }

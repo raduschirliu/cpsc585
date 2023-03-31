@@ -30,11 +30,6 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 // to assign the ammo type properly
                 player_state_->SetCurrentAmmoType(AmmoPickupType::kBuckshot);
             }
-            else
-            {
-                debug::LogDebug(
-                    "Ignoring as the player already as another type of ammo");
-            }
         }
     }
 }
