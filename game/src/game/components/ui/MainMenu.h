@@ -3,8 +3,7 @@
 #include <memory>
 #include <object_ptr.hpp>
 
-#include "engine/asset/AssetService.h"
-#include "engine/audio/AudioService.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Component.h"

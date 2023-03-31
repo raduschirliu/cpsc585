@@ -8,8 +8,6 @@
 #include "engine/core/gfx/Texture.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/SceneDebugService.h"
-#include "game/components/audio/AudioEmitter.h"
-#include "game/components/audio/AudioListener.h"
 #include "game/services/GameStateService.h"
 
 using std::make_unique;
