@@ -42,4 +42,5 @@ class DepthPass
     glm::vec3 source_pos_;
 
     void RenderMeshes();
+    void RenderPrepare();
 };

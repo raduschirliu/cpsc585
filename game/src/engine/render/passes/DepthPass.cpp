@@ -29,11 +29,10 @@ struct MeshRenderData
 static constexpr uint32_t kShadowMapWidth = 4096;
 static constexpr uint32_t kShadowMapHeight = 4096;
 static vec3 kLightUp(0.0f, 1.0f, 0.0f);
-static vec3 kTargetOffset(25.0f, 16.0f, 0.0f);
-static vec3 kSourceOffset(60.0f, 25.0f, 0.0f);
-static float kNearPlane = 12.5f;
-static float kFarPlane = 113.0f;
-static vec2 kMapBounds(120.0f, 72.5f);
+static vec3 kLightPos(45.0f, 20.0f, 0.0f);
+static float kNearPlane = -25.0f;
+static float kFarPlane = 110.0f;
+static vec2 kMapBounds(128.0f, 128.0f);
 
 DepthPass::DepthPass(SceneRenderData& render_data)
     : render_data_(render_data),
@@ -147,26 +146,11 @@ void DepthPass::Render()
 
     glCullFace(GL_FRONT);
 
+    RenderPrepare();
     RenderMeshes();
 
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    if (target_transform_)
-    {
-        const vec3 target_offset =
-            target_transform_->GetForwardDirection() * kTargetOffset.x +
-            target_transform_->GetUpDirection() * kTargetOffset.y +
-            target_transform_->GetRightDirection() * kTargetOffset.z;
-
-        target_pos_ = target_transform_->GetPosition() + target_offset;
-    }
-    else
-    {
-        target_pos_ = vec3(0.0f);
-    }
-
-    source_pos_ = target_pos_ + kSourceOffset;
 
     // Debug drawing
     if (debug_draw_bounds_)
@@ -237,8 +221,7 @@ void DepthPass::RenderDebugGui()
 
     ImGui::Checkbox("Draw Shadow Map Bounds", &debug_draw_bounds_);
     gui::EditProperty("Ortho Projection Bounds", kMapBounds);
-    gui::EditProperty("Target Offset (Rel)", kTargetOffset);
-    gui::EditProperty("Source Offset (Abs)", kSourceOffset);
+    gui::EditProperty("Light Pos", kLightPos);
     ImGui::DragFloat("Near Plane", &kNearPlane, -1000.0f, 1000.0f);
     ImGui::DragFloat("Far Plane", &kFarPlane, -1000.0f, 1000.0f);
 }
@@ -268,6 +251,20 @@ mat4 DepthPass::GetLightSpaceTransformation() const
 void DepthPass::SetDrawDebugBounds(bool state)
 {
     debug_draw_bounds_ = state;
+}
+
+void DepthPass::RenderPrepare()
+{
+    if (target_transform_)
+    {
+        target_pos_ = target_transform_->GetPosition();
+    }
+    else
+    {
+        target_pos_ = vec3(0.0f, 0.0f, 0.0f);
+    }
+
+    source_pos_ = target_pos_ + kLightPos;
 }
 
 void DepthPass::RenderMeshes()
