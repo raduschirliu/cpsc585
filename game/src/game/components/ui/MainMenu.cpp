@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include "engine/asset/AssetService.h"
+#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/Texture.h"
 #include "engine/scene/Entity.h"
@@ -20,6 +21,7 @@ void MainMenu::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     asset_service_ = &service_provider.GetService<AssetService>();
+    audio_service_ = &service_provider.GetService<AudioService>();
 
     // counter = 0;
     // logo_ = make_unique<Texture>("resources/textures/ui/logo.png");
@@ -97,6 +99,8 @@ void MainMenu::OnGui()
                            ImVec2(222, 49)))
     {
         scene_service_->SetActiveScene("HowToPlay");
+        audio_service_->AddSource("ui_pick_01.ogg");
+        audio_service_->PlaySource("ui_pick_01.ogg");
     }
     ImGui::PopStyleColor(3);
 
@@ -110,6 +114,8 @@ void MainMenu::OnGui()
                            ImVec2(163, 49)))
     {
         scene_service_->SetActiveScene("Setting");
+        audio_service_->AddSource("ui_pick_01.ogg");
+        audio_service_->PlaySource("ui_pick_01.ogg");
     }
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar(1);
@@ -132,6 +138,8 @@ void MainMenu::OnGui()
     {
         // Has to be the name of a scene defined near the top of GameApp.cpp
         scene_service_->SetActiveScene("Track1");
+        audio_service_->AddSource("ui_pick_01.ogg");
+        audio_service_->PlaySource("ui_pick_01.ogg");
     }
     ImGui::PopStyleColor(3);
 
@@ -147,6 +155,8 @@ void MainMenu::OnGui()
     {
         // Has to be the name of a scene defined near the top of GameApp.cpp
         // scene_service_->SetActiveScene("Track1");
+        audio_service_->AddSource("ui_pick_01.ogg");
+        audio_service_->PlaySource("ui_pick_01.ogg");
     }
     ImGui::PopStyleColor(3);
     ImGui::PopStyleVar(1);
