@@ -210,8 +210,12 @@ void VehicleComponent::AdjustCentreOfMass()
     glm::vec3 down = glm::vec3{0.0f, -1.0f, 0.0f};
     // check if vehicle is grounded
 
-    auto raycast_data = physics_service_->RaycastStatic(position, down, 10.0f);
+    auto raycast_data = physics_service_->RaycastStatic(position, down, 2.0f);
 
+    if (!raycast_data.has_value())
+        debug::LogDebug("Entity {} adjusting cMass...", GetEntity().GetId());
+    else 
+        debug::LogDebug("Entity {} grounded", GetEntity().GetId());
     PxTransform cmass = (raycast_data.has_value())        //
                             ? PxTransform{0.f, 0.f, 0.f}  //
                             : PxTransform{0.f, 0.f, 2.f};
