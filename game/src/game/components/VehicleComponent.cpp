@@ -206,18 +206,17 @@ void VehicleComponent::AdjustCentreOfMass()
     PxRigidBody* rigidbody = vehicle_.mPhysXState.physxActor.rigidBody;
 
     glm::vec3 position = transform_->GetPosition();
-    glm::vec3 down = -transform_->GetUpDirection();
+    /* glm::vec3 down = -transform_->GetUpDirection(); */
+    glm::vec3 down = glm::vec3{0.0f, -1.0f, 0.0f};
     // check if vehicle is grounded
 
-    auto raycast_data = physics_service_->RaycastStatic(position, down, 50.0f);
-    if (!raycast_data.has_value())
-        debug::LogDebug("{} not grounded.", GetEntity().GetId());
+    auto raycast_data = physics_service_->RaycastStatic(position, down, 10.0f);
 
-    /* PxTransform cmass = (raycast_data.has_value())        // */
-    /*                         ? PxTransform{0.f, 0.f, 0.f}  // */
-    /*                         : PxTransform{0.f, 2.f, 5.f}; */
+    PxTransform cmass = (raycast_data.has_value())        //
+                            ? PxTransform{0.f, 0.f, 0.f}  //
+                            : PxTransform{0.f, 0.f, 2.f};
 
-    /* rigidbody->setCMassLocalPose(cmass); */
+    rigidbody->setCMassLocalPose(cmass);
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
