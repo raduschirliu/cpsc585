@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <random>
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
@@ -14,11 +15,14 @@ static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 float kHandlingMultiplierReset(1.0f);
 static constexpr float kMaxRespawnTimer(3.0f);
 static constexpr float kMaxFreeFallDifference(500.0f);
-static constexpr float kMinRespawnSpeed(
-    11.0f);  // if the AI is below this speed then the car will respawn to the
-             // last checkpoint as there is some problem with the AI.
 
+// if the AI is below this speed then the car will respawn to the
+// last checkpoint as there is some problem with the AI.
+static constexpr float kMinRespawnSpeed(11.0f);
 static constexpr double kMaxCheckpointMissedTimer(5.f);
+
+// distance that AI can "see"; shoots when a target is within view
+static constexpr float kViewDistance(300.f);
 
 AIController::AIController()
     : input_service_(nullptr),
@@ -30,11 +34,15 @@ AIController::AIController()
 
 void AIController::OnInit(const ServiceProvider& service_provider)
 {
+    // service dependencies
     input_service_ = &service_provider.GetService<InputService>();
     ai_service_ = &service_provider.GetService<AIService>();
     transform_ = &GetEntity().GetComponent<Transform>();
     render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
+
+    // component dependencies
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
 
@@ -62,10 +70,6 @@ void AIController::UpdatePowerup()
             speed_multiplier_ = 0.2f;
             vehicle_->SetMaxAchievableVelocity(40.f);
         }
-        else
-        {
-            // this is the entity which started the powerup, so do nothing.
-        }
     }
     else
     {
@@ -85,10 +89,6 @@ void AIController::UpdatePowerup()
             // if any AI picked up the powerup then the player's speed should be
             // reduced.
             handling_multiplier_ = 0.0f;
-        }
-        else
-        {
-            // this is the entity which started the powerup, so do nothing.
         }
     }
     else
@@ -113,7 +113,19 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     HandleRespawn(delta_time);
     PowerupDecision();
-    CheckShoot(delta_time);
+
+    // note: raycasting *may* be an expensive approach
+    glm::vec3 forward = transform_->GetForwardDirection();
+    glm::vec3 offset = 20.0f * forward;
+    glm::vec3 origin = transform_->GetPosition() + offset;
+
+    // if an entity is within view
+    bool saw_something =
+        physics_service_->Raycast(origin, forward, kViewDistance).has_value();
+    if (saw_something && WillShoot(0.75f))
+    {
+        CheckShoot(delta_time);
+    }
 }
 
 void AIController::FixRespawnOrientation(
@@ -243,6 +255,15 @@ void AIController::HandleFreefallRespawn(const Timestep& delta_time)
         // the previous checkpoint
         game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
     }
+}
+
+bool AIController::WillShoot(float chance)
+{
+    std::random_device seed;
+    std::mt19937 generator(seed());
+    std::uniform_int_distribution<int> value(0, 100);
+
+    return value(generator) < chance * 100;
 }
 
 void AIController::CheckShoot(const Timestep& delta_time)

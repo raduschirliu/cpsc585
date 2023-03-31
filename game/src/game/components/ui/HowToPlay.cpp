@@ -3,8 +3,10 @@
 #include <imgui.h>
 
 #include "engine/asset/AssetService.h"
+#include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/Texture.h"
+#include "engine/input/InputService.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/services/GameStateService.h"
@@ -20,6 +22,7 @@ void HowToPlay::OnInit(const ServiceProvider& service_provider)
     game_state_service_ = &service_provider.GetService<GameStateService>();
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     asset_service_ = &service_provider.GetService<AssetService>();
+    audio_service_ = &service_provider.GetService<AudioService>();
 
     instruction_ = &asset_service_->GetTexture("how_to_play");
     home_button_ = &asset_service_->GetTexture("home_button");
@@ -69,6 +72,8 @@ void HowToPlay::OnGui()
                            ImVec2(40, 37)))
     {
         scene_service_->SetActiveScene("MainMenu");
+        audio_service_->AddSource("ui_pick_01.ogg");
+        audio_service_->PlaySource("ui_pick_01.ogg");
     }
 
     ImGui::PopStyleColor(3);

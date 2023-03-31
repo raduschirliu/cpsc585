@@ -18,8 +18,8 @@ using glm::vec3;
 FollowCamera::FollowCamera()
     : offset_(0.0f, 10.0f, 0.0f),
       distance_(23.0f),
-      orientation_lerp_factor_(2.5f),
-      position_lerp_factor_(2.5f)
+      orientation_lerp_factor_(3.5f),
+      position_lerp_factor_(3.5f)
 {
 }
 
