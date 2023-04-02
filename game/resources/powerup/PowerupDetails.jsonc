@@ -27,7 +27,7 @@
     },
     "Vampire": {
       "damage": 50,
-      "time": null
+      "time": 0
     }
   },
 

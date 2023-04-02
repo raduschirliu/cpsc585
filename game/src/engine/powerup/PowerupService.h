@@ -1,5 +1,11 @@
 #pragma once
 
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+
+#include <array>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -29,5 +35,23 @@ class PowerupService final : public Service,
     // load the values from json file
     void LoadAssetFile(const std::string& path);
 
+    void LoadAmmoInformation(const rapidjson::Document& doc);
+    void LoadAmmoDamageInformation(const rapidjson::Value& ammo_object,
+                                   const std::string& member);
+    void LoadAmmoDurationInformation(const rapidjson::Value& ammo_object,
+                                     const std::string& member);
+    void LoadAmmoCooldownInformation(const rapidjson::Value& ammo_object,
+                                     const std::string& member);
+
+    // Only for buckshot as it has other information as well. 
+    void LoadAmmoOtherInformation(const rapidjson::Value& ammo_object,
+                                     const std::string& member);
+
+    void LoadPickupInformation(const rapidjson::Document& doc);
+
   private:
-};
+    std::unordered_map<std::string, float> ammo_damages_;
+    std::unordered_map<std::string, float> ammo_durations_;
+    std::unordered_map<std::string, float> ammo_cooldowns_;
+    std::unordered_map<std::string, float> buckshot_additional_details_;
+};  
