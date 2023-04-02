@@ -132,7 +132,8 @@ void PlayerHud::OnGui()
                 game_state_service_->GetRaceConfig().num_laps);
     ImGui::PopStyleColor();
     ImGui::SameLine(0.f, 700.f);
-    if (game_state_service_->GetGlobalRaceState().state == GameState::kCountdown)
+    if (game_state_service_->GetGlobalRaceState().state ==
+        GameState::kCountdown)
     {
         ImGui::Text("0 KM/H");
     }
