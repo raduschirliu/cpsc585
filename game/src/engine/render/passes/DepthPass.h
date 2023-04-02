@@ -25,8 +25,6 @@ class DepthPass
     void RenderDebugGui();
     void ResetState();
 
-    void SetDrawDebugBounds(bool state);
-
     const TextureHandle& GetDepthMap() const;
     glm::mat4 GetLightSpaceTransformation() const;
 

@@ -350,7 +350,11 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         // Debug camera
         Entity& entity = scene.AddEntity("DebugCamera");
         entity.AddComponent<Transform>();
-        entity.AddComponent<Camera>();
+
+        // Camera disabled by default
+        auto& camera = entity.AddComponent<Camera>();
+        camera.SetType(CameraType::kDisabled);
+
         entity.AddComponent<DebugCameraController>();
     }
 

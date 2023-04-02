@@ -25,7 +25,7 @@ Camera::Camera()
       near_plane_(kDefaultNearPlane),
       far_plane_(kDefaultFarPlane),
       frustum_world_(),
-      is_debug_camera_(false),
+      type_(CameraType::kNormal),
       projection_matrix_(1.0f),
       view_matrix_(1.0f),
       inverse_view_proj_(1.0f),
@@ -92,9 +92,14 @@ void Camera::SetAspectRatio(float aspect_ratio)
     UpdateFrustumVertices();
 }
 
-void Camera::SetIsDebugCamera(bool is_debug_camera)
+void Camera::SetType(CameraType type)
 {
-    is_debug_camera_ = is_debug_camera;
+    type_ = type;
+}
+
+CameraType Camera::GetType() const
+{
+    return type_;
 }
 
 const Cuboid& Camera::GetFrustumWorldVertices() const
@@ -110,11 +115,6 @@ const mat4& Camera::GetProjectionMatrix() const
 const mat4& Camera::GetViewMatrix() const
 {
     return view_matrix_;
-}
-
-const bool Camera::IsDebugCamera() const
-{
-    return is_debug_camera_;
 }
 
 void Camera::OnUpdate(const Timestep& delta_time)

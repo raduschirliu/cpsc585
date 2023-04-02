@@ -244,7 +244,7 @@ void RenderService::DrawCameraFrustums()
 {
     for (Camera* camera : render_data_->cameras)
     {
-        if (!camera->IsDebugCamera())
+        if (camera->GetType() == CameraType::kNormal)
         {
             debug_draw_list_.AddCuboid(camera->GetFrustumWorldVertices(),
                                        Color4u(0, 255, 0, 255));

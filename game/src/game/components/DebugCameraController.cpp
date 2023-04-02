@@ -2,6 +2,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Common.h"
+#include "engine/render/Camera.h"
 #include "engine/scene/Entity.h"
 
 using glm::vec2;
@@ -21,15 +22,19 @@ DebugCameraController::DebugCameraController()
       input_service_(nullptr),
       last_mouse_pos_(std::nullopt),
       pitch_degrees_(0.0f),
-      yaw_degrees_(0.0f)
+      yaw_degrees_(0.0f),
+      camera_enabled_(false)
 {
 }
 
 void DebugCameraController::OnInit(const ServiceProvider& service_provider)
 {
-    // Dependencies
+    // Services
     input_service_ = &service_provider.GetService<InputService>();
+
+    // Components
     transform_ = &GetEntity().GetComponent<Transform>();
+    camera_ = &GetEntity().GetComponent<Camera>();
 
     // Events
     GetEventBus().Subscribe<OnUpdateEvent>(this);
@@ -42,6 +47,23 @@ string_view DebugCameraController::GetName() const
 
 void DebugCameraController::OnUpdate(const Timestep& delta_time)
 {
+    // Enabling the camera
+    if (input_service_->IsKeyPressed(GLFW_KEY_P))
+    {
+        camera_enabled_ = !camera_enabled_;
+
+        if (camera_enabled_)
+        {
+            camera_->SetType(CameraType::kDebug);
+            debug::LogDebug("Debug camera enabled");
+        }
+        else
+        {
+            camera_->SetType(CameraType::kDisabled);
+            debug::LogDebug("Debug camera disabled");
+        }
+    }
+
     // Movement
     const vec3 move_dir = GetMovementDir();
     const float delta_time_sec = static_cast<float>(delta_time.GetSeconds());

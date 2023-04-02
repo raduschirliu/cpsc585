@@ -11,6 +11,13 @@
 class RenderService;
 class InputService;
 
+enum class CameraType : uint8_t
+{
+    kDisabled,
+    kNormal,
+    kDebug,
+};
+
 class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
@@ -31,9 +38,9 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
 
-    void SetIsDebugCamera(bool is_debug_camera);
+    void SetType(CameraType type);
 
-    const bool IsDebugCamera() const;
+    CameraType GetType() const;
     const Cuboid& GetFrustumWorldVertices() const;
     const glm::mat4& GetProjectionMatrix() const;
     const glm::mat4& GetViewMatrix() const;
@@ -44,7 +51,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
     float near_plane_;
     float far_plane_;
     Cuboid frustum_world_;
-    bool is_debug_camera_;
+    CameraType type_;
 
     glm::mat4 projection_matrix_;
     glm::mat4 view_matrix_;

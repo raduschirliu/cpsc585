@@ -166,14 +166,34 @@ void GeometryPass::Render()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Render each camera
-    for (size_t i = 0; i < render_data_.cameras.size(); i++)
+    // Determine which camera to render
+    if (render_data_.cameras.size() > 0)
     {
-        // TODO(radu): FOR DEBUG Don't hardcode this
-        if (i == 1)
+        Camera* main_camera = nullptr;
+
+        for (size_t i = 0; i < render_data_.cameras.size(); i++)
         {
             Camera* camera = render_data_.cameras[i];
-            CameraView view = PrepareCameraView(*camera);
+
+            if (camera->GetType() == CameraType::kDisabled)
+            {
+                // Ignore disabled cameras
+            }
+            else if (camera->GetType() == CameraType::kNormal)
+            {
+                main_camera = camera;
+            }
+            else if (camera->GetType() == CameraType::kDebug)
+            {
+                // First debug camera always gets priority
+                main_camera = camera;
+                break;
+            }
+        }
+
+        if (main_camera)
+        {
+            CameraView view = PrepareCameraView(*main_camera);
             RenderMeshes(view);
             RenderDebugDrawList(view);
             RenderSkybox(view);

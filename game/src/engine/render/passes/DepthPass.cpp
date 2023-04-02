@@ -195,11 +195,6 @@ mat4 DepthPass::GetLightSpaceTransformation() const
     return light_proj_ * light_view_;
 }
 
-void DepthPass::SetDrawDebugBounds(bool state)
-{
-    debug_draw_bounds_ = state;
-}
-
 void DepthPass::RenderPrepare()
 {
     // Determine target position
