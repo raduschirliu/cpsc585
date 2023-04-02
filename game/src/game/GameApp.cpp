@@ -10,6 +10,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
 #include "engine/input/InputService.h"
+#include "engine/powerup/PowerupService.h"
 #include "engine/physics/BoxRigidBody.h"
 #include "engine/physics/BoxTrigger.h"
 #include "engine/physics/MeshStaticBody.h"
@@ -73,6 +74,7 @@ void GameApp::OnInit()
     AddService<GuiService>();
     AddService<AIService>();
     AddService<GameStateService>();
+    AddService<PowerupService>();
 }
 
 /**

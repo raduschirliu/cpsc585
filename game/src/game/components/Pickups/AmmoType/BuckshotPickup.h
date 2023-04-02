@@ -16,4 +16,6 @@ class BuckshotPickup final : public Pickup
     virtual std::string_view GetName() const override;
 
   private:
+    // timer_ used to deactivate the ammo powerup after some time.  
+    double timer_;
 };
