@@ -37,6 +37,7 @@ class DepthPass
     ShaderProgram shader_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
     bool debug_draw_bounds_;
+    bool debug_draw_frustum_segments_;
     Transform* target_transform_;
     glm::vec3 target_pos_;
     glm::vec3 source_pos_;

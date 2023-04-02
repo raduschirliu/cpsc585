@@ -210,10 +210,9 @@ void RenderService::OnGui()
             ImGui::TreePop();
         }
 
-        ImGui::TreeNode("point lights", "Point Lights: %zu",
-                        render_data_->point_lights.size());
-        ImGui::TreeNode("entities", "Entities: %zu",
-                        render_data_->entities.size());
+        ImGui::BulletText("Point Lights: %zu",
+                          render_data_->point_lights.size());
+        ImGui::BulletText("Entities: %zu", render_data_->entities.size());
 
         ImGui::Checkbox("Draw Camera Frustums", &debug_draw_camera_frustums_);
 
@@ -248,7 +247,7 @@ void RenderService::DrawCameraFrustums()
         if (!camera->IsDebugCamera())
         {
             debug_draw_list_.AddCuboid(camera->GetFrustumWorldVertices(),
-                                       Color4u(0, 255, 255, 255));
+                                       Color4u(0, 255, 0, 255));
         }
     }
 }

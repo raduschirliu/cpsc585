@@ -38,7 +38,7 @@ static vec3 kLightUp(0.0f, 1.0f, 0.0f);
 static vec3 kLightPos(45.0f, 20.0f, 0.0f);
 static float kNearPlane = 0.5f;
 static float kFarPlane = 110.0f;
-static Rect2d kMapBounds(vec2(-64.0f, -64.0f), vec2(64.0f, 64.0f));
+static vec3 kBoundsMult(1.0f, 1.0f, 0.0f);
 
 DepthPass::DepthPass(SceneRenderData& render_data)
     : render_data_(render_data),
@@ -48,6 +48,7 @@ DepthPass::DepthPass(SceneRenderData& render_data)
               "resources/shaders/depth_map.frag"),
       meshes_{},
       debug_draw_bounds_(false),
+      debug_draw_frustum_segments_(false),
       target_transform_(nullptr),
       target_pos_(0.0f, 0.0f, 0.0f),
       source_pos_(0.0f, 0.0f, 0.0f)
@@ -171,8 +172,10 @@ void DepthPass::RenderDebugGui()
     }
 
     ImGui::Checkbox("Draw Shadow Map Bounds", &debug_draw_bounds_);
-    gui::EditProperty("Ortho Projection Bounds", kMapBounds);
+    ImGui::Checkbox("Draw Camera Frustum Segments",
+                    &debug_draw_frustum_segments_);
     gui::EditProperty("Light Pos", kLightPos);
+    gui::EditProperty("Bounds Multiplier", kBoundsMult);
     ImGui::DragFloat("Near Plane", &kNearPlane, 1.0f, -1000.0f, 1000.0f);
     ImGui::DragFloat("Far Plane", &kFarPlane, 1.0f, -1000.0f, 1000.0f);
 }
@@ -205,17 +208,24 @@ void DepthPass::RenderPrepare()
         glm::radians(90.0f), 1280.0f / 720.0f, kNearPlane, kFarPlane);
     Cuboid frustum;
     frustum.BoundsFromNdcs(camera_proj_segment * camera->GetViewMatrix());
-    render_data_.debug_draw_list->AddCuboid(frustum, Color4u(0, 255, 0, 255));
+
+    if (debug_draw_frustum_segments_)
+    {
+        constexpr Color4u kDebugColor(0, 255, 255, 255);
+        const vec3& camera_pos =
+            camera->GetEntity().GetComponent<Transform>().GetPosition();
+
+        render_data_.debug_draw_list->AddCuboid(frustum, kDebugColor);
+        render_data_.debug_draw_list->AddLine(
+            DebugVertex(camera_pos, kDebugColor),
+            DebugVertex(target_pos_, kDebugColor));
+    }
 
     target_pos_ = frustum.GetCentroidMidpoint(0.5f);
     source_pos_ = target_pos_ + kLightPos;
 
     // Build proj and view matrices
     light_view_ = glm::lookAt(source_pos_, target_pos_, kLightUp);
-    // light_proj_ =
-    //     glm::ortho(kMapBounds.pos.x, kMapBounds.pos.x + kMapBounds.size.x,
-    //                kMapBounds.pos.y + kMapBounds.size.y, kMapBounds.pos.y,
-    //                kNearPlane, kFarPlane);
 
     // TODO(radu): Do do cascaded shadow maps, need to calc various different
     // proj matrices for the camera (with different values for near/far), and
@@ -229,22 +239,73 @@ void DepthPass::RenderPrepare()
     {
         const vec4 temp = light_view_ * vec4(*vertex, 1.0f);
 
-        // TODO: could this be wrong?
         min = glm::min(min, vec3(temp));
         max = glm::max(max, vec3(temp));
 
         vertex++;
     }
 
-    const float x_mult = 10.0f;
-    const float y_mult = 10.0f;
+    if (min.x < 0.0f)
+    {
+        min.x *= kBoundsMult.x;
+    }
+    else
+    {
+        min.x /= kBoundsMult.x;
+    }
+    if (max.x < 0.0f)
+    {
+        max.x /= kBoundsMult.x;
+    }
+    else
+    {
+        max.x *= kBoundsMult.x;
+    }
 
-    min.x *= (min.x < 0.0f ? x_mult : 1.0f / x_mult);
-    max.x *= (max.x < 0.0f ? x_mult : 1.0f / x_mult);
-    min.y *= (min.y < 0.0f ? y_mult : 1.0f / y_mult);
-    max.y *= (max.y < 0.0f ? y_mult : 1.0f / y_mult);
+    if (min.y < 0.0f)
+    {
+        min.y *= kBoundsMult.y;
+    }
+    else
+    {
+        min.y /= kBoundsMult.y;
+    }
+    if (max.y < 0.0f)
+    {
+        max.y /= kBoundsMult.y;
+    }
+    else
+    {
+        max.y *= kBoundsMult.y;
+    }
 
-    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, -10.0f, 200.0f);
+    if (min.z < 0.0f)
+    {
+        min.z *= kBoundsMult.z;
+    }
+    else
+    {
+        min.z /= kBoundsMult.z;
+    }
+    if (max.z < 0.0f)
+    {
+        max.z /= kBoundsMult.z;
+    }
+    else
+    {
+        max.z *= kBoundsMult.z;
+    }
+
+    static constexpr vec3 kSmallest(-200.0f, -200.0f, -200.0f);
+    static constexpr vec3 kLargest(200.0f, 200.0f, 200.0f);
+
+    max = glm::clamp(max, kSmallest, kLargest);
+    min = glm::clamp(min, kSmallest, kLargest);
+
+    const float near_plane = glm::min(-25.0f, min.z);
+    const float far_plane = glm::max(125.0f, max.z);
+
+    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, near_plane, far_plane);
 }
 
 void DepthPass::RenderMeshes()

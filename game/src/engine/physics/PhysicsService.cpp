@@ -120,8 +120,9 @@ void PhysicsService::OnUpdate()
             const PxDebugLine& line = lines[i];
 
             const DebugVertex start(PxToGlm(line.pos0),
-                                   PxColorToVec(line.color0));
-            const DebugVertex end(PxToGlm(line.pos1), PxColorToVec(line.color1));
+                                    PxColorToVec(line.color0));
+            const DebugVertex end(PxToGlm(line.pos1),
+                                  PxColorToVec(line.color1));
             draw_list.AddLine(start, end);
         }
     }
@@ -388,7 +389,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
     {
         DebugVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
         DebugVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
-                       Color4u(255, 0, 0, 255));
+                        Color4u(255, 0, 0, 255));
         render_service_->GetDebugDrawList().AddLine(start, end);
     }
 
