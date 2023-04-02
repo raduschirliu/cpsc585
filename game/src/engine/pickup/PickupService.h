@@ -15,11 +15,11 @@
 #include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
 
-class PowerupService final : public Service,
+class PickupService final : public Service,
                              public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    PowerupService();
+    PickupService();
 
     // From Service
     void OnInit() override;
@@ -56,6 +56,17 @@ class PowerupService final : public Service,
 
     void LoadPowerupOtherInformation(const rapidjson::Value& powerup_object,
                                         const std::string& member);
+
+    /****** GETTERS SETTERS *****/
+    std::array<std::string, 6> GetAmmoPickupNames();
+    float GetAmmoDamage(std::string ammo_type);
+    float GetAmmoDuration(std::string ammo_type);
+    float GetAmmoCooldown(std::string ammo_type);
+    float GetBuckshotAdditionalDetail(std::string detail_type);
+
+    std::array<std::string, 5> GetPowerupPickupNames();
+    float GetPowerupDuration(std::string powerup_type);
+    float GetPowerupMaxSpeeds(std::string powerup_type);
 
   private:
     /******** AMMO ********/

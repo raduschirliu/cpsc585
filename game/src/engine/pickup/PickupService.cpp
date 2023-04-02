@@ -1,4 +1,4 @@
-#include "PowerupService.h"
+#include "PickupService.h"
 
 #include <array>
 #include <assimp/Importer.hpp>
@@ -24,43 +24,43 @@ static const std::array<string, 5> kPowerups = {
     "Default", "DisableHandling", "EveryoneSlower", "IncreaseAimBox",
     "KillAbilities"};
 
-PowerupService::PowerupService()
+PickupService::PickupService()
 {
 }
 
 // From Service
-void PowerupService::OnInit()
+void PickupService::OnInit()
 {
     LoadAssetFile(kPowerupFilePath);
 }
 
-void PowerupService::OnStart(ServiceProvider& service_provider)
+void PickupService::OnStart(ServiceProvider& service_provider)
 {
 }
 
-void PowerupService::OnUpdate()
+void PickupService::OnUpdate()
 {
 }
 
-void PowerupService::OnCleanup()
+void PickupService::OnCleanup()
 {
 }
 
-void PowerupService::OnSceneLoaded(Scene& scene)
+void PickupService::OnSceneLoaded(Scene& scene)
 {
 }
 
-std::string_view PowerupService::GetName() const
+std::string_view PickupService::GetName() const
 {
     return "Powerup Service";
 }
 
 // From OnUpdateEvent
-void PowerupService::OnUpdate(const Timestep& delta_time)
+void PickupService::OnUpdate(const Timestep& delta_time)
 {
 }
 
-void PowerupService::LoadAssetFile(const string& path)
+void PickupService::LoadAssetFile(const string& path)
 {
     std::ifstream file_stream(path);
     ASSERT_MSG(file_stream.is_open(), "Failed to open asset file");
@@ -90,7 +90,7 @@ void PowerupService::LoadAssetFile(const string& path)
     }
 }
 
-void PowerupService::LoadPowerupInformation(const rapidjson::Document& doc)
+void PickupService::LoadPowerupInformation(const rapidjson::Document& doc)
 {
     const rapidjson::Value& powerup_object = doc["Powerup"];
     for (int i = 0; i < kPowerups.size(); i++)
@@ -103,7 +103,7 @@ void PowerupService::LoadPowerupInformation(const rapidjson::Document& doc)
     }
 }
 
-void PowerupService::LoadPowerupOtherInformation(
+void PickupService::LoadPowerupOtherInformation(
     const rapidjson::Value& powerup_object, const std::string& member)
 {
     const rapidjson::Value& member_obj = powerup_object[member];
@@ -116,7 +116,7 @@ void PowerupService::LoadPowerupOtherInformation(
     }
 }
 
-void PowerupService::LoadPowerupDurationInformation(
+void PickupService::LoadPowerupDurationInformation(
     const rapidjson::Value& powerup_object, const std::string& member)
 {
     const rapidjson::Value& member_obj = powerup_object[member];
@@ -129,7 +129,7 @@ void PowerupService::LoadPowerupDurationInformation(
     }
 }
 
-void PowerupService::LoadAmmoInformation(const Document& doc)
+void PickupService::LoadAmmoInformation(const Document& doc)
 {
     const rapidjson::Value& ammo_object = doc["Ammo"];
     for (int i = 0; i < kAmmoTypes.size(); i++)
@@ -147,7 +147,7 @@ void PowerupService::LoadAmmoInformation(const Document& doc)
     }
 }
 
-void PowerupService::LoadAmmoOtherInformation(
+void PickupService::LoadAmmoOtherInformation(
     const rapidjson::Value& ammo_object, const std::string& member)
 {
     const rapidjson::Value& member_object = ammo_object[member];
@@ -167,7 +167,7 @@ void PowerupService::LoadAmmoOtherInformation(
     }
 }
 
-void PowerupService::LoadAmmoCooldownInformation(
+void PickupService::LoadAmmoCooldownInformation(
     const rapidjson::Value& ammo_object, const std::string& member)
 {
     const rapidjson::Value& member_object = ammo_object[member];
@@ -180,7 +180,7 @@ void PowerupService::LoadAmmoCooldownInformation(
     }
 }
 
-void PowerupService::LoadAmmoDurationInformation(
+void PickupService::LoadAmmoDurationInformation(
     const rapidjson::Value& ammo_object, const std::string& member)
 {
     const rapidjson::Value& member_object = ammo_object[member];
@@ -193,7 +193,7 @@ void PowerupService::LoadAmmoDurationInformation(
     }
 }
 
-void PowerupService::LoadAmmoDamageInformation(
+void PickupService::LoadAmmoDamageInformation(
     const rapidjson::Value& ammo_object, const std::string& member)
 {
     const rapidjson::Value& member_object = ammo_object[member];
@@ -204,4 +204,69 @@ void PowerupService::LoadAmmoDamageInformation(
         // add to our damage map.
         ammo_damages_.insert({member, damage.GetFloat()});
     }
+}
+
+/****** GETTERS SETTERS *****/
+std::array<std::string, 6> PickupService::GetAmmoPickupNames()
+{
+    return kAmmoTypes;
+}
+
+std::array<std::string, 5> PickupService::GetPowerupPickupNames()
+{
+    return kPowerups;
+}
+
+float PickupService::GetAmmoDamage(std::string ammo_type)
+{
+    if (ammo_damages_.find(ammo_type) != ammo_damages_.end())
+    {
+        return ammo_damages_[ammo_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetAmmoDuration(std::string ammo_type)
+{
+    if (ammo_durations_.find(ammo_type) != ammo_durations_.end())
+    {
+        return ammo_durations_[ammo_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetAmmoCooldown(std::string ammo_type)
+{
+    if (ammo_cooldowns_.find(ammo_type) != ammo_cooldowns_.end())
+    {
+        return ammo_cooldowns_[ammo_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetBuckshotAdditionalDetail(std::string detail_type)
+{
+    if (buckshot_additional_details_.find(detail_type) != ammo_damages_.end())
+    {
+        return ammo_damages_[detail_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetPowerupDuration(std::string powerup_type)
+{
+    if (powerup_durations_.find(powerup_type) != powerup_durations_.end())
+    {
+        return powerup_durations_[powerup_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetPowerupMaxSpeeds(std::string powerup_type)
+{
+    if (powerup_max_speeds_.find(powerup_type) != powerup_max_speeds_.end())
+    {
+        return powerup_max_speeds_[powerup_type];
+    }
+    return 0.0;
 }
