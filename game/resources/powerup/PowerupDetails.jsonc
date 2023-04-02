@@ -31,7 +31,7 @@
     }
   },
 
-  "Powerups": {
+  "Powerup": {
     "Default": {
       "max_speed": 100
     },

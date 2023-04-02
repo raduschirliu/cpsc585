@@ -35,6 +35,7 @@ class PowerupService final : public Service,
     // load the values from json file
     void LoadAssetFile(const std::string& path);
 
+    /******** AMMO *******/
     void LoadAmmoInformation(const rapidjson::Document& doc);
     void LoadAmmoDamageInformation(const rapidjson::Value& ammo_object,
                                    const std::string& member);
@@ -43,15 +44,27 @@ class PowerupService final : public Service,
     void LoadAmmoCooldownInformation(const rapidjson::Value& ammo_object,
                                      const std::string& member);
 
-    // Only for buckshot as it has other information as well. 
+    // Only for buckshot as it has other information as well.
     void LoadAmmoOtherInformation(const rapidjson::Value& ammo_object,
-                                     const std::string& member);
+                                  const std::string& member);
 
-    void LoadPickupInformation(const rapidjson::Document& doc);
+    /******** POWERUPS ******/
+    void LoadPowerupInformation(const rapidjson::Document& doc);
+
+    void LoadPowerupDurationInformation(const rapidjson::Value& powerup_object,
+                                        const std::string& member);
+
+    void LoadPowerupOtherInformation(const rapidjson::Value& powerup_object,
+                                        const std::string& member);
 
   private:
+    /******** AMMO ********/
     std::unordered_map<std::string, float> ammo_damages_;
     std::unordered_map<std::string, float> ammo_durations_;
     std::unordered_map<std::string, float> ammo_cooldowns_;
     std::unordered_map<std::string, float> buckshot_additional_details_;
-};  
+
+    /******** POWERUP ***/
+    std::unordered_map<std::string, float> powerup_durations_;
+    std::unordered_map<std::string, float> powerup_max_speeds_;
+};
