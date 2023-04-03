@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include <object_ptr.hpp>
 #include <string>
 #include <unordered_set>
@@ -15,6 +16,7 @@
 #include "game/services/GameStateService.h"
 
 class PlayerState;
+class PickupService;
 
 class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -29,10 +31,15 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
   private:
     jss::object_ptr<GameStateService> game_state_;
+    jss::object_ptr<PickupService> pickup_service_;
 
     bool powerup_executed_ = false;
 
   protected:
+    // get the name of all ammo types and powerup types from pickup service
+    std::array<std::string, 6> ammo_types_;
+    std::array<std::string, 5> powerup_types_;
+
     jss::object_ptr<Transform> transform_;
     bool power_visible_ = true;
 
@@ -44,4 +51,8 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
     void SetPowerVisibility(bool bValue);
     void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
+
+
+    // for powerups
+    float GetMaxDuration(std::string type);
 };

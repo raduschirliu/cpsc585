@@ -19,6 +19,7 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
             if (power_visible_ && player_state_->GetCurrentPowerup() ==
                                       PowerupPickupType::kDefaultPowerup)
             {
+                start_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
@@ -26,6 +27,25 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
                 SetVehiclePowerup(PowerupPickupType::kKillAbilities, data);
             }
         }
+    }
+}
+
+void KillAbilitiesPickup::OnUpdate(const Timestep& delta_time)
+{
+    Pickup::OnUpdate(delta_time);
+    if (start_timer_)
+    {
+        timer_ += delta_time.GetSeconds();
+    }
+
+    // retrieving the Max allowed timer for the powerup from the pickupservice.
+    if (timer_ >= GetMaxDuration(std::string(GetName())))
+    {
+        start_timer_ = false;
+        timer_ = 0.0f;
+
+        transform_->SetScale(glm::vec3(0.12f, 0.12f, 0.12f));
+        SetPowerVisibility(true);
     }
 }
 

@@ -14,6 +14,9 @@ class DoubleDamagePickup final : public Pickup
     virtual void OnTriggerEnter(const OnTriggerEvent& data) override;
     virtual void OnTriggerExit(const OnTriggerEvent& data) override;
     virtual std::string_view GetName() const override;
+    virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
+  float timer_ = 0.f;
+  bool start_timer_ = false;
 };

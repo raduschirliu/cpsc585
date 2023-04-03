@@ -207,6 +207,7 @@ void PickupService::LoadAmmoDamageInformation(
 }
 
 /****** GETTERS SETTERS *****/
+
 std::array<std::string, 6> PickupService::GetAmmoPickupNames()
 {
     return kAmmoTypes;

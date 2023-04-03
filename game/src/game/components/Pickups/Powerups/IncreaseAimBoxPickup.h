@@ -18,5 +18,10 @@ class IncreaseAimBoxPickup final : public Pickup
     virtual void OnTriggerExit(const OnTriggerEvent& data) override;
     virtual std::string_view GetName() const override;
 
+  virtual void OnUpdate(const Timestep& delta_time) override;
+
   private:
+    // timer_ used to deactivate the ammo powerup after some time.  
+    double timer_;
+    bool start_timer_ = false;
 };

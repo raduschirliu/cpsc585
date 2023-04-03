@@ -25,6 +25,7 @@ void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
                                     AmmoPickupType::kVampireBullet;
             if (power_visible_ && current_ammo)
             {
+                start_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
@@ -34,6 +35,25 @@ void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
                     AmmoPickupType::kIncreaseFireRate);
             }
         }
+    }
+}
+
+void IncreaseFireRatePickup::OnUpdate(const Timestep& delta_time)
+{
+    Pickup::OnUpdate(delta_time);
+    if (start_timer_)
+    {
+        timer_ += delta_time.GetSeconds();
+    }
+
+    // retrieving the Max allowed timer for the powerup from the pickupservice.
+    if (timer_ >= GetMaxDuration(std::string(GetName())))
+    {
+        start_timer_ = false;
+        timer_ = 0.0f;
+
+        transform_->SetScale(glm::vec3(4.f, 4.f, 4.f));
+        SetPowerVisibility(true);
     }
 }
 
