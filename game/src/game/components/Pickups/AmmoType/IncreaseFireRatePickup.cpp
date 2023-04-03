@@ -7,7 +7,6 @@ void IncreaseFireRatePickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
     GetEventBus().Subscribe<OnUpdateEvent>(this);
-
 }
 
 void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -56,6 +55,18 @@ void IncreaseFireRatePickup::OnUpdate(const Timestep& delta_time)
 
         transform_->SetScale(glm::vec3(4.f, 4.f, 4.f));
         SetPowerVisibility(true);
+    }
+    // For deactivating this powerup so that user cannot use it anymore.
+    if (start_deactivate_timer_)
+    {
+        deactivate_timer_ += delta_time.GetSeconds();
+    }
+    if (deactivate_timer_ >= GetDeactivateTime(std::string(GetName())))
+    {
+        start_deactivate_timer_ = false;
+        deactivate_timer_ = 0.0f;
+
+        player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
     }
 }
 

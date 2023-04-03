@@ -17,6 +17,10 @@ class DoubleDamagePickup final : public Pickup
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-  float timer_ = 0.f;
-  bool start_timer_ = false;
+    float timer_ = 0.f;
+    bool start_timer_ = false;
+
+    // deactivate_timer_ to remove the powerup from user
+    double deactivate_timer_ = 0.f;
+    bool start_deactivate_timer_ = false;
 };

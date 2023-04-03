@@ -27,6 +27,7 @@
     },
     "IncreaseFireRate": {
       "damage": 15,
+      "time": 4,
       "cooldown": 0.35,
       "respawn": 20
     },
