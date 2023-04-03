@@ -7,6 +7,7 @@
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/services/GameStateService.h"
+#include "engine/physics/PhysicsService.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -48,7 +49,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
   private:
     void CheckDead(const Timestep& delta_time);
     float death_cooldown;
-    jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     PlayerStateData player_state_;
 };

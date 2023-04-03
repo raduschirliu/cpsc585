@@ -14,7 +14,6 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
-#include "game/services/GameStateService.h"
 
 using snippetvehicle2::BaseVehicle;
 using std::string;
@@ -56,11 +55,12 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
     asset_service_ = &service_provider.GetService<AssetService>();
     input_service_ = &service_provider.GetService<InputService>();
     render_service_ = &service_provider.GetService<RenderService>();
-    game_state_service_ = &service_provider.GetService<GameStateService>();
 }
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
 {
+    display_pause_ = false;
+
     if (kScene_)
     {
         PX_RELEASE(kScene_);
@@ -99,11 +99,18 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 
 void PhysicsService::OnUpdate()
 {
-    if (!game_state_service_->GetDisplayPauseBoolean())
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE) ||
+        input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
+                                               GLFW_GAMEPAD_BUTTON_START))
+    {
+        display_pause_ = true;
+    }
+
+    if (!display_pause_)
     {
         const Timestep& delta = GetApp().GetDeltaTime();
         time_accumulator_ += delta;
-        
+
         StepPhysics();
     }
 
@@ -538,6 +545,15 @@ void PhysicsService::StepPhysics()
 const PxVec3& PhysicsService::GetGravity() const
 {
     return kGravity;
+}
+
+bool PhysicsService::GetDisplayPauseBoolean()
+{
+    return display_pause_;
+}
+
+void PhysicsService::SetDisplayPauseBoolean(bool boolean){
+    display_pause_ = boolean;
 }
 
 /* From PxSimulationEventCallback */

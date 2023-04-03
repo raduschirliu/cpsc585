@@ -5,7 +5,6 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
-#include "game/services/GameStateService.h"
 
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
@@ -24,7 +23,7 @@ void Shooter::Shoot()
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     // play shoot sound; slightly randomize pitch
-    if (!game_state_service_->GetDisplayPauseBoolean())
+    if (!physics_service_->GetDisplayPauseBoolean())
     {
         audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
         audio_emitter_->PlaySource(shoot_sound_file_);
@@ -303,7 +302,6 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     debug::LogInfo("{} Component - Init", GetName());
 
     // service dependencies
-    game_state_service_ = &service_provider.GetService<GameStateService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
     audio_service_ = &service_provider.GetService<AudioService>();
 

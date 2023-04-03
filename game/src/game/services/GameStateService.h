@@ -121,14 +121,13 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
-    bool GetDisplayPauseBoolean();
-
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -186,8 +185,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     ImFont* font_koverwatch_;
     ImFont* font_mandu_;
     ImFont* font_pixel_;
-
-    bool display_pause_ = false;
     
     std::pair<std::string, int> most_kills = {"", -1};
     std::pair<std::string, int> least_deaths = {"", 1000};

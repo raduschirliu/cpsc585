@@ -8,7 +8,7 @@ static constexpr float kMaxDeathCooldown = 5.0f;
 
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
-    game_state_service_ = &service_provider.GetService<GameStateService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
     death_cooldown = 0.f;
 
@@ -146,7 +146,7 @@ void PlayerState::SetHealth(float health)
 void PlayerState::DecrementHealth(float health)
 {
     if (player_state_.health >= health &&
-        !game_state_service_->GetDisplayPauseBoolean())
+        !physics_service_->GetDisplayPauseBoolean())
     {
         player_state_.health -= health;
         audio_emitter_->PlaySource("kart_hit_01.ogg");
@@ -168,7 +168,7 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    if (!game_state_service_->GetDisplayPauseBoolean())
+    if (!physics_service_->GetDisplayPauseBoolean())
     {
         player_state_.current_powerup = type;
         audio_emitter_->PlaySource("pickup_get_01.ogg");

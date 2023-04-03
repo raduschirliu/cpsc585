@@ -12,6 +12,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
 #include "engine/physics/BoxTrigger.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -99,6 +100,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     gui_service_ = &service_provider.GetService<GuiService>();
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     input_service_ = &service_provider.GetService<InputService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -134,13 +136,6 @@ void GameStateService::OnUpdate()
         t.second += static_cast<float>(delta_time.GetSeconds());
     }
 
-    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE) ||
-        input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
-                                               GLFW_GAMEPAD_BUTTON_START))
-    {
-        display_pause_ = !display_pause_;
-    }
-
     active_powerups_ = PowerupsActive();
     RemoveActivePowerup();
 
@@ -167,7 +162,7 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
 
-    if (display_pause_)
+    if (physics_service_->GetDisplayPauseBoolean())
     {
         ImGui::SetNextWindowPos(ImVec2(385, 205));
         ImGui::Begin("pause", nullptr, flags);
@@ -193,7 +188,7 @@ void GameStateService::OnGui()
         ImGui::PushFont(font_cookie_);
         if (ImGui::Button("RESUME"))
         {
-            display_pause_ = !display_pause_;
+            physics_service_->SetDisplayPauseBoolean(false);
         }
 
         ImGui::SetCursorPos(ImVec2(pos.x + 20, pos.y + 80));
@@ -1178,11 +1173,6 @@ void GameStateService::SetRespawnEntity(uint32_t entity_id)
     players_respawn_.insert(entity_id);
 }
 
-bool GameStateService::GetDisplayPauseBoolean()
-{
-    return display_pause_;
-}
-
 void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
@@ -1211,7 +1201,8 @@ const uint32_t GameStateService::GetNumCheckpoints() const
 
 void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
 {
-    if (race_state_.state == GameState::kRaceInProgress && !display_pause_)
+    if (race_state_.state == GameState::kRaceInProgress &&
+        !physics_service_->GetDisplayPauseBoolean())
     {
         race_state_.elapsed_time += delta_time;
     }
