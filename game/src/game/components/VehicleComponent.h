@@ -21,56 +21,61 @@ class VehicleComponent final : public Component,
   public:
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
-    void OnDestroy() override;
-    void OnDebugGui() override;
     std::string_view GetName() const override;
+    void OnDebugGui() override;
+    void OnDestroy() override;
 
     // Event subscribers
     void OnUpdate(const Timestep& delta_time) override;
     void OnPhysicsUpdate(const Timestep& step) override;
 
-    void SetGear(VehicleGear gear);
+    // Getters and Setters
     void SetCommand(VehicleCommand command);
-
-    // Accessors
-    void SetVehicleName(const std::string& vehicle_name);
     void SetPlayerStateData(PlayerStateData& data);
+    void SetVehicleName(const std::string& vehicle_name);
+    void SetGear(VehicleGear gear);
+    void SetMaxVelocity(float vel);
+    void SetMaxAchievableVelocity(float max_velocity);
 
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
-
     VehicleGear GetGear() const;
     float GetSpeed() const;
     float GetAdjustedSpeedMultiplier();
-    void SetMaxAchievableVelocity(float max_velocity);
+    bool IsGrounded() const;
 
-    void SetMaxVelocity(float vel);
+    void Respawn();
 
   private:
-    jss::object_ptr<Transform> transform_;
-    jss::object_ptr<PhysicsService> physics_service_;
-    jss::object_ptr<InputService> input_service_;
-    jss::object_ptr<GameStateService> game_state_service_;
-    jss::object_ptr<AudioEmitter> audio_emitter_;
-
-    // The vehicle with direct drivetrain
-    snippetvehicle2::DirectDriveVehicle vehicle_;
-
-    // The mapping between PxMaterial and friction.
-    physx::vehicle2::PxVehiclePhysXMaterialFriction
-        gPhysXMaterialFrictions_[16];
-    physx::PxU32 gNbPhysXMaterialFrictions_ = 0;
-
-    std::string g_vehicle_name_;
-
-    PlayerStateData* player_data_;
-
-    float speed_adjuster_;
-    float max_velocity_ = 130.f;
-    
-    void AdjustCentreOfMass();
-
     void InitVehicle();
     void InitMaterialFrictionTable();
     void LoadParams();
     void HandleVehicleTransform();
+    void UpdateGrounded();
+    void CheckAutoRespawn(const Timestep& delta_time);
+    void UpdateRespawnOrientation(const glm::vec3& next_checkpoint,
+                                  const glm::vec3& checkpoint);
+
+    /// The mapping between PxMaterial and friction.
+    physx::vehicle2::PxVehiclePhysXMaterialFriction
+        gPhysXMaterialFrictions_[16];
+    physx::PxU32 gNbPhysXMaterialFrictions_ = 0;
+
+    /// i.e. Whether or not the vehicle is midair or upside down
+    bool is_grounded_;
+    float respawn_timer_;
+
+    std::string g_vehicle_name_;
+    PlayerStateData* player_data_;
+
+    float speed_adjuster_;
+    float max_velocity_ = 130.f;
+
+    // Service and Component dependencies
+    jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<Transform> transform_;
+    jss::object_ptr<AudioEmitter> audio_emitter_;
+    /// The vehicle with direct drivetrain
+    snippetvehicle2::DirectDriveVehicle vehicle_;
 };

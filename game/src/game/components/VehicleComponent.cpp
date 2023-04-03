@@ -27,12 +27,114 @@ using namespace physx::vehicle2;
 using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
+static constexpr float kRespawnSeconds = 3.0f;
+
+// filenames and paths
+
 static constexpr const char* kVehicleDataPath = "resources/vehicle_data";
 static constexpr const char* kBaseParamFileName = "Base.jsonc";
 static constexpr const char* kDirectDriveParamFileName = "DirectDrive.jsonc";
 static constexpr const char* kIntegrationParamFileName = "Integration.jsonc";
+static constexpr const char* kDrivingAudio = "kart_driving_01.ogg";
+static constexpr const char* kRespawnAudio = "kart_respawn_01.ogg";
 
-static constexpr const char* kDrivingAudioFile = "kart_driving_01.ogg";
+/* ----- From Component ----- */
+
+void VehicleComponent::OnInit(const ServiceProvider& service_provider)
+{
+    // service and component dependencies
+    physics_service_ = &service_provider.GetService<PhysicsService>();
+    input_service_ = &service_provider.GetService<InputService>();
+    transform_ = &GetEntity().GetComponent<Transform>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
+    audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+
+    // reset cooldown
+    respawn_timer_ = 0.0f;
+
+    // subscribe to events
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
+    GetEventBus().Subscribe<OnPhysicsUpdateEvent>(this);
+
+    // init vehicle properties
+    InitMaterialFrictionTable();
+    LoadParams();
+    InitVehicle();
+
+    physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
+
+    // init sounds
+    audio_emitter_->AddSource(kDrivingAudio);
+    audio_emitter_->SetGain(kDrivingAudio, 0.05f);
+    audio_emitter_->SetLoop(kDrivingAudio, true);
+    audio_emitter_->PlaySource(kDrivingAudio);
+
+    audio_emitter_->AddSource(kRespawnAudio);
+
+    // speed adjuster for the AI.
+    speed_adjuster_ = rand() % 60;
+}
+
+std::string_view VehicleComponent::GetName() const
+{
+    return "Vehicle";
+}
+
+void VehicleComponent::OnDebugGui()
+{
+    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
+    ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
+    ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
+    ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
+    ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
+
+    const vec3 linear_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.linearVelocity);
+    gui::ViewProperty("Linear Velocity", linear_velocity);
+
+    const float speed = glm::length(linear_velocity);
+    ImGui::Text("Speed: %f", speed);
+
+    auto vehicle_frame = vehicle_.mBaseParams.frame;
+    const float lat_speed =
+        vehicle_.mBaseState.rigidBodyState.getLateralSpeed(vehicle_frame);
+    const float long_speed =
+        vehicle_.mBaseState.rigidBodyState.getLongitudinalSpeed(vehicle_frame);
+
+    ImGui::Text("Lat Speed: %f", lat_speed);
+    ImGui::Text("Long Speed: %f", long_speed);
+
+    const vec3 angular_velocity =
+        PxToGlm(vehicle_.mBaseState.rigidBodyState.angularVelocity);
+    gui::ViewProperty("Angular Velocity", angular_velocity);
+}
+
+void VehicleComponent::OnDestroy()
+{
+    physics_service_->UnregisterVehicle(&vehicle_, &GetEntity());
+    vehicle_.destroy();
+}
+
+/* ----- EventSubscriber ----- */
+
+void VehicleComponent::OnUpdate(const Timestep& delta_time)
+{
+    if (input_service_->IsKeyPressed(GLFW_KEY_F10))
+    {
+        LoadParams();
+        debug::LogInfo("Reloaded vehicle params from JSON files...");
+    }
+
+    HandleVehicleTransform();
+    UpdateGrounded();
+    CheckAutoRespawn(delta_time);
+}
+
+void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
+{
+}
+
+/* ----- Vehicle Functions ----- */
 
 void VehicleComponent::LoadParams()
 {
@@ -100,13 +202,6 @@ void VehicleComponent::InitVehicle()
         max_velocity_);
 }
 
-void VehicleComponent::SetMaxVelocity(float vel)
-{
-    max_velocity_ = vel;
-    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
-        max_velocity_);
-}
-
 void VehicleComponent::InitMaterialFrictionTable()
 {
     // Each physx material can be mapped to a tire friction value on a per tire
@@ -157,85 +252,92 @@ void VehicleComponent::HandleVehicleTransform()
     }
 }
 
-void VehicleComponent::OnInit(const ServiceProvider& service_provider)
+void VehicleComponent::UpdateGrounded()
 {
-    physics_service_ = &service_provider.GetService<PhysicsService>();
-    input_service_ = &service_provider.GetService<InputService>();
-    transform_ = &GetEntity().GetComponent<Transform>();
-    game_state_service_ = &service_provider.GetService<GameStateService>();
-    audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+    // get orientation
+    glm::vec3 position = transform_->GetPosition();
+    glm::vec3 down = -transform_->GetUpDirection();
 
-    GetEventBus().Subscribe<OnUpdateEvent>(this);
-    GetEventBus().Subscribe<OnPhysicsUpdateEvent>(this);
-
-    InitMaterialFrictionTable();
-    LoadParams();
-    InitVehicle();
-
-    physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
-
-    audio_emitter_->AddSource(kDrivingAudioFile);
-    audio_emitter_->SetGain(kDrivingAudioFile, 0.05f);
-    audio_emitter_->SetLoop(kDrivingAudioFile, true);
-    audio_emitter_->PlaySource(kDrivingAudioFile);
-
-    // speed adjuster for the AI.
-    speed_adjuster_ = rand() % 60;
+    // check
+    auto raycast_data = physics_service_->RaycastStatic(position, down, 10.0f);
+    is_grounded_ = (raycast_data.has_value()) ? true : false;
 }
 
-// to adjust the throttle for AIs.
-float VehicleComponent::GetAdjustedSpeedMultiplier()
+void VehicleComponent::Respawn()
 {
-    return speed_adjuster_;
+    glm::vec3 last_checkpoint_pos;
+    glm::vec3 next_checkpoint_pos;
+
+    int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
+        GetEntity().GetId(), last_checkpoint_pos, next_checkpoint_pos);
+
+    // entity wasn't found, so probably shouldn't try to respawn
+    if (current_checkpoint == -1)
+        return;
+
+    // move vehicle to last checkpoint + orient towards next checkpoint
+    transform_->SetPosition(last_checkpoint_pos);
+    UpdateRespawnOrientation(next_checkpoint_pos, last_checkpoint_pos);
+    game_state_service_->AddRespawnPlayers(GetEntity().GetId());
+
+    // play respawn sound
+    audio_emitter_->PlaySource(kRespawnAudio);
+
+    debug::LogDebug("Entity {} respawned!", GetEntity().GetId());
 }
 
-void VehicleComponent::OnUpdate(const Timestep& delta_time)
+void VehicleComponent::UpdateRespawnOrientation(
+    const glm::vec3& next_checkpoint, const glm::vec3& last_checkpoint)
 {
-    if (input_service_->IsKeyPressed(GLFW_KEY_F10))
+    auto current_orientation = transform_->GetOrientation();
+
+    // assume car is initially oriented along the negative z-axis
+    glm::vec3 forward = transform_->GetForwardDirection();
+    glm::vec3 direction = glm::normalize(next_checkpoint - last_checkpoint);
+    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    float angle = glm::acos(glm::dot(forward, direction));
+
+    transform_->SetOrientation(glm::angleAxis(angle, axis) *
+                               current_orientation);
+}
+
+void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
+{
+    if (is_grounded_)  // vehicle already grounded, no need to respawn
     {
-        LoadParams();
-        debug::LogInfo("Reloaded vehicle params from JSON files...");
+        respawn_timer_ = 0.0f;
+        return;
     }
 
-    HandleVehicleTransform();
-    AdjustCentreOfMass();
+    // increment timer
+    respawn_timer_ += delta_time.GetSeconds();
+
+    // when respawn time is up
+    if (respawn_timer_ >= kRespawnSeconds)
+    {
+        Respawn();
+        respawn_timer_ = 0.0f;
+    }
 }
 
-void VehicleComponent::AdjustCentreOfMass()
+/* ----- Setters + Getters ----- */
+
+void VehicleComponent::SetMaxVelocity(float vel)
 {
-    PxRigidBody* rigidbody = vehicle_.mPhysXState.physxActor.rigidBody;
-
-    glm::vec3 position = transform_->GetPosition();
-    /* glm::vec3 down = -transform_->GetUpDirection(); */
-    glm::vec3 down = glm::vec3{0.0f, -1.0f, 0.0f};
-    // check if vehicle is grounded
-
-    auto raycast_data = physics_service_->RaycastStatic(position, down, 2.0f);
-
-    if (!raycast_data.has_value())
-        debug::LogDebug("Entity {} adjusting cMass...", GetEntity().GetId());
-    else 
-        debug::LogDebug("Entity {} grounded", GetEntity().GetId());
-    PxTransform cmass = (raycast_data.has_value())        //
-                            ? PxTransform{0.f, 0.f, 0.f}  //
-                            : PxTransform{0.f, 0.f, 2.f};
-
-    rigidbody->setCMassLocalPose(cmass);
+    max_velocity_ = vel;
+    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
+        max_velocity_);
 }
 
-void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
+void VehicleComponent::SetMaxAchievableVelocity(float max_velocity)
 {
+    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
+        max_velocity);
 }
 
-void VehicleComponent::OnDestroy()
+void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
 {
-    physics_service_->UnregisterVehicle(&vehicle_, &GetEntity());
-    vehicle_.destroy();
-}
-
-std::string_view VehicleComponent::GetName() const
-{
-    return "Vehicle";
+    player_data_ = &data;
 }
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
@@ -246,45 +348,6 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
     g_vehicle_name_ = vehicle_name;
     vehicle_.setUpActor(*physics_service_->GetKScene(), pose,
                         g_vehicle_name_.c_str());
-}
-
-void VehicleComponent::OnDebugGui()
-{
-    ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
-    ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
-    ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
-    ImGui::Text("Front Brake: %f", vehicle_.mCommandState.brakes[0]);
-    ImGui::Text("Rear Brake: %f", vehicle_.mCommandState.brakes[1]);
-
-    const vec3 linear_velocity =
-        PxToGlm(vehicle_.mBaseState.rigidBodyState.linearVelocity);
-    gui::ViewProperty("Linear Velocity", linear_velocity);
-
-    const float speed = glm::length(linear_velocity);
-    ImGui::Text("Speed: %f", speed);
-
-    auto vehicle_frame = vehicle_.mBaseParams.frame;
-    const float lat_speed =
-        vehicle_.mBaseState.rigidBodyState.getLateralSpeed(vehicle_frame);
-    const float long_speed =
-        vehicle_.mBaseState.rigidBodyState.getLongitudinalSpeed(vehicle_frame);
-
-    ImGui::Text("Lat Speed: %f", lat_speed);
-    ImGui::Text("Long Speed: %f", long_speed);
-
-    const vec3 angular_velocity =
-        PxToGlm(vehicle_.mBaseState.rigidBodyState.angularVelocity);
-    gui::ViewProperty("Angular Velocity", angular_velocity);
-}
-
-DirectDriveVehicle& VehicleComponent::GetVehicle()
-{
-    return vehicle_;
-}
-
-void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
-{
-    player_data_ = &data;
 }
 
 void VehicleComponent::SetGear(VehicleGear gear)
@@ -323,6 +386,17 @@ void VehicleComponent::SetCommand(VehicleCommand command)
         glm::clamp(command.rear_brake, 0.0f, 1.0f);
 }
 
+// to adjust the throttle for AIs.
+float VehicleComponent::GetAdjustedSpeedMultiplier()
+{
+    return speed_adjuster_;
+}
+
+DirectDriveVehicle& VehicleComponent::GetVehicle()
+{
+    return vehicle_;
+}
+
 VehicleGear VehicleComponent::GetGear() const
 {
     switch (vehicle_.mTransmissionCommandState.gear)
@@ -338,7 +412,8 @@ VehicleGear VehicleComponent::GetGear() const
 
         default:
             ASSERT_ALWAYS(
-                "Vehicle transmission should never be in an unkown state");
+                "Vehicle transmission should never be in an "
+                "unkown state");
             return VehicleGear::kNeutral;
     }
 }
@@ -350,8 +425,7 @@ float VehicleComponent::GetSpeed() const
     return glm::length(velocity);
 }
 
-void VehicleComponent::SetMaxAchievableVelocity(float max_velocity)
+bool VehicleComponent::IsGrounded() const
 {
-    vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
-        max_velocity);
+    return is_grounded_;
 }
