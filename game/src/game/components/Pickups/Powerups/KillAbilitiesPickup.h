@@ -22,6 +22,6 @@ class KillAbilitiesPickup final : public Pickup
 
   private:
     // timer_ used to deactivate the ammo powerup after some time.  
-    double timer_;
+    double timer_ = 0.f;
     bool start_timer_ = false;
 };

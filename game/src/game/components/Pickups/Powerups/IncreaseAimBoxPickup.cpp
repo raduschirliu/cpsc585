@@ -1,11 +1,13 @@
 #include "IncreaseAimBoxPickup.h"
 
 #include "engine/core/debug/Log.h"
+#include <iostream>
 #include "engine/scene/Entity.h"
 
 void IncreaseAimBoxPickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void IncreaseAimBoxPickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -29,6 +31,7 @@ void IncreaseAimBoxPickup::OnTriggerEnter(const OnTriggerEvent& data)
         }
     }
 }
+
 void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);
@@ -38,7 +41,7 @@ void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxDuration(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
     {
         start_timer_ = false;
         timer_ = 0.0f;
@@ -54,5 +57,5 @@ void IncreaseAimBoxPickup::OnTriggerExit(const OnTriggerEvent& data)
 
 std::string_view IncreaseAimBoxPickup::GetName() const
 {
-    return "Increase the aim box";
+    return "IncreaseAimBox";
 }

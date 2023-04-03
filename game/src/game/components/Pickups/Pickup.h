@@ -54,5 +54,5 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
 
     // for powerups
-    float GetMaxDuration(std::string type);
+    float GetMaxRespawnTime(std::string type);
 };

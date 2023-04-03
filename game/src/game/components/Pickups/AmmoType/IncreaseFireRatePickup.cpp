@@ -6,6 +6,8 @@
 void IncreaseFireRatePickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
+
 }
 
 void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -47,7 +49,7 @@ void IncreaseFireRatePickup::OnUpdate(const Timestep& delta_time)
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxDuration(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
     {
         start_timer_ = false;
         timer_ = 0.0f;
@@ -64,5 +66,5 @@ void IncreaseFireRatePickup::OnTriggerExit(const OnTriggerEvent& data)
 
 std::string_view IncreaseFireRatePickup::GetName() const
 {
-    return "Increased Fire Rate";
+    return "IncreaseFireRate";
 }

@@ -99,7 +99,21 @@ void PickupService::LoadPowerupInformation(const rapidjson::Document& doc)
         {
             LoadPowerupDurationInformation(powerup_object, kPowerups[i]);
             LoadPowerupOtherInformation(powerup_object, kPowerups[i]);
+            LoadPowerupRespawnTimeInformation(powerup_object, kPowerups[i]);
         }
+    }
+}
+
+void PickupService::LoadPowerupRespawnTimeInformation(
+    const rapidjson::Value& powerup_object, const std::string& member)
+{
+    const rapidjson::Value& member_obj = powerup_object[member];
+    if (member_obj.HasMember("respawn"))
+    {
+        const rapidjson::Value& respawn = member_obj["respawn"];
+
+        // add to our damage map.
+        powerup_respawn_times_.insert({member, respawn.GetFloat()});
     }
 }
 
@@ -139,11 +153,25 @@ void PickupService::LoadAmmoInformation(const Document& doc)
             LoadAmmoDamageInformation(ammo_object, kAmmoTypes[i]);
             LoadAmmoDurationInformation(ammo_object, kAmmoTypes[i]);
             LoadAmmoCooldownInformation(ammo_object, kAmmoTypes[i]);
+            LoadAmmoRespawnTimeInformation(ammo_object, kAmmoTypes[i]);
             if (kAmmoTypes[i] == "Buckshot")
             {
                 LoadAmmoOtherInformation(ammo_object, kAmmoTypes[i]);
             }
         }
+    }
+}
+
+void PickupService::LoadAmmoRespawnTimeInformation(
+    const rapidjson::Value& ammo_object, const std::string& member)
+{
+    const rapidjson::Value& member_object = ammo_object[member];
+    if (member_object.HasMember("respawn"))
+    {
+        const rapidjson::Value& respawn = member_object["respawn"];
+
+        // add to our damage map.
+        ammo_respawn_times_.insert({member, respawn.GetFloat()});
     }
 }
 
@@ -268,6 +296,24 @@ float PickupService::GetPowerupMaxSpeeds(std::string powerup_type)
     if (powerup_max_speeds_.find(powerup_type) != powerup_max_speeds_.end())
     {
         return powerup_max_speeds_[powerup_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetAmmoRespawnTime(std::string ammo_type)
+{
+    if (ammo_respawn_times_.find(ammo_type) != ammo_respawn_times_.end())
+    {
+        return ammo_respawn_times_[ammo_type];
+    }
+    return 0.0;
+}
+
+float PickupService::GetPowerupRespawnTime(std::string powerup_type)
+{
+    if (powerup_respawn_times_.find(powerup_type) != powerup_respawn_times_.end())
+    {
+        return powerup_respawn_times_[powerup_type];
     }
     return 0.0;
 }

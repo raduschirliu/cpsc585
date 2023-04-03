@@ -64,20 +64,20 @@ void Pickup::SetVehiclePowerup(PowerupPickupType type,
 }
 
 /** Gets for how long the powerup/ammo should be there for the user */
-float Pickup::GetMaxDuration(std::string type)
+float Pickup::GetMaxRespawnTime(std::string type)
 {
     for (int i = 0; i < ammo_types_.size(); i++)
     {
         if (type == ammo_types_[i])
         {
-            return pickup_service_->GetAmmoDuration(type);
+            return pickup_service_->GetAmmoRespawnTime(type);
         }
     }
     for (int i = 0; i < powerup_types_.size(); i++)
     {
         if (type == powerup_types_[i])
         {
-            return pickup_service_->GetPowerupDuration(type);
+            return pickup_service_->GetPowerupRespawnTime(type);
         }
     }
     return 0.f;

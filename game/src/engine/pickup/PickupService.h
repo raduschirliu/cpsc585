@@ -16,7 +16,7 @@
 #include "game/components/Pickups/PickupType.h"
 
 class PickupService final : public Service,
-                             public IEventSubscriber<OnUpdateEvent>
+                            public IEventSubscriber<OnUpdateEvent>
 {
   public:
     PickupService();
@@ -43,6 +43,8 @@ class PickupService final : public Service,
                                      const std::string& member);
     void LoadAmmoCooldownInformation(const rapidjson::Value& ammo_object,
                                      const std::string& member);
+    void LoadAmmoRespawnTimeInformation(const rapidjson::Value& ammo_object,
+                                     const std::string& member);
 
     // Only for buckshot as it has other information as well.
     void LoadAmmoOtherInformation(const rapidjson::Value& ammo_object,
@@ -55,18 +57,22 @@ class PickupService final : public Service,
                                         const std::string& member);
 
     void LoadPowerupOtherInformation(const rapidjson::Value& powerup_object,
-                                        const std::string& member);
+                                     const std::string& member);
+    void LoadPowerupRespawnTimeInformation(const rapidjson::Value& powerup_object,
+                                     const std::string& member);
 
     /****** GETTERS SETTERS *****/
     std::array<std::string, 6> GetAmmoPickupNames();
     float GetAmmoDamage(std::string ammo_type);
     float GetAmmoDuration(std::string ammo_type);
     float GetAmmoCooldown(std::string ammo_type);
+    float GetAmmoRespawnTime(std::string ammo_type);
     float GetBuckshotAdditionalDetail(std::string detail_type);
 
     std::array<std::string, 5> GetPowerupPickupNames();
     float GetPowerupDuration(std::string powerup_type);
     float GetPowerupMaxSpeeds(std::string powerup_type);
+    float GetPowerupRespawnTime(std::string powerup_type);
 
   private:
     /******** AMMO ********/
@@ -74,8 +80,10 @@ class PickupService final : public Service,
     std::unordered_map<std::string, float> ammo_durations_;
     std::unordered_map<std::string, float> ammo_cooldowns_;
     std::unordered_map<std::string, float> buckshot_additional_details_;
+    std::unordered_map<std::string, float> ammo_respawn_times_;
 
     /******** POWERUP ***/
     std::unordered_map<std::string, float> powerup_durations_;
     std::unordered_map<std::string, float> powerup_max_speeds_;
+    std::unordered_map<std::string, float> powerup_respawn_times_;
 };

@@ -6,6 +6,7 @@
 void ExploadingBulletPickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void ExploadingBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -45,7 +46,7 @@ void ExploadingBulletPickup::OnUpdate(const Timestep& delta_time)
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxDuration(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
     {
         start_timer_ = false;
         timer_ = 0.0f;
