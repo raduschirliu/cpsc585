@@ -246,10 +246,11 @@ void GameStateService::OnGui()
             {
                 ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
             }
-            else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            {
-                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
-            }
+            // else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            // {
+            //     ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70,
+            //     70));
+            // }
             else if (a.second == PowerupPickupType::kKillAbilities)
             {
                 ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
@@ -519,9 +520,9 @@ void GameStateService::SetupPowerups()
                 powerup_to_int = 2;
                 break;
 
-            case PowerupPickupType::kIncreaseAimBox:
-                powerup_to_int = 3;
-                break;
+                // case PowerupPickupType::kIncreaseAimBox:
+                //     powerup_to_int = 3;
+                //     break;
 
             case PowerupPickupType::kKillAbilities:
                 powerup_to_int = 4;
@@ -567,18 +568,18 @@ void GameStateService::SetupPowerups()
                 });
                 break;
 
-            case PowerupPickupType::kIncreaseAimBox:
-                entity.AddComponent<IncreaseAimBoxPickup>();
-                mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("defence"),
-                    MaterialProperties{
-                        .albedo_texture = nullptr,
-                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                        .specular = vec3(1.0f, 1.0f, 1.0f),
-                        .shininess = 64.0f,
-                    },
-                });
-                break;
+                // case PowerupPickupType::kIncreaseAimBox:
+                //     entity.AddComponent<IncreaseAimBoxPickup>();
+                //     mesh_renderer.SetMesh({
+                //         &asset_service_->GetMesh("defence"),
+                //         MaterialProperties{
+                //             .albedo_texture = nullptr,
+                //             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                //             .specular = vec3(1.0f, 1.0f, 1.0f),
+                //             .shininess = 64.0f,
+                //         },
+                //     });
+                //     break;
 
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
@@ -1218,10 +1219,10 @@ void GameStateService::UpdatePowerupInfo()
                     powerup_info.push_back(
                         {PowerupPickupType::kEveryoneSlower, l.first});
                     break;
-                case 3:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kIncreaseAimBox, l.first});
-                    break;
+                // case 3:
+                //     powerup_info.push_back(
+                //         {PowerupPickupType::kIncreaseAimBox, l.first});
+                //     break;
                 case 4:
                     powerup_info.push_back(
                         {PowerupPickupType::kKillAbilities, l.first});
