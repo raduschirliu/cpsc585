@@ -73,6 +73,15 @@ void Setting::OnGui()
     ImGui::PopStyleVar();
 
     // TODO: hook up audio button to where the background music plays
+    // if (check)  // working in a weird way lol
+    // {
+    //     audio_service_->SetMusic("test_music.ogg");
+    //     audio_service_->PlayMusic();
+    // }
+    // else
+    // {
+    //     audio_service_->StopMusic();
+    // }
 
     ImGui::End();
 
