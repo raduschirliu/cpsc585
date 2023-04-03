@@ -33,15 +33,17 @@ void Hitbox::OnInit(const ServiceProvider& service_provider)
 
 void Hitbox::OnUpdate(const Timestep& delta_time)
 {
-    if (uint32_t id = game_state_service_->GetHitBoxMultiplier() != NULL)
-    {
-        // debug::LogInfo("Updated hitbox size");
-        if (GetEntity().GetId() != id)
-        {
-            // setting the size of the hitbox for all the other cars.
-            SetSize(vec3(20.0f, 20.0f, 20.0f));
-        }
-    }
+    // TODO: Hit box Update 
+
+    // if (uint32_t id = game_state_service_->GetHitBoxMultiplier() != NULL)
+    // {
+    //     // debug::LogInfo("Updated hitbox size");
+    //     if (GetEntity().GetId() != id)
+    //     {
+    //         // setting the size of the hitbox for all the other cars.
+    //         SetSize(vec3(20.0f, 20.0f, 20.0f));
+    //     }
+    // }
 
     SyncTransform();
 }

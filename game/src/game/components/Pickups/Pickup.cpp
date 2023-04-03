@@ -82,3 +82,23 @@ float Pickup::GetMaxRespawnTime(std::string type)
     }
     return 0.f;
 }
+
+/** Gets for how long the user can use this powerup for **/
+float Pickup::GetDeactivateTime(std::string type)
+{
+    for (int i = 0; i < ammo_types_.size(); i++)
+    {
+        if (type == ammo_types_[i])
+        {
+            return pickup_service_->GetAmmoDuration(type);
+        }
+    }
+    for (int i = 0; i < powerup_types_.size(); i++)
+    {
+        if (type == powerup_types_[i])
+        {
+            return pickup_service_->GetPowerupDuration(type);
+        }
+    }
+    return 0.f;
+}

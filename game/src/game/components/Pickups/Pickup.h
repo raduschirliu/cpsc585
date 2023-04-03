@@ -30,12 +30,12 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    jss::object_ptr<GameStateService> game_state_;
     jss::object_ptr<PickupService> pickup_service_;
 
     bool powerup_executed_ = false;
 
   protected:
+    jss::object_ptr<GameStateService> game_state_;
     // get the name of all ammo types and powerup types from pickup service
     std::array<std::string, 6> ammo_types_;
     std::array<std::string, 5> powerup_types_;
@@ -55,4 +55,5 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // for powerups
     float GetMaxRespawnTime(std::string type);
+    float GetDeactivateTime(std::string type);
 };

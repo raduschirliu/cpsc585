@@ -20,4 +20,8 @@ class BuckshotPickup final : public Pickup
     // timer_ used to deactivate the ammo powerup after some time.  
     double timer_ = 0.f;
     bool start_timer_ = false;
+
+    // deactivate_timer_ to remove the powerup from user
+    double deactivate_timer_ = 0.f;
+    bool start_deactivate_timer_ = false;
 };

@@ -26,6 +26,7 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
             {
                 // start the timer as soon as the powerup is picked up.
                 start_timer_ = true;
+                start_deactivate_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
@@ -44,7 +45,6 @@ void BuckshotPickup::OnUpdate(const Timestep& delta_time)
     {
         timer_ += delta_time.GetSeconds();
     }
-
     // retrieving the Max allowed timer for the powerup from the pickupservice.
     if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
     {
@@ -53,6 +53,19 @@ void BuckshotPickup::OnUpdate(const Timestep& delta_time)
 
         transform_->SetScale(glm::vec3(4.f, 4.f, 4.f));
         SetPowerVisibility(true);
+    }
+
+    // For deactivating this powerup so that user cannot use it anymore.
+    if (start_deactivate_timer_)
+    {
+        deactivate_timer_ += delta_time.GetSeconds();
+    }
+    if (deactivate_timer_ >= GetDeactivateTime(std::string(GetName())))
+    {
+        start_deactivate_timer_ = false;
+        deactivate_timer_ = 0.0f;
+
+        player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
     }
 }
 

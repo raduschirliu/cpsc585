@@ -62,39 +62,41 @@ void AIController::OnInit(const ServiceProvider& service_provider)
 
 void AIController::UpdatePowerup()
 {
-    uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
-    if (id != -1)
-    {
-        if (id != GetEntity().GetId())
-        {
-            speed_multiplier_ = 0.2f;
-            vehicle_->SetMaxAchievableVelocity(40.f);
-        }
-    }
-    else
-    {
-        // this is the entity which started the powerup, so do nothing.
-        speed_multiplier_ = kSpeedMultiplierReset;
-        vehicle_->SetMaxAchievableVelocity(100.f);
-    }
+    // uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
+    // if (id != -1)
+    // {
+    //     if (id != GetEntity().GetId())
+    //     {
+    //         speed_multiplier_ = 0.2f;
+    //         vehicle_->SetMaxAchievableVelocity(40.f);
+    //     }
+    // }
+    // else
+    // {
+    //     // this is the entity which started the powerup, so do nothing.
+    //     speed_multiplier_ = kSpeedMultiplierReset;
+    //     vehicle_->SetMaxAchievableVelocity(100.f);
+    // }
 
-    id = game_state_service_->GetDisableHandlingMultiplier();
+    // TODO: slow down the cars
 
-    if (id != -1)
-    {
-        // now except for the entity who launched it, all the entities should
-        // slow down.
-        if (GetEntity().GetId() != id)
-        {
-            // if any AI picked up the powerup then the player's speed should be
-            // reduced.
-            handling_multiplier_ = 0.0f;
-        }
-    }
-    else
-    {
-        handling_multiplier_ = kHandlingMultiplierReset;
-    }
+    // id = game_state_service_->GetDisableHandlingMultiplier();
+
+    // if (id != -1)
+    // {
+    //     // now except for the entity who launched it, all the entities should
+    //     // slow down.
+    //     if (GetEntity().GetId() != id)
+    //     {
+    //         // if any AI picked up the powerup then the player's speed should be
+    //         // reduced.
+    //         handling_multiplier_ = 0.0f;
+    //     }
+    // }
+    // else
+    // {
+    //     handling_multiplier_ = kHandlingMultiplierReset;
+    // }
 }
 
 void AIController::OnUpdate(const Timestep& delta_time)
@@ -285,8 +287,7 @@ void AIController::PowerupDecision()
 // Execute the powerup.
 void AIController::ExecutePowerup()
 {
-    game_state_service_->AddPlayerPowerup(GetEntity().GetId(),
-                                          player_state_->GetCurrentPowerup());
+    // TODO: handle executing the powerup
 }
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
