@@ -95,42 +95,6 @@ void AIController::UpdatePowerup()
             pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
             break;
     }
-    // uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
-    // if (id != -1)
-    // {
-    //     if (id != GetEntity().GetId())
-    //     {
-    //         speed_multiplier_ = 0.2f;
-    //         vehicle_->SetMaxAchievableVelocity(40.f);
-    //     }
-    // }
-    // else
-    // {
-    //     // this is the entity which started the powerup, so do nothing.
-    //     speed_multiplier_ = kSpeedMultiplierReset;
-    //     vehicle_->SetMaxAchievableVelocity(100.f);
-    // }
-
-    // TODO: slow down the cars
-
-    // id = game_state_service_->GetDisableHandlingMultiplier();
-
-    // if (id != -1)
-    // {
-    //     // now except for the entity who launched it, all the entities should
-    //     // slow down.
-    //     if (GetEntity().GetId() != id)
-    //     {
-    //         // if any AI picked up the powerup then the player's speed should
-    //         be
-    //         // reduced.
-    //         handling_multiplier_ = 0.0f;
-    //     }
-    // }
-    // else
-    // {
-    //     handling_multiplier_ = kHandlingMultiplierReset;
-    // }
 }
 
 void AIController::OnUpdate(const Timestep& delta_time)
