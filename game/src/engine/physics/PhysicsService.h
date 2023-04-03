@@ -20,6 +20,8 @@
 #include "engine/service/Service.h"
 #include "vehicle2/PxVehicleAPI.h"
 
+class GameStateService;
+
 class PhysicsService final : public Service,
                              public IEventSubscriber<OnGuiEvent>,
                              public physx::PxSimulationEventCallback
@@ -37,6 +39,7 @@ class PhysicsService final : public Service,
     void OnGui() override;
 
   private:
+    jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<RenderService> render_service_;

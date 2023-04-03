@@ -123,8 +123,6 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
     pause_ = &asset_service_->GetTexture("pause");
-
-    display_pause_ = false;
 }
 
 void GameStateService::OnUpdate()
@@ -136,9 +134,11 @@ void GameStateService::OnUpdate()
         t.second += static_cast<float>(delta_time.GetSeconds());
     }
 
-    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE))
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE) ||
+        input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
+                                               GLFW_GAMEPAD_BUTTON_START))
     {
-        display_pause_ = true;
+        display_pause_ = !display_pause_;
     }
 
     active_powerups_ = PowerupsActive();
@@ -193,7 +193,7 @@ void GameStateService::OnGui()
         ImGui::PushFont(font_cookie_);
         if (ImGui::Button("RESUME"))
         {
-            display_pause_ = false;
+            display_pause_ = !display_pause_;
         }
 
         ImGui::SetCursorPos(ImVec2(pos.x + 20, pos.y + 80));
@@ -431,7 +431,6 @@ void GameStateService::OnSceneLoaded(Scene& scene)
     race_state_.Reset();
     track_config_.Reset();
     players_.clear();
-    display_pause_ = false;
 
     if (scene.GetName() == "Track1")
     {
@@ -1179,6 +1178,11 @@ void GameStateService::SetRespawnEntity(uint32_t entity_id)
     players_respawn_.insert(entity_id);
 }
 
+bool GameStateService::GetDisplayPauseBoolean()
+{
+    return display_pause_;
+}
+
 void GameStateService::SetRaceConfig(const RaceConfig& config)
 {
     if (race_state_.state != GameState::kNotRunning)
@@ -1207,7 +1211,7 @@ const uint32_t GameStateService::GetNumCheckpoints() const
 
 void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
 {
-    if (race_state_.state == GameState::kRaceInProgress)
+    if (race_state_.state == GameState::kRaceInProgress && !display_pause_)
     {
         race_state_.elapsed_time += delta_time;
     }

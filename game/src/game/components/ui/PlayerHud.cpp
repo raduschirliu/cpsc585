@@ -126,11 +126,9 @@ void PlayerHud::OnGui()
     }
 
     ImGui::SetCursorPos(ImVec2(0, 600));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
     ImGui::PushFont(font_);
     ImGui::Text("LAP: %d/%lu", player_state_->GetLapsCompleted(),
                 game_state_service_->GetRaceConfig().num_laps);
-    ImGui::PopStyleColor();
     ImGui::SameLine(0.f, 700.f);
     if (game_state_service_->GetGlobalRaceState().state ==
         GameState::kCountdown)

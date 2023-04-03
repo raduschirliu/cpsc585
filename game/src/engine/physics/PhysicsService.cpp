@@ -14,6 +14,7 @@
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/ServiceProvider.h"
+#include "game/services/GameStateService.h"
 
 using snippetvehicle2::BaseVehicle;
 using std::string;
@@ -55,6 +56,7 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
     asset_service_ = &service_provider.GetService<AssetService>();
     input_service_ = &service_provider.GetService<InputService>();
     render_service_ = &service_provider.GetService<RenderService>();
+    game_state_service_ = &service_provider.GetService<GameStateService>();
 }
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
@@ -97,10 +99,13 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 
 void PhysicsService::OnUpdate()
 {
-    const Timestep& delta = GetApp().GetDeltaTime();
-    time_accumulator_ += delta;
-
-    StepPhysics();
+    if (!game_state_service_->GetDisplayPauseBoolean())
+    {
+        const Timestep& delta = GetApp().GetDeltaTime();
+        time_accumulator_ += delta;
+        
+        StepPhysics();
+    }
 
     if (input_service_->IsKeyPressed(GLFW_KEY_F3))
     {

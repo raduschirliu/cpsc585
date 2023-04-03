@@ -12,6 +12,8 @@
 #include "game/components/shooting/Hitbox.h"
 #include "game/components/state/PlayerState.h"
 
+class GameStateService;
+
 class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
@@ -75,6 +77,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     /* ----- service and component dependencies ----- */
 
+    jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<AudioService> audio_service_;
 

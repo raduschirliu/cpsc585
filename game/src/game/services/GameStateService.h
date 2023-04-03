@@ -121,6 +121,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
+    bool GetDisplayPauseBoolean();
+
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
@@ -177,8 +179,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* killAbilities_;
     const Texture* pause_;
 
-    bool display_pause_;
-
     ImFont* font_beya_;
     ImFont* font_pado_;
     ImFont* font_impact_;
@@ -187,6 +187,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     ImFont* font_mandu_;
     ImFont* font_pixel_;
 
+    bool display_pause_ = false;
+    
     std::pair<std::string, int> most_kills = {"", -1};
     std::pair<std::string, int> least_deaths = {"", 1000};
 };

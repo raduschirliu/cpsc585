@@ -145,7 +145,8 @@ void PlayerState::SetHealth(float health)
 
 void PlayerState::DecrementHealth(float health)
 {
-    if (player_state_.health >= health)
+    if (player_state_.health >= health &&
+        !game_state_service_->GetDisplayPauseBoolean())
     {
         player_state_.health -= health;
         audio_emitter_->PlaySource("kart_hit_01.ogg");
@@ -167,8 +168,11 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    player_state_.current_powerup = type;
-    audio_emitter_->PlaySource("pickup_get_01.ogg");
+    if (!game_state_service_->GetDisplayPauseBoolean())
+    {
+        player_state_.current_powerup = type;
+        audio_emitter_->PlaySource("pickup_get_01.ogg");
+    }
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
