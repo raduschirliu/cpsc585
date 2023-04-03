@@ -352,22 +352,22 @@ void VehicleComponent::SetVehicleName(const string& vehicle_name)
 
 void VehicleComponent::SetGear(VehicleGear gear)
 {
+    // this is an UNjustifiably long struct name lmao
+    using enum PxVehicleDirectDriveTransmissionCommandState::Enum;
+
     PxVehicleDirectDriveTransmissionCommandState::Enum px_gear;
     switch (gear)
     {
         case VehicleGear::kReverse:
-            px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE;
+            px_gear = eREVERSE;
             break;
 
         case VehicleGear::kNeutral:
-            px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL;
+            px_gear = eNEUTRAL;
             break;
 
         case VehicleGear::kForward:
-            px_gear =
-                PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD;
+            px_gear = eFORWARD;
             break;
     }
 
