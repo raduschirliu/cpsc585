@@ -404,6 +404,7 @@ std::optional<RaycastData> PhysicsService::RaycastDynamic(
         return std::nullopt;
     }
     Entity* target_entity = actors_[target_actor];
+    ASSERT(target_entity);  // this better be true
 
     // bundle all the data to send
     RaycastData result(raycast_result, target_entity);
@@ -448,6 +449,7 @@ std::optional<RaycastData> PhysicsService::RaycastStatic(
         return std::nullopt;
     }
     Entity* target_entity = actors_[target_actor];
+    ASSERT(target_entity);  // this better be true
 
     // bundle all the data to send
     RaycastData result(raycast_result, target_entity);

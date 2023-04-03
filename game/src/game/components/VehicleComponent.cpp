@@ -260,7 +260,7 @@ void VehicleComponent::UpdateGrounded()
 
     // check
     auto raycast_data = physics_service_->RaycastStatic(position, down, 10.0f);
-    is_grounded_ = (raycast_data.has_value()) ? true : false;
+    is_grounded_ = raycast_data.has_value();
 }
 
 void VehicleComponent::Respawn()
