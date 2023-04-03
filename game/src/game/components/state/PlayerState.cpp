@@ -4,13 +4,16 @@
 
 #include "engine/core/debug/Log.h"
 
-static constexpr float kMaxDeathCooldown = 5.0f;
+static constexpr float kDeathCooldownSeconds = 5.0f;
 
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
+    // service and component dependencies
     game_state_service_ = &service_provider.GetService<GameStateService>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
-    death_cooldown = 0.f;
+
+    // reset cooldown
+    death_cooldown_ = 0.0f;
 
     // load sounds
     audio_emitter_->AddSource("pickup_get_01.ogg");
@@ -21,8 +24,8 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     audio_emitter_->SetGain("kart_hit_01.ogg", 0.3f);
     audio_emitter_->AddSource("player_die_01.ogg");
     audio_emitter_->SetGain("player_die_01.ogg", 2.0f);
-    GetEventBus().Subscribe<OnUpdateEvent>(this);
 
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
     player_state_.Reset();
 }
 
@@ -33,8 +36,6 @@ void PlayerState::OnStart()
 void PlayerState::OnUpdate(const Timestep& delta_time)
 {
     CheckDead(delta_time);
-    // debug::LogError("{} of entity: {}", player_state_.health,
-    //                 GetEntity().GetName());
 }
 
 void PlayerState::CheckDead(const Timestep& delta_time)
@@ -42,7 +43,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
     if (player_state_.is_dead)  // lol
     {
         // cooldown up, no longer dead
-        if (death_cooldown <= 0)
+        if (death_cooldown_ <= 0)
         {
             player_state_.is_dead = false;
             player_state_.health = 100.0f;
@@ -52,7 +53,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         {
             float delta_time_seconds =
                 static_cast<float>(delta_time.GetSeconds());
-            death_cooldown -= delta_time_seconds;
+            death_cooldown_ -= delta_time_seconds;
         }
     }
     else
@@ -60,7 +61,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         // player has deadge
         if (player_state_.health <= 0.0f)
         {
-            death_cooldown = kMaxDeathCooldown;
+            death_cooldown_ = kDeathCooldownSeconds;
             player_state_.is_dead = true;
             player_state_.number_deaths++;
             audio_emitter_->PlaySource("player_die_01.ogg");
