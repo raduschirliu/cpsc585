@@ -8,6 +8,7 @@
 #include "engine/core/math/Common.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
@@ -19,13 +20,14 @@
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
-static constexpr float kSpeedMultiplier = 1.0f;
-static constexpr float kHanldingMultiplier = 1.0f;
+static constexpr float kSpeedMultiplier = 0.1f;
+static constexpr float kHanldingMultiplier = 0.0f;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    pickup_service_ = &service_provider.GetService<PickupService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
     player_data_ = &GetEntity().GetComponent<PlayerState>();
@@ -86,7 +88,36 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
         }
         else
         {
-            // TODO: handle executing the powerup
+            switch (player_data_->GetCurrentPowerup())
+            {
+                case PowerupPickupType::kDisableHandling:
+                    // handle executing the powerup
+                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                          "DisableHandling");
+                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+                    break;
+
+                case PowerupPickupType::kEveryoneSlower:
+                    // handle executing the powerup
+                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                          "EveryoneSlower");
+                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+                    break;
+
+                case PowerupPickupType::kIncreaseAimBox:
+                    // handle executing the powerup
+                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                          "IncreaseAimBox");
+                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+                    break;
+
+                case PowerupPickupType::kKillAbilities:
+                    // handle executing the powerup
+                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                          "KillAbilities");
+                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+                    break;
+            }
         }
     }
 
@@ -99,7 +130,8 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     //     int entity_id = GetEntity().GetId();
     //     if (entity_id != id)
     //     {
-    //         // if any AI picked up the powerup then the player's speed should be
+    //         // if any AI picked up the powerup then the player's speed should
+    //         be
     //         // reduced.
     //         speed_multiplier_ = 0.2f;
     //         vehicle_->SetMaxAchievableVelocity(40.f);
@@ -124,7 +156,8 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     //     // slow down.
     //     if (GetEntity().GetId() != id)
     //     {
-    //         // if any AI picked up the powerup then the player's speed should be
+    //         // if any AI picked up the powerup then the player's speed should
+    //         be
     //         // reduced.
     //         handling_multiplier_ = 0.0f;
     //     }
@@ -222,11 +255,19 @@ float PlayerController::GetSteerDirection()
 {
     if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
-        return 1.0f * handling_multiplier_;
+        if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+            return 1.0f * kHanldingMultiplier;
+        else
+        {
+            return 1.0f;
+        }
     }
     else if (input_service_->IsKeyDown(GLFW_KEY_D))
     {
-        return -1.0f * handling_multiplier_;
+        if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+            return -1.0f * kHanldingMultiplier;
+        else
+            return -1.0f;
     }
 
     if (input_service_->IsGamepadActive(kGamepadId))
@@ -259,7 +300,10 @@ float PlayerController::GetThrottle()
     {
         if (input_service_->IsKeyDown(GLFW_KEY_W))
         {
-            return 1.0f * speed_multiplier_;
+            if (pickup_service_->IsVehicleSlowDown(&GetEntity()))
+                return 1.0f * kSpeedMultiplier;
+            else
+                return 1.0f;
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_S))
         {
@@ -275,7 +319,10 @@ float PlayerController::GetThrottle()
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_S))
         {
-            return 1.0f;
+            if (pickup_service_->IsVehicleSlowDown(&GetEntity()))
+                return 1.0f * kSpeedMultiplier;
+            else
+                return 1.0f;
         }
         return gamepad_trigger_left;
     }

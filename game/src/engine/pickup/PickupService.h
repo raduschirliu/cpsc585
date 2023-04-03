@@ -44,7 +44,7 @@ class PickupService final : public Service,
     void LoadAmmoCooldownInformation(const rapidjson::Value& ammo_object,
                                      const std::string& member);
     void LoadAmmoRespawnTimeInformation(const rapidjson::Value& ammo_object,
-                                     const std::string& member);
+                                        const std::string& member);
 
     // Only for buckshot as it has other information as well.
     void LoadAmmoOtherInformation(const rapidjson::Value& ammo_object,
@@ -58,8 +58,8 @@ class PickupService final : public Service,
 
     void LoadPowerupOtherInformation(const rapidjson::Value& powerup_object,
                                      const std::string& member);
-    void LoadPowerupRespawnTimeInformation(const rapidjson::Value& powerup_object,
-                                     const std::string& member);
+    void LoadPowerupRespawnTimeInformation(
+        const rapidjson::Value& powerup_object, const std::string& member);
 
     /****** GETTERS SETTERS *****/
     std::array<std::string, 6> GetAmmoPickupNames();
@@ -74,6 +74,23 @@ class PickupService final : public Service,
     float GetPowerupMaxSpeeds(std::string powerup_type);
     float GetPowerupRespawnTime(std::string powerup_type);
 
+    /********* EXECUTING AND HANDLING THE POWERUPS ************/
+
+    // Handle disabling the powerup
+    void HandleDisablingPowerup();
+
+    // Add the entity with the powerup they are holding
+    void AddEntityWithPowerup(Entity* entity, const std::string& powerup);
+
+    // Add the timers for the powerup when they are executed.
+    void AddEntityWithTimer(Entity* entity, const float& timer);
+
+    // To tell if the car should have the slowing down multiplier to them or not
+    bool IsVehicleSlowDown(Entity* entity);
+
+    // To tell if the car should have the slowing down multiplier to them or not
+    bool IsVehicleDisableHandling(Entity* entity);
+
   private:
     /******** AMMO ********/
     std::unordered_map<std::string, float> ammo_damages_;
@@ -86,4 +103,18 @@ class PickupService final : public Service,
     std::unordered_map<std::string, float> powerup_durations_;
     std::unordered_map<std::string, float> powerup_max_speeds_;
     std::unordered_map<std::string, float> powerup_respawn_times_;
+
+    /********* EXECUTING AND HANDLING THE POWERUPS ************/
+
+    // Storing the {entity, powerup}
+    std::unordered_map<Entity*, std::string> entity_holding_powerups_;
+
+    // Storing the {entity, timer}
+    std::unordered_map<Entity*, float> entity_timer_powerups_;
+
+    // Disable Handling for those players who are not in this map
+    std::unordered_set<Entity*> not_disabled_entities_;
+
+    // Slower the speed of those entities which are not in this list.
+    std::unordered_set<Entity*> not_slow_entities_;
 };

@@ -9,6 +9,8 @@ struct PlayerStateData
     float health;
     bool is_dead;
     float speed_multiplier;
+    float handling_multiplier;
+    float max_car_speed;
     int number_kills;
     int number_deaths;
     int laps_completed;
@@ -28,6 +30,7 @@ struct PlayerStateData
 
     void Reset()
     {
+        handling_multiplier = 1.0f;
         health = 100.0f;
         speed_multiplier = 1.0f;
         number_deaths = 0;
@@ -39,5 +42,6 @@ struct PlayerStateData
         nemesis = nullptr;
         bullied = nullptr;
         accuracy = 0.0f;
+        max_car_speed = 100.f;
     }
 };

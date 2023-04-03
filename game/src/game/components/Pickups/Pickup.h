@@ -52,7 +52,6 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetPowerVisibility(bool bValue);
     void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
 
-
     // for powerups
     float GetMaxRespawnTime(std::string type);
     float GetDeactivateTime(std::string type);

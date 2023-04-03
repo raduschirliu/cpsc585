@@ -33,7 +33,7 @@ void Hitbox::OnInit(const ServiceProvider& service_provider)
 
 void Hitbox::OnUpdate(const Timestep& delta_time)
 {
-    // TODO: Hit box Update 
+    // TODO: Hit box Update
 
     // if (uint32_t id = game_state_service_->GetHitBoxMultiplier() != NULL)
     // {

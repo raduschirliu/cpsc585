@@ -8,11 +8,12 @@
 #include "engine/core/math/Physx.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/scene/Entity.h"
 
-float kSpeedMultiplierReset(1.0f);
+float kSpeedMultiplier(0.1f);
 static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
-float kHandlingMultiplierReset(1.0f);
+float kHandlingMultiplier(0.0f);
 static constexpr float kMaxRespawnTimer(3.0f);
 static constexpr float kMaxFreeFallDifference(500.0f);
 
@@ -41,6 +42,7 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     render_service_ = &service_provider.GetService<RenderService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
+    pickup_service_ = &service_provider.GetService<PickupService>();
 
     // component dependencies
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
@@ -60,8 +62,39 @@ void AIController::OnInit(const ServiceProvider& service_provider)
     initial_height_ = transform_->GetPosition().y;
 }
 
+// Execute the powerup.
 void AIController::UpdatePowerup()
 {
+    switch (player_state_->GetCurrentPowerup())
+    {
+        case PowerupPickupType::kDisableHandling:
+            // handle executing the powerup
+            pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                  "DisableHandling");
+            pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+            break;
+
+        case PowerupPickupType::kEveryoneSlower:
+            // handle executing the powerup
+            pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                  "EveryoneSlower");
+            pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+            break;
+
+        case PowerupPickupType::kIncreaseAimBox:
+            // handle executing the powerup
+            pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                  "IncreaseAimBox");
+            pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+            break;
+
+        case PowerupPickupType::kKillAbilities:
+            // handle executing the powerup
+            pickup_service_->AddEntityWithPowerup(&GetEntity(),
+                                                  "KillAbilities");
+            pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
+            break;
+    }
     // uint32_t id = game_state_service_->GetEveryoneSlowerSpeedMultiplier();
     // if (id != -1)
     // {
@@ -88,7 +121,8 @@ void AIController::UpdatePowerup()
     //     // slow down.
     //     if (GetEntity().GetId() != id)
     //     {
-    //         // if any AI picked up the powerup then the player's speed should be
+    //         // if any AI picked up the powerup then the player's speed should
+    //         be
     //         // reduced.
     //         handling_multiplier_ = 0.0f;
     //     }
@@ -314,7 +348,12 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
                 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
                 speed_multiplier_;
         else
-            temp_command.throttle = 1.0f;
+        {
+            if (pickup_service_->IsVehicleSlowDown(&GetEntity()))
+                temp_command.throttle = 1.0f * kSpeedMultiplier;
+            else
+                temp_command.throttle = 1.0f;
+        }
     }
     else
     {
@@ -340,12 +379,21 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     }
     else if (projected < 0)
     {
-        temp_command.steer = 1.0f * handling_multiplier_ * -(projected);
+        if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+            temp_command.steer = 1.0f * -(projected)*kHandlingMultiplier;
+        else
+        {
+            temp_command.steer = 1.0f;
+        }
     }
     else
     {
-        // std::cout << projected << std::endl;
-        temp_command.steer = -1.0f * handling_multiplier_ * projected;
+        if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+            temp_command.steer = -1.0f * -(projected)*kHandlingMultiplier;
+        else
+        {
+            temp_command.steer = -1.0f;
+        }
     }
 
     vehicle_->SetCommand(temp_command);

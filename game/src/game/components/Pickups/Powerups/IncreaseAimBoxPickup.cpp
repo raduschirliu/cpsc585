@@ -1,7 +1,8 @@
 #include "IncreaseAimBoxPickup.h"
 
-#include "engine/core/debug/Log.h"
 #include <iostream>
+
+#include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 
 void IncreaseAimBoxPickup::OnInit(const ServiceProvider& service_provider)
@@ -50,6 +51,7 @@ void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
         SetPowerVisibility(true);
     }
 }
+
 void IncreaseAimBoxPickup::OnTriggerExit(const OnTriggerEvent& data)
 {
     Pickup::OnTriggerExit(data);

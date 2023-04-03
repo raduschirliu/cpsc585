@@ -57,6 +57,7 @@
       "respawn": 20
     },
     "KillAbilities": {
+      "time": 0,
       "respawn": 20
     }
   }

@@ -197,3 +197,23 @@ void PlayerState::SetCurrentPlace(int place)
 {
     player_state_.place = place;
 }
+
+float PlayerState::GetHandlingMultiplier()
+{
+    return player_state_.handling_multiplier;
+}
+
+void PlayerState::SetHandlingMultiplier(float multiplier)
+{
+    player_state_.handling_multiplier = multiplier;
+}
+
+void PlayerState::SetMaxCarSpeed(float max_speed)
+{
+    player_state_.max_car_speed = max_speed;
+}
+
+float PlayerState::GetMaxCarSpeed()
+{
+    return player_state_.max_car_speed;
+}

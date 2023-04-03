@@ -37,7 +37,6 @@ void KillAbilitiesPickup::OnUpdate(const Timestep& delta_time)
     if (start_timer_)
     {
         timer_ += delta_time.GetSeconds();
-
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.

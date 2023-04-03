@@ -1,5 +1,7 @@
 #include "PickupService.h"
 
+#include <engine/scene/Entity.h>
+
 #include <array>
 #include <assimp/Importer.hpp>
 #include <filesystem>
@@ -7,6 +9,7 @@
 #include <iostream>
 
 #include "engine/core/debug/Log.h"
+#include "game/components/state/PlayerState.h"
 
 using rapidjson::Document;
 using rapidjson::IStreamWrapper;
@@ -32,6 +35,7 @@ PickupService::PickupService()
 void PickupService::OnInit()
 {
     LoadAssetFile(kPowerupFilePath);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void PickupService::OnStart(ServiceProvider& service_provider)
@@ -58,6 +62,94 @@ std::string_view PickupService::GetName() const
 // From OnUpdateEvent
 void PickupService::OnUpdate(const Timestep& delta_time)
 {
+    for (auto& time : entity_timer_powerups_)
+    {
+        time.second += delta_time.GetSeconds();
+    }
+    HandleDisablingPowerup();
+}
+
+void PickupService::HandleDisablingPowerup()
+{
+    // loop through the timers to see if any one of those have exceeded the max
+    // time.
+    for (const auto& time : entity_timer_powerups_)
+    {
+        if (time.first)
+        {
+            if (time.second >
+                powerup_durations_[entity_holding_powerups_[time.first]])
+            {
+                // if the powerup was disable handling
+                if (entity_holding_powerups_[time.first] == "DisableHandling")
+                {
+                    auto& entity = time.first;
+                    if (entity)
+                    {
+                        // set the powerup to default for this player
+                        if (entity->HasComponent<PlayerState>())
+                        {
+                            auto& player_state =
+                                entity->GetComponent<PlayerState>();
+                            player_state.SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
+                        }
+                        not_disabled_entities_.erase(entity);
+
+                        entity_holding_powerups_.erase(time.first);
+                        entity_timer_powerups_.erase(time.first);
+                        break;
+                    }
+                }
+
+                // if the powerup was speed multiplier
+                else if (entity_holding_powerups_[time.first] ==
+                         "EveryoneSlower")
+                {
+                    auto& entity = time.first;
+                    if (entity)
+                    {
+                        // set the powerup to default for this player
+                        if (entity->HasComponent<PlayerState>())
+                        {
+                            auto& player_state =
+                                entity->GetComponent<PlayerState>();
+                            player_state.SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
+                        }
+                        not_slow_entities_.erase(entity);
+
+                        entity_holding_powerups_.erase(time.first);
+                        entity_timer_powerups_.erase(time.first);
+                        break;
+                    }
+                }
+
+                else if (entity_holding_powerups_[time.first] ==
+                         "KillAbilities")
+                {
+                    auto& entity = time.first;
+                    if (entity)
+                    {
+                        // set the powerup to default for this player
+                        if (entity->HasComponent<PlayerState>())
+                        {
+                            auto& player_state =
+                                entity->GetComponent<PlayerState>();
+                            player_state.SetCurrentPowerup(
+                                PowerupPickupType::kDefaultPowerup);
+                        }
+                        not_slow_entities_.clear();
+                        not_disabled_entities_.clear();
+
+                        entity_holding_powerups_.clear();
+                        entity_timer_powerups_.clear();
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void PickupService::LoadAssetFile(const string& path)
@@ -311,9 +403,61 @@ float PickupService::GetAmmoRespawnTime(std::string ammo_type)
 
 float PickupService::GetPowerupRespawnTime(std::string powerup_type)
 {
-    if (powerup_respawn_times_.find(powerup_type) != powerup_respawn_times_.end())
+    if (powerup_respawn_times_.find(powerup_type) !=
+        powerup_respawn_times_.end())
     {
         return powerup_respawn_times_[powerup_type];
     }
     return 0.0;
+}
+
+void PickupService::AddEntityWithPowerup(Entity* entity,
+                                         const std::string& powerup)
+{
+    entity_holding_powerups_.insert({entity, powerup});
+
+    if (powerup == "DisableHandling")
+    {
+        if (entity)
+        {
+            not_disabled_entities_.insert(entity);
+        }
+    }
+
+    else if (powerup == "EveryoneSlower")
+    {
+        if (entity)
+        {
+            not_slow_entities_.insert(entity);
+        }
+    }
+}
+
+void PickupService::AddEntityWithTimer(Entity* entity, const float& timer)
+{
+    entity_timer_powerups_.insert({entity, timer});
+}
+
+bool PickupService::IsVehicleSlowDown(Entity* entity)
+{
+    if (not_slow_entities_.find(entity) != not_slow_entities_.end() ||
+        not_slow_entities_.empty())
+    {
+        // as this was the vehicle which executed the powerup.
+        return false;
+    }
+    // as this vehicle did not execute the powerup.
+    return true;
+}
+
+bool PickupService::IsVehicleDisableHandling(Entity* entity)
+{
+    if (not_disabled_entities_.find(entity) != not_disabled_entities_.end() ||
+        not_disabled_entities_.empty())
+    {
+        // as this was the vehicle which executed the powerup.
+        return false;
+    }
+    // as this vehicle did not execute the powerup.
+    return true;
 }

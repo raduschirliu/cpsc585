@@ -24,7 +24,7 @@ class ExploadingBulletPickup final : public Pickup
     double timer_ = 0.f;
     bool start_timer_ = false;
 
-        // deactivate_timer_ to remove the powerup from user
+    // deactivate_timer_ to remove the powerup from user
     double deactivate_timer_ = 0.f;
     bool start_deactivate_timer_ = false;
 };

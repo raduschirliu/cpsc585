@@ -17,7 +17,7 @@ class BuckshotPickup final : public Pickup
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    // timer_ used to deactivate the ammo powerup after some time.  
+    // timer_ used to deactivate the ammo powerup after some time.
     double timer_ = 0.f;
     bool start_timer_ = false;
 

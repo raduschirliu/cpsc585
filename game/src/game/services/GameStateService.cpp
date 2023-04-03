@@ -128,7 +128,7 @@ void GameStateService::OnUpdate()
     {
         t.second += static_cast<float>(delta_time.GetSeconds());
     }
-    
+
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
 }
@@ -379,7 +379,6 @@ std::string_view GameStateService::GetName() const
 {
     return "Game State Service";
 }
-
 
 void GameStateService::StartCountdown()
 {

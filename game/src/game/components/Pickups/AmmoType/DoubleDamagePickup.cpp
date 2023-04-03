@@ -25,7 +25,7 @@ void DoubleDamagePickup::OnTriggerEnter(const OnTriggerEvent& data)
                                 player_state_->GetCurrentAmmoType() ==
                                     AmmoPickupType::kVampireBullet;
             if (power_visible_ && current_ammo)
-            { 
+            {
                 // start the timer as soon as the powerup is picked up.
                 start_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));

@@ -55,7 +55,8 @@ void VampireBulletPickup::OnUpdate(const Timestep& delta_time)
         SetPowerVisibility(true);
     }
 
-    // TODO: as soon as one shot is executed, then set the player state to default ammo.
+    // TODO: as soon as one shot is executed, then set the player state to
+    // default ammo.
 }
 
 void VampireBulletPickup::OnTriggerExit(const OnTriggerEvent& data)
