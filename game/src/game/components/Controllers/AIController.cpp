@@ -308,9 +308,11 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     {
         // debug::LogWarn("{}", speed_multiplier_);
         if (speed > 30)
+        {
             temp_command.throttle =
                 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
                 speed_multiplier_;
+        }
         else
         {
             if (pickup_service_->IsVehicleSlowDown(&GetEntity()))
@@ -344,7 +346,9 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     else if (projected < 0)
     {
         if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+        {
             temp_command.steer = 1.0f * -(projected)*kHandlingMultiplier;
+        }
         else
         {
             temp_command.steer = 1.0f;
@@ -353,7 +357,9 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     else
     {
         if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
+        {
             temp_command.steer = -1.0f * -(projected)*kHandlingMultiplier;
+        }
         else
         {
             temp_command.steer = -1.0f;

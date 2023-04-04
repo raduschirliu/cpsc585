@@ -35,7 +35,10 @@ void Pickup::OnUpdate(const Timestep& delta_time)
 {
     // rotate the powerup around its y axis.
     // TODO: Ask Radu to help with rotating the powerups every frame.
-    transform_->RotateEulerDegrees(glm::vec3(20.f, 20.f, 0.f));
+
+    // Rotate by 90 degrees/sec
+    static constexpr float kRotationSpeed = 90.0f;
+    transform_->RotateEulerDegrees(glm::vec3(kRotationSpeed * delta_time.GetSeconds(), 0.0f, 0.0f)));
 }
 
 std::string_view Pickup::GetName() const
