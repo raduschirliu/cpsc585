@@ -43,7 +43,6 @@ float IncreaseAimBoxPickup::GetDeactivateTime()
     return pickup_service_->GetPowerupDuration(std::string(GetName()));
 }
 
-
 void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);

@@ -38,6 +38,7 @@ void IncreaseFireRatePickup::OnTriggerEnter(const OnTriggerEvent& data)
         }
     }
 }
+
 float IncreaseFireRatePickup::GetMaxRespawnTime()
 {
     return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
@@ -47,6 +48,7 @@ float IncreaseFireRatePickup::GetDeactivateTime()
 {
     return pickup_service_->GetAmmoDuration(std::string(GetName()));
 }
+
 void IncreaseFireRatePickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);

@@ -9,12 +9,12 @@
 #include <unordered_set>
 
 #include "PickupType.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
-#include "engine/pickup/PickupService.h"
 
 class PlayerState;
 class PickupService;
@@ -31,7 +31,6 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-
     bool powerup_executed_ = false;
 
   protected:
@@ -54,7 +53,7 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
 
     // for powerups
-    
+
     /** Gets for how long the powerup/ammo should be there for the user */
     virtual float GetMaxRespawnTime() = 0;
 

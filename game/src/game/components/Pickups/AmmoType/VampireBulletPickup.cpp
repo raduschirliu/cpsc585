@@ -36,6 +36,7 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
         }
     }
 }
+
 float VampireBulletPickup::GetMaxRespawnTime()
 {
     return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
@@ -45,6 +46,7 @@ float VampireBulletPickup::GetDeactivateTime()
 {
     return pickup_service_->GetAmmoDuration(std::string(GetName()));
 }
+
 void VampireBulletPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);

@@ -36,6 +36,7 @@ void ExploadingBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
         }
     }
 }
+
 float ExploadingBulletPickup::GetMaxRespawnTime()
 {
     return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
@@ -45,6 +46,7 @@ float ExploadingBulletPickup::GetDeactivateTime()
 {
     return pickup_service_->GetAmmoDuration(std::string(GetName()));
 }
+
 void ExploadingBulletPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);

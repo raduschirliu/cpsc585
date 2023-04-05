@@ -39,6 +39,7 @@ void DoubleDamagePickup::OnTriggerEnter(const OnTriggerEvent& data)
         }
     }
 }
+
 float DoubleDamagePickup::GetMaxRespawnTime()
 {
     return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
@@ -48,6 +49,7 @@ float DoubleDamagePickup::GetDeactivateTime()
 {
     return pickup_service_->GetAmmoDuration(std::string(GetName()));
 }
+
 void DoubleDamagePickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);
