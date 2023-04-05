@@ -117,6 +117,13 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     home_button_ = &asset_service_->GetTexture("home_button");
     ending_ = &asset_service_->GetTexture("ending");
     record_ = &asset_service_->GetTexture("record");
+    disableHandling_ = &asset_service_->GetTexture("disable");
+    everyoneSlower_ = &asset_service_->GetTexture("slower");
+    increaseAimBox_ = &asset_service_->GetTexture("double");
+    killAbilities_ = &asset_service_->GetTexture("kill");
+    pause_ = &asset_service_->GetTexture("pause");
+
+    display_pause_ = false;
 }
 
 void GameStateService::OnUpdate()
@@ -126,6 +133,11 @@ void GameStateService::OnUpdate()
     for (auto& t : timer_)
     {
         t.second += static_cast<float>(delta_time.GetSeconds());
+    }
+
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE))
+    {
+        display_pause_ = true;
     }
 
     active_powerups_ = PowerupsActive();
@@ -154,6 +166,49 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
 
+    if (display_pause_)
+    {
+        ImGui::SetNextWindowPos(ImVec2(385, 205));
+        ImGui::Begin("pause", nullptr, flags);
+        ImGui::Image(pause_->GetGuiHandle(), ImVec2(506, 306));
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(ImVec2(550, 320));
+        ImGui::Begin("Pause Buttons", nullptr,
+                     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoTitleBar |
+                         ImGuiWindowFlags_NoBackground |
+                         ImGuiWindowFlags_NoCollapse);
+
+        ImVec2 pos = ImGui::GetCursorPos();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 20.0f);
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+                              ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+                              ImVec4(0.8f, 0.0f, 0.0f, 0.5f));
+        ImGui::PushFont(font_cookie_);
+        if (ImGui::Button("RESUME"))
+        {
+            display_pause_ = false;
+        }
+
+        ImGui::SetCursorPos(ImVec2(pos.x + 20, pos.y + 80));
+
+        if (ImGui::Button("HOME"))
+        {
+            scene_service_->SetActiveScene("MainMenu");
+        }
+        ImGui::PopFont();
+        ImGui::PopStyleColor(3);
+
+        ImGui::PopStyleVar();
+
+        ImGui::End();
+    }
+
     if (race_state_.state == GameState::kCountdown)
     {
         ImGui::SetNextWindowPos(ImVec2(425, 250));
@@ -180,6 +235,31 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100, 30));
+        ImGui::Begin("Penalty", nullptr, flags);
+
+        for (auto& a : active_powerups_)
+        {
+            if (a.second == PowerupPickupType::kDisableHandling)
+            {
+                ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kEveryoneSlower)
+            {
+                ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            {
+                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+            }
+            else if (a.second == PowerupPickupType::kKillAbilities)
+            {
+                ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+            }
+        }
+
+        ImGui::End();
+
         ImGui::SetNextWindowPos(ImVec2(220, 625));
         ImGui::Begin("Timer", nullptr, flags);
 
@@ -350,6 +430,7 @@ void GameStateService::OnSceneLoaded(Scene& scene)
     race_state_.Reset();
     track_config_.Reset();
     players_.clear();
+    display_pause_ = false;
 
     if (scene.GetName() == "Track1")
     {
