@@ -121,7 +121,8 @@ void AIController::OnUpdate(const Timestep& delta_time)
 
     // if an entity is within view
     bool saw_something =
-        physics_service_->Raycast(origin, forward, kViewDistance).has_value();
+        physics_service_->RaycastDynamic(origin, forward, kViewDistance)
+            .has_value();
     if (saw_something && WillShoot(0.75f))
     {
         CheckShoot(delta_time);

@@ -367,7 +367,7 @@ void PhysicsService::DrawDebugParamWidget(
 }
 
 /* ---------- raycasting ---------- */
-std::optional<RaycastData> PhysicsService::Raycast(
+std::optional<RaycastData> PhysicsService::RaycastDynamic(
     const glm::vec3& origin, const glm::vec3& unit_dir,
     float max_distance /* default = 100000 */)
 {
@@ -375,9 +375,8 @@ std::optional<RaycastData> PhysicsService::Raycast(
     PxVec3 px_origin = GlmToPx(origin);
     PxVec3 px_unit_dir = GlmToPx(unit_dir);
 
-    // get first hit only
-    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;
-    // don't query static shapes
+    // get filter data
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;  // get first hit only
     PxQueryFilterData filter_data(PxQueryFlag::eDYNAMIC);
 
     PxRaycastBuffer raycast_result;
@@ -405,19 +404,7 @@ std::optional<RaycastData> PhysicsService::Raycast(
         return std::nullopt;
     }
     Entity* target_entity = actors_[target_actor];
-
-    // guard checks to ensure that data is available:
-    if (!PxHitFlag::ePOSITION)
-    {
-        debug::LogDebug("[Raycast]: Invalid Position");
-        return std::nullopt;
-    }
-
-    if (!PxHitFlag::eNORMAL)
-    {
-        debug::LogDebug("[Raycast]: Invalid Normal");
-        return std::nullopt;
-    }
+    ASSERT(target_entity);  // this better be true
 
     // bundle all the data to send
     RaycastData result(raycast_result, target_entity);
@@ -425,13 +412,50 @@ std::optional<RaycastData> PhysicsService::Raycast(
     return result;
 }
 
-// TODO !!!!
-/* std::optional<RaycastData> PhysicsService::Sweep() */
-/* { */
-/*     PxSweepCallback sweep_result; */
-/*     PxGeometryType shape = PxGeometryType::eCONVEXMESH; */
-/*     kScene_->sweep(shape,); */
-/* } */
+std::optional<RaycastData> PhysicsService::RaycastStatic(
+    const glm::vec3& origin, const glm::vec3& unit_dir,
+    float max_distance /* default = 100000 */)
+{
+    // convert coordinates to PhysX units
+    PxVec3 px_origin = GlmToPx(origin);
+    PxVec3 px_unit_dir = GlmToPx(unit_dir);
+
+    // get filter data
+    PxHitFlags hit_flags = PxHitFlag::eDEFAULT;  // get first hit only
+    PxQueryFilterData filter_data(PxQueryFlag::eSTATIC);
+
+    PxRaycastBuffer raycast_result;
+    kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
+                     hit_flags, filter_data);
+
+    if (debug_draw_raycast_)
+    {
+        LineVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
+        LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                       Color4u(0, 0, 255, 255));
+        render_service_->GetDebugDrawList().AddLine(start, end);
+    }
+
+    // check if hit successful
+    if (!raycast_result.hasBlock)
+    {
+        return std::nullopt;
+    }
+
+    // check if the actor hit even exists
+    PxActor* target_actor = raycast_result.block.actor;
+    if (actors_.count(target_actor) == 0)
+    {
+        return std::nullopt;
+    }
+    Entity* target_entity = actors_[target_actor];
+    ASSERT(target_entity);  // this better be true
+
+    // bundle all the data to send
+    RaycastData result(raycast_result, target_entity);
+
+    return result;
+}
 
 /* ---------- PhysX ----------*/
 void PhysicsService::InitPhysX()
