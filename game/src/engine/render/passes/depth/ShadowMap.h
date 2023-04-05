@@ -7,9 +7,14 @@
 
 struct ShadowMapParams
 {
-    float near_plane;
-    float far_plane;
-    glm::uvec2 size;
+    glm::uvec2 texture_size;
+    float camera_near_plane;
+    float camera_far_plane;
+    float camera_midpoint_t;
+    glm::vec3 bounds_min;
+    glm::vec3 bounds_max;
+    glm::vec3 bounds_mult;
+    bool cull_face;
 };
 
 class ShadowMap

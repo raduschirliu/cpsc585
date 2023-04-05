@@ -49,14 +49,24 @@ DepthPass::DepthPass(SceneRenderData& render_data)
       current_camera_(nullptr)
 {
     shadow_maps_.emplace_back(make_unique<ShadowMap>(ShadowMapParams{
-        .near_plane = 0.5f,
-        .far_plane = 110.0f,
-        .size = uvec2(2048, 2048),
+        .texture_size = uvec2(2048, 2048),
+        .camera_near_plane = 0.5f,
+        .camera_far_plane = 80.0f,
+        .camera_midpoint_t = 0.2f,
+        .bounds_min = vec3(-100.0f, -100.0f, -20.0f),
+        .bounds_max = vec3(100.0f, 100.0f, 100.0f),
+        .bounds_mult = vec3(1.0f, 1.0f, 1.0f),
+        .cull_face = true,
     }));
     shadow_maps_.emplace_back(make_unique<ShadowMap>(ShadowMapParams{
-        .near_plane = 110.0f,
-        .far_plane = 400.0f,
-        .size = uvec2(1024, 1024),
+        .texture_size = uvec2(1024, 1024),
+        .camera_near_plane = 50.0f,
+        .camera_far_plane = 300.0f,
+        .camera_midpoint_t = 0.25f,
+        .bounds_min = vec3(-200.0f, -200.0f, -50.0f),
+        .bounds_max = vec3(200.0f, 200.0f, 100.0f),
+        .bounds_mult = vec3(1.0f, 1.0f, 1.0f),
+        .cull_face = true,
     }));
 }
 
@@ -140,6 +150,7 @@ void DepthPass::Render()
     }
 
     // Reset framebuffer & culling settings
+    glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -154,9 +165,17 @@ void DepthPass::RenderDebugGui()
         {
             ShadowMapParams& params = map->GetParams();
 
-            ImGui::Text("Near Plane: %f", params.near_plane);
-            ImGui::Text("Far Plane: %f", params.far_plane);
-            ImGui::Text("Size: %u %u", params.size.x, params.size.y);
+            ImGui::DragFloat("Camera Near Plane", &params.camera_near_plane,
+                             1.0f, -1000.0f, 1000.0f);
+            ImGui::DragFloat("Camera Far Plane", &params.camera_far_plane, 1.0f,
+                             -1000.0f, 1000.0f);
+            ImGui::DragFloat("Camera Midpoint t", &params.camera_midpoint_t,
+                             0.05f, 0.0f, 1.0f);
+            gui::EditProperty("Bounds Min", params.bounds_min);
+            gui::EditProperty("Bounds Max", params.bounds_max);
+            gui::EditProperty("Bounds Mult", params.bounds_mult);
+            ImGui::Text("Texture Size: %u %u", params.texture_size.x,
+                        params.texture_size.y);
             ImGui::Image(map->GetTexture().ValueRaw(), ImVec2(512, 512));
             ImGui::TreePop();
         }

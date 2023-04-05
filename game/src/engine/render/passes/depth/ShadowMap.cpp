@@ -10,7 +10,6 @@ using glm::vec4;
 
 static constexpr float kFloatMax = std::numeric_limits<float>::max();
 static constexpr float kFloatMin = std::numeric_limits<float>::lowest();
-static constexpr vec3 kBoundsMult(1.0f, 1.0f, 0.0f);
 
 ShadowMap::ShadowMap(const ShadowMapParams& params)
     : fbo_(),
@@ -30,8 +29,9 @@ void ShadowMap::Init()
 {
     // Create depth map texture
     glBindTexture(GL_TEXTURE_2D, depth_map_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, params_.size.x,
-                 params_.size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, params_.texture_size.x,
+                 params_.texture_size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT,
+                 nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -56,12 +56,12 @@ void ShadowMap::UpdateBounds(LightParams& light_params,
     // Build sub-frustum
     const mat4 camera_proj_segment =
         glm::perspective(camera_params.fov_radians, camera_params.aspect_ratio,
-                         params_.near_plane, params_.far_plane);
+                         params_.camera_near_plane, params_.camera_far_plane);
 
     camera_bounds_.BoundsFromNdcs(camera_proj_segment *
                                   camera_params.view_matrix);
 
-    target_pos_ = camera_bounds_.GetCentroidMidpoint(0.5f);
+    target_pos_ = camera_bounds_.GetCentroidMidpoint(params_.camera_midpoint_t);
     source_pos_ = target_pos_ + light_params.pos;
 
     // Build proj and view matrices
@@ -83,65 +83,65 @@ void ShadowMap::UpdateBounds(LightParams& light_params,
 
     if (min.x < 0.0f)
     {
-        min.x *= kBoundsMult.x;
+        min.x *= params_.bounds_mult.x;
     }
     else
     {
-        min.x /= kBoundsMult.x;
+        min.x /= params_.bounds_mult.x;
     }
     if (max.x < 0.0f)
     {
-        max.x /= kBoundsMult.x;
+        max.x /= params_.bounds_mult.x;
     }
     else
     {
-        max.x *= kBoundsMult.x;
+        max.x *= params_.bounds_mult.x;
     }
 
     if (min.y < 0.0f)
     {
-        min.y *= kBoundsMult.y;
+        min.y *= params_.bounds_mult.y;
     }
     else
     {
-        min.y /= kBoundsMult.y;
+        min.y /= params_.bounds_mult.y;
     }
     if (max.y < 0.0f)
     {
-        max.y /= kBoundsMult.y;
+        max.y /= params_.bounds_mult.y;
     }
     else
     {
-        max.y *= kBoundsMult.y;
+        max.y *= params_.bounds_mult.y;
     }
 
     if (min.z < 0.0f)
     {
-        min.z *= kBoundsMult.z;
+        min.z *= params_.bounds_mult.z;
     }
     else
     {
-        min.z /= kBoundsMult.z;
+        min.z /= params_.bounds_mult.z;
     }
     if (max.z < 0.0f)
     {
-        max.z /= kBoundsMult.z;
+        max.z /= params_.bounds_mult.z;
     }
     else
     {
-        max.z *= kBoundsMult.z;
+        max.z *= params_.bounds_mult.z;
     }
 
-    static constexpr vec3 kSmallest(-200.0f, -200.0f, -200.0f);
-    static constexpr vec3 kLargest(200.0f, 200.0f, 200.0f);
+    max = glm::clamp(max, params_.bounds_min, params_.bounds_max);
+    min = glm::clamp(min, params_.bounds_min, params_.bounds_max);
 
-    max = glm::clamp(max, kSmallest, kLargest);
-    min = glm::clamp(min, kSmallest, kLargest);
+    // const float near_plane = glm::min(-25.0f, min.z);
+    // const float far_plane = glm::max(125.0f, max.z);
 
-    const float near_plane = glm::min(-25.0f, min.z);
-    const float far_plane = glm::max(125.0f, max.z);
+    min.z = params_.bounds_min.z;
+    max.z = params_.bounds_max.z;
 
-    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, near_plane, far_plane);
+    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, min.z, max.z);
     light_projview_ = light_proj_ * light_view_;
 
     shadow_bounds_.BoundsFromNdcs(light_projview_);
@@ -149,11 +149,19 @@ void ShadowMap::UpdateBounds(LightParams& light_params,
 
 void ShadowMap::Prepare()
 {
-    glViewport(0, 0, params_.size.x, params_.size.y);
+    glViewport(0, 0, params_.texture_size.x, params_.texture_size.y);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glCullFace(GL_FRONT);
+    if (params_.cull_face)
+    {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+    }
+    else
+    {
+        glDisable(GL_CULL_FACE);
+    }
 }
 
 ShadowMapParams& ShadowMap::GetParams()
