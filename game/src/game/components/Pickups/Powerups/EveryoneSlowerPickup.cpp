@@ -34,6 +34,16 @@ void EveryoneSlowerPickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+float EveryoneSlowerPickup::GetMaxRespawnTime()
+{
+    return pickup_service_->GetPowerupRespawnTime(std::string(GetName()));
+}
+
+float EveryoneSlowerPickup::GetDeactivateTime()
+{
+    return pickup_service_->GetPowerupDuration(std::string(GetName()));
+}
+
 void EveryoneSlowerPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);
@@ -43,7 +53,7 @@ void EveryoneSlowerPickup::OnUpdate(const Timestep& delta_time)
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime())
     {
         start_timer_ = false;
         timer_ = 0.0f;

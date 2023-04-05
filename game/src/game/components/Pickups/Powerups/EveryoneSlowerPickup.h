@@ -16,7 +16,8 @@ class EveryoneSlowerPickup final : public Pickup
     virtual std::string_view GetName() const override;
 
     virtual void OnUpdate(const Timestep& delta_time) override;
-
+    float GetMaxRespawnTime() override;
+    float GetDeactivateTime() override;
   private:
     // timer_ used to deactivate the ammo powerup after some time.
     double timer_ = 0.f;

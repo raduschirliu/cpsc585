@@ -33,6 +33,17 @@ void IncreaseAimBoxPickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+float IncreaseAimBoxPickup::GetMaxRespawnTime()
+{
+    return pickup_service_->GetPowerupRespawnTime(std::string(GetName()));
+}
+
+float IncreaseAimBoxPickup::GetDeactivateTime()
+{
+    return pickup_service_->GetPowerupDuration(std::string(GetName()));
+}
+
+
 void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);
@@ -42,7 +53,7 @@ void IncreaseAimBoxPickup::OnUpdate(const Timestep& delta_time)
     }
 
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime())
     {
         start_timer_ = false;
         timer_ = 0.0f;

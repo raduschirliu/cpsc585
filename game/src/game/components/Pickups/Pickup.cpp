@@ -1,8 +1,8 @@
 #include "Pickup.h"
 
 #include "engine/physics/PhysicsService.h"
-#include "engine/pickup/PickupService.h"
 #include "engine/scene/Entity.h"
+static constexpr float kRotationSpeed = 90.0f;
 
 void Pickup::OnInit(const ServiceProvider& service_provider)
 {
@@ -37,8 +37,8 @@ void Pickup::OnUpdate(const Timestep& delta_time)
     // TODO: Ask Radu to help with rotating the powerups every frame.
 
     // Rotate by 90 degrees/sec
-    static constexpr float kRotationSpeed = 90.0f;
-    transform_->RotateEulerDegrees(glm::vec3(kRotationSpeed * delta_time.GetSeconds(), 0.0f, 0.0f)));
+    transform_->RotateEulerDegrees(
+        glm::vec3(kRotationSpeed * delta_time.GetSeconds(), 0.0f, 0.0f));
 }
 
 std::string_view Pickup::GetName() const
@@ -66,42 +66,42 @@ void Pickup::SetVehiclePowerup(PowerupPickupType type,
     }
 }
 
-/** Gets for how long the powerup/ammo should be there for the user */
-float Pickup::GetMaxRespawnTime(std::string type)
-{
-    for (int i = 0; i < ammo_types_.size(); i++)
-    {
-        if (type == ammo_types_[i])
-        {
-            return pickup_service_->GetAmmoRespawnTime(type);
-        }
-    }
-    for (int i = 0; i < powerup_types_.size(); i++)
-    {
-        if (type == powerup_types_[i])
-        {
-            return pickup_service_->GetPowerupRespawnTime(type);
-        }
-    }
-    return 0.f;
-}
+// /** Gets for how long the powerup/ammo should be there for the user */
+// float Pickup::GetMaxRespawnTime(std::string type)
+// {
+//     for (int i = 0; i < ammo_types_.size(); i++)
+//     {
+//         if (type == ammo_types_[i])
+//         {
+//             return pickup_service_->GetAmmoRespawnTime(type);
+//         }
+//     }
+//     for (int i = 0; i < powerup_types_.size(); i++)
+//     {
+//         if (type == powerup_types_[i])
+//         {
+//             return pickup_service_->GetPowerupRespawnTime(type);
+//         }
+//     }
+//     return 0.f;
+// }
 
-/** Gets for how long the user can use this powerup for **/
-float Pickup::GetDeactivateTime(std::string type)
-{
-    for (int i = 0; i < ammo_types_.size(); i++)
-    {
-        if (type == ammo_types_[i])
-        {
-            return pickup_service_->GetAmmoDuration(type);
-        }
-    }
-    for (int i = 0; i < powerup_types_.size(); i++)
-    {
-        if (type == powerup_types_[i])
-        {
-            return pickup_service_->GetPowerupDuration(type);
-        }
-    }
-    return 0.f;
-}
+// /** Gets for how long the user can use this powerup for **/
+// float Pickup::GetDeactivateTime(std::string type)
+// {
+//     for (int i = 0; i < ammo_types_.size(); i++)
+//     {
+//         if (type == ammo_types_[i])
+//         {
+//             return pickup_service_->GetAmmoDuration(type);
+//         }
+//     }
+//     for (int i = 0; i < powerup_types_.size(); i++)
+//     {
+//         if (type == powerup_types_[i])
+//         {
+//             return pickup_service_->GetPowerupDuration(type);
+//         }
+//     }
+//     return 0.f;
+// }

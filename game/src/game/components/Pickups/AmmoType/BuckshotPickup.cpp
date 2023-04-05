@@ -38,6 +38,16 @@ void BuckshotPickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+float BuckshotPickup::GetMaxRespawnTime()
+{
+    return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
+}
+
+float BuckshotPickup::GetDeactivateTime()
+{
+    return pickup_service_->GetAmmoDuration(std::string(GetName()));
+}
+
 void BuckshotPickup::OnUpdate(const Timestep& delta_time)
 {
     Pickup::OnUpdate(delta_time);
@@ -46,7 +56,7 @@ void BuckshotPickup::OnUpdate(const Timestep& delta_time)
         timer_ += delta_time.GetSeconds();
     }
     // retrieving the Max allowed timer for the powerup from the pickupservice.
-    if (timer_ >= GetMaxRespawnTime(std::string(GetName())))
+    if (timer_ >= GetMaxRespawnTime())
     {
         start_timer_ = false;
         timer_ = 0.0f;
@@ -60,7 +70,7 @@ void BuckshotPickup::OnUpdate(const Timestep& delta_time)
     {
         deactivate_timer_ += delta_time.GetSeconds();
     }
-    if (deactivate_timer_ >= GetDeactivateTime(std::string(GetName())))
+    if (deactivate_timer_ >= GetDeactivateTime())
     {
         start_deactivate_timer_ = false;
         deactivate_timer_ = 0.0f;
