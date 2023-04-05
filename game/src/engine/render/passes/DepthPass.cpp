@@ -13,14 +13,17 @@
 #include "engine/render/Camera.h"
 #include "engine/render/DebugDrawList.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/passes/depth/ShadowMap.h"
 #include "engine/scene/Entity.h"
 
 using glm::ivec2;
 using glm::mat4;
+using glm::uvec2;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using std::make_unique;
+using std::unique_ptr;
 using std::vector;
 
 struct MeshRenderData
@@ -30,29 +33,31 @@ struct MeshRenderData
     RenderBuffers buffers;
 };
 
-static constexpr float kFloatMax = std::numeric_limits<float>::max();
-static constexpr float kFloatMin = std::numeric_limits<float>::lowest();
-static constexpr uint32_t kShadowMapWidth = 2048;
-static constexpr uint32_t kShadowMapHeight = 2048;
-static vec3 kLightUp(0.0f, 1.0f, 0.0f);
-static vec3 kLightPos(45.0f, 20.0f, 0.0f);
-static float kNearPlane = 0.5f;
-static float kFarPlane = 110.0f;
-static vec3 kBoundsMult(1.0f, 1.0f, 0.0f);
+static ShadowMap::LightParams kLightParams = {
+    .up_dir = vec3(0.0f, 1.0f, 0.0f),
+    .pos = vec3(45.0f, 20.0f, 0.0f),
+};
 
 DepthPass::DepthPass(SceneRenderData& render_data)
     : render_data_(render_data),
-      fbo_(),
-      depth_map_(),
+      shadow_maps_{},
       shader_("resources/shaders/depth_map.vert",
               "resources/shaders/depth_map.frag"),
       meshes_{},
-      debug_draw_bounds_(false),
-      debug_draw_frustum_segments_(false),
-      target_transform_(nullptr),
-      target_pos_(0.0f, 0.0f, 0.0f),
-      source_pos_(0.0f, 0.0f, 0.0f)
+      debug_draw_shadow_bounds_(false),
+      debug_draw_camera_bounds_(false),
+      current_camera_(nullptr)
 {
+    shadow_maps_.emplace_back(make_unique<ShadowMap>(ShadowMapParams{
+        .near_plane = 0.5f,
+        .far_plane = 110.0f,
+        .size = uvec2(2048, 2048),
+    }));
+    shadow_maps_.emplace_back(make_unique<ShadowMap>(ShadowMapParams{
+        .near_plane = 110.0f,
+        .far_plane = 400.0f,
+        .size = uvec2(1024, 1024),
+    }));
 }
 
 DepthPass::~DepthPass() = default;
@@ -98,24 +103,12 @@ void DepthPass::RegisterRenderable(const Entity& entity,
 
     VertexArray::Unbind();
 
-    // TODO(radu): this is an ugly hack, fix
-    // Check if player vehicle
-    if (entity.GetName() == "Player 1")
-    {
-        target_transform_ = &entity.GetComponent<Transform>();
-    }
-
     // Add to render list
     meshes_.push_back(std::move(data));
 }
 
 void DepthPass::UnregisterRenderable(const Entity& entity)
 {
-    if (entity.GetName() == "Player 1")
-    {
-        target_transform_ = nullptr;
-    }
-
     const uint32_t target_id = entity.GetId();
     std::erase_if(render_data_.entities, [target_id](const Entity* x)
                   { return x->GetId() == target_id; });
@@ -123,61 +116,55 @@ void DepthPass::UnregisterRenderable(const Entity& entity)
 
 void DepthPass::Init()
 {
-    // Create depth map texture
-    glBindTexture(GL_TEXTURE_2D, depth_map_);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, kShadowMapWidth,
-                 kShadowMapHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    const float border_color[] = {1.0f, 1.0f, 1.0f, 1.0f};
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
-
-    // Attatch to FBO
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-                           depth_map_, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    for (auto& shadow_map : shadow_maps_)
+    {
+        shadow_map->Init();
+    }
 }
 
 void DepthPass::Render()
 {
-    glViewport(0, 0, kShadowMapWidth, kShadowMapHeight);
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    glCullFace(GL_FRONT);
-
-    if (target_transform_)
+    if (ShouldRun())
     {
-        RenderPrepare();
-        RenderMeshes();
-        RenderDebugBounds();
+        for (Camera* camera : render_data_.cameras)
+        {
+            // Only draw shadows for "normal" camera types
+            if (camera->GetType() != CameraType::kNormal)
+            {
+                continue;
+            }
+
+            current_camera_ = camera;
+            RenderShadowMaps();
+        }
     }
 
+    // Reset framebuffer & culling settings
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DepthPass::RenderDebugGui()
 {
-    if (ImGui::CollapsingHeader("Depth Map"))
+    for (size_t i = 0; i < shadow_maps_.size(); i++)
     {
-        ImGui::Image(depth_map_.ValueRaw(), ImVec2(512, 512));
+        auto& map = shadow_maps_[i];
+
+        if (ImGui::TreeNode(&map, "Shadow Map %u", i))
+        {
+            ShadowMapParams& params = map->GetParams();
+
+            ImGui::Text("Near Plane: %f", params.near_plane);
+            ImGui::Text("Far Plane: %f", params.far_plane);
+            ImGui::Text("Size: %u %u", params.size.x, params.size.y);
+            ImGui::Image(map->GetTexture().ValueRaw(), ImVec2(512, 512));
+            ImGui::TreePop();
+        }
     }
 
-    ImGui::Checkbox("Draw Shadow Map Bounds", &debug_draw_bounds_);
-    ImGui::Checkbox("Draw Camera Frustum Segments",
-                    &debug_draw_frustum_segments_);
-    gui::EditProperty("Light Pos", kLightPos);
-    gui::EditProperty("Bounds Multiplier", kBoundsMult);
-    ImGui::DragFloat("Near Plane", &kNearPlane, 1.0f, -1000.0f, 1000.0f);
-    ImGui::DragFloat("Far Plane", &kFarPlane, 1.0f, -1000.0f, 1000.0f);
+    ImGui::Checkbox("Draw Shadow Map Bounds", &debug_draw_shadow_bounds_);
+    ImGui::Checkbox("Draw Camera Frustum Bounds", &debug_draw_camera_bounds_);
+    gui::EditProperty("Light Pos", kLightParams.pos);
 }
 
 void DepthPass::ResetState()
@@ -185,127 +172,47 @@ void DepthPass::ResetState()
     meshes_.clear();
 }
 
-const TextureHandle& DepthPass::GetDepthMap() const
+const vector<unique_ptr<ShadowMap>>& DepthPass::GetShadowMaps() const
 {
-    return depth_map_;
+    return shadow_maps_;
 }
 
-mat4 DepthPass::GetLightSpaceTransformation() const
+void DepthPass::RenderShadowMaps()
 {
-    return light_proj_ * light_view_;
+    ASSERT(current_camera_);
+
+    const vec3& camera_pos =
+        current_camera_->GetEntity().GetComponent<Transform>().GetPosition();
+
+    ShadowMap::CameraParams camera_params = {
+        .pos = camera_pos,
+        .view_matrix = current_camera_->GetViewMatrix(),
+        .fov_radians = glm::radians(current_camera_->GetFovDegrees()),
+        .aspect_ratio = current_camera_->GetAspectRatio()};
+
+    for (auto& shadow_map : shadow_maps_)
+    {
+        shadow_map->Prepare();
+        shadow_map->UpdateBounds(kLightParams, camera_params);
+        RenderMeshes(*shadow_map);
+
+        if (debug_draw_shadow_bounds_)
+        {
+            RenderDebugShadowBounds(*shadow_map);
+        }
+
+        if (debug_draw_camera_bounds_)
+        {
+            RenderDebugCameraBounds(*shadow_map);
+        }
+    }
 }
 
-void DepthPass::RenderPrepare()
+void DepthPass::RenderMeshes(ShadowMap& shadow_map)
 {
-    // Determine target position
-    Camera* camera = render_data_.cameras[0];
-    const mat4 camera_proj_segment = glm::perspective(
-        glm::radians(90.0f), 1280.0f / 720.0f, kNearPlane, kFarPlane);
-    Cuboid frustum;
-    frustum.BoundsFromNdcs(camera_proj_segment * camera->GetViewMatrix());
+    ASSERT(current_camera_);
 
-    if (debug_draw_frustum_segments_)
-    {
-        constexpr Color4u kDebugColor(0, 255, 255, 255);
-        const vec3& camera_pos =
-            camera->GetEntity().GetComponent<Transform>().GetPosition();
-
-        render_data_.debug_draw_list->AddCuboid(frustum, kDebugColor);
-        render_data_.debug_draw_list->AddLine(
-            DebugVertex(camera_pos, kDebugColor),
-            DebugVertex(target_pos_, kDebugColor));
-    }
-
-    target_pos_ = frustum.GetCentroidMidpoint(0.5f);
-    source_pos_ = target_pos_ + kLightPos;
-
-    // Build proj and view matrices
-    light_view_ = glm::lookAt(source_pos_, target_pos_, kLightUp);
-
-    // TODO(radu): Do do cascaded shadow maps, need to calc various different
-    // proj matrices for the camera (with different values for near/far), and
-    // perform these calcs for each subsection to get a different ortho matrix +
-    // CSM for each one
-    vec3 min(kFloatMax, kFloatMax, kFloatMax);
-    vec3 max(kFloatMin, kFloatMin, kFloatMin);
-    const vec3* vertex = frustum.GetVertexList();
-
-    for (size_t i = 0; i < frustum.GetVertexCount(); i++)
-    {
-        const vec4 temp = light_view_ * vec4(*vertex, 1.0f);
-
-        min = glm::min(min, vec3(temp));
-        max = glm::max(max, vec3(temp));
-
-        vertex++;
-    }
-
-    if (min.x < 0.0f)
-    {
-        min.x *= kBoundsMult.x;
-    }
-    else
-    {
-        min.x /= kBoundsMult.x;
-    }
-    if (max.x < 0.0f)
-    {
-        max.x /= kBoundsMult.x;
-    }
-    else
-    {
-        max.x *= kBoundsMult.x;
-    }
-
-    if (min.y < 0.0f)
-    {
-        min.y *= kBoundsMult.y;
-    }
-    else
-    {
-        min.y /= kBoundsMult.y;
-    }
-    if (max.y < 0.0f)
-    {
-        max.y /= kBoundsMult.y;
-    }
-    else
-    {
-        max.y *= kBoundsMult.y;
-    }
-
-    if (min.z < 0.0f)
-    {
-        min.z *= kBoundsMult.z;
-    }
-    else
-    {
-        min.z /= kBoundsMult.z;
-    }
-    if (max.z < 0.0f)
-    {
-        max.z /= kBoundsMult.z;
-    }
-    else
-    {
-        max.z *= kBoundsMult.z;
-    }
-
-    static constexpr vec3 kSmallest(-200.0f, -200.0f, -200.0f);
-    static constexpr vec3 kLargest(200.0f, 200.0f, 200.0f);
-
-    max = glm::clamp(max, kSmallest, kLargest);
-    min = glm::clamp(min, kSmallest, kLargest);
-
-    const float near_plane = glm::min(-25.0f, min.z);
-    const float far_plane = glm::max(125.0f, max.z);
-
-    light_proj_ = glm::ortho(min.x, max.x, min.y, max.y, near_plane, far_plane);
-}
-
-void DepthPass::RenderMeshes()
-{
-    const mat4 light_space = GetLightSpaceTransformation();
+    const mat4& light_space = shadow_map.GetTransformation();
 
     shader_.Use();
     shader_.SetUniform("uLightSpaceMatrix", light_space);
@@ -330,14 +237,30 @@ void DepthPass::RenderMeshes()
     }
 }
 
-void DepthPass::RenderDebugBounds()
+void DepthPass::RenderDebugShadowBounds(ShadowMap& shadow_map)
 {
-    if (!debug_draw_bounds_)
-    {
-        return;
-    }
+    constexpr Color4u kDebugColor(255, 255, 0, 255);
 
-    Cuboid bounds;
-    bounds.BoundsFromNdcs(light_proj_ * light_view_);
-    render_data_.debug_draw_list->AddCuboid(bounds, Color4u(255, 255, 0, 255));
+    render_data_.debug_draw_list->AddCuboid(shadow_map.GetShadowBounds(),
+                                            kDebugColor);
+}
+
+void DepthPass::RenderDebugCameraBounds(ShadowMap& shadow_map)
+{
+    constexpr Color4u kDebugColor(0, 255, 255, 255);
+
+    render_data_.debug_draw_list->AddCuboid(shadow_map.GetCameraBounds(),
+                                            kDebugColor);
+
+    const vec3& camera_pos =
+        current_camera_->GetEntity().GetComponent<Transform>().GetPosition();
+
+    render_data_.debug_draw_list->AddLine(
+        DebugVertex(camera_pos, kDebugColor),
+        DebugVertex(shadow_map.GetTargetPos(), kDebugColor));
+}
+
+bool DepthPass::ShouldRun()
+{
+    return render_data_.cameras.size() > 0;
 }

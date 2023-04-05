@@ -1,7 +1,8 @@
-#version 330 core
+#version 410 core
+
+#define SHADOW_MAP_COUNT 2
 
 in vec3 aPos;
-in vec4 aPosLightSpace;
 in vec3 aNormal;
 in vec2 aTextureCoord;
 
@@ -23,7 +24,10 @@ struct Light
 
 uniform Material uMaterial;
 uniform Light uLight;
-uniform sampler2D uDepthMap;
+
+uniform mat4 uViewMatrix;
+uniform sampler2D uShadowMaps[SHADOW_MAP_COUNT];
+uniform mat4 uLightSpaceMatrices[SHADOW_MAP_COUNT];
 
 uniform vec3 uAmbientLight;
 uniform vec3 uCameraPos;
@@ -31,10 +35,23 @@ uniform vec3 uCameraPos;
 const float MAX_SHADOW_BIAS = 0.05f;
 const float MIN_SHADOW_BIAS = 0.005f;
 
+
 float getShadowAmount(vec3 normal, vec3 lightDir)
 {
+    // Select which shadow map to use
+    int layer = 0;
+    vec4 fragPosViewSpace = uViewMatrix * vec4(aPos, 1.0f);
+    float depthViewSpace = abs(fragPosViewSpace.z);
+
+    if (depthViewSpace > 110.0f)
+    {
+        layer = 1;
+    }
+
+    vec4 posLightSpace = uLightSpaceMatrices[layer] * vec4(aPos, 1.0f);
+
     // Perform perspective division
-    vec3 projectedCoords = aPosLightSpace.xyz / aPosLightSpace.w;
+    vec3 projectedCoords = posLightSpace.xyz / posLightSpace.w;
 
     // Transform from NDC to range [0, 1]
     projectedCoords = projectedCoords * 0.5f + 0.5f;
@@ -44,7 +61,7 @@ float getShadowAmount(vec3 normal, vec3 lightDir)
         return 0.0f;
     }
 
-    float mappedDepth = texture(uDepthMap, projectedCoords.xy).r;
+    float mappedDepth = texture(uShadowMaps[layer], projectedCoords.xy).r;
     float currentDepth = projectedCoords.z;
 
     float bias = max(MAX_SHADOW_BIAS * (1.0f - dot(normal, lightDir)), MIN_SHADOW_BIAS);

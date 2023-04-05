@@ -25,7 +25,7 @@ RenderService::RenderService()
       asset_service_(nullptr),
       render_data_(make_unique<SceneRenderData>()),
       depth_pass_(*render_data_),
-      geometry_pass_(*render_data_),
+      geometry_pass_(*render_data_, depth_pass_.GetShadowMaps()),
       debug_draw_list_(),
       show_debug_menu_(false),
       debug_draw_camera_frustums_(false)
@@ -128,6 +128,7 @@ void RenderService::OnStart(ServiceProvider& service_provider)
 void RenderService::OnSceneLoaded(Scene& scene)
 {
     depth_pass_.ResetState();
+
     geometry_pass_.ResetState();
 
     render_data_->cameras.clear();
@@ -165,10 +166,6 @@ void RenderService::OnUpdate()
     }
 
     depth_pass_.Render();
-
-    geometry_pass_.SetDepthMap(depth_pass_.GetDepthMap());
-    geometry_pass_.SetLightSpaceTransformation(
-        depth_pass_.GetLightSpaceTransformation());
     geometry_pass_.Render();
 }
 

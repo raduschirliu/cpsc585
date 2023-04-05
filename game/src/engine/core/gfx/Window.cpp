@@ -100,13 +100,15 @@ void Window::Create(int width, int height, const char* title)
 {
     ASSERT_MSG(!handle_, "Window has already been created");
 
-    // specify OpenGL version
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // Use OpenGL 410 core
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  // needed for mac?
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA
+
+    // 4x MSAA
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     // create window
     handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(

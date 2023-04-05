@@ -12,11 +12,13 @@
 struct CameraView;
 struct MeshRenderData;
 class Cubemap;
+class ShadowMap;
 
 class GeometryPass
 {
   public:
-    GeometryPass(SceneRenderData& render_data);
+    GeometryPass(SceneRenderData& render_data,
+                 const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps);
     ~GeometryPass(); /* = default; (in cpp) */
 
     void RegisterRenderable(const Entity& entity, const MeshRenderer& renderer);
@@ -27,19 +29,16 @@ class GeometryPass
     void RenderDebugGui();
     void ResetState();
 
-    void SetDepthMap(GLuint depth_map_id);
-    void SetLightSpaceTransformation(const glm::mat4& light_space);
     void SetWireframe(bool state);
 
   private:
     SceneRenderData& render_data_;
+    const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
     ShaderProgram shader_, debug_shader_, skybox_shader_;
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
     bool wireframe_;
-    GLuint depth_map_;
-    glm::mat4 light_space_;
 
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);

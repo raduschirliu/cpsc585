@@ -28,6 +28,7 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
      * Set camera's screen aspect ratio, where `aspect_ratio = width / height`
      */
     void SetAspectRatio(float aspect_ratio);
+    void SetType(CameraType type);
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
@@ -37,10 +38,9 @@ class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 
     // From IEventSubscriber<OnUpdateEvent>
     void OnUpdate(const Timestep& delta_time) override;
-
-    void SetType(CameraType type);
-
     CameraType GetType() const;
+    float GetFovDegrees() const;
+    float GetAspectRatio() const;
     const Cuboid& GetFrustumWorldVertices() const;
     const glm::mat4& GetProjectionMatrix() const;
     const glm::mat4& GetViewMatrix() const;

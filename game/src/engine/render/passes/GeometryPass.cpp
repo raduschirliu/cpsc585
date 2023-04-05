@@ -8,12 +8,15 @@
 #include "engine/core/gfx/ShaderProgram.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/passes/depth/ShadowMap.h"
 #include "engine/scene/Entity.h"
 
 using glm::ivec2;
 using glm::mat4;
 using glm::vec3;
 using std::make_unique;
+using std::string;
+using std::unique_ptr;
 using std::vector;
 
 struct BufferMeshLayout
@@ -40,6 +43,8 @@ struct CameraView
     glm::mat4 view_proj_matrix;
 };
 
+constexpr int kShadowMapTextureStart =
+    5;  // Arbitrary choice, normal albedo texture is at idx=0
 const static vector<float> kSkyboxVertices = {
     -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
     -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f,
@@ -52,20 +57,19 @@ const static vector<float> kSkyboxVertices = {
     1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
     1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
 
-GeometryPass::GeometryPass(SceneRenderData& render_data)
+GeometryPass::GeometryPass(SceneRenderData& render_data,
+                           const vector<unique_ptr<ShadowMap>>& shadow_maps)
     : render_data_(render_data),
+      shadow_maps_(shadow_maps),
       meshes_{},
-      shader_("resources/shaders/default.vert",
-              "resources/shaders/blinnphong.frag"),
+      shader_("resources/shaders/lit.vert", "resources/shaders/lit.frag"),
       debug_shader_("resources/shaders/debug.vert",
                     "resources/shaders/debug.frag"),
       skybox_shader_("resources/shaders/skybox.vert",
                      "resources/shaders/skybox.frag"),
       wireframe_(false),
       skybox_buffers_(),
-      skybox_texture_(nullptr),
-      depth_map_(0),
-      light_space_(1.0f)
+      skybox_texture_(nullptr)
 {
 }
 
@@ -242,12 +246,24 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
     // PointLight& light = light_entity->GetComponent<PointLight>();
 
     shader_.Use();
-    shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
-    shader_.SetUniform("uLightSpaceMatrix", light_space_);
-    shader_.SetUniform("uDepthMap", 1);
+    shader_.SetUniform("uViewMatrix", camera.view_matrix);
+    shader_.SetUniform("uProjMatrix", camera.proj_matrix);
 
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, depth_map_);
+    for (size_t i = 0; i < shadow_maps_.size(); i++)
+    {
+        const int texture_index = kShadowMapTextureStart + static_cast<int>(i);
+        const ShadowMap& map = *shadow_maps_[i];
+
+        glActiveTexture(GL_TEXTURE0 + texture_index);
+        glBindTexture(GL_TEXTURE_2D, map.GetTexture());
+
+        const string shadow_map_uniform = fmt::format("uShadowMaps[{}]", i);
+        const string light_view_uniform =
+            fmt::format("uLightSpaceMatrices[{}]", i);
+
+        shader_.SetUniform(shadow_map_uniform, texture_index);
+        shader_.SetUniform(light_view_uniform, map.GetTransformation());
+    }
 
     // Render each object
     for (const auto& obj : meshes_)
@@ -343,14 +359,4 @@ void GeometryPass::ResetState()
 void GeometryPass::SetWireframe(bool state)
 {
     wireframe_ = state;
-}
-
-void GeometryPass::SetDepthMap(GLuint depth_map_id)
-{
-    depth_map_ = depth_map_id;
-}
-
-void GeometryPass::SetLightSpaceTransformation(const mat4& light_space)
-{
-    light_space_ = light_space;
 }

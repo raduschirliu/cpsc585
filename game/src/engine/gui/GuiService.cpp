@@ -9,7 +9,7 @@
 
 using std::string;
 
-const char* kGlslVersion = "#version 330 core";
+const char* kGlslVersion = "#version 410 core";
 
 void GuiService::OnInit()
 {

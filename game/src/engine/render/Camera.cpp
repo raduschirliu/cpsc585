@@ -102,6 +102,16 @@ CameraType Camera::GetType() const
     return type_;
 }
 
+float Camera::GetFovDegrees() const
+{
+    return fov_degrees_;
+}
+
+float Camera::GetAspectRatio() const
+{
+    return aspect_ratio_;
+}
+
 const Cuboid& Camera::GetFrustumWorldVertices() const
 {
     return frustum_world_;

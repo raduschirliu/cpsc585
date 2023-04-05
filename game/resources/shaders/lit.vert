@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
@@ -10,9 +10,9 @@ out vec3 aNormal;
 out vec2 aTextureCoord;
 
 uniform mat4 uModelMatrix;
-uniform mat4 uViewProjMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjMatrix;
 uniform mat4 uNormalMatrix;
-uniform mat4 uLightSpaceMatrix;
 
 void main()
 {
@@ -22,9 +22,8 @@ void main()
 	vec4 normals = uNormalMatrix * vec4(inNormal, 1.0f);
 
 	aPos = vec3(modelPos);
-	aPosLightSpace = uLightSpaceMatrix * modelPos;
 	aNormal = vec3(normals);
 	aTextureCoord = inTextureCoord;
 
-	gl_Position = uViewProjMatrix * modelPos;
+	gl_Position = uProjMatrix * uViewMatrix * modelPos;
 }

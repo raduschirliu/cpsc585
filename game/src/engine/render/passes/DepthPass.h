@@ -10,6 +10,7 @@
 #include "engine/render/SceneRenderData.h"
 
 struct MeshRenderData;
+class ShadowMap;
 
 class DepthPass
 {
@@ -25,24 +26,21 @@ class DepthPass
     void RenderDebugGui();
     void ResetState();
 
-    const TextureHandle& GetDepthMap() const;
-    glm::mat4 GetLightSpaceTransformation() const;
+    const std::vector<std::unique_ptr<ShadowMap>>& GetShadowMaps() const;
 
   private:
     SceneRenderData& render_data_;
-    FramebufferHandle fbo_;
-    TextureHandle depth_map_;
+    std::vector<std::unique_ptr<ShadowMap>> shadow_maps_;
     ShaderProgram shader_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
-    bool debug_draw_bounds_;
-    bool debug_draw_frustum_segments_;
-    Transform* target_transform_;
-    glm::vec3 target_pos_;
-    glm::vec3 source_pos_;
-    glm::mat4 light_proj_;
-    glm::mat4 light_view_;
+    bool debug_draw_shadow_bounds_;
+    bool debug_draw_camera_bounds_;
+    Camera* current_camera_;
 
-    void RenderPrepare();
-    void RenderMeshes();
-    void RenderDebugBounds();
+    bool ShouldRun();
+
+    void RenderShadowMaps();
+    void RenderMeshes(ShadowMap& shadow_map);
+    void RenderDebugCameraBounds(ShadowMap& shadow_map);
+    void RenderDebugShadowBounds(ShadowMap& shadow_map);
 };
