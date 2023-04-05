@@ -23,7 +23,7 @@ void Shooter::Shoot()
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     // play shoot sound; slightly randomize pitch
-    if (!physics_service_->GetDisplayPauseBoolean())
+    if (!physics_service_->GetPaused())
     {
         audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
         audio_emitter_->PlaySource(shoot_sound_file_);

@@ -185,7 +185,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     ImFont* font_koverwatch_;
     ImFont* font_mandu_;
     ImFont* font_pixel_;
-    
+
     std::pair<std::string, int> most_kills = {"", -1};
     std::pair<std::string, int> least_deaths = {"", 1000};
 };

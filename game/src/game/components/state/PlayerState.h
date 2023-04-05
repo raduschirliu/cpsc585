@@ -2,12 +2,12 @@
 #include <memory>
 
 #include "PlayerData.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/FwdGame.h"
 #include "game/components/audio/AudioEmitter.h"
-#include "game/services/GameStateService.h"
-#include "engine/physics/PhysicsService.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {

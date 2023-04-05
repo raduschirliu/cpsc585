@@ -9,6 +9,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 using std::string;
 using std::string_view;

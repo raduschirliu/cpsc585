@@ -547,12 +547,13 @@ const PxVec3& PhysicsService::GetGravity() const
     return kGravity;
 }
 
-bool PhysicsService::GetDisplayPauseBoolean()
+bool PhysicsService::GetPaused()
 {
     return display_pause_;
 }
 
-void PhysicsService::SetDisplayPauseBoolean(bool boolean){
+void PhysicsService::SetPaused(bool boolean)
+{
     display_pause_ = boolean;
 }
 

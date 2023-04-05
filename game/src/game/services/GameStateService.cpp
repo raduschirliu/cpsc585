@@ -162,7 +162,7 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
 
-    if (physics_service_->GetDisplayPauseBoolean())
+    if (physics_service_->GetPaused())
     {
         ImGui::SetNextWindowPos(ImVec2(385, 205));
         ImGui::Begin("pause", nullptr, flags);
@@ -188,7 +188,7 @@ void GameStateService::OnGui()
         ImGui::PushFont(font_cookie_);
         if (ImGui::Button("RESUME"))
         {
-            physics_service_->SetDisplayPauseBoolean(false);
+            physics_service_->SetPaused(false);
         }
 
         ImGui::SetCursorPos(ImVec2(pos.x + 20, pos.y + 80));
@@ -1202,7 +1202,7 @@ const uint32_t GameStateService::GetNumCheckpoints() const
 void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
 {
     if (race_state_.state == GameState::kRaceInProgress &&
-        !physics_service_->GetDisplayPauseBoolean())
+        !physics_service_->GetPaused())
     {
         race_state_.elapsed_time += delta_time;
     }

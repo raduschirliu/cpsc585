@@ -133,6 +133,6 @@ class PhysicsService final : public Service,
 
     const physx::PxVec3& GetGravity() const;
 
-    bool GetDisplayPauseBoolean();
-    void SetDisplayPauseBoolean(bool boolean);
+    bool GetPaused();
+    void SetPaused(bool boolean);
 };

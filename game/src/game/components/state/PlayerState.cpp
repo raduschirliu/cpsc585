@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "engine/core/debug/Log.h"
+#include "engine/physics/PhysicsService.h"
+#include "game/services/GameStateService.h"
 
 static constexpr float kMaxDeathCooldown = 5.0f;
 
@@ -145,8 +147,7 @@ void PlayerState::SetHealth(float health)
 
 void PlayerState::DecrementHealth(float health)
 {
-    if (player_state_.health >= health &&
-        !physics_service_->GetDisplayPauseBoolean())
+    if (player_state_.health >= health && !physics_service_->GetPaused())
     {
         player_state_.health -= health;
         audio_emitter_->PlaySource("kart_hit_01.ogg");
@@ -168,7 +169,7 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    if (!physics_service_->GetDisplayPauseBoolean())
+    if (!physics_service_->GetPaused())
     {
         player_state_.current_powerup = type;
         audio_emitter_->PlaySource("pickup_get_01.ogg");
