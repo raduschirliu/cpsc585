@@ -75,78 +75,67 @@ void PickupService::HandleDisablingPowerup()
     // time.
     for (const auto& time : entity_timer_powerups_)
     {
-        if (time.first)
+        if (!time.first)
         {
-            if (time.second >
-                powerup_durations_[entity_holding_powerups_[time.first]])
+            continue;
+        }
+        auto& entity = time.first;
+        if (!entity)
+        {
+            continue;
+        }
+        if (time.second >
+            powerup_information_[entity_holding_powerups_[time.first]].time)
+        {
+            // if the powerup was disable handling
+            if (entity_holding_powerups_[time.first] == "DisableHandling")
             {
-                // if the powerup was disable handling
-                if (entity_holding_powerups_[time.first] == "DisableHandling")
+                // set the powerup to default for this player
+                if (entity->HasComponent<PlayerState>())
                 {
-                    auto& entity = time.first;
-                    if (entity)
-                    {
-                        // set the powerup to default for this player
-                        if (entity->HasComponent<PlayerState>())
-                        {
-                            auto& player_state =
-                                entity->GetComponent<PlayerState>();
-                            player_state.SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
-                        }
-                        not_disabled_entities_.erase(entity);
-
-                        entity_holding_powerups_.erase(time.first);
-                        entity_timer_powerups_.erase(time.first);
-                        break;
-                    }
+                    auto& player_state = entity->GetComponent<PlayerState>();
+                    player_state.SetCurrentPowerup(
+                        PowerupPickupType::kDefaultPowerup);
                 }
+                not_disabled_entities_.erase(entity);
 
-                // if the powerup was speed multiplier
-                else if (entity_holding_powerups_[time.first] ==
-                         "EveryoneSlower")
+                entity_holding_powerups_.erase(time.first);
+                entity_timer_powerups_.erase(time.first);
+                break;
+            }
+
+            // if the powerup was speed multiplier
+            else if (entity_holding_powerups_[time.first] == "EveryoneSlower")
+            {
+                // set the powerup to default for this player
+                if (entity->HasComponent<PlayerState>())
                 {
-                    auto& entity = time.first;
-                    if (entity)
-                    {
-                        // set the powerup to default for this player
-                        if (entity->HasComponent<PlayerState>())
-                        {
-                            auto& player_state =
-                                entity->GetComponent<PlayerState>();
-                            player_state.SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
-                        }
-                        not_slow_entities_.erase(entity);
-
-                        entity_holding_powerups_.erase(time.first);
-                        entity_timer_powerups_.erase(time.first);
-                        break;
-                    }
+                    auto& player_state = entity->GetComponent<PlayerState>();
+                    player_state.SetCurrentPowerup(
+                        PowerupPickupType::kDefaultPowerup);
                 }
+                not_slow_entities_.erase(entity);
 
-                else if (entity_holding_powerups_[time.first] ==
-                         "KillAbilities")
+                entity_holding_powerups_.erase(time.first);
+                entity_timer_powerups_.erase(time.first);
+                break;
+            }
+
+            else if (entity_holding_powerups_[time.first] == "KillAbilities")
+            {
+                // set the powerup to default for this player
+                if (entity->HasComponent<PlayerState>())
                 {
-                    auto& entity = time.first;
-                    if (entity)
-                    {
-                        // set the powerup to default for this player
-                        if (entity->HasComponent<PlayerState>())
-                        {
-                            auto& player_state =
-                                entity->GetComponent<PlayerState>();
-                            player_state.SetCurrentPowerup(
-                                PowerupPickupType::kDefaultPowerup);
-                        }
-                        not_slow_entities_.clear();
-                        not_disabled_entities_.clear();
-
-                        entity_holding_powerups_.clear();
-                        entity_timer_powerups_.clear();
-                        break;
-                    }
+                    auto& player_state = entity->GetComponent<PlayerState>();
+                    player_state.SetCurrentPowerup(
+                        PowerupPickupType::kDefaultPowerup);
                 }
+                not_slow_entities_.clear();
+                not_disabled_entities_.clear();
+
+                entity_holding_powerups_.clear();
+                entity_timer_powerups_.clear();
+                break;
             }
         }
     }
@@ -189,49 +178,23 @@ void PickupService::LoadPowerupInformation(const rapidjson::Document& doc)
     {
         if (powerup_object.HasMember(kPowerups[i]))
         {
-            LoadPowerupDurationInformation(powerup_object, kPowerups[i]);
-            LoadPowerupOtherInformation(powerup_object, kPowerups[i]);
-            LoadPowerupRespawnTimeInformation(powerup_object, kPowerups[i]);
+            const rapidjson::Value& member_object =
+                powerup_object[kPowerups[i]];
+            PowerupInformation info;
+            if (member_object.HasMember("max_speed"))
+            {
+                info.max_speed = member_object["max_speed"].GetFloat();
+            }
+            if (member_object.HasMember("respawn"))
+            {
+                info.respawn = member_object["respawn"].GetFloat();
+            }
+            if (member_object.HasMember("time"))
+            {
+                info.time = member_object["time"].GetFloat();
+            }
+            powerup_information_.insert({kPowerups[i], info});
         }
-    }
-}
-
-void PickupService::LoadPowerupRespawnTimeInformation(
-    const rapidjson::Value& powerup_object, const std::string& member)
-{
-    const rapidjson::Value& member_obj = powerup_object[member];
-    if (member_obj.HasMember("respawn"))
-    {
-        const rapidjson::Value& respawn = member_obj["respawn"];
-
-        // add to our damage map.
-        powerup_respawn_times_.insert({member, respawn.GetFloat()});
-    }
-}
-
-void PickupService::LoadPowerupOtherInformation(
-    const rapidjson::Value& powerup_object, const std::string& member)
-{
-    const rapidjson::Value& member_obj = powerup_object[member];
-    if (member_obj.HasMember("max_speed"))
-    {
-        const rapidjson::Value& time = member_obj["max_speed"];
-
-        // add to our damage map.
-        powerup_max_speeds_.insert({member, time.GetFloat()});
-    }
-}
-
-void PickupService::LoadPowerupDurationInformation(
-    const rapidjson::Value& powerup_object, const std::string& member)
-{
-    const rapidjson::Value& member_obj = powerup_object[member];
-    if (member_obj.HasMember("time"))
-    {
-        const rapidjson::Value& time = member_obj["time"];
-
-        // add to our damage map.
-        powerup_durations_.insert({member, time.GetFloat()});
     }
 }
 
@@ -242,87 +205,35 @@ void PickupService::LoadAmmoInformation(const Document& doc)
     {
         if (ammo_object.HasMember(kAmmoTypes[i]))
         {
-            LoadAmmoDamageInformation(ammo_object, kAmmoTypes[i]);
-            LoadAmmoDurationInformation(ammo_object, kAmmoTypes[i]);
-            LoadAmmoCooldownInformation(ammo_object, kAmmoTypes[i]);
-            LoadAmmoRespawnTimeInformation(ammo_object, kAmmoTypes[i]);
-            if (kAmmoTypes[i] == "Buckshot")
+            const rapidjson::Value& member_object = ammo_object[kAmmoTypes[i]];
+            AmmoInformation info;
+            if (member_object.HasMember("damage"))
             {
-                LoadAmmoOtherInformation(ammo_object, kAmmoTypes[i]);
+                info.damages = member_object["damage"].GetFloat();
             }
+            if (member_object.HasMember("respawn"))
+            {
+                info.respawn = member_object["respawn"].GetFloat();
+            }
+            if (member_object.HasMember("time"))
+            {
+                info.time = member_object["time"].GetFloat();
+            }
+            if (member_object.HasMember("pellets"))
+            {
+                info.pellets = member_object["pellets"].GetInt();
+            }
+            if (member_object.HasMember("cooldown"))
+            {
+                info.cooldown = member_object["cooldown"].GetFloat();
+            }
+            if (member_object.HasMember("spread"))
+            {
+                info.spread = member_object["spread"].GetInt();
+            }
+
+            ammo_information_.insert({kAmmoTypes[i], info});
         }
-    }
-}
-
-void PickupService::LoadAmmoRespawnTimeInformation(
-    const rapidjson::Value& ammo_object, const std::string& member)
-{
-    const rapidjson::Value& member_object = ammo_object[member];
-    if (member_object.HasMember("respawn"))
-    {
-        const rapidjson::Value& respawn = member_object["respawn"];
-
-        // add to our damage map.
-        ammo_respawn_times_.insert({member, respawn.GetFloat()});
-    }
-}
-
-void PickupService::LoadAmmoOtherInformation(
-    const rapidjson::Value& ammo_object, const std::string& member)
-{
-    const rapidjson::Value& member_object = ammo_object[member];
-    if (member_object.HasMember("spread"))
-    {
-        const rapidjson::Value& spread = member_object["spread"];
-
-        // add to our damage map.
-        buckshot_additional_details_.insert({"spread", spread.GetFloat()});
-    }
-    if (member_object.HasMember("pellets"))
-    {
-        const rapidjson::Value& pellets = member_object["pellets"];
-
-        // add to our damage map.
-        buckshot_additional_details_.insert({"pellets", pellets.GetInt()});
-    }
-}
-
-void PickupService::LoadAmmoCooldownInformation(
-    const rapidjson::Value& ammo_object, const std::string& member)
-{
-    const rapidjson::Value& member_object = ammo_object[member];
-    if (member_object.HasMember("cooldown"))
-    {
-        const rapidjson::Value& cooldown = member_object["cooldown"];
-
-        // add to our damage map.
-        ammo_cooldowns_.insert({member, cooldown.GetFloat()});
-    }
-}
-
-void PickupService::LoadAmmoDurationInformation(
-    const rapidjson::Value& ammo_object, const std::string& member)
-{
-    const rapidjson::Value& member_object = ammo_object[member];
-    if (member_object.HasMember("time"))
-    {
-        const rapidjson::Value& time = member_object["time"];
-
-        // add to our damage map.
-        ammo_durations_.insert({member, time.GetFloat()});
-    }
-}
-
-void PickupService::LoadAmmoDamageInformation(
-    const rapidjson::Value& ammo_object, const std::string& member)
-{
-    const rapidjson::Value& member_object = ammo_object[member];
-    if (member_object.HasMember("damage"))
-    {
-        const rapidjson::Value& damage = member_object["damage"];
-
-        // add to our damage map.
-        ammo_damages_.insert({member, damage.GetFloat()});
     }
 }
 
@@ -340,73 +251,81 @@ std::array<std::string, 5> PickupService::GetPowerupPickupNames()
 
 float PickupService::GetAmmoDamage(std::string ammo_type)
 {
-    if (ammo_damages_.find(ammo_type) != ammo_damages_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return ammo_damages_[ammo_type];
+        return ammo_information_[ammo_type].damages;
     }
     return 0.0;
 }
 
 float PickupService::GetAmmoDuration(std::string ammo_type)
 {
-    if (ammo_durations_.find(ammo_type) != ammo_durations_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return ammo_durations_[ammo_type];
+        return ammo_information_[ammo_type].time;
     }
     return 0.0;
 }
 
 float PickupService::GetAmmoCooldown(std::string ammo_type)
 {
-    if (ammo_cooldowns_.find(ammo_type) != ammo_cooldowns_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return ammo_cooldowns_[ammo_type];
+        return ammo_information_[ammo_type].cooldown;
     }
     return 0.0;
 }
 
-float PickupService::GetBuckshotAdditionalDetail(std::string detail_type)
+float PickupService::GetAmmoSpread(std::string ammo_type)
 {
-    if (buckshot_additional_details_.find(detail_type) != ammo_damages_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return ammo_damages_[detail_type];
+        return ammo_information_[ammo_type].spread;
     }
     return 0.0;
 }
 
-float PickupService::GetPowerupDuration(std::string powerup_type)
+float PickupService::GetAmmoPellets(std::string ammo_type)
 {
-    if (powerup_durations_.find(powerup_type) != powerup_durations_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return powerup_durations_[powerup_type];
-    }
-    return 0.0;
-}
-
-float PickupService::GetPowerupMaxSpeeds(std::string powerup_type)
-{
-    if (powerup_max_speeds_.find(powerup_type) != powerup_max_speeds_.end())
-    {
-        return powerup_max_speeds_[powerup_type];
+        return ammo_information_[ammo_type].pellets;
     }
     return 0.0;
 }
 
 float PickupService::GetAmmoRespawnTime(std::string ammo_type)
 {
-    if (ammo_respawn_times_.find(ammo_type) != ammo_respawn_times_.end())
+    if (ammo_information_.find(ammo_type) != ammo_information_.end())
     {
-        return ammo_respawn_times_[ammo_type];
+        return ammo_information_[ammo_type].respawn;
+    }
+    return 0.0;
+}
+
+float PickupService::GetPowerupDuration(std::string powerup_type)
+{
+    if (powerup_information_.find(powerup_type) != powerup_information_.end())
+    {
+        return powerup_information_[powerup_type].time;
+    }
+    return 0.0;
+}
+
+float PickupService::GetPowerupMaxSpeeds(std::string powerup_type)
+{
+    if (powerup_information_.find(powerup_type) != powerup_information_.end())
+    {
+        return powerup_information_[powerup_type].max_speed;
     }
     return 0.0;
 }
 
 float PickupService::GetPowerupRespawnTime(std::string powerup_type)
 {
-    if (powerup_respawn_times_.find(powerup_type) !=
-        powerup_respawn_times_.end())
+    if (powerup_information_.find(powerup_type) != powerup_information_.end())
     {
-        return powerup_respawn_times_[powerup_type];
+        return powerup_information_[powerup_type].respawn;
     }
     return 0.0;
 }

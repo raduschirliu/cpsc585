@@ -15,6 +15,40 @@
 #include "engine/service/Service.h"
 #include "game/components/Pickups/PickupType.h"
 
+struct AmmoInformation
+{
+    float damages;
+    float respawn;
+    float time;
+    int pellets;
+    int spread;
+    float cooldown;
+
+    AmmoInformation()
+    {
+        damages = 0.f;
+        cooldown = 0.f;
+        time = 0.f;
+        respawn = 0.f;
+        pellets = 0;
+        spread = 0;
+    }
+};
+
+struct PowerupInformation
+{
+    float max_speed;
+    float respawn;
+    float time;
+
+    PowerupInformation()
+    {
+        time = 0.f;
+        respawn = 0.f;
+        max_speed = 0.f;
+    }
+};
+
 class PickupService final : public Service,
                             public IEventSubscriber<OnUpdateEvent>
 {
@@ -67,7 +101,8 @@ class PickupService final : public Service,
     float GetAmmoDuration(std::string ammo_type);
     float GetAmmoCooldown(std::string ammo_type);
     float GetAmmoRespawnTime(std::string ammo_type);
-    float GetBuckshotAdditionalDetail(std::string detail_type);
+    float GetAmmoSpread(std::string ammo_type);
+    float GetAmmoPellets(std::string ammo_type);
 
     std::array<std::string, 5> GetPowerupPickupNames();
     float GetPowerupDuration(std::string powerup_type);
@@ -93,16 +128,10 @@ class PickupService final : public Service,
 
   private:
     /******** AMMO ********/
-    std::unordered_map<std::string, float> ammo_damages_;
-    std::unordered_map<std::string, float> ammo_durations_;
-    std::unordered_map<std::string, float> ammo_cooldowns_;
-    std::unordered_map<std::string, float> buckshot_additional_details_;
-    std::unordered_map<std::string, float> ammo_respawn_times_;
+    std::unordered_map<std::string, AmmoInformation> ammo_information_;
 
     /******** POWERUP ***/
-    std::unordered_map<std::string, float> powerup_durations_;
-    std::unordered_map<std::string, float> powerup_max_speeds_;
-    std::unordered_map<std::string, float> powerup_respawn_times_;
+    std::unordered_map<std::string, PowerupInformation> powerup_information_;
 
     /********* EXECUTING AND HANDLING THE POWERUPS ************/
 
