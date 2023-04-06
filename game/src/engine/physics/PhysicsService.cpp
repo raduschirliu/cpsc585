@@ -103,7 +103,7 @@ void PhysicsService::OnUpdate()
         input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
                                                GLFW_GAMEPAD_BUTTON_START))
     {
-        display_pause_ = true;
+        display_pause_ = !display_pause_;
     }
 
     if (!display_pause_)
