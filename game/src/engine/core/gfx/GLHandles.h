@@ -171,3 +171,28 @@ class TextureHandle
   private:
     GLuint textureID;
 };
+
+class FramebufferHandle
+{
+  public:
+    FramebufferHandle();
+
+    // Disallow copying
+    FramebufferHandle(const FramebufferHandle&) = delete;
+    FramebufferHandle operator=(const FramebufferHandle&) = delete;
+
+    // Allow moving
+    FramebufferHandle(FramebufferHandle&& other) noexcept;
+    FramebufferHandle& operator=(FramebufferHandle&& other) noexcept;
+
+    // Clean up after ourselves.
+    ~FramebufferHandle();
+
+    // Allow casting from this type into a GLuint
+    // This allows usage in situations where a function expects a GLuint
+    operator GLuint() const;
+    GLuint Value() const;
+
+  private:
+    GLuint id_;
+};

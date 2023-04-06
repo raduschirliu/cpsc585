@@ -29,6 +29,9 @@ void App::Run()
     OnInit();
     service_provider_.DispatchInit(*this);
 
+    const glm::ivec2 window_size = window_.GetSize();
+    service_provider_.DispatchWindowSizeChanged(window_size.x, window_size.y);
+
     // Run phase
     service_provider_.DispatchStart();
     OnStart();
@@ -180,6 +183,7 @@ void App::OnScroll(double xoffset, double yoffset)
 
 void App::OnWindowSizeChanged(int width, int height)
 {
+    service_provider_.DispatchWindowSizeChanged(width, height);
 }
 
 void App::OnJoystickChangedEvent(int joystick_id, int event)

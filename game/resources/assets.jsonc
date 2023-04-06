@@ -27,10 +27,6 @@
 
         /* Kart */
         {
-            "path": "resources/models/kart/kart2-4.obj",
-            "name": "kart-old"
-        },
-        {
             "path": "resources/models/kart/kart2-5.gltf",
             "name": "kart"
         },
@@ -83,7 +79,7 @@
             "name": "track3-collision"
         },
         {
-            "path": "resources/models/track3/track3-9.gltf",
+            "path": "resources/models/track3/track3-10.gltf",
             "name": "track3"
         }
     ],

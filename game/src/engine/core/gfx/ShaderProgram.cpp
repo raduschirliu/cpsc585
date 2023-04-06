@@ -34,9 +34,8 @@ bool ShaderProgram::Recompile()
 {
     try
     {
-        // Try to create a new program
-        ShaderProgram newProgram(vertex.getPath(), fragment.getPath());
-        *this = std::move(newProgram);
+        ShaderProgram new_program(vertex.getPath(), fragment.getPath());
+        *this = std::move(new_program);
         return true;
     }
     catch (std::runtime_error& e)

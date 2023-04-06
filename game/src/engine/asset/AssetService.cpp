@@ -118,7 +118,8 @@ void AssetService::LoadTexture(const string &path, const string &name)
     ASSERT_MSG(textures_.find(name) == textures_.end(),
                "Textures must have unique names");
 
-    textures_[name] = make_unique<Texture>(path);
+    textures_[name] = make_unique<Texture>();
+    textures_[name]->LoadFromFile(path);
 }
 
 const Texture &AssetService::GetTexture(const string &name)

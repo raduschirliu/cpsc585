@@ -8,163 +8,100 @@
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
 #include "engine/render/Camera.h"
+#include "engine/render/Material.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/PointLight.h"
 #include "engine/service/ServiceProvider.h"
 
+using glm::ivec2;
 using glm::mat4;
 using glm::vec3;
 using std::make_unique;
 using std::unique_ptr;
 using std::vector;
 
-const static vector<float> kSkyboxVertices = {
-    -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f,
-    -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f,
-    -1.0f, -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  1.0f,
-    -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, -1.0f,
-    -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,
-    1.0f,  -1.0f, 1.0f,  -1.0f, -1.0f, 1.0f,  -1.0f, 1.0f,  -1.0f, 1.0f,  1.0f,
-    -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  1.0f,  -1.0f, 1.0f,  1.0f,  -1.0f,
-    1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, -1.0f,
-    1.0f,  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f};
-
 RenderService::RenderService()
-    : render_list_{},
-      cameras_{},
-      lights_{},
-      materials_{},
-      shader_("resources/shaders/default.vert",
-              "resources/shaders/blinnphong.frag"),
-      debug_shader_("resources/shaders/debug.vert",
-                    "resources/shaders/debug.frag"),
-      skybox_shader_("resources/shaders/skybox.vert",
-                     "resources/shaders/skybox.frag"),
-      skybox_buffers_(),
-      skybox_texture_(nullptr),
+    : input_service_(nullptr),
+      asset_service_(nullptr),
+      render_data_(make_unique<SceneRenderData>()),
+      depth_pass_(*render_data_),
+      geometry_pass_(*render_data_, depth_pass_.GetShadowMaps()),
       debug_draw_list_(),
-      wireframe_(false),
-      show_debug_menu_(false)
+      show_debug_menu_(false),
+      debug_draw_camera_frustums_(false)
 {
 }
 
 void RenderService::RegisterRenderable(const Entity& entity,
                                        const MeshRenderer& renderer)
 {
-    auto data = make_unique<RenderData>(RenderData{
-        .entity = &entity,
-        .layout = {},
-        .vertex_array = VertexArray(),
-        .vertex_buffer = VertexBuffer(),
-        .element_buffer = ElementArrayBuffer(),
-    });
+    const uint32_t new_id = entity.GetId();
+    auto iter = std::find_if(
+        render_data_->entities.begin(), render_data_->entities.end(),
+        [new_id](const Entity* x) { return x->GetId() == new_id; });
+    ASSERT_MSG(iter == render_data_->entities.end(),
+               "Cannot register the same entity twice");
 
-    // Configure vertex array/buffer and upload data
-    data->vertex_array.Bind();
-    data->vertex_buffer.Bind();
-    data->element_buffer.Bind();
+    render_data_->entities.push_back(&entity);
 
-    data->vertex_buffer.ConfigureAttribute(0, 3, GL_FLOAT, sizeof(Vertex),
-                                           offsetof(Vertex, position));
-    data->vertex_buffer.ConfigureAttribute(1, 3, GL_FLOAT, sizeof(Vertex),
-                                           offsetof(Vertex, normal));
-    data->vertex_buffer.ConfigureAttribute(2, 2, GL_FLOAT, sizeof(Vertex),
-                                           offsetof(Vertex, uv));
-
-    constexpr size_t index_size = sizeof(uint32_t);
-    vector<Vertex> vertices;
-    vector<uint32_t> indices;
-
-    for (const auto& mesh : renderer.GetMeshes())
-    {
-        const uint32_t vertex_offset = static_cast<uint32_t>(vertices.size());
-        const uint32_t index_offset = static_cast<uint32_t>(indices.size());
-
-        BufferMeshLayout layout = {
-            .index_offset = indices.size() * index_size,
-            .index_count = mesh.mesh->indices.size(),
-        };
-
-        vertices.insert(vertices.end(), mesh.mesh->vertices.begin(),
-                        mesh.mesh->vertices.end());
-        indices.insert(indices.end(), mesh.mesh->indices.begin(),
-                       mesh.mesh->indices.end());
-
-        for (size_t i = 0; i < layout.index_count; i++)
-        {
-            indices[index_offset + i] += vertex_offset;
-        }
-
-        data->layout.push_back(layout);
-    }
-
-    data->vertex_buffer.Upload(vertices, GL_STATIC_DRAW);
-    data->element_buffer.Upload(indices, GL_STATIC_DRAW);
-
-    VertexArray::Unbind();
-
-    // Add to render list
-    render_list_.push_back(std::move(data));
+    depth_pass_.RegisterRenderable(entity, renderer);
+    geometry_pass_.RegisterRenderable(entity, renderer);
 }
 
 void RenderService::UnregisterRenderable(const Entity& entity)
 {
-    auto iter = render_list_.begin();
+    const uint32_t target_id = entity.GetId();
+    size_t count =
+        std::erase_if(render_data_->entities, [target_id](const Entity* x)
+                      { return x->GetId() == target_id; });
 
-    while (iter < render_list_.end())
+    if (count > 0)
     {
-        if (iter->get()->entity->GetId())
-        {
-            render_list_.erase(iter);
-            break;
-        }
-
-        iter++;
+        depth_pass_.UnregisterRenderable(entity);
+        geometry_pass_.UnregisterRenderable(entity);
     }
+
+    debug::LogWarn(
+        "Attempted to unregister a renderable entity that was never "
+        "registered");
 }
 
 void RenderService::RegisterCamera(Camera& camera)
 {
-    cameras_.push_back(&camera);
+    const float aspect_ratio = static_cast<float>(render_data_->screen_size.x) /
+                               static_cast<float>(render_data_->screen_size.y);
+    camera.SetAspectRatio(aspect_ratio);
+
+    render_data_->cameras.push_back(&camera);
 }
 
 void RenderService::UnregisterCamera(Camera& camera)
 {
-    const uint32_t camera_entity_id = camera.GetEntity().GetId();
-    auto iter = cameras_.begin();
-
-    while (iter != cameras_.end())
-    {
-        if (iter->get()->GetEntity().GetId() == camera_entity_id)
-        {
-            cameras_.erase(iter);
-            break;
-        }
-
-        iter++;
-    }
+    const uint32_t target_id = camera.GetEntity().GetId();
+    std::erase_if(render_data_->cameras, [target_id](Camera* x)
+                  { return x->GetEntity().GetId() == target_id; });
 }
 
 void RenderService::RegisterLight(Entity& entity)
 {
-    lights_.push_back(&entity);
+    const uint32_t new_id = entity.GetId();
+    auto iter = std::find_if(
+        render_data_->point_lights.begin(), render_data_->point_lights.end(),
+        [new_id](PointLight* x) { return x->GetEntity().GetId() == new_id; });
+    ASSERT_MSG(iter == render_data_->point_lights.end(),
+               "Cannot register the same light twice");
+
+    // TODO(radu): Support directional lights?
+    render_data_->point_lights.push_back(&entity.GetComponent<PointLight>());
 }
 
 void RenderService::UnregisterLight(Entity& entity)
 {
-    auto iter = lights_.begin();
+    // TODO(radu): Support directional lights?
 
-    while (iter != lights_.end())
-    {
-        if (iter->get()->GetId() == entity.GetId())
-        {
-            lights_.erase(iter);
-            break;
-        }
-
-        iter++;
-    }
+    const uint32_t target_id = entity.GetId();
+    std::erase_if(render_data_->point_lights, [target_id](PointLight* x)
+                  { return x->GetEntity().GetId() == target_id; });
 }
 
 void RenderService::OnInit()
@@ -180,58 +117,56 @@ void RenderService::OnStart(ServiceProvider& service_provider)
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
 
-    // Setup skybox
-    skybox_buffers_.vertex_array.Bind();
-    skybox_buffers_.vertex_buffer.Bind();
-    skybox_buffers_.element_buffer.Bind();
+    // Render passes
+    render_data_->asset_service = asset_service_.get();
+    render_data_->debug_draw_list = &debug_draw_list_;
 
-    skybox_buffers_.vertex_buffer.ConfigureAttribute(0, 3, GL_FLOAT,
-                                                     sizeof(float) * 3, 0);
-    skybox_buffers_.vertex_buffer.Upload(kSkyboxVertices, GL_STATIC_DRAW);
-    skybox_texture_ = &asset_service_->GetCubemap("skybox");
-
-    VertexArray::Unbind();
+    depth_pass_.Init();
+    geometry_pass_.Init();
 }
 
 void RenderService::OnSceneLoaded(Scene& scene)
 {
-    render_list_.clear();
-    lights_.clear();
-    cameras_.clear();
+    depth_pass_.ResetState();
+
+    geometry_pass_.ResetState();
+
+    render_data_->cameras.clear();
+    render_data_->entities.clear();
+    render_data_->point_lights.clear();
+}
+
+void RenderService::OnWindowSizeChanged(int width, int height)
+{
+    debug::LogInfo("Window size changed: {}x{}", width, height);
+    render_data_->screen_size = ivec2(width, height);
+
+    const float aspect_ratio =
+        static_cast<float>(width) / static_cast<float>(height);
+
+    for (auto& camera : render_data_->cameras)
+    {
+        camera->SetAspectRatio(aspect_ratio);
+    }
 }
 
 void RenderService::OnUpdate()
 {
-    num_draw_calls_ = 0;
-
     // Debug menu
     if (input_service_->IsKeyPressed(GLFW_KEY_F2))
     {
         show_debug_menu_ = !show_debug_menu_;
     }
 
-    // Rendering
-    glEnable(GL_FRAMEBUFFER_SRGB);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glFrontFace(GL_CCW);
 
-    // Disabling back-face culling until we add more faces to the track
-    // glEnable(GL_CULL_FACE);
-    glDisable(GL_CULL_FACE);
-
-    RenderPrepare();
-
-    for (auto& camera : cameras_)
+    if (debug_draw_camera_frustums_)
     {
-        PrepareCameraView(*camera);
-        RenderCameraView(*camera);
+        DrawCameraFrustums();
     }
 
-    // Post-render cleanup
-    debug_draw_list_.Clear();
-
-    glDisable(GL_MULTISAMPLE);
+    depth_pass_.Render();
+    geometry_pass_.Render();
 }
 
 void RenderService::OnCleanup()
@@ -256,13 +191,44 @@ void RenderService::OnGui()
         return;
     }
 
-    ImGui::Text("Cameras: %zu", cameras_.size());
-    ImGui::Text("Lights: %zu", lights_.size());
-    ImGui::Text("Meshes: %zu", render_list_.size());
-    ImGui::Text("Draw calls: %zu", num_draw_calls_);
+    ImGui::BeginTabBar("##RenderService Tabs");
 
-    ImGui::Checkbox("Wireframe", &wireframe_);
+    if (ImGui::BeginTabItem("General"))
+    {
+        if (ImGui::TreeNode("cameras", "Cameras: %zu",
+                            render_data_->cameras.size()))
+        {
+            for (size_t i = 0; i < render_data_->cameras.size(); i++)
+            {
+                ImGui::TreeNode(
+                    reinterpret_cast<void*>(i), "(%zu) %s", i,
+                    render_data_->cameras[i]->GetEntity().GetName().c_str());
+            }
+            ImGui::TreePop();
+        }
 
+        ImGui::BulletText("Point Lights: %zu",
+                          render_data_->point_lights.size());
+        ImGui::BulletText("Entities: %zu", render_data_->entities.size());
+
+        ImGui::Checkbox("Draw Camera Frustums", &debug_draw_camera_frustums_);
+
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Depth Pass"))
+    {
+        depth_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Geometry Pass"))
+    {
+        geometry_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
+    }
+
+    ImGui::EndTabBar();
     ImGui::End();
 }
 
@@ -271,139 +237,14 @@ DebugDrawList& RenderService::GetDebugDrawList()
     return debug_draw_list_;
 }
 
-void RenderService::RenderPrepare()
+void RenderService::DrawCameraFrustums()
 {
-    debug_draw_list_.Prepare();
-}
-
-void RenderService::PrepareCameraView(Camera& camera)
-{
-    render_pass_data_.camera_transform =
-        &camera.GetEntity().GetComponent<Transform>();
-    render_pass_data_.camera_pos =
-        render_pass_data_.camera_transform->GetPosition();
-
-    render_pass_data_.view_matrix = camera.GetViewMatrix();
-    render_pass_data_.proj_matrix = camera.GetProjectionMatrix();
-    render_pass_data_.view_proj_matrix =
-        render_pass_data_.proj_matrix * render_pass_data_.view_matrix;
-}
-
-void RenderService::RenderCameraView(Camera& camera)
-{
-    // Geometry pass
-    if (wireframe_)
+    for (Camera* camera : render_data_->cameras)
     {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
-
-    // TODO(radu): Allow for more than one light, and actually use light props
-    // auto light_entity = lights_[0];
-    // PointLight& light = light_entity->GetComponent<PointLight>();
-
-    shader_.Use();
-    shader_.SetUniform("uViewProjMatrix", render_pass_data_.view_proj_matrix);
-
-    // Render each object
-    for (const auto& obj : render_list_)
-    {
-        const MeshRenderer& renderer =
-            obj->entity->GetComponent<MeshRenderer>();
-        const Transform& transform = obj->entity->GetComponent<Transform>();
-
-        const mat4& model_matrix = transform.GetModelMatrix();
-        // Since we're passing normals in world space, the view matrix =
-        // identity, so we don't need to multiply by it
-        const mat4 normal_matrix = transform.GetNormalMatrix();
-
-        // Vert shader vars
-        shader_.SetUniform("uModelMatrix", model_matrix);
-        shader_.SetUniform("uNormalMatrix", normal_matrix);
-
-        // Lighting information
-        shader_.SetUniform("uCameraPos", render_pass_data_.camera_pos);
-        shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
-        shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
-        shader_.SetUniform("uLight.diffuse", vec3(0.5f, 0.5f, 0.5f));
-
-        obj->vertex_array.Bind();
-
-        // Draw all meshes that are part of this object
-        const auto& meshes = renderer.GetMeshes();
-        ASSERT_MSG(meshes.size() == obj->layout.size(),
-                   "Mesh data out of sync with renderer");
-
-        for (size_t i = 0; i < meshes.size(); i++)
+        if (camera->GetType() == CameraType::kNormal)
         {
-            const MaterialProperties& material_properties =
-                meshes[i].material_properties;
-
-            if (material_properties.albedo_texture)
-            {
-                material_properties.albedo_texture->Bind();
-            }
-
-            shader_.SetUniform("uMaterial.specularColor",
-                               material_properties.specular);
-            shader_.SetUniform("uMaterial.shininess",
-                               material_properties.shininess);
-            shader_.SetUniform("uMaterial.albedoTexture", 0);
-            shader_.SetUniform("uMaterial.albedoColor",
-                               material_properties.albedo_color);
-
-            GLsizei index_count =
-                static_cast<GLsizei>(obj->layout[i].index_count);
-            void* index_offset = reinterpret_cast<void*>(
-                static_cast<intptr_t>(obj->layout[i].index_offset));
-
-            glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,
-                           index_offset);
-
-            num_draw_calls_++;
+            debug_draw_list_.AddCuboid(camera->GetFrustumWorldVertices(),
+                                       Color4u(0, 255, 0, 255));
         }
     }
-
-    // Debug items
-    RenderDebugDrawList();
-    RenderSkybox();
-}
-
-void RenderService::RegisterMaterial(unique_ptr<Material> material)
-{
-    materials_.push_back(std::move(material));
-}
-
-void RenderService::RenderDebugDrawList()
-{
-    if (debug_draw_list_.HasItems())
-    {
-        debug_shader_.Use();
-        debug_shader_.SetUniform("uViewProjMatrix",
-                                 render_pass_data_.view_proj_matrix);
-        debug_draw_list_.Draw();
-
-        num_draw_calls_++;
-    }
-}
-
-void RenderService::RenderSkybox()
-{
-    skybox_buffers_.vertex_array.Bind();
-
-    const mat4 view_no_transform =
-        glm::mat4(glm::mat3(render_pass_data_.view_matrix));
-    const mat4 view_proj = render_pass_data_.proj_matrix * view_no_transform;
-
-    skybox_shader_.Use();
-    skybox_shader_.SetUniform("uViewProjMatrix", view_proj);
-
-    skybox_texture_->Bind();
-
-    glDepthFunc(GL_LEQUAL);
-    glDrawArrays(GL_TRIANGLES, 0, kSkyboxVertices.size());
-    glDepthFunc(GL_LESS);
 }

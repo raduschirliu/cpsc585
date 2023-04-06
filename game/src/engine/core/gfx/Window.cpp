@@ -6,10 +6,11 @@
 #include "engine/core/debug/Log.h"
 #include "engine/core/gfx/GLDebug.h"
 
+using glm::ivec2;
 using std::shared_ptr;
 using std::string;
 
-static GLFWwindow* kJoystickWindow = nullptr;
+static Window* kWindowInstance = nullptr;
 
 // ---------------------------
 // static function definitions
@@ -60,7 +61,7 @@ void Window::ScrollMetaCallback(GLFWwindow* window, double xoffset,
 
 void Window::WindowSizeMetaCallback(GLFWwindow* window, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    kWindowInstance->size_ = ivec2(width, height);
 
     IWindowEventListener* callbacks =
         static_cast<IWindowEventListener*>(glfwGetWindowUserPointer(window));
@@ -72,13 +73,14 @@ void Window::WindowSizeMetaCallback(GLFWwindow* window, int width, int height)
 
 void Window::JoystickChangedMetaCallback(int joystick_id, int event)
 {
-    if (!kJoystickWindow)
+    if (!kWindowInstance)
     {
         return;
     }
 
-    IWindowEventListener* callbacks = static_cast<IWindowEventListener*>(
-        glfwGetWindowUserPointer(kJoystickWindow));
+    GLFWwindow* handle = kWindowInstance->GetWindowHandle();
+    IWindowEventListener* callbacks =
+        static_cast<IWindowEventListener*>(glfwGetWindowUserPointer(handle));
     if (callbacks)
     {
         callbacks->OnJoystickChangedEvent(joystick_id, event);
@@ -91,19 +93,22 @@ void Window::JoystickChangedMetaCallback(int joystick_id, int event)
 
 Window::Window() : handle_(nullptr), callbacks_(nullptr)
 {
+    ASSERT_MSG(!kWindowInstance, "Cannot have multiple windows");
 }
 
 void Window::Create(int width, int height, const char* title)
 {
     ASSERT_MSG(!handle_, "Window has already been created");
 
-    // specify OpenGL version
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // Use OpenGL 410 core
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  // needed for mac?
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 4);  // 4x MSAA
+
+    // 4x MSAA
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     // create window
     handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(
@@ -140,10 +145,8 @@ void Window::ConnectCallbacks()
 
 void Window::SetCallbacks(shared_ptr<IWindowEventListener> callbacks)
 {
-    // set userdata of window to point to the object that carries out the
-    // callbacks
     callbacks_ = callbacks;
-    kJoystickWindow = handle_.get();
+    kWindowInstance = this;
     glfwSetWindowUserPointer(handle_.get(), callbacks_.get());
 }
 
@@ -170,11 +173,9 @@ glm::ivec2 Window::GetPos() const
     return glm::ivec2(x, y);
 }
 
-glm::ivec2 Window::GetSize() const
+const glm::ivec2& Window::GetSize() const
 {
-    int w, h;
-    glfwGetWindowSize(handle_.get(), &w, &h);
-    return glm::ivec2(w, h);
+    return size_;
 }
 
 bool Window::ShouldClose()

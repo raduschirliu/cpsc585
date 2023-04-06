@@ -26,6 +26,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
+#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/Pickups/Powerups/DisableHandlingPickup.h"
 #include "game/components/Pickups/Powerups/EveryoneSlowerPickup.h"
@@ -346,6 +347,18 @@ void GameApp::LoadTrack1Scene(Scene& scene)
 
     AssetService& asset_service_ =
         GetServiceProvider().GetService<AssetService>();
+
+    {
+        // Debug camera
+        Entity& entity = scene.AddEntity("DebugCamera");
+        entity.AddComponent<Transform>();
+
+        // Camera disabled by default
+        auto& camera = entity.AddComponent<Camera>();
+        camera.SetType(CameraType::kDisabled);
+
+        entity.AddComponent<DebugCameraController>();
+    }
 
     {
         // Track part with collision

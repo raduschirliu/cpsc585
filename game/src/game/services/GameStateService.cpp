@@ -20,7 +20,6 @@
 #include "game/Checkpoints.h"
 #include "game/components/Controllers/AIController.h"
 #include "game/components/Controllers/PlayerController.h"
-#include "game/components/DebugCameraController.h"
 #include "game/components/FollowCamera.h"
 #include "game/components/Pickups/AmmoType/BuckshotPickup.h"
 #include "game/components/Pickups/AmmoType/DoubleDamagePickup.h"
@@ -1037,6 +1036,15 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
     renderer.SetMeshes({
+        // {
+        //     &asset_service_->GetMesh("kart-old@Cube"),
+        //     MaterialProperties{
+        //         .albedo_texture = nullptr,
+        //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+        //         .specular = vec3(1.0f, 1.0f, 1.0f),
+        //         .shininess = 64.0f,
+        //     },
+        // },
         {
             &asset_service_->GetMesh("kart@BodyMain"),
             MaterialProperties{

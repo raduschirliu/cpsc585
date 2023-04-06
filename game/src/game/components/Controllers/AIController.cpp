@@ -291,8 +291,8 @@ void AIController::ExecutePowerup()
 
 void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
 {
-    render_service_->GetDebugDrawList().AddLine(LineVertex(from),
-                                                LineVertex(to));
+    render_service_->GetDebugDrawList().AddLine(DebugVertex(from),
+                                                DebugVertex(to));
 }
 
 void AIController::UpdateCarControls(glm::vec3& current_car_position,

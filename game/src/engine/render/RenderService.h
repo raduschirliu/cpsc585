@@ -4,52 +4,17 @@
 #include <object_ptr.hpp>
 #include <vector>
 
-#include "engine/core/gfx/Cubemap.h"
-#include "engine/core/gfx/ShaderProgram.h"
-#include "engine/core/gfx/VertexArray.h"
-#include "engine/core/gfx/VertexBuffer.h"
+#include "engine/fwd/FwdComponents.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/render/DebugDrawList.h"
-#include "engine/render/Material.h"
+#include "engine/render/SceneRenderData.h"
+#include "engine/render/passes/DepthPass.h"
+#include "engine/render/passes/GeometryPass.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
 
-class Camera;
-class Transform;
-class MeshRenderer;
-class InputService;
-class AssetService;
-
-struct BufferMeshLayout
-{
-    size_t index_offset;
-    size_t index_count;
-};
-
-struct RenderBuffers
-{
-    VertexArray vertex_array;
-    VertexBuffer vertex_buffer;
-    ElementArrayBuffer element_buffer;
-};
-
-struct RenderData
-{
-    const Entity* entity;
-    std::vector<BufferMeshLayout> layout;
-    VertexArray vertex_array;
-    VertexBuffer vertex_buffer;
-    ElementArrayBuffer element_buffer;
-};
-
-struct RenderPassData
-{
-    Transform* camera_transform;
-    glm::vec3 camera_pos;
-    glm::mat4 view_matrix;
-    glm::mat4 proj_matrix;
-    glm::mat4 view_proj_matrix;
-};
+class DebugDrawList;
 
 class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
@@ -67,6 +32,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void OnInit() override;
     void OnStart(ServiceProvider& service_provider) override;
     void OnSceneLoaded(Scene& scene) override;
+    void OnWindowSizeChanged(int width, int height) override;
     void OnUpdate() override;
     void OnCleanup() override;
     std::string_view GetName() const override;
@@ -80,24 +46,12 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<AssetService> asset_service_;
 
-    std::vector<std::unique_ptr<RenderData>> render_list_;
-    std::vector<jss::object_ptr<Camera>> cameras_;
-    std::vector<jss::object_ptr<Entity>> lights_;
-    std::vector<std::unique_ptr<Material>> materials_;
-    ShaderProgram shader_, debug_shader_, skybox_shader_;
-    RenderPassData render_pass_data_;
-    RenderBuffers skybox_buffers_;
-    const Cubemap* skybox_texture_;
+    std::unique_ptr<SceneRenderData> render_data_;
+    DepthPass depth_pass_;
+    GeometryPass geometry_pass_;
     DebugDrawList debug_draw_list_;
-    bool wireframe_;
     bool show_debug_menu_;
-    size_t num_draw_calls_;
+    bool debug_draw_camera_frustums_;
 
-    void RenderPrepare();
-    void PrepareCameraView(Camera& camera);
-    void RenderCameraView(Camera& camera);
-    void RenderDebugDrawList();
-    void RenderSkybox();
-
-    void RegisterMaterial(std::unique_ptr<Material> material);
+    void DrawCameraFrustums();
 };
