@@ -90,7 +90,7 @@ class PhysicsService final : public Service,
                    const physx::PxU32 count) override;
 
     /*
-     * Casts a ray until the nearest object or no object is hit.
+     * Casts a ray until the nearest DYNAMIC object or no object is hit.
      *
      * @param origin location from which we cast ray : glm::vec3
      * @param unit_dir direction of the ray casted : glm::vec3
@@ -100,9 +100,17 @@ class PhysicsService final : public Service,
      *      is successful (i.e something was hit)
      *      or nothing when a cast is unsuccessful
      */
-    std::optional<RaycastData> Raycast(const glm::vec3& origin,
-                                       const glm::vec3& unit_dir,
-                                       float max_distance = 100000);
+    std::optional<RaycastData> RaycastDynamic(const glm::vec3& origin,
+                                              const glm::vec3& unit_dir,
+                                              float max_distance = 100000);
+    /*
+     * Casts a ray until the nearest STATIC object or no object is hit.
+     *
+     * @see RaycastDynamic
+     */
+    std::optional<RaycastData> RaycastStatic(const glm::vec3& origin,
+                                             const glm::vec3& unit_dir,
+                                             float max_distance = 100000);
 
     std::optional<RaycastData> Sweep();
 

@@ -1365,8 +1365,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
-
-        // camera_entity.AddComponent<DebugCameraController>();
     }
     else
     {

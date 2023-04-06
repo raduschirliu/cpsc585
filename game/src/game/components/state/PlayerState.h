@@ -47,9 +47,11 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     PlayerStateData* GetStateData();
 
   private:
-    void CheckDead(const Timestep& delta_time);
-    float death_cooldown;
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
+    float death_cooldown_;
     PlayerStateData player_state_;
+
+    void CheckDead(const Timestep& delta_time);
 };

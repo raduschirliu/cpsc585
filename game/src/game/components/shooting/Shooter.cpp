@@ -65,7 +65,7 @@ void Shooter::ShootDefault(const glm::vec3& origin,
                            const glm::vec3& fwd_direction)
 {
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
     if (target_data_ && !target_data_.has_value())
     {
         uint32_t entity_id = GetEntity().GetId();
@@ -98,7 +98,7 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
     {
         std::array<float, 3> spread = {dis(gen) / 4.0f, dis(gen) / 4.0f,
                                        dis(gen) / 4.0f};
-        target_data_ = physics_service_->Raycast(
+        target_data_ = physics_service_->RaycastDynamic(
             origin, glm::normalize(fwd_direction +
                                    glm::vec3(spread[0], 0.0f, spread[2])));
         if (!target_data_ && !target_data_.has_value())
@@ -137,7 +137,7 @@ void Shooter::ShootVampire(const glm::vec3& origin,
                            const glm::vec3& fwd_direction)
 {
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
     {
@@ -152,7 +152,7 @@ void Shooter::ShootDoubleDamage(const glm::vec3& origin,
                                 const glm::vec3& fwd_direction)
 {
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
     {
@@ -168,7 +168,7 @@ void Shooter::ShootExploading(const glm::vec3& origin,
                               const glm::vec3& fwd_direction)
 {
     // check if shot hit anything
-    target_data_ = physics_service_->Raycast(origin, fwd_direction);
+    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
     // get the entity that was hit
     if (target_data_.has_value())
     {
