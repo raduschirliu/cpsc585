@@ -1315,9 +1315,9 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
         {
             &asset_service_->GetMesh("kart@BodyTop"),
             MaterialProperties{
-                .albedo_texture =
-                &asset_service_->GetTexture("kart@BodyTop"), .albedo_color =
-                vec3(1.0f, 1.0f, 1.0f), .specular = vec3(1.0f, 1.0f, 1.0f),
+                .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
                 .shininess = 64.0f,
             },
         },
@@ -1334,9 +1334,9 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
         {
             &asset_service_->GetMesh("kart@Muffler"),
             MaterialProperties{
-                .albedo_texture =
-                &asset_service_->GetTexture("kart@Muffler"), .albedo_color =
-                vec3(1.0f, 1.0f, 1.0f), .specular = vec3(1.0f, 1.0f, 1.0f),
+                .albedo_texture = &asset_service_->GetTexture("kart@Muffler"),
+                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                .specular = vec3(1.0f, 1.0f, 1.0f),
                 .shininess = 64.0f,
             },
         },
