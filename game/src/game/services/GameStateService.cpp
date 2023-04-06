@@ -141,7 +141,6 @@ void GameStateService::OnUpdate()
         display_pause_ = true;
     }
 
-
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
 }
