@@ -35,7 +35,7 @@ struct MeshRenderData
 
 static ShadowMap::LightParams kLightParams = {
     .up_dir = vec3(0.0f, 1.0f, 0.0f),
-    .pos = vec3(45.0f, 20.0f, 0.0f),
+    .pos = vec3(42.5f, 20.0f, 6.0f),
 };
 
 DepthPass::DepthPass(SceneRenderData& render_data)
