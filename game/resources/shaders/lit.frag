@@ -32,9 +32,8 @@ uniform mat4 uLightSpaceMatrices[SHADOW_MAP_COUNT];
 uniform vec3 uAmbientLight;
 uniform vec3 uCameraPos;
 
-const float MAX_SHADOW_BIAS = 0.05f;
-const float MIN_SHADOW_BIAS = 0.005f;
-
+uniform float uMaxShadowBias = 0.05f;
+uniform float uMinShadowBias = 0.005f;
 
 float getShadowAmount(vec3 normal, vec3 lightDir)
 {
@@ -64,7 +63,7 @@ float getShadowAmount(vec3 normal, vec3 lightDir)
     float mappedDepth = texture(uShadowMaps[layer], projectedCoords.xy).r;
     float currentDepth = projectedCoords.z;
 
-    float bias = max(MAX_SHADOW_BIAS * (1.0f - dot(normal, lightDir)), MIN_SHADOW_BIAS);
+    float bias = max(uMaxShadowBias * (1.0f - dot(normal, lightDir)), uMinShadowBias);
     return currentDepth - bias > mappedDepth ? 1.0f : 0.0f;
 }
 

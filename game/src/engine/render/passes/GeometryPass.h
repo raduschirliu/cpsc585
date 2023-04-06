@@ -39,6 +39,8 @@ class GeometryPass
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
     bool wireframe_;
+    float min_shadow_bias_;
+    float max_shadow_bias_;
 
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);

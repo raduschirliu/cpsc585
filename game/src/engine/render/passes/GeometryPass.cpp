@@ -67,9 +67,11 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
                     "resources/shaders/debug.frag"),
       skybox_shader_("resources/shaders/skybox.vert",
                      "resources/shaders/skybox.frag"),
-      wireframe_(false),
       skybox_buffers_(),
-      skybox_texture_(nullptr)
+      skybox_texture_(nullptr),
+      wireframe_(false),
+      min_shadow_bias_(0.005f),
+      max_shadow_bias_(0.05f)
 {
 }
 
@@ -213,6 +215,13 @@ void GeometryPass::Render()
 void GeometryPass::RenderDebugGui()
 {
     ImGui::Checkbox("Wireframe", &wireframe_);
+    ImGui::DragFloat("Min Shadow Bias", &min_shadow_bias_, 0.05f, 0.0f, 1.0f);
+    ImGui::DragFloat("Max Shadow Bias", &max_shadow_bias_, 0.05f, 0.0f, 1.0f);
+
+    if (ImGui::Button("Recompile Lit Shader"))
+    {
+        shader_.Recompile();
+    }
 }
 
 CameraView GeometryPass::PrepareCameraView(Camera& camera)
@@ -248,6 +257,8 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
     shader_.Use();
     shader_.SetUniform("uViewMatrix", camera.view_matrix);
     shader_.SetUniform("uProjMatrix", camera.proj_matrix);
+    shader_.SetUniform("uMaxShadowBias", max_shadow_bias_);
+    shader_.SetUniform("uMinShadowBias", min_shadow_bias_);
 
     for (size_t i = 0; i < shadow_maps_.size(); i++)
     {

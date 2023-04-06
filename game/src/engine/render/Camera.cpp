@@ -17,7 +17,7 @@ using glm::vec4;
 static constexpr vec3 kUpDirection(0.0f, 1.0f, 0.0f);
 static constexpr float kDefaultFovDegrees = 90.0f;
 static constexpr float kDefaultNearPlane = 0.5f;
-static constexpr float kDefaultFarPlane = 1500.0f;
+static constexpr float kDefaultFarPlane = 1000.0f;
 
 Camera::Camera()
     : fov_degrees_(kDefaultFovDegrees),
