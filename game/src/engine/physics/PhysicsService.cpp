@@ -59,6 +59,8 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
 {
+    display_pause_ = false;
+
     if (kScene_)
     {
         PX_RELEASE(kScene_);
@@ -97,10 +99,20 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 
 void PhysicsService::OnUpdate()
 {
-    const Timestep& delta = GetApp().GetDeltaTime();
-    time_accumulator_ += delta;
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE) ||
+        input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
+                                               GLFW_GAMEPAD_BUTTON_START))
+    {
+        display_pause_ = !display_pause_;
+    }
 
-    StepPhysics();
+    if (!display_pause_)
+    {
+        const Timestep& delta = GetApp().GetDeltaTime();
+        time_accumulator_ += delta;
+
+        StepPhysics();
+    }
 
     if (input_service_->IsKeyPressed(GLFW_KEY_F3))
     {
@@ -557,6 +569,16 @@ void PhysicsService::StepPhysics()
 const PxVec3& PhysicsService::GetGravity() const
 {
     return kGravity;
+}
+
+bool PhysicsService::GetPaused()
+{
+    return display_pause_;
+}
+
+void PhysicsService::SetPaused(bool boolean)
+{
+    display_pause_ = boolean;
 }
 
 /* From PxSimulationEventCallback */

@@ -127,6 +127,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -176,8 +177,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* increaseAimBox_;
     const Texture* killAbilities_;
     const Texture* pause_;
-
-    bool display_pause_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;

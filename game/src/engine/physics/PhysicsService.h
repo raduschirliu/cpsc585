@@ -59,6 +59,7 @@ class PhysicsService final : public Service,
     bool show_debug_menu_ = false;
     bool debug_draw_scene_ = false;
     bool debug_draw_raycast_ = true;
+    bool display_pause_ = false;
     double prev_time_;
     int tick_rate_;
     int tick_count_;
@@ -139,4 +140,7 @@ class PhysicsService final : public Service,
     }
 
     const physx::PxVec3& GetGravity() const;
+
+    bool GetPaused();
+    void SetPaused(bool boolean);
 };

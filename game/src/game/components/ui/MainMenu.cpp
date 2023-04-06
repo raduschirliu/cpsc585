@@ -109,7 +109,7 @@ void MainMenu::OnGui()
                           ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
                           ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
-    ImGui::SameLine(0.0f, 795.0f);
+    ImGui::SameLine(0.f, ImGui::GetIO().DisplaySize.x - 480.f);
     if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
                            ImVec2(163, 49)))
     {
@@ -122,7 +122,8 @@ void MainMenu::OnGui()
 
     ImGui::End();
 
-    ImGui::SetNextWindowPos(ImVec2(910, 440));
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 370,
+                                   ImGui::GetIO().DisplaySize.y - 280));
     ImGui::Begin("Play Buttons", nullptr, flags);
 
     ImVec2 pos = ImGui::GetCursorPos();
