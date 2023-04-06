@@ -12,6 +12,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/gui/GuiService.h"
 #include "engine/physics/BoxTrigger.h"
+#include "engine/physics/PhysicsService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -99,6 +100,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     gui_service_ = &service_provider.GetService<GuiService>();
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     input_service_ = &service_provider.GetService<InputService>();
+    physics_service_ = &service_provider.GetService<PhysicsService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -123,8 +125,6 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
     pause_ = &asset_service_->GetTexture("pause");
-
-    display_pause_ = false;
 }
 
 void GameStateService::OnUpdate()
@@ -140,6 +140,7 @@ void GameStateService::OnUpdate()
     {
         display_pause_ = true;
     }
+
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
@@ -164,7 +165,7 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
 
-    if (display_pause_)
+    if (physics_service_->GetPaused())
     {
         ImGui::SetNextWindowPos(ImVec2(385, 205));
         ImGui::Begin("pause", nullptr, flags);
@@ -190,7 +191,7 @@ void GameStateService::OnGui()
         ImGui::PushFont(font_cookie_);
         if (ImGui::Button("RESUME"))
         {
-            display_pause_ = false;
+            physics_service_->SetPaused(false);
         }
 
         ImGui::SetCursorPos(ImVec2(pos.x + 20, pos.y + 80));
@@ -429,7 +430,6 @@ void GameStateService::OnSceneLoaded(Scene& scene)
     race_state_.Reset();
     track_config_.Reset();
     players_.clear();
-    display_pause_ = false;
 
     if (scene.GetName() == "Track1")
     {
@@ -950,7 +950,8 @@ const uint32_t GameStateService::GetNumCheckpoints() const
 
 void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
 {
-    if (race_state_.state == GameState::kRaceInProgress)
+    if (race_state_.state == GameState::kRaceInProgress &&
+        !physics_service_->GetPaused())
     {
         race_state_.elapsed_time += delta_time;
     }

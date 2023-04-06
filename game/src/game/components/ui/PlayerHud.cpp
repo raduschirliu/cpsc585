@@ -9,6 +9,7 @@
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
 #include "game/components/state/PlayerState.h"
+#include "game/services/GameStateService.h"
 
 using std::string;
 using std::string_view;
@@ -53,9 +54,12 @@ void PlayerHud::OnGui()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoInputs;
-    ImGui::SetNextWindowPos(ImVec2(30, 30));
+        ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar;
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
+                                   ImGui::GetIO().DisplaySize.y - 690));
     ImGui::Begin("Vehicle", nullptr, flags);
+
+    ImVec2 pos = ImGui::GetCursorPos();
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.f, 0.1f, 1.f));
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.6f, 0.4f, 1.f));
@@ -125,12 +129,10 @@ void PlayerHud::OnGui()
         }
     }
 
-    ImGui::SetCursorPos(ImVec2(0, 600));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.f, 0.f, 0.f, 1.f));
+    ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 600));
     ImGui::PushFont(font_);
     ImGui::Text("LAP: %d/%lu", player_state_->GetLapsCompleted(),
                 game_state_service_->GetRaceConfig().num_laps);
-    ImGui::PopStyleColor();
     ImGui::SameLine(0.f, 700.f);
     if (game_state_service_->GetGlobalRaceState().state ==
         GameState::kCountdown)
