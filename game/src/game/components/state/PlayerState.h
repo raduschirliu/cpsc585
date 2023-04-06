@@ -19,7 +19,8 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     std::string_view GetName() const override;
 
     // setters
-
+    void SetMaxCarSpeed(float max_speed);
+    void SetHandlingMultiplier(float multiplier);
     void SetHealth(float health);
     void DecrementHealth(float health);
     void IncrementHealth(float health);
@@ -31,7 +32,8 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetCurrentPlace(int place);
 
     // getters
-
+    float GetMaxCarSpeed();
+    float GetHandlingMultiplier();
     bool IsDead() const;
     float GetHealth() const;
     float GetSpeedMultiplier() const;

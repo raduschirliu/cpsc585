@@ -1,0 +1,64 @@
+{
+  "Ammo": {
+    "Default": {
+      "damage": 15,
+      "cooldown": 0.7,
+      "respawn": 20
+    },
+    "Buckshot": {
+      "damage": 5,
+      "time": 5,
+      "spread": 2,
+      "pellets": 10,
+      "cooldown": 1.5,
+      "respawn": 20
+    },
+    "DoubleDamage": {
+      "damage": 30,
+      "time": 5,
+      "cooldown": 1,
+      "respawn": 20
+    },
+    "Exploading": {
+      "damage": 25,
+      "time": 5,
+      "cooldown": 2,
+      "respawn": 20
+    },
+    "IncreaseFireRate": {
+      "damage": 15,
+      "time": 4,
+      "cooldown": 0.35,
+      "respawn": 20
+    },
+    "Vampire": {
+      "damage": 50,
+      "time": 0,
+      "respawn": 20
+    }
+  },
+
+  "Powerup": {
+    "Default": {
+      "max_speed": 100,
+      "respawn": 20
+    },
+    "DisableHandling": {
+      "time": 3,
+      "respawn": 20
+    },
+    "EveryoneSlower": {
+      "time": 3,
+      "max_speed": 60,
+      "respawn": 20
+    },
+    "IncreaseAimBox": {
+      "time": 3,
+      "respawn": 20
+    },
+    "KillAbilities": {
+      "time": 0,
+      "respawn": 20
+    }
+  }
+}

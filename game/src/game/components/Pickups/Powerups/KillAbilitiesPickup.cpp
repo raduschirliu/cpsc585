@@ -6,6 +6,7 @@
 void KillAbilitiesPickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -19,6 +20,7 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
             if (power_visible_ && player_state_->GetCurrentPowerup() ==
                                       PowerupPickupType::kDefaultPowerup)
             {
+                start_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
@@ -29,6 +31,35 @@ void KillAbilitiesPickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+float KillAbilitiesPickup::GetMaxRespawnTime()
+{
+    return pickup_service_->GetPowerupRespawnTime(std::string(GetName()));
+}
+
+float KillAbilitiesPickup::GetDeactivateTime()
+{
+    return pickup_service_->GetPowerupDuration(std::string(GetName()));
+}
+
+void KillAbilitiesPickup::OnUpdate(const Timestep& delta_time)
+{
+    Pickup::OnUpdate(delta_time);
+    if (start_timer_)
+    {
+        timer_ += delta_time.GetSeconds();
+    }
+
+    // retrieving the Max allowed timer for the powerup from the pickupservice.
+    if (timer_ >= GetMaxRespawnTime())
+    {
+        start_timer_ = false;
+        timer_ = 0.0f;
+
+        transform_->SetScale(glm::vec3(0.12f, 0.12f, 0.12f));
+        SetPowerVisibility(true);
+    }
+}
+
 void KillAbilitiesPickup::OnTriggerExit(const OnTriggerEvent& data)
 {
     Pickup::OnTriggerExit(data);
@@ -36,5 +67,5 @@ void KillAbilitiesPickup::OnTriggerExit(const OnTriggerEvent& data)
 
 std::string_view KillAbilitiesPickup::GetName() const
 {
-    return "Kill Abilities";
+    return "KillAbilities";
 }

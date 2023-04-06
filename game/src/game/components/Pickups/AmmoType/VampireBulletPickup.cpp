@@ -6,6 +6,7 @@
 void VampireBulletPickup::OnInit(const ServiceProvider& service_provider)
 {
     Pickup::OnInit(service_provider);
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
@@ -23,6 +24,7 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
                                     AmmoPickupType::kIncreaseFireRate;
             if (power_visible_ && current_ammo)
             {
+                start_timer_ = true;
                 transform_->SetScale(glm::vec3(0.0f, 0.0f, 0.0f));
                 SetPowerVisibility(false);
 
@@ -35,6 +37,38 @@ void VampireBulletPickup::OnTriggerEnter(const OnTriggerEvent& data)
     }
 }
 
+float VampireBulletPickup::GetMaxRespawnTime()
+{
+    return pickup_service_->GetAmmoRespawnTime(std::string(GetName()));
+}
+
+float VampireBulletPickup::GetDeactivateTime()
+{
+    return pickup_service_->GetAmmoDuration(std::string(GetName()));
+}
+
+void VampireBulletPickup::OnUpdate(const Timestep& delta_time)
+{
+    Pickup::OnUpdate(delta_time);
+    if (start_timer_)
+    {
+        timer_ += delta_time.GetSeconds();
+    }
+
+    // retrieving the Max allowed timer for the powerup from the pickupservice.
+    if (timer_ >= GetMaxRespawnTime())
+    {
+        start_timer_ = false;
+        timer_ = 0.0f;
+
+        transform_->SetScale(glm::vec3(4.f, 4.f, 4.f));
+        SetPowerVisibility(true);
+    }
+
+    // TODO: as soon as one shot is executed, then set the player state to
+    // default ammo.
+}
+
 void VampireBulletPickup::OnTriggerExit(const OnTriggerEvent& data)
 {
     Pickup::OnTriggerExit(data);
@@ -42,5 +76,5 @@ void VampireBulletPickup::OnTriggerExit(const OnTriggerEvent& data)
 
 std::string_view VampireBulletPickup::GetName() const
 {
-    return "Vampire Bullet";
+    return "Vampire";
 }

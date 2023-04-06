@@ -16,6 +16,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/physics/PlaneStaticBody.h"
 #include "engine/physics/SphereRigidBody.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/render/RenderService.h"
@@ -73,6 +74,7 @@ void GameApp::OnInit()
     AddService<GuiService>();
     AddService<AIService>();
     AddService<GameStateService>();
+    AddService<PickupService>();
 }
 
 /**

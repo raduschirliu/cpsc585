@@ -136,8 +136,10 @@ void GameStateService::OnUpdate()
         t.second += static_cast<float>(delta_time.GetSeconds());
     }
 
-    active_powerups_ = PowerupsActive();
-    RemoveActivePowerup();
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE))
+    {
+        display_pause_ = true;
+    }
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
@@ -244,10 +246,11 @@ void GameStateService::OnGui()
             {
                 ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
             }
-            else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            {
-                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
-            }
+            // else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            // {
+            //     ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70,
+            //     70));
+            // }
             else if (a.second == PowerupPickupType::kKillAbilities)
             {
                 ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
@@ -449,132 +452,6 @@ void GameStateService::OnSceneLoaded(Scene& scene)
     }
 }
 
-void GameStateService::RemoveActivePowerup()
-{
-    // check if any of the powerup is over the limit assigned to them.
-    for (auto& a : active_powerups_)
-    {
-        // finding the everyone slower powerup for the entity id.
-        if (timer_.find(a) != timer_.end())
-        {
-            // check if it is over 5 seconds, set it back to 0 and remove the
-            // active_powerup_ so that cars can go back to normal speed.
-            if (a.second == PowerupPickupType::kEveryoneSlower)
-            {
-                if (timer_[a] > 3.0f)
-                {
-                    for (int i = 0; i < active_powerups_.size(); i++)
-                    {
-                        if (active_powerups_[i].second ==
-                            PowerupPickupType::kEveryoneSlower)
-                        {
-                            active_powerups_.erase(active_powerups_.begin() +
-                                                   i);
-                            same_powerup_.erase(a);
-                            player_powers_.erase(a.first);
-                            timer_.erase(a);
-
-                            // TODO: bandaid fix for issues with invalid player
-                            // IDs
-                            if (players_.find(a.first) != players_.end())
-                            {
-                                // to reset the powerup back to nothing. The
-                                // player can pick up the new powerup now.
-                                players_[a.first]
-                                    ->state_component->SetCurrentPowerup(
-                                        PowerupPickupType::kDefaultPowerup);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (a.second == PowerupPickupType::kDisableHandling)
-            {
-                if (timer_[a] > 1.0f)
-                {
-                    for (int i = 0; i < active_powerups_.size(); i++)
-                    {
-                        if (active_powerups_[i].second ==
-                            PowerupPickupType::kDisableHandling)
-                        {
-                            active_powerups_.erase(active_powerups_.begin() +
-                                                   i);
-                            same_powerup_.erase(a);
-                            player_powers_.erase(a.first);
-                            timer_.erase(a);
-
-                            // TODO: bandaid fix for issues with invalid player
-                            // IDs
-                            if (players_.find(a.first) != players_.end())
-                            {
-                                // to reset the powerup back to nothing. The
-                                // player can pick up the new powerup now.
-                                players_[a.first]
-                                    ->state_component->SetCurrentPowerup(
-                                        PowerupPickupType::kDefaultPowerup);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (a.second == PowerupPickupType::kKillAbilities)
-            {
-                for (int i = 0; i < active_powerups_.size(); i++)
-                {
-                    if (active_powerups_[i].second ==
-                        PowerupPickupType::kKillAbilities)
-                    {
-                        active_powerups_.clear();
-                        same_powerup_.erase(a);
-                        player_powers_.erase(a.first);
-                        timer_.erase(a);
-
-                        // TODO: bandaid fix for issues with invalid player
-                        // IDs
-                        if (players_.find(a.first) != players_.end())
-                        {
-                            // to reset the powerup back to nothing. The player
-                            // can pick up the new powerup now.
-                            players_[a.first]
-                                ->state_component->SetCurrentPowerup(
-                                    PowerupPickupType::kDefaultPowerup);
-                        }
-                    }
-                }
-            }
-            else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            {
-                if (timer_[a] > 4.0f)
-                {
-                    for (int i = 0; i < active_powerups_.size(); i++)
-                    {
-                        if (active_powerups_[i].second ==
-                            PowerupPickupType::kIncreaseAimBox)
-                        {
-                            active_powerups_.erase(active_powerups_.begin() +
-                                                   i);
-                            same_powerup_.erase(a);
-                            player_powers_.erase(a.first);
-                            timer_.erase(a);
-
-                            // TODO: bandaid fix for issues with invalid player
-                            // IDs
-                            if (players_.find(a.first) != players_.end())
-                            {
-                                // to reset the powerup back to nothing. The
-                                // player can pick up the new powerup now.
-                                players_[a.first]
-                                    ->state_component->SetCurrentPowerup(
-                                        PowerupPickupType::kDefaultPowerup);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void GameStateService::OnCleanup()
 {
 }
@@ -582,135 +459,6 @@ void GameStateService::OnCleanup()
 std::string_view GameStateService::GetName() const
 {
     return "Game State Service";
-}
-
-std::vector<std::pair<uint32_t, PowerupPickupType>>
-GameStateService::GetActivePowerups()
-{
-    return active_powerups_;
-}
-
-/**
- * @brief Makes a vector of powerups currently active by all the AIs and Player
- *
- * @return std::vector<PowerupPickupType>
- */
-std::vector<std::pair<uint32_t, PowerupPickupType>>
-GameStateService::PowerupsActive()
-{
-    std::vector<std::pair<uint32_t, PowerupPickupType>> powerups;
-    for (auto& p : player_powers_)
-    {
-        if (p.second != PowerupPickupType::kDefaultPowerup)
-        {
-            powerups.push_back({p.first, p.second});
-
-            // to check if the same powerup's timer doesnt start from 0 again.
-            if (same_powerup_.find(p) == same_powerup_.end())
-            {
-                // starting the time of this powerup as well
-                timer_.insert_or_assign({p.first, p.second}, 0.0f);
-                same_powerup_.insert(p);
-            }
-        }
-    }
-    return powerups;
-}
-
-void GameStateService::AddPlayerPowerup(uint32_t entity_id,
-                                        PowerupPickupType power)
-{
-    // to tackle the problem for not changing the entity.
-    if (entity_id >= 3 && entity_id <= 5)
-    {
-        entity_id = entity_id - 2;
-    }
-    // for player
-    else if (entity_id == 1)
-    {
-        entity_id = entity_id - 1;
-    }
-    player_powers_.insert_or_assign(entity_id, power);
-}
-
-void GameStateService::RemovePlayerPowerup(uint32_t id)
-{
-    player_powers_.insert_or_assign(id, PowerupPickupType::kDefaultPowerup);
-}
-
-int GameStateService::GetDisableHandlingMultiplier()
-{
-    // just return the ID which executed this powerup
-    for (auto& a : active_powerups_)
-    {
-        if (a.second == PowerupPickupType::kDisableHandling)
-        {
-            // due to how our player entities are set up :(
-            if (a.first == 0)
-            {
-                return a.first + 1;
-            }
-            else
-            {
-                return a.first + 2;
-            }
-        }
-    }
-    return -1;
-}
-
-int GameStateService::GetEveryoneSlowerSpeedMultiplier()
-{
-    // just return the ID which executed this powerup
-    for (auto& a : active_powerups_)
-    {
-        if (a.second == PowerupPickupType::kEveryoneSlower)
-        {
-            // due to how our player entities are set up :(
-            if (a.first == 0)
-            {
-                return a.first + 1;
-            }
-            else
-            {
-                return a.first + 2;
-            }
-        }
-    }
-    return -1;
-}
-
-int GameStateService::GetHitBoxMultiplier()
-{
-    // just return the ID which executed this powerup
-    for (auto& a : active_powerups_)
-    {
-        if (a.second == PowerupPickupType::kIncreaseAimBox)
-        {
-            // due to how our player entities are set up :(
-            if (a.first == 0)
-            {
-                return a.first + 1;
-            }
-            else
-            {
-                return a.first + 2;
-            }
-        }
-    }
-    return -1;
-}
-
-void GameStateService::RemoveEveryoneSlowerSpeedMultiplier()
-{
-    for (int i = 0; i < active_powerups_.size(); i++)
-    {
-        if (active_powerups_[i].second == PowerupPickupType::kEveryoneSlower)
-        {
-            active_powerups_.erase(active_powerups_.begin() + i);
-        }
-    }
-    debug::LogDebug("active : {}", active_powerups_.size());
 }
 
 void GameStateService::StartCountdown()
@@ -771,9 +519,9 @@ void GameStateService::SetupPowerups()
                 powerup_to_int = 2;
                 break;
 
-            case PowerupPickupType::kIncreaseAimBox:
-                powerup_to_int = 3;
-                break;
+                // case PowerupPickupType::kIncreaseAimBox:
+                //     powerup_to_int = 3;
+                //     break;
 
             case PowerupPickupType::kKillAbilities:
                 powerup_to_int = 4;
@@ -819,18 +567,18 @@ void GameStateService::SetupPowerups()
                 });
                 break;
 
-            case PowerupPickupType::kIncreaseAimBox:
-                entity.AddComponent<IncreaseAimBoxPickup>();
-                mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("defence"),
-                    MaterialProperties{
-                        .albedo_texture = nullptr,
-                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                        .specular = vec3(1.0f, 1.0f, 1.0f),
-                        .shininess = 64.0f,
-                    },
-                });
-                break;
+                // case PowerupPickupType::kIncreaseAimBox:
+                //     entity.AddComponent<IncreaseAimBoxPickup>();
+                //     mesh_renderer.SetMesh({
+                //         &asset_service_->GetMesh("defence"),
+                //         MaterialProperties{
+                //             .albedo_texture = nullptr,
+                //             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                //             .specular = vec3(1.0f, 1.0f, 1.0f),
+                //             .shininess = 64.0f,
+                //         },
+                //     });
+                //     break;
 
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
@@ -1469,10 +1217,10 @@ void GameStateService::UpdatePowerupInfo()
                     powerup_info.push_back(
                         {PowerupPickupType::kEveryoneSlower, l.first});
                     break;
-                case 3:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kIncreaseAimBox, l.first});
-                    break;
+                // case 3:
+                //     powerup_info.push_back(
+                //         {PowerupPickupType::kIncreaseAimBox, l.first});
+                //     break;
                 case 4:
                     powerup_info.push_back(
                         {PowerupPickupType::kKillAbilities, l.first});

@@ -77,24 +77,12 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
-    // setters
-    void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
-    void RemovePlayerPowerup(uint32_t id);
-    std::vector<std::pair<uint32_t, PowerupPickupType>> PowerupsActive();
-    std::vector<std::pair<uint32_t, PowerupPickupType>> GetActivePowerups();
-    void RemoveEveryoneSlowerSpeedMultiplier();
-    void RemoveActivePowerup();
-
     // Events
     void PlayerCrossedCheckpoint(Entity& entity, uint32_t index);
 
     // Accessors
     void SetRaceConfig(const RaceConfig& config);
     const RaceConfig& GetRaceConfig() const;
-
-    int GetEveryoneSlowerSpeedMultiplier();
-    int GetDisableHandlingMultiplier();
-    int GetHitBoxMultiplier();
 
     const GlobalRaceState& GetGlobalRaceState() const;
     const uint32_t GetNumCheckpoints() const;
