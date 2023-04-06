@@ -2,11 +2,12 @@
 #include <memory>
 
 #include "PlayerData.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
+#include "game/FwdGame.h"
 #include "game/components/audio/AudioEmitter.h"
-#include "game/services/GameStateService.h"
 
 class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -48,10 +49,11 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     PlayerStateData* GetStateData();
 
   private:
-    void CheckDead(const Timestep& delta_time);
-
-    float death_cooldown_;
+    jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
+    float death_cooldown_;
     PlayerStateData player_state_;
+
+    void CheckDead(const Timestep& delta_time);
 };

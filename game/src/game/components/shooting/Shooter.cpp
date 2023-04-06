@@ -23,8 +23,11 @@ void Shooter::Shoot()
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     // play shoot sound; slightly randomize pitch
-    audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
-    audio_emitter_->PlaySource(shoot_sound_file_);
+    if (!physics_service_->GetPaused())
+    {
+        audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
+        audio_emitter_->PlaySource(shoot_sound_file_);
+    }
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
