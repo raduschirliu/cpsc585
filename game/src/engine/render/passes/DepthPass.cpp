@@ -53,8 +53,8 @@ DepthPass::DepthPass(SceneRenderData& render_data)
         .camera_near_plane = 0.5f,
         .camera_far_plane = 80.0f,
         .camera_midpoint_t = 0.2f,
-        .bounds_min = vec3(-100.0f, -64.0f, -20.0f),
-        .bounds_max = vec3(100.0f, 64.0f, 100.0f),
+        .bounds_min = vec3(-100.0f, -20.0f, -20.0f),
+        .bounds_max = vec3(100.0f, 100.0f, 100.0f),
         .bounds_mult = vec3(1.0f, 1.0f, 1.0f),
         .cull_face = false,
     }));
