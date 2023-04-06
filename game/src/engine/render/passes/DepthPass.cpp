@@ -56,7 +56,7 @@ DepthPass::DepthPass(SceneRenderData& render_data)
         .bounds_min = vec3(-100.0f, -64.0f, -20.0f),
         .bounds_max = vec3(100.0f, 64.0f, 100.0f),
         .bounds_mult = vec3(1.0f, 1.0f, 1.0f),
-        .cull_face = true,
+        .cull_face = false,
     }));
     shadow_maps_.emplace_back(make_unique<ShadowMap>(ShadowMapParams{
         .texture_size = uvec2(2048, 2048),
@@ -66,7 +66,7 @@ DepthPass::DepthPass(SceneRenderData& render_data)
         .bounds_min = vec3(-200.0f, -200.0f, -50.0f),
         .bounds_max = vec3(200.0f, 200.0f, 100.0f),
         .bounds_mult = vec3(1.0f, 1.0f, 1.0f),
-        .cull_face = true,
+        .cull_face = false,
     }));
 }
 
@@ -165,6 +165,7 @@ void DepthPass::RenderDebugGui()
         {
             ShadowMapParams& params = map->GetParams();
 
+            ImGui::Checkbox("Cull Faces", &params.cull_face);
             ImGui::DragFloat("Camera Near Plane", &params.camera_near_plane,
                              1.0f, -1000.0f, 1000.0f);
             ImGui::DragFloat("Camera Far Plane", &params.camera_far_plane, 1.0f,

@@ -27,10 +27,6 @@
 
         /* Kart */
         {
-            "path": "resources/models/kart/kart2-4.obj",
-            "name": "kart-old"
-        },
-        {
             "path": "resources/models/kart/kart2-5.gltf",
             "name": "kart"
         },
