@@ -43,7 +43,7 @@ float getShadowAmount(vec3 normal, vec3 lightDir)
     vec4 fragPosViewSpace = uViewMatrix * vec4(aPos, 1.0f);
     float depthViewSpace = abs(fragPosViewSpace.z);
 
-    if (depthViewSpace > 110.0f)
+    if (depthViewSpace > 79.0f)
     {
         layer = 1;
     }
