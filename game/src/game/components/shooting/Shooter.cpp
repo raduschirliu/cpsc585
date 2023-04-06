@@ -87,7 +87,7 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 1);
+    std::uniform_real_distribution<> dis(0, 1);
 
     std::vector<std::optional<RaycastData>> target_datas;
     // as we want the shots to scatter

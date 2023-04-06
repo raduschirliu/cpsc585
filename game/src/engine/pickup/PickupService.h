@@ -71,29 +71,9 @@ class PickupService final : public Service,
 
     /******** AMMO *******/
     void LoadAmmoInformation(const rapidjson::Document& doc);
-    void LoadAmmoDamageInformation(const rapidjson::Value& ammo_object,
-                                   const std::string& member);
-    void LoadAmmoDurationInformation(const rapidjson::Value& ammo_object,
-                                     const std::string& member);
-    void LoadAmmoCooldownInformation(const rapidjson::Value& ammo_object,
-                                     const std::string& member);
-    void LoadAmmoRespawnTimeInformation(const rapidjson::Value& ammo_object,
-                                        const std::string& member);
-
-    // Only for buckshot as it has other information as well.
-    void LoadAmmoOtherInformation(const rapidjson::Value& ammo_object,
-                                  const std::string& member);
 
     /******** POWERUPS ******/
     void LoadPowerupInformation(const rapidjson::Document& doc);
-
-    void LoadPowerupDurationInformation(const rapidjson::Value& powerup_object,
-                                        const std::string& member);
-
-    void LoadPowerupOtherInformation(const rapidjson::Value& powerup_object,
-                                     const std::string& member);
-    void LoadPowerupRespawnTimeInformation(
-        const rapidjson::Value& powerup_object, const std::string& member);
 
     /****** GETTERS SETTERS *****/
     std::array<std::string, 6> GetAmmoPickupNames();
