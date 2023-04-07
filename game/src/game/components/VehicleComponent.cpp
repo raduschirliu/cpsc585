@@ -28,6 +28,7 @@ using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr float kRespawnSeconds = 3.0f;
+static constexpr float kMaxThrottleResponse = 3250.0f;
 
 // filenames and paths
 
@@ -128,6 +129,11 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     HandleVehicleTransform();
     UpdateGrounded();
     CheckAutoRespawn(delta_time);
+
+    if (GetEntity().GetId() == 1)
+    {
+        debug::LogDebug("Player current speed: {}", GetSpeed());
+    }
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
@@ -226,9 +232,6 @@ void VehicleComponent::HandleVehicleTransform()
             CreatePxTransform(
                 transform_->GetPosition() + glm::vec3(0.0f, 16.5f, 0.0f),
                 transform_->GetOrientation()));
-
-        // float maxVelocity =
-        // vehicle_.mPhysXState.physxActor.rigidBody->getMaxLinearVelocity();
 
         // now remove this from the list in gameservice so that it doesnt
         // respawn again and again until requested again later.
@@ -376,6 +379,9 @@ void VehicleComponent::SetGear(VehicleGear gear)
 
 void VehicleComponent::SetCommand(VehicleCommand command)
 {
+    vehicle_.mDirectDriveParams.directDriveThrottleResponseParams.maxResponse =
+        kMaxThrottleResponse / GetSpeed();
+
     vehicle_.mCommandState.throttle = glm::clamp(command.throttle, 0.0f, 1.0f);
     vehicle_.mCommandState.steer = glm::clamp(command.steer, -1.0f, 1.0f);
 
@@ -399,15 +405,16 @@ DirectDriveVehicle& VehicleComponent::GetVehicle()
 
 VehicleGear VehicleComponent::GetGear() const
 {
+    using enum PxVehicleDirectDriveTransmissionCommandState::Enum;
     switch (vehicle_.mTransmissionCommandState.gear)
     {
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE:
+        case eREVERSE:
             return VehicleGear::kReverse;
 
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL:
+        case eNEUTRAL:
             return VehicleGear::kNeutral;
 
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD:
+        case eFORWARD:
             return VehicleGear::kForward;
 
         default:
