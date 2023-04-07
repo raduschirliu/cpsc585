@@ -34,7 +34,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
-    
+
     shoot_cooldown = 0.0f;
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);

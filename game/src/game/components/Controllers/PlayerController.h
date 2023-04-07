@@ -17,9 +17,8 @@ class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    
     /* ----- from component ----- */
-     
+
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
     void OnDebugGui() override;
