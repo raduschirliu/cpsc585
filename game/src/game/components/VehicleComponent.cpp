@@ -28,7 +28,6 @@ using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr float kRespawnSeconds = 3.0f;
-static constexpr float kMaxThrottleResponse = 3250.0f;
 
 // filenames and paths
 
