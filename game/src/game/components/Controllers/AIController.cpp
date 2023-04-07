@@ -102,10 +102,11 @@ void AIController::OnUpdate(const Timestep& delta_time)
     if (respawn_tracker_)
     {
         minimum_threshold_respawn_timer_ += delta_time.GetSeconds();
-        if (minimum_threshold_respawn_timer_ >= kMaxRespawnTimer)
+        if (minimum_threshold_respawn_timer_ >= kMaxRespawnTimer * 4)
         {
             respawn_tracker_ = false;
             minimum_threshold_respawn_timer_ = 0.f;
+            respawn_timer_min_speed = 0.f;
         }
     }
 
