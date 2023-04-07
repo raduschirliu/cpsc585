@@ -129,11 +129,6 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     HandleVehicleTransform();
     UpdateGrounded();
     CheckAutoRespawn(delta_time);
-
-    if (GetEntity().GetId() == 1)
-    {
-        debug::LogDebug("Player current speed: {}", GetSpeed());
-    }
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
@@ -236,9 +231,10 @@ void VehicleComponent::HandleVehicleTransform()
         // now remove this from the list in gameservice so that it doesnt
         // respawn again and again until requested again later.
         game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
-        // Log::debug("{}", maxVelocity);
-        // set the velocity of this car to be 0, as it just respawned
+
+        // set the velocity and wheel rotation  of this car to be 0
         vehicle_.mBaseState.rigidBodyState.linearVelocity = physx::PxVec3(0.f);
+        vehicle_.mBaseState.wheelRigidBody1dStates->rotationSpeed = 0.f;
     }
 
     else
@@ -379,9 +375,6 @@ void VehicleComponent::SetGear(VehicleGear gear)
 
 void VehicleComponent::SetCommand(VehicleCommand command)
 {
-    vehicle_.mDirectDriveParams.directDriveThrottleResponseParams.maxResponse =
-        kMaxThrottleResponse / GetSpeed();
-
     vehicle_.mCommandState.throttle = glm::clamp(command.throttle, 0.0f, 1.0f);
     vehicle_.mCommandState.steer = glm::clamp(command.steer, -1.0f, 1.0f);
 
