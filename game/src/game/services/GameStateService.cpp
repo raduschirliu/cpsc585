@@ -135,11 +135,6 @@ void GameStateService::OnUpdate()
         t.second += static_cast<float>(delta_time.GetSeconds());
     }
 
-    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE))
-    {
-        display_pause_ = true;
-    }
-
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
 }
@@ -245,11 +240,10 @@ void GameStateService::OnGui()
             {
                 ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
             }
-            // else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            // {
-            //     ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70,
-            //     70));
-            // }
+            else if (a.second == PowerupPickupType::kIncreaseAimBox)
+            {
+                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+            }
             else if (a.second == PowerupPickupType::kKillAbilities)
             {
                 ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
@@ -518,9 +512,9 @@ void GameStateService::SetupPowerups()
                 powerup_to_int = 2;
                 break;
 
-                // case PowerupPickupType::kIncreaseAimBox:
-                //     powerup_to_int = 3;
-                //     break;
+            case PowerupPickupType::kIncreaseAimBox:
+                powerup_to_int = 3;
+                break;
 
             case PowerupPickupType::kKillAbilities:
                 powerup_to_int = 4;
@@ -530,7 +524,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kPowerups[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z);
+                             std::to_string(powerup.second.z + 10.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -544,9 +538,10 @@ void GameStateService::SetupPowerups()
             case PowerupPickupType::kDisableHandling:
                 entity.AddComponent<DisableHandlingPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("coin"),
+                    &asset_service_->GetMesh("handling"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -556,9 +551,10 @@ void GameStateService::SetupPowerups()
             case PowerupPickupType::kEveryoneSlower:
                 entity.AddComponent<EveryoneSlowerPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("energy"),
+                    &asset_service_->GetMesh("slow"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -566,25 +562,27 @@ void GameStateService::SetupPowerups()
                 });
                 break;
 
-                // case PowerupPickupType::kIncreaseAimBox:
-                //     entity.AddComponent<IncreaseAimBoxPickup>();
-                //     mesh_renderer.SetMesh({
-                //         &asset_service_->GetMesh("defence"),
-                //         MaterialProperties{
-                //             .albedo_texture = nullptr,
-                //             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                //             .specular = vec3(1.0f, 1.0f, 1.0f),
-                //             .shininess = 64.0f,
-                //         },
-                //     });
-                //     break;
+            case PowerupPickupType::kIncreaseAimBox:
+                entity.AddComponent<IncreaseAimBoxPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("aimBox"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
 
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("defence_shield"),
+                    &asset_service_->GetMesh("ability"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -592,7 +590,7 @@ void GameStateService::SetupPowerups()
                 });
                 break;
         }
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
+        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
@@ -631,7 +629,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kAmmos[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z);
+                             std::to_string(powerup.second.z + 10.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -647,19 +645,22 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("buckshot"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
                     },
                 });
                 break;
+
             case AmmoPickupType::kDoubleDamage:
                 entity.AddComponent<DoubleDamagePickup>();
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("damage"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -672,7 +673,8 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("exploding"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -685,7 +687,8 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("increase"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -695,18 +698,19 @@ void GameStateService::SetupPowerups()
 
             case AmmoPickupType::kVampireBullet:
                 entity.AddComponent<VampireBulletPickup>();
-                // mesh_renderer.SetMesh({
-                //     &asset_service_->GetMesh("vampire"),
-                //     MaterialProperties{
-                //         .albedo_texture = nullptr,
-                //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                //         .specular = vec3(1.0f, 1.0f, 1.0f),
-                //         .shininess = 64.0f,
-                //     },
-                // });
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("vampire"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
                 break;
         }
-        transform.SetScale(vec3(4.f, 4.f, 4.f));
+        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
@@ -1225,10 +1229,10 @@ void GameStateService::UpdatePowerupInfo()
                     powerup_info.push_back(
                         {PowerupPickupType::kEveryoneSlower, l.first});
                     break;
-                // case 3:
-                //     powerup_info.push_back(
-                //         {PowerupPickupType::kIncreaseAimBox, l.first});
-                //     break;
+                case 3:
+                    powerup_info.push_back(
+                        {PowerupPickupType::kIncreaseAimBox, l.first});
+                    break;
                 case 4:
                     powerup_info.push_back(
                         {PowerupPickupType::kKillAbilities, l.first});

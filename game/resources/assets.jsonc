@@ -33,24 +33,20 @@
 
         /* Pickups */
         {
-            "path": "resources/models/pickups/coin_1.obj",
-            "name": "coin"
+            "path": "resources/models/pickups/ability.obj",
+            "name": "ability"
         },
         {
-            "path": "resources/models/pickups/energy_1.obj",
-            "name": "energy"
+            "path": "resources/models/pickups/aimBox.obj",
+            "name": "aimBox"
         },
         {
-            "path": "resources/models/pickups/pickup_defence_2.obj",
-            "name": "defence_ring"
+            "path": "resources/models/pickups/handling.obj",
+            "name": "handling"
         },
         {
-            "path": "resources/models/pickups/pickup_defence_3.obj",
-            "name": "defence"
-        },
-        {
-            "path": "resources/models/pickups/pickup_defence.obj",
-            "name": "defence_shield"
+            "path": "resources/models/pickups/slow.obj",
+            "name": "slow"
         },
         {
             "path": "resources/models/pickups/buckshot.obj",
@@ -237,6 +233,16 @@
         {
             "path": "resources/textures/kart/body_main_yellow.png",
             "name": "kart@BodyMain-P4"
+        },
+
+        /* Pick Up Materials */
+        {
+            "path": "resources/textures/pickup/bullets.png",
+            "name": "pickup@bullets"
+        },
+        {
+            "path": "resources/textures/pickup/powerup.png",
+            "name": "pickup@powerup"
         }
     ]
 }
