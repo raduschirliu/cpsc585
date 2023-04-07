@@ -99,10 +99,22 @@ void AIController::UpdatePowerup()
 
 void AIController::OnUpdate(const Timestep& delta_time)
 {
+    if (respawn_tracker_)
+    {
+        minimum_threshold_respawn_timer_ += delta_time.GetSeconds();
+        if (minimum_threshold_respawn_timer_ >= kMaxRespawnTimer)
+        {
+            respawn_tracker_ = false;
+            minimum_threshold_respawn_timer_ = 0.f;
+        }
+    }
+
     if (game_state_service_->GetRaceState()
             .countdown_elapsed_time.GetSeconds() <=
         game_state_service_->GetMaxCountdownSeconds())
+    {
         return;
+    }
 
     glm::vec3 current_car_position = transform_->GetPosition();
     glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
@@ -111,7 +123,10 @@ void AIController::OnUpdate(const Timestep& delta_time)
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
 
-    HandleRespawn(delta_time);
+    if (!respawn_tracker_)
+    {
+        HandleRespawn(delta_time);
+    }
     PowerupDecision();
 
     // note: raycasting *may* be an expensive approach
@@ -151,18 +166,15 @@ void AIController::FixRespawnOrientation(
 
 void AIController::HandleRespawn(const Timestep& delta_time)
 {
-    // TODO: if the AI skips a checkpoint by mistake, then wait 5 seconds, if it
-    //          doesnt correct itself then respawn it.
-
     // if the velocity of car is less than some amount then respawn the car.
-    // HandleMinSpeedThresholdRespawn(delta_time);
+    HandleMinSpeedThresholdRespawn(delta_time);
 
     // if the car falls off the map
     HandleFreefallRespawn(delta_time);
 
     // if the AI is following the wrong path for more than 6 seconds, missed a
     // checkpoint (reset it to the last checkpoint it crossed).
-    // HandleMissedCheckpointRespawn(delta_time);
+    HandleMissedCheckpointRespawn(delta_time);
 }
 
 void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
@@ -224,6 +236,9 @@ void AIController::HandleMinSpeedThresholdRespawn(const Timestep& delta_time)
             // add this car's id to respawn, which will be handled by the
             // gamestateservice
             game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+
+            // as now we do not want the AI to get in an infinite respawn loop.
+            respawn_tracker_ = true;
         }
     }
     else
@@ -322,7 +337,7 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     if (speed <= 99)
     {
         // debug::LogWarn("{}", speed_multiplier_);
-        if (speed > 30)
+        if (speed > 50)
             temp_command.throttle =
                 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
                 speed_multiplier_;

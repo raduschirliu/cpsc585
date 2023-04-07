@@ -48,6 +48,12 @@ class AIController final : public Component,
     float speed_multiplier_ = 1.f;
     float shoot_cooldown_;
     float handling_multiplier_ = 1.f;
+
+    // if the car just respawned then it should wait for some time to let it
+    // respawn again, doing this just because of the minimum threshold respawn
+    // ability
+    bool respawn_tracker_ = false;
+    double minimum_threshold_respawn_timer_ = 0.f;
     // as we want the car to move from current to next command, and so on
     // until the end.
     int next_path_index_;
