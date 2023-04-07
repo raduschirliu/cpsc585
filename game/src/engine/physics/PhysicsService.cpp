@@ -441,13 +441,13 @@ std::optional<RaycastData> PhysicsService::RaycastStatic(
     kScene_->raycast(px_origin, px_unit_dir, max_distance, raycast_result,
                      hit_flags, filter_data);
 
-    // if (debug_draw_raycast_)
-    // {
-    //     LineVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
-    //     LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
-    //                    Color4u(0, 0, 255, 255));
-    //     render_service_->GetDebugDrawList().AddLine(start, end);
-    // }
+    if (debug_draw_raycast_)
+    {
+        DebugVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
+        DebugVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                       Color4u(0, 0, 255, 255));
+        render_service_->GetDebugDrawList().AddLine(start, end);
+    }
 
     // check if hit successful
     if (!raycast_result.hasBlock)
