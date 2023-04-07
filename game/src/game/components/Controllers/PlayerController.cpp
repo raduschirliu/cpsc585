@@ -20,7 +20,9 @@ static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 1.0f;
-static constexpr float kHanldingMultiplier = 1.0f;
+static constexpr float kHandlingMultiplier = 1.0f;
+
+static float shoot_cooldown;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
@@ -31,6 +33,8 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
+    
+    shoot_cooldown = 0.0f;
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -60,9 +64,9 @@ std::string_view PlayerController::GetName() const
 
 void PlayerController::CheckShoot(const Timestep& delta_time)
 {
-    if (shoot_cooldown_ > 0.0f)
+    if (shoot_cooldown > 0.0f)
     {
-        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
+        shoot_cooldown -= static_cast<float>(delta_time.GetSeconds());
         return;
     }
 
@@ -71,7 +75,7 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
                                                GLFW_GAMEPAD_BUTTON_B))
     {
         shooter_->Shoot();
-        shoot_cooldown_ = shooter_->GetCooldownTime();
+        shoot_cooldown = shooter_->GetCooldownTime();
     }
 }
 
@@ -135,7 +139,7 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
     else
     {
         // this is the entity which started the powerup, so do nothing.
-        handling_multiplier_ = kHanldingMultiplier;
+        handling_multiplier_ = kHandlingMultiplier;
     }
 }
 
