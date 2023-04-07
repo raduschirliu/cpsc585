@@ -11,6 +11,7 @@
 #include "game/components/shooting/Shooter.h"
 
 class PlayerState;
+class PickupService;
 
 class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
@@ -25,15 +26,16 @@ class PlayerController final : public Component,
     std::string_view GetName() const override;
 
   private:
-    void UpdatePowerupControls(const Timestep& delta_time);
-    void UpdateCarControls(const Timestep& delta_time);
-    void UpdateGear();
-    void CheckShoot(const Timestep& delta_time);
-    float GetSteerDirection();
-    float GetThrottle();
-    float GetFrontBrake();
-    float GetRearBrake();
-    bool GetGearChangeButton();
+    jss::object_ptr<Transform> transform_;
+    jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<GameStateService> game_state_service_;
+
+    jss::object_ptr<PlayerState> player_data_;
+    jss::object_ptr<VehicleComponent> vehicle_;
+    jss::object_ptr<Shooter> shooter_;
+    jss::object_ptr<PickupService> pickup_service_;
+
+    float shoot_cooldown_;
 
     bool execute_powerup_ = false;
     bool forward_gear_ = true;
@@ -44,13 +46,13 @@ class PlayerController final : public Component,
     // to respawn the car
     double respawn_timer_ = 0.0f;
 
-    /* ----- service and component dependencies ----- */
-
-    jss::object_ptr<InputService> input_service_;
-    jss::object_ptr<GameStateService> game_state_service_;
-
-    jss::object_ptr<Transform> transform_;
-    jss::object_ptr<PlayerState> player_data_;
-    jss::object_ptr<VehicleComponent> vehicle_;
-    jss::object_ptr<Shooter> shooter_;
+    void CheckShoot(const Timestep& delta_time);
+    void UpdatePowerupControls(const Timestep& delta_time);
+    void UpdateCarControls(const Timestep& delta_time);
+    void UpdateGear();
+    float GetSteerDirection();
+    float GetThrottle();
+    float GetFrontBrake();
+    float GetRearBrake();
+    bool GetGearChangeButton();
 };

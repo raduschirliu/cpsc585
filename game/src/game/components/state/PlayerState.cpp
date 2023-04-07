@@ -3,12 +3,15 @@
 #include <iostream>
 
 #include "engine/core/debug/Log.h"
+#include "engine/physics/PhysicsService.h"
+#include "game/services/GameStateService.h"
 
 static constexpr float kDeathCooldownSeconds = 5.0f;
 
 void PlayerState::OnInit(const ServiceProvider& service_provider)
 {
     // service and component dependencies
+    physics_service_ = &service_provider.GetService<PhysicsService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
@@ -146,7 +149,7 @@ void PlayerState::SetHealth(float health)
 
 void PlayerState::DecrementHealth(float health)
 {
-    if (player_state_.health >= health)
+    if (player_state_.health >= health && !physics_service_->GetPaused())
     {
         player_state_.health -= health;
         audio_emitter_->PlaySource("kart_hit_01.ogg");
@@ -168,13 +171,17 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    player_state_.current_powerup = type;
-    audio_emitter_->PlaySource("pickup_get_01.ogg");
+    if (!physics_service_->GetPaused())
+    {
+        player_state_.current_powerup = type;
+        audio_emitter_->PlaySource("pickup_get_01.ogg");
+    }
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
 {
-    player_state_.current_ammo_type = type;
+    if (this)
+        player_state_.current_ammo_type = type;
     /* audio_emitter_->PlaySource("pickup_get_02.ogg"); */
 }
 
@@ -196,4 +203,24 @@ int PlayerState::GetCurrentPlace() const
 void PlayerState::SetCurrentPlace(int place)
 {
     player_state_.place = place;
+}
+
+float PlayerState::GetHandlingMultiplier()
+{
+    return player_state_.handling_multiplier;
+}
+
+void PlayerState::SetHandlingMultiplier(float multiplier)
+{
+    player_state_.handling_multiplier = multiplier;
+}
+
+void PlayerState::SetMaxCarSpeed(float max_speed)
+{
+    player_state_.max_car_speed = max_speed;
+}
+
+float PlayerState::GetMaxCarSpeed()
+{
+    return player_state_.max_car_speed;
 }

@@ -3,6 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <limits>
 
+using glm::vec2;
 using glm::vec3;
 using std::string;
 
@@ -42,6 +43,68 @@ bool EditProperty(const string& label, vec3& value)
 
     dirty |= ImGui::DragFloat("##vec3_z", &value.z, 1.0f, kFloatMin, kFloatMax,
                               "Z: %.3f");
+    ImGui::SameLine();
+
+    ImGui::Text(label.c_str());
+
+    ImGui::PopItemWidth();
+    ImGui::PopID();
+    ImGui::EndGroup();
+
+    return dirty;
+}
+
+bool EditProperty(const string& label, vec2& value)
+{
+    bool dirty = false;
+    const float full_width = ImGui::CalcItemWidth();
+    const float item_width = full_width / 2.0f;
+
+    ImGui::BeginGroup();
+    ImGui::PushID(label.c_str());
+
+    ImGui::PushItemWidth(item_width);
+    dirty |= ImGui::DragFloat("##vec2_x", &value.x, 1.0f, kFloatMin, kFloatMax,
+                              "X: %.3f");
+    ImGui::SameLine();
+
+    dirty |= ImGui::DragFloat("##vec2_y", &value.y, 1.0f, kFloatMin, kFloatMax,
+                              "Y: %.3f");
+    ImGui::SameLine();
+
+    ImGui::Text(label.c_str());
+
+    ImGui::PopItemWidth();
+    ImGui::PopID();
+    ImGui::EndGroup();
+
+    return dirty;
+}
+
+bool EditProperty(const string& label, Rect2d& value)
+{
+    bool dirty = false;
+    const float full_width = ImGui::CalcItemWidth();
+    const float item_width = full_width / 4.0f;
+
+    ImGui::BeginGroup();
+    ImGui::PushID(label.c_str());
+
+    ImGui::PushItemWidth(item_width);
+    dirty |= ImGui::DragFloat("##rect2d_x", &value.pos.x, 1.0f, kFloatMin,
+                              kFloatMax, "X: %.3f");
+    ImGui::SameLine();
+
+    dirty |= ImGui::DragFloat("##rect2d_y", &value.pos.y, 1.0f, kFloatMin,
+                              kFloatMax, "Y: %.3f");
+    ImGui::SameLine();
+
+    dirty |= ImGui::DragFloat("##rect2d_w", &value.size.x, 1.0f, kFloatMin,
+                              kFloatMax, "W: %.3f");
+    ImGui::SameLine();
+
+    dirty |= ImGui::DragFloat("##rect2d_h", &value.size.y, 1.0f, kFloatMin,
+                              kFloatMax, "H: %.3f");
     ImGui::SameLine();
 
     ImGui::Text(label.c_str());

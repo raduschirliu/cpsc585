@@ -181,3 +181,38 @@ void* TextureHandle::ValueRaw() const
 {
     return reinterpret_cast<void*>(static_cast<std::intptr_t>(textureID));
 }
+
+//------------------------------------------------------------------------------
+
+FramebufferHandle::FramebufferHandle() : id_(0)
+{
+    glGenFramebuffers(1, &id_);
+}
+
+FramebufferHandle::FramebufferHandle(FramebufferHandle&& other) noexcept
+    : id_(std::move(other.id_))
+{
+    other.id_ = 0;
+}
+
+FramebufferHandle& FramebufferHandle::operator=(
+    FramebufferHandle&& other) noexcept
+{
+    std::swap(id_, other.id_);
+    return *this;
+}
+
+FramebufferHandle::~FramebufferHandle()
+{
+    glDeleteFramebuffers(1, &id_);
+}
+
+FramebufferHandle::operator GLuint() const
+{
+    return id_;
+}
+
+GLuint FramebufferHandle::Value() const
+{
+    return id_;
+}

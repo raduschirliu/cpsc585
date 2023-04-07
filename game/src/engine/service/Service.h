@@ -27,6 +27,7 @@ class Service
     virtual void OnSceneLoaded(Scene& scene);
     virtual void OnSceneUnloaded(Scene& scene);
     virtual void OnStart(ServiceProvider& service_provider);
+    virtual void OnWindowSizeChanged(int width, int height);
     virtual void OnUpdate() = 0;
     virtual void OnCleanup();
 
