@@ -29,7 +29,7 @@ AIController::AIController()
     : input_service_(nullptr),
       transform_(nullptr),
       ai_service_(nullptr),
-      next_path_index_(79)
+      next_path_index_(81)
 {
 }
 
@@ -144,11 +144,19 @@ void AIController::OnUpdate(const Timestep& delta_time)
     }
 }
 
-void AIController::FixRespawnOrientation(
-    const glm::vec3& next_checkpoint_location,
-    const glm::vec3& checkpoint_location)
+void AIController::FixRespawnOrientation(const glm::vec3& next_checkpoint,
+                                         const glm::vec3& last_checkpoint)
 {
-    transform_->SetOrientation(kIdentityQuat);
+    auto current_orientation = transform_->GetOrientation();
+
+    // assume car is initially oriented along the negative z-axis
+    glm::vec3 forward = transform_->GetForwardDirection();
+    glm::vec3 direction = glm::normalize(next_checkpoint - last_checkpoint);
+    glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
+    float angle = glm::acos(glm::dot(forward, direction));
+
+    transform_->SetOrientation(glm::angleAxis(angle, axis) *
+                               current_orientation);
 }
 
 void AIController::HandleRespawn(const Timestep& delta_time)
@@ -191,11 +199,13 @@ void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
         if (current_checkpoint == -1)
             return;
 
-        transform_->SetPosition(checkpoint_location);
-        FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // add this car's id to respawn, which will be handled by the
-        // gamestateservice
-        game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+        vehicle_->Respawn();
+
+        // transform_->SetPosition(checkpoint_location);
+        // FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
+        // // add this car's id to respawn, which will be handled by the
+        // // gamestateservice
+        // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
     }
 }
 
@@ -217,12 +227,14 @@ void AIController::HandleMinSpeedThresholdRespawn(const Timestep& delta_time)
             if (current_checkpoint == -1)
                 return;
 
-            transform_->SetPosition(checkpoint_location);
-            FixRespawnOrientation(next_checkpoint_location,
-                                  checkpoint_location);
-            // add this car's id to respawn, which will be handled by the
-            // gamestateservice
-            game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+            vehicle_->Respawn();
+
+            // transform_->SetPosition(checkpoint_location);
+            // FixRespawnOrientation(next_checkpoint_location,
+            //                       checkpoint_location);
+            // // add this car's id to respawn, which will be handled by the
+            // // gamestateservice
+            // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
 
             // as now we do not want the AI to get in an infinite respawn loop.
             respawn_tracker_ = true;
@@ -252,11 +264,14 @@ void AIController::HandleFreefallRespawn(const Timestep& delta_time)
         if (current_checkpoint == -1)
             return;
 
-        transform_->SetPosition(checkpoint_location);
-        FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // as this indicates that the car has fallen off the map, respawn it to
-        // the previous checkpoint
-        game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+        vehicle_->Respawn();
+
+        // transform_->SetPosition(checkpoint_location);
+        // FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
+        // // as this indicates that the car has fallen off the map, respawn it
+        // to
+        // // the previous checkpoint
+        // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
     }
 }
 
@@ -323,7 +338,8 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     if (speed <= 99)
     {
         // debug::LogWarn("{}", speed_multiplier_);
-        if (speed > 50)
+        if (speed > 55)
+        {
             temp_command.throttle =
                 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
                 speed_multiplier_;
