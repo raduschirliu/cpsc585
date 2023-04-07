@@ -59,6 +59,8 @@ void PhysicsService::OnStart(ServiceProvider& service_provider)
 
 void PhysicsService::OnSceneLoaded(Scene& scene)
 {
+    display_pause_ = false;
+
     if (kScene_)
     {
         PX_RELEASE(kScene_);
@@ -97,10 +99,20 @@ void PhysicsService::OnSceneLoaded(Scene& scene)
 
 void PhysicsService::OnUpdate()
 {
-    const Timestep& delta = GetApp().GetDeltaTime();
-    time_accumulator_ += delta;
+    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE) ||
+        input_service_->IsGamepadButtonPressed(GLFW_JOYSTICK_1,
+                                               GLFW_GAMEPAD_BUTTON_START))
+    {
+        display_pause_ = !display_pause_;
+    }
 
-    StepPhysics();
+    if (!display_pause_)
+    {
+        const Timestep& delta = GetApp().GetDeltaTime();
+        time_accumulator_ += delta;
+
+        StepPhysics();
+    }
 
     if (input_service_->IsKeyPressed(GLFW_KEY_F3))
     {
@@ -119,9 +131,10 @@ void PhysicsService::OnUpdate()
         {
             const PxDebugLine& line = lines[i];
 
-            const LineVertex start(PxToGlm(line.pos0),
-                                   PxColorToVec(line.color0));
-            const LineVertex end(PxToGlm(line.pos1), PxColorToVec(line.color1));
+            const DebugVertex start(PxToGlm(line.pos0),
+                                    PxColorToVec(line.color0));
+            const DebugVertex end(PxToGlm(line.pos1),
+                                  PxColorToVec(line.color1));
             draw_list.AddLine(start, end);
         }
     }
@@ -385,9 +398,9 @@ std::optional<RaycastData> PhysicsService::RaycastDynamic(
 
     if (debug_draw_raycast_)
     {
-        LineVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
-        LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
-                       Color4u(255, 0, 0, 255));
+        DebugVertex start(PxToGlm(px_origin), Color4u(255, 0, 0, 255));
+        DebugVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                        Color4u(255, 0, 0, 255));
         render_service_->GetDebugDrawList().AddLine(start, end);
     }
 
@@ -430,9 +443,9 @@ std::optional<RaycastData> PhysicsService::RaycastStatic(
 
     if (debug_draw_raycast_)
     {
-        LineVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
-        LineVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
-                       Color4u(0, 0, 255, 255));
+        DebugVertex start(PxToGlm(px_origin), Color4u(0, 0, 255, 255));
+        DebugVertex end(PxToGlm(px_origin + px_unit_dir * max_distance),
+                        Color4u(0, 0, 255, 255));
         render_service_->GetDebugDrawList().AddLine(start, end);
     }
 
@@ -557,6 +570,16 @@ void PhysicsService::StepPhysics()
 const PxVec3& PhysicsService::GetGravity() const
 {
     return kGravity;
+}
+
+bool PhysicsService::GetPaused()
+{
+    return display_pause_;
+}
+
+void PhysicsService::SetPaused(bool boolean)
+{
+    display_pause_ = boolean;
 }
 
 /* From PxSimulationEventCallback */

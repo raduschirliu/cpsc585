@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "engine/fwd/FwdComponents.h"
 #include "engine/input/InputService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -23,9 +24,11 @@ class DebugCameraController final : public Component,
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<Camera> camera_;
     std::optional<glm::vec2> last_mouse_pos_;
     float pitch_degrees_;
     float yaw_degrees_;
+    bool camera_enabled_;
 
     glm::vec3 GetMovementDir();
     void UpdateRotation(float pitch_delta_degrees, float yaw_delta_degrees);

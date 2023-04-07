@@ -11,6 +11,7 @@
 #include "game/components/shooting/Shooter.h"
 
 class PlayerState;
+class PickupService;
 
 class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
@@ -30,6 +31,7 @@ class PlayerController final : public Component,
     jss::object_ptr<PlayerState> player_data_;
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<Shooter> shooter_;
+    jss::object_ptr<PickupService> pickup_service_;
 
     float shoot_cooldown_;
 

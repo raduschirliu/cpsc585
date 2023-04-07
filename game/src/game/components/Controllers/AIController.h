@@ -14,6 +14,8 @@
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
+class PickupService;
+
 class AIController final : public Component,
                            public IEventSubscriber<OnUpdateEvent>
 {
@@ -40,6 +42,7 @@ class AIController final : public Component,
     jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<PickupService> pickup_service_;
 
     jss::object_ptr<Shooter> shooter_;
     jss::object_ptr<PlayerState> player_state_;

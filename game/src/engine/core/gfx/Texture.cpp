@@ -2,25 +2,34 @@
 
 #include <stb/stb_image.h>
 
-#include <iostream>
-
 #include "engine/core/debug/Assert.h"
 
-Texture::Texture(std::string path, InterpolationMode interpolation_mode,
-                 bool flip_vertically)
+using glm::uvec2;
+
+Texture::Texture()
     : handle_(),
-      path_(path),
-      interpolation_(interpolation_mode)
+      path_(""),
+      interpolation_(InterpolationMode::kLinear),
+      size_(0, 0)
 {
-    int num_components;
+}
+
+void Texture::LoadFromFile(std::string path, bool flip_vertically)
+{
+    path_ = path;
+
     if (flip_vertically)
     {
         stbi_set_flip_vertically_on_load(true);
     }
+
+    int num_components;
+    int width, height;
     unsigned char* data =
-        stbi_load(path.c_str(), &width_, &height_, &num_components, 0);
+        stbi_load(path.c_str(), &width, &height, &num_components, 0);
 
     ASSERT_MSG(data, "Texture must be loaded");
+    size_ = uvec2(width, height);
 
     // Set alignment to be 1
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -48,9 +57,20 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode,
             break;
     };
     // Loads texture data into bound texture
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width_, height_, 0, format,
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
                  GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
+
+    UpdateParams();
+
+    // Clean up
+    Unbind();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);  // Return to default alignment
+}
+
+void Texture::UpdateParams()
+{
+    Bind();
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -58,15 +78,11 @@ Texture::Texture(std::string path, InterpolationMode interpolation_mode,
                     GetInterpolationMode());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
                     GetInterpolationMode());
-
-    // Clean up
-    Unbind();
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);  // Return to default alignment
 }
 
-glm::uvec2 Texture::GetDimensions() const
+uvec2 Texture::GetDimensions() const
 {
-    return glm::uvec2(width_, height_);
+    return size_;
 }
 
 void Texture::Bind(uint32_t slot) const

@@ -23,8 +23,11 @@ void Shooter::Shoot()
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
     // play shoot sound; slightly randomize pitch
-    audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
-    audio_emitter_->PlaySource(shoot_sound_file_);
+    if (!physics_service_->GetPaused())
+    {
+        audio_emitter_->SetPitch(shoot_sound_file_, RandomPitchValue());
+        audio_emitter_->PlaySource(shoot_sound_file_);
+    }
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
@@ -87,7 +90,7 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 1);
+    std::uniform_real_distribution<> dis(0, 1);
 
     std::vector<std::optional<RaycastData>> target_datas;
     // as we want the shots to scatter

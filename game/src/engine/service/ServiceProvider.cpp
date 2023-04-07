@@ -59,3 +59,11 @@ void ServiceProvider::DispatchCleanup()
         pair.service->OnCleanup();
     }
 }
+
+void ServiceProvider::DispatchWindowSizeChanged(int width, int height)
+{
+    for (auto& pair : services_)
+    {
+        pair.service->OnWindowSizeChanged(width, height);
+    }
+}

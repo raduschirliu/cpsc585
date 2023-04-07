@@ -77,24 +77,12 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
-    // setters
-    void AddPlayerPowerup(uint32_t id, PowerupPickupType power);
-    void RemovePlayerPowerup(uint32_t id);
-    std::vector<std::pair<uint32_t, PowerupPickupType>> PowerupsActive();
-    std::vector<std::pair<uint32_t, PowerupPickupType>> GetActivePowerups();
-    void RemoveEveryoneSlowerSpeedMultiplier();
-    void RemoveActivePowerup();
-
     // Events
     void PlayerCrossedCheckpoint(Entity& entity, uint32_t index);
 
     // Accessors
     void SetRaceConfig(const RaceConfig& config);
     const RaceConfig& GetRaceConfig() const;
-
-    int GetEveryoneSlowerSpeedMultiplier();
-    int GetDisableHandlingMultiplier();
-    int GetHitBoxMultiplier();
 
     const GlobalRaceState& GetGlobalRaceState() const;
     const uint32_t GetNumCheckpoints() const;
@@ -127,6 +115,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<InputService> input_service_;
+    jss::object_ptr<PhysicsService> physics_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -165,6 +154,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void StartCountdown();
     void DisplayScoreboard();
 
+    bool display_pause_ = false;
+
     const Texture* countdown3_;
     const Texture* countdown2_;
     const Texture* countdown1_;
@@ -176,8 +167,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* increaseAimBox_;
     const Texture* killAbilities_;
     const Texture* pause_;
-
-    bool display_pause_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;

@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <array>
 #include <object_ptr.hpp>
 #include <string>
 #include <unordered_set>
 
 #include "PickupType.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/Transform.h"
@@ -15,6 +17,7 @@
 #include "game/services/GameStateService.h"
 
 class PlayerState;
+class PickupService;
 
 class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -28,11 +31,15 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
     virtual void OnUpdate(const Timestep& delta_time) override;
 
   private:
-    jss::object_ptr<GameStateService> game_state_;
-
     bool powerup_executed_ = false;
 
   protected:
+    jss::object_ptr<PickupService> pickup_service_;
+    jss::object_ptr<GameStateService> game_state_;
+    // get the name of all ammo types and powerup types from pickup service
+    std::array<std::string, 6> ammo_types_;
+    std::array<std::string, 5> powerup_types_;
+
     jss::object_ptr<Transform> transform_;
     bool power_visible_ = true;
 
@@ -44,4 +51,12 @@ class Pickup : public Component, public IEventSubscriber<OnUpdateEvent>
 
     void SetPowerVisibility(bool bValue);
     void SetVehiclePowerup(PowerupPickupType type, const OnTriggerEvent& data);
+
+    // for powerups
+
+    /** Gets for how long the powerup/ammo should be there for the user */
+    virtual float GetMaxRespawnTime() = 0;
+
+    /** Gets for how long the user can use this powerup for **/
+    virtual float GetDeactivateTime() = 0;
 };
