@@ -54,8 +54,8 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void CheckDead(const Timestep& delta_time);
 
     PlayerStateData player_state_;
-    float death_cooldown_; /// time until a dead player revives
-    
+    float death_cooldown_;  /// time until a dead player revives
+
     /* ----- service and component dependencies ----- */
 
     jss::object_ptr<PhysicsService> physics_service_;

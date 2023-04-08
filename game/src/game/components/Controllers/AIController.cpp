@@ -105,11 +105,11 @@ void AIController::OnUpdate(const Timestep& delta_time)
     {
         return;
     }
-    
+
     // do nothing when dead
     if (player_state_->IsDead())
     {
-       return;
+        return;
     }
 
     glm::vec3 current_car_position = transform_->GetPosition();

@@ -221,7 +221,6 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(20.0f, 5.0f, 10.0f));
 
-
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         auto& player_state = entity.AddComponent<PlayerState>();
         bunny_vehicle.SetVehicleName("AI2");
@@ -246,7 +245,6 @@ void GameApp::LoadTestScene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(30.0f, 5.0f, 10.0f));
-
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         auto& player_state = entity.AddComponent<PlayerState>();
