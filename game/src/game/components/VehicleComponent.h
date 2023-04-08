@@ -19,17 +19,26 @@ class VehicleComponent final : public Component,
                                public IEventSubscriber<OnPhysicsUpdateEvent>
 {
   public:
-    // From Component
+    /**
+     *  resets the vehicle's position to their previously hit checkpoint,
+     *  oriented towards the next checkpoint to be hit
+     */
+    void Respawn();
+
+    /* ----- From Component ----- */
+
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
     void OnDebugGui() override;
     void OnDestroy() override;
 
-    // Event subscribers
+    /* ----- Event subscribers ----- */
+
     void OnUpdate(const Timestep& delta_time) override;
     void OnPhysicsUpdate(const Timestep& step) override;
 
-    // Getters and Setters
+    /* ----- Setters + Getters ----- */
+
     void SetCommand(VehicleCommand command);
     void SetVehicleName(const std::string& vehicle_name);
     void SetGear(VehicleGear gear);
@@ -41,8 +50,6 @@ class VehicleComponent final : public Component,
     float GetSpeed() const;
     float GetAdjustedSpeedMultiplier();
     bool IsGrounded() const;
-
-    void Respawn();
 
   private:
     void InitVehicle();
@@ -72,7 +79,8 @@ class VehicleComponent final : public Component,
     float speed_adjuster_;
     float max_velocity_ = 130.0f;
 
-    // Service and Component dependencies
+    /* ----- Service and Component dependencies ----- */
+
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
