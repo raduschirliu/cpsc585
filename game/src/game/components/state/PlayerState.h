@@ -35,6 +35,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     float GetMaxCarSpeed();
     float GetHandlingMultiplier();
     bool IsDead() const;
+    float GetDeathCooldown() const;
     float GetHealth() const;
     float GetSpeedMultiplier() const;
     int GetKills() const;

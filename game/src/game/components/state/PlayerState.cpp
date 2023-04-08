@@ -84,6 +84,10 @@ bool PlayerState::IsDead() const
 {
     return player_state_.is_dead;
 }
+float PlayerState::GetDeathCooldown() const
+{
+    return death_cooldown_; 
+}
 
 float PlayerState::GetSpeedMultiplier() const
 {
