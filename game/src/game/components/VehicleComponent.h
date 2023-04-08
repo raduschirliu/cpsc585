@@ -51,7 +51,14 @@ class VehicleComponent final : public Component,
     void LoadParams();
     void HandleVehicleTransform();
     void UpdateGrounded();
+
+    /// @brief respawns vehicle when not grounded for an amount of time
+    /// @see respawn_timer_
     void CheckAutoRespawn(const Timestep& delta_time);
+    
+    /// respawns vehicle when all health is depleted
+    void CheckDeathRespawn();
+
     void UpdateRespawnOrientation(const glm::vec3& next_checkpoint,
                                   const glm::vec3& checkpoint);
 

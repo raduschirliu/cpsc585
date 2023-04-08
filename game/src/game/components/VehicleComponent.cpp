@@ -127,6 +127,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     HandleVehicleTransform();
     UpdateGrounded();
+    CheckDeathRespawn();
     CheckAutoRespawn(delta_time);
 }
 
@@ -315,6 +316,15 @@ void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
     {
         Respawn();
         respawn_timer_ = 0.0f;
+        return;
+    }
+}
+
+void VehicleComponent::CheckDeathRespawn()
+{
+    if (player_data_->is_dead)
+    {
+        Respawn();
     }
 }
 
