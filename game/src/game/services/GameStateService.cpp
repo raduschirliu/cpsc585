@@ -151,19 +151,26 @@ void GameStateService::DisplayKillFeed()
     {
         return;
     }
-    // std::cout<<kill_feed_info.size();
-    for (const auto& string : kill_feed_info_)
+    auto now = std::chrono::system_clock::now();
+    for (auto it = timestamp_map.begin(); it != timestamp_map.end();)
     {
-        ImGui::Text(string.c_str());
+        if (std::chrono::duration_cast<std::chrono::seconds>(now - it->second)
+                .count() > kMaxKillFeedTimer)
+        {
+            kill_feed_info_.erase(it->first);
+            it = timestamp_map.erase(it);
+        }
+        else
+        {
+            auto iter = kill_feed_info_.find(it->first);
+            if (iter != kill_feed_info_.end())
+            {
+                ImGui::Text(iter->c_str());
+            }
+            ++it;
+        }
     }
-    kill_feed_timer_ += GetApp().GetDeltaTime().GetSeconds();
-    if (kill_feed_timer_ >= kMaxKillFeedTimer)
-    {
-        // remove the first value from the array of strings
-        kill_feed_timer_ = 0.0f;
-        kill_feed_info_.erase(kill_feed_info_.begin());
-    }
-    debug::LogDebug("{}", kill_feed_info_.size());
+    // debug::LogDebug("{}", kill_feed_info_.size());
 }
 
 void GameStateService::KillFeed(const ImGuiWindowFlags& flags)
@@ -184,9 +191,12 @@ void GameStateService::KillFeed(const ImGuiWindowFlags& flags)
         }
         if (player_state.second->IsDead())
         {
-            kill_feed_info_.push_back(
-                (player_state.second->GetPlayerWhoShotMe() + " killed " +
-                 player_state.second->GetPlayerName()));
+            std::string kill_string =
+                player_state.second->GetPlayerWhoShotMe() + " killed " +
+                player_state.second->GetPlayerName();
+
+            kill_feed_info_.insert(kill_string);
+            timestamp_map[kill_string] = std::chrono::system_clock::now();
         }
     }
 

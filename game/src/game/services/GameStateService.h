@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <object_ptr.hpp>
@@ -115,7 +116,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     double kill_feed_timer_ = 0.0f;
     bool display_kill_details_ = false;
 
-
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
@@ -146,7 +146,10 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
     std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
 
-    std::vector<std::string> kill_feed_info_;
+    std::unordered_map<std::string,
+                       std::chrono::time_point<std::chrono::system_clock>>
+        timestamp_map;
+    std::unordered_set<std::string> kill_feed_info_;
 
     GameState stats_;
 
