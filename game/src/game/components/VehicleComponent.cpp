@@ -50,7 +50,6 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
     transform_ = &GetEntity().GetComponent<Transform>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
-    player_state_ = &GetEntity().GetComponent<PlayerState>();
 
     // reset cooldown
     respawn_timer_ = 0.0f;
@@ -323,14 +322,6 @@ void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
     }
 }
 
-void VehicleComponent::CheckDeathRespawn()
-{
-    if (player_state_->IsDead() && player_state_->GetDeathCooldown() == 0.0f)
-    {
-        Respawn();
-    }
-}
-
 /* ----- Setters + Getters ----- */
 
 void VehicleComponent::SetMaxVelocity(float vel)
@@ -344,11 +335,6 @@ void VehicleComponent::SetMaxAchievableVelocity(float max_velocity)
 {
     vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
         max_velocity);
-}
-
-void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
-{
-    player_data_ = &data;
 }
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)

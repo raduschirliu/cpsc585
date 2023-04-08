@@ -31,7 +31,6 @@ class VehicleComponent final : public Component,
 
     // Getters and Setters
     void SetCommand(VehicleCommand command);
-    void SetPlayerStateData(PlayerStateData& data);
     void SetVehicleName(const std::string& vehicle_name);
     void SetGear(VehicleGear gear);
     void SetMaxVelocity(float vel);
@@ -51,21 +50,16 @@ class VehicleComponent final : public Component,
     void LoadParams();
     void HandleVehicleTransform();
     void UpdateGrounded();
-
     /// @brief respawns vehicle when not grounded for an amount of time
     /// @see respawn_timer_
     void CheckAutoRespawn(const Timestep& delta_time);
-    
-    /// respawns vehicle when all health is depleted
-    void CheckDeathRespawn();
-
+    /// orients the vehicle towards next checkpoint on respawn
     void UpdateRespawnOrientation(const glm::vec3& next_checkpoint,
                                   const glm::vec3& checkpoint);
 
-
     /// The vehicle with direct drivetrain
     snippetvehicle2::DirectDriveVehicle vehicle_;
-    
+    std::string g_vehicle_name_;
     /// The mapping between PxMaterial and friction.
     physx::vehicle2::PxVehiclePhysXMaterialFriction
         gPhysXMaterialFrictions_[16];
@@ -73,13 +67,10 @@ class VehicleComponent final : public Component,
 
     /// i.e. Whether or not the vehicle is midair or upside down
     bool is_grounded_;
+    /// how long until an ungrounded vehicle is respawned
     float respawn_timer_;
-
-    std::string g_vehicle_name_;
-    PlayerStateData* player_data_;
-
     float speed_adjuster_;
-    float max_velocity_ = 130.f;
+    float max_velocity_ = 130.0f;
 
     // Service and Component dependencies
     jss::object_ptr<PhysicsService> physics_service_;
@@ -88,5 +79,4 @@ class VehicleComponent final : public Component,
 
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
-    jss::object_ptr<PlayerState> player_state_;
 };
