@@ -13,6 +13,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/physics/BoxTrigger.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -100,6 +101,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     input_service_ = &service_provider.GetService<InputService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
+    pickup_service_ = &service_provider.GetService<PickupService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -156,16 +158,19 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoInputs;
+        ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse;
 
     if (physics_service_->GetPaused())
     {
-        ImGui::SetNextWindowPos(ImVec2(385, 205));
+        // ImGui::SetNextWindowPos(ImVec2(385, 205));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 250,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 150));
         ImGui::Begin("pause", nullptr, flags);
         ImGui::Image(pause_->GetGuiHandle(), ImVec2(506, 306));
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(550, 320));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 80,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 30));
         ImGui::Begin("Pause Buttons", nullptr,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                          ImGuiWindowFlags_NoTitleBar |
@@ -192,6 +197,8 @@ void GameStateService::OnGui()
         if (ImGui::Button("HOME"))
         {
             scene_service_->SetActiveScene("MainMenu");
+            audio_service_->AddSource("ui_pick_01.ogg");
+            audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopFont();
         ImGui::PopStyleColor(3);
@@ -203,7 +210,8 @@ void GameStateService::OnGui()
 
     if (race_state_.state == GameState::kCountdown)
     {
-        ImGui::SetNextWindowPos(ImVec2(425, 250));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 225,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 110));
         ImGui::Begin("Game State", nullptr, flags);
         double count =
             (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds();
@@ -227,32 +235,41 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100, 30));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 160, 22));
         ImGui::Begin("Penalty", nullptr, flags);
 
-        for (auto& a : active_powerups_)
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.0f, 1.0f));
+        ImGui::PushFont(font_koverwatch_);
+        if (pickup_service_->GetActivePowerup() ==
+            pickup_service_->GetPowerupPickupNames()[1])
         {
-            if (a.second == PowerupPickupType::kDisableHandling)
-            {
-                ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
-            }
-            else if (a.second == PowerupPickupType::kEveryoneSlower)
-            {
-                ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
-            }
-            else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            {
-                ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
-            }
-            else if (a.second == PowerupPickupType::kKillAbilities)
-            {
-                ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
-            }
+            ImGui::Text("Enemy Handling Disabled!");
+            // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
         }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[2])
+        {
+            ImGui::Text("Enemy Speed Halved!");
+            // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[3])
+        {
+            ImGui::Text("Enemy Aimboxes Doubled!");
+            // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[4])
+        {
+            ImGui::Text("Enemy Abilities Killed!");
+            // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        ImGui::PopFont();
+        ImGui::PopStyleColor();
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(220, 625));
+        ImGui::SetNextWindowPos(ImVec2(220, ImGui::GetIO().DisplaySize.y - 95));
         ImGui::Begin("Timer", nullptr, flags);
 
         ImGui::PushFont(font_beya_);
@@ -265,7 +282,8 @@ void GameStateService::OnGui()
         ImGui::PopFont();
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(1090, 610));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 190,
+                                       ImGui::GetIO().DisplaySize.y - 110));
         ImGui::Begin("Ranking", nullptr, flags);
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
@@ -313,7 +331,8 @@ void GameStateService::OnGui()
             ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(30, 200));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
+                                       ImGui::GetIO().DisplaySize.y - 520));
         ImGui::Begin("Record", nullptr, flags);
 
         for (uint32_t i = 0; i < players_.size(); ++i)
@@ -350,7 +369,8 @@ void GameStateService::OnGui()
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(635, 270));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 645,
+                                       ImGui::GetIO().DisplaySize.y - 450));
         ImGui::Begin("Result", nullptr, flags);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
@@ -409,6 +429,8 @@ void GameStateService::OnGui()
                                ImVec2(40, 37)))
         {
             scene_service_->SetActiveScene("MainMenu");
+            audio_service_->AddSource("ui_pick_01.ogg");
+            audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopStyleColor(3);
         ImGui::PopStyleVar(1);
@@ -524,7 +546,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kPowerups[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 10.f);
+                             std::to_string(powerup.second.z + 20.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -629,7 +651,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kAmmos[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 10.f);
+                             std::to_string(powerup.second.z + 20.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 

@@ -10,6 +10,7 @@ class InputService;
 class PhysicsService;
 class RenderService;
 class SceneDebugService;
+class PickupService;
 
 /* Forward declarations of common scene objects */
 
