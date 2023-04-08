@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Pickups/PickupType.h"
+#include <string>
 
+#include "../Pickups/PickupType.h"
 class Entity;
 
 struct PlayerStateData
@@ -16,6 +17,8 @@ struct PlayerStateData
     int laps_completed;
     int last_checkpoint;
     int place;
+    std::string player_name;
+    std::string player_who_shot_me;
     Entity* nemesis;
     Entity* bullied;
     PowerupPickupType current_powerup;  // will be decided by the enum defined
@@ -30,8 +33,10 @@ struct PlayerStateData
 
     void Reset()
     {
+        player_name = "";
+        player_who_shot_me = "";
         handling_multiplier = 1.0f;
-        health = 100.0f;
+        health = 10.0f;
         speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;

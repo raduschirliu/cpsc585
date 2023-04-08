@@ -109,6 +109,13 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
+  protected:
+    void KillFeed(const ImGuiWindowFlags& flags);
+    void DisplayKillFeed();
+    double kill_feed_timer_ = 0.0f;
+    bool display_kill_details_ = false;
+
+
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
@@ -138,6 +145,8 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // in the map.
     std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
     std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
+
+    std::vector<std::string> kill_feed_info_;
 
     GameState stats_;
 

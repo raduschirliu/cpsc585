@@ -48,6 +48,7 @@ using std::string;
 // powerup is disabled and removed.
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
+static constexpr double kMaxKillFeedTimer = 5.0f;
 
 static const Timestep kCountdownTime = Timestep::Seconds(3.5);
 
@@ -144,6 +145,55 @@ void GameStateService::OnUpdate()
     UpdatePlayerProgressScore(delta_time);
 }
 
+void GameStateService::DisplayKillFeed()
+{
+    if (kill_feed_info_.size() == 0)
+    {
+        return;
+    }
+    // std::cout<<kill_feed_info.size();
+    for (const auto& string : kill_feed_info_)
+    {
+        ImGui::Text(string.c_str());
+    }
+    kill_feed_timer_ += GetApp().GetDeltaTime().GetSeconds();
+    if (kill_feed_timer_ >= kMaxKillFeedTimer)
+    {
+        // remove the first value from the array of strings
+        kill_feed_timer_ = 0.0f;
+        kill_feed_info_.erase(kill_feed_info_.begin());
+    }
+    debug::LogDebug("{}", kill_feed_info_.size());
+}
+
+void GameStateService::KillFeed(const ImGuiWindowFlags& flags)
+{
+    ImVec2 screenPos =
+        ImVec2(ImGui::GetIO().DisplaySize.x -
+                   ImGui::GetStyle().WindowPadding.x - ImGui::GetWindowWidth(),
+               ImGui::GetStyle().WindowPadding.y);
+    ImGui::SetNextWindowPos(screenPos);
+    ImGui::Begin("Kill Feed", nullptr, flags);
+
+    auto& states = player_states_;
+    for (const auto& player_state : states)
+    {
+        if (!player_state.second)
+        {
+            continue;
+        }
+        if (player_state.second->IsDead())
+        {
+            kill_feed_info_.push_back(
+                (player_state.second->GetPlayerWhoShotMe() + " killed " +
+                 player_state.second->GetPlayerName()));
+        }
+    }
+
+    DisplayKillFeed();
+    ImGui::End();
+}
+
 void GameStateService::OnGui()
 {
     if (race_state_.state == GameState::kNotRunning)
@@ -162,6 +212,9 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs;
+
+    // Kill Feed
+    KillFeed(flags);
 
     if (physics_service_->GetPaused())
     {
@@ -1097,7 +1150,8 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     kart_entity.AddComponent<AudioEmitter>();
 
     auto& player_state = kart_entity.AddComponent<PlayerState>();
-
+    player_state.SetPlayerName(entity_name);
+    player_states_.insert_or_assign(index, &player_state);
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
     vehicle.SetVehicleName(entity_name);
     vehicle.SetPlayerStateData(*player_state.GetStateData());
