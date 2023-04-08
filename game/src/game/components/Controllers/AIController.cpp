@@ -102,7 +102,15 @@ void AIController::OnUpdate(const Timestep& delta_time)
     if (game_state_service_->GetRaceState()
             .countdown_elapsed_time.GetSeconds() <=
         game_state_service_->GetMaxCountdownSeconds())
+    {
         return;
+    }
+    
+    // do nothing when dead
+    if (player_state_->IsDead())
+    {
+       return;
+    }
 
     glm::vec3 current_car_position = transform_->GetPosition();
     glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
