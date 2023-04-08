@@ -59,7 +59,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         {
             // player can't move while deadge
             auto& vehicle_state = vehicle_->GetVehicle().mBaseState;
-            auto& wheel_states =vehicle_state.wheelRigidBody1dStates;
+            auto& wheel_states = vehicle_state.wheelRigidBody1dStates;
             float& wheel_speed = wheel_states->rotationSpeed = 0.0f;
 
             float delta_time_seconds =
@@ -92,9 +92,10 @@ bool PlayerState::IsDead() const
 {
     return player_state_.is_dead;
 }
+
 float PlayerState::GetDeathCooldown() const
 {
-    return death_cooldown_; 
+    return death_cooldown_;
 }
 
 float PlayerState::GetSpeedMultiplier() const
@@ -183,18 +184,25 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    if (!physics_service_->GetPaused())
+    if (physics_service_->GetPaused())
     {
-        player_state_.current_powerup = type;
-        audio_emitter_->PlaySource("pickup_get_01.ogg");
+        return;
     }
+
+    player_state_.current_powerup = type;
+
+    if (type != PowerupPickupType::kDefaultPowerup)
+        audio_emitter_->PlaySource("pickup_get_01.ogg");
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
 {
-    if (this)
-        player_state_.current_ammo_type = type;
-    /* audio_emitter_->PlaySource("pickup_get_02.ogg"); */
+    player_state_.current_ammo_type = type;
+
+    if (type != AmmoPickupType::kDefaultAmmo)
+    {
+        audio_emitter_->PlaySource("pickup_get_02.ogg");
+    }
 }
 
 void PlayerState::SetLapsCompleted(int laps)
