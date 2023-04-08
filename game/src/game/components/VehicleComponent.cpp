@@ -129,7 +129,6 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     HandleVehicleTransform();
     UpdateGrounded();
-    CheckDeathRespawn();
     CheckAutoRespawn(delta_time);
 }
 
