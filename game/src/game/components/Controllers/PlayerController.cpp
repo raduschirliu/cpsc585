@@ -31,7 +31,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     pickup_service_ = &service_provider.GetService<PickupService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
-    player_data_ = &GetEntity().GetComponent<PlayerState>();
+    player_state_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
 
@@ -49,10 +49,12 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         return;
     }
 
-    if (player_data_->IsDead())
+    // do nothing when dead
+    if (player_state_->IsDead())
     {
         return;
     }
+
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
     CheckShoot(delta_time);
@@ -84,14 +86,14 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 {
     if (input_service_->IsKeyDown(GLFW_KEY_SPACE))
     {
-        if (player_data_->GetCurrentPowerup() ==
+        if (player_state_->GetCurrentPowerup() ==
             PowerupPickupType::kDefaultPowerup)
         {
             return;
         }
         else
         {
-            switch (player_data_->GetCurrentPowerup())
+            switch (player_state_->GetCurrentPowerup())
             {
                 case PowerupPickupType::kDisableHandling:
                     // handle executing the powerup
