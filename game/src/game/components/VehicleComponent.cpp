@@ -17,6 +17,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/audio/AudioEmitter.h"
+#include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
 using glm::vec3;
@@ -45,9 +46,11 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     // service and component dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
-    transform_ = &GetEntity().GetComponent<Transform>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+
+    transform_ = &GetEntity().GetComponent<Transform>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+    player_state_ = &GetEntity().GetComponent<PlayerState>();
 
     // reset cooldown
     respawn_timer_ = 0.0f;
@@ -322,7 +325,7 @@ void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
 
 void VehicleComponent::CheckDeathRespawn()
 {
-    if (player_data_->is_dead)
+    if (player_state_->IsDead() && player_state_->GetDeathCooldown() == 0.0f)
     {
         Respawn();
     }

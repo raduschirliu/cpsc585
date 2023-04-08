@@ -62,6 +62,10 @@ class VehicleComponent final : public Component,
     void UpdateRespawnOrientation(const glm::vec3& next_checkpoint,
                                   const glm::vec3& checkpoint);
 
+
+    /// The vehicle with direct drivetrain
+    snippetvehicle2::DirectDriveVehicle vehicle_;
+    
     /// The mapping between PxMaterial and friction.
     physx::vehicle2::PxVehiclePhysXMaterialFriction
         gPhysXMaterialFrictions_[16];
@@ -81,8 +85,8 @@ class VehicleComponent final : public Component,
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
-    /// The vehicle with direct drivetrain
-    snippetvehicle2::DirectDriveVehicle vehicle_;
+    jss::object_ptr<PlayerState> player_state_;
 };
