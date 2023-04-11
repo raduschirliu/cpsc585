@@ -63,19 +63,9 @@ void PlayerHud::OnGui()
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.f, 0.1f, 1.f));
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.6f, 0.4f, 1.f));
-    ImGui::ProgressBar(player_state_->GetHealth(), ImVec2(400, 30), "");
+    ImGui::ProgressBar(player_state_->GetHealth() / 100.0f, ImVec2(400, 30),
+                       "");
     ImGui::PopStyleColor(2);
-
-    // ImGui::Text("Checkpoint: %d/%lu", player_state_->GetLastCheckpoint(),
-    //             game_state_service_->GetNumCheckpoints());
-    // if (vehicle_->GetGear() == VehicleGear::kForward)
-    // {
-    //     ImGui::Text("Gear: Drive");
-    // }
-    // else
-    // {
-    //     ImGui::Text("Gear: Reverse");
-    // }
 
     ImGui::Spacing();
 
