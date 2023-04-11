@@ -15,6 +15,8 @@ using std::make_unique;
 using std::string;
 using std::string_view;
 
+static bool music_enabled;
+
 void Setting::OnInit(const ServiceProvider& service_provider)
 {
     // Dependencies
@@ -29,6 +31,8 @@ void Setting::OnInit(const ServiceProvider& service_provider)
     home_button_ = &asset_service_->GetTexture("home_button");
 
     font_cookie_ = gui_service_->GetFont("cookie");
+
+    music_enabled = true;
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -63,25 +67,29 @@ void Setting::OnGui()
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
 
     // Game setting elements
-    static bool check = true;
     ImGui::PushStyleColor(ImGuiCol_CheckMark, ImVec4(0.f, 0.f, 0.f, 1.f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.f, 1.f, 1.f, 1.f));
     ImGui::PushFont(font_cookie_);
-    ImGui::Checkbox("Music", &check);
+    ImGui::Checkbox("Music", &music_enabled);
     ImGui::PopFont();
     ImGui::PopStyleColor(2);
     ImGui::PopStyleVar();
 
-    // TODO: hook up audio button to where the background music plays
-    // if (check)  // working in a weird way lol
-    // {
-    //     audio_service_->SetMusic("test_music.ogg");
-    //     audio_service_->PlayMusic();
-    // }
-    // else
-    // {
-    //     audio_service_->StopMusic();
-    // }
+    if (music_enabled)
+    {
+        if (!audio_service_->IsPlayingMusic())
+        {
+            audio_service_->SetMusic("test_music.ogg");
+            audio_service_->PlayMusic();
+        }
+    }
+    else
+    {
+        if (audio_service_->IsPlayingMusic())
+        {
+            audio_service_->StopMusic();
+        }
+    }
 
     ImGui::End();
 
