@@ -142,6 +142,9 @@ class AudioService final : public Service
      */
     void SetMusicGain(float gain);
 
+    /// @return whether or not music is currently playing
+    bool IsPlayingMusic();
+
     /**
      *  offsets the pitch of an audio file.
      *

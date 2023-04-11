@@ -225,6 +225,7 @@ void AudioService::StopSource(std::string file_name)
 {
     ALuint source = non_diegetic_sources_[file_name].first;
     alSourceStop(source);
+    alDeleteSources(1, &source);
 }
 
 void AudioService::StopSource(uint32_t entity_id, std::string file_name)
@@ -243,13 +244,6 @@ void AudioService::StopAllSources()
 
 void AudioService::StopMusic()
 {
-    std::string file_name = music_source_.first;
-    if (!SourceExists(file_name))
-    {
-        debug::LogError("Music wasn't set yet.");
-        return;
-    }
-
     ALuint source = music_source_.second.first;
     alSourceStop(source);
 }
@@ -457,6 +451,24 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
     if (CheckAlError())
     {
         debug::LogError("Couldn't set listener orientation.");
+    }
+}
+
+bool AudioService::IsPlayingMusic()
+{
+    ALuint source = music_source_.second.first;
+    ALint state;
+
+    alGetSourcei(source, AL_SOURCE_STATE, &state);
+
+    switch (state)
+    {
+        case AL_PLAYING:
+            return true;
+        case AL_PAUSED:
+        case AL_STOPPED:
+        default:
+            return false;
     }
 }
 
