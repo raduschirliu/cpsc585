@@ -430,7 +430,7 @@ float VehicleComponent::GetWheelSpeed() const
 
 float VehicleComponent::GetDrivePitch() const
 {
-   return glm::clamp(0.5f + GetWheelSpeed() / 400.0f, 0.0f, 1.2f); 
+    return glm::clamp(0.5f + GetWheelSpeed() / 400.0f, 0.0f, 1.2f);
 }
 
 bool VehicleComponent::IsGrounded() const
