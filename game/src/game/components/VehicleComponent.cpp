@@ -67,7 +67,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
     // init sounds
     audio_emitter_->AddSource(kDrivingAudio);
-    audio_emitter_->SetGain(kDrivingAudio, 0.05f);
+    audio_emitter_->SetGain(kDrivingAudio, 0.07f);
     audio_emitter_->SetLoop(kDrivingAudio, true);
     audio_emitter_->PlaySource(kDrivingAudio);
 
@@ -127,6 +127,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         debug::LogInfo("Reloaded vehicle params from JSON files...");
     }
 
+    audio_emitter_->SetPitch(kDrivingAudio, GetDrivePitch());
     HandleVehicleTransform();
     UpdateGrounded();
     CheckAutoRespawn(delta_time);
@@ -420,6 +421,16 @@ float VehicleComponent::GetSpeed() const
     const vec3 velocity =
         PxToGlm(vehicle_.mPhysXState.physxActor.rigidBody->getLinearVelocity());
     return glm::length(velocity);
+}
+
+float VehicleComponent::GetWheelSpeed() const
+{
+    return abs(vehicle_.mBaseState.wheelRigidBody1dStates->rotationSpeed);
+}
+
+float VehicleComponent::GetDrivePitch() const
+{
+   return glm::clamp(0.5f + GetWheelSpeed() / 400.0f, 0.0f, 1.2f); 
 }
 
 bool VehicleComponent::IsGrounded() const
