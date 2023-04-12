@@ -192,7 +192,9 @@ void PlayerState::SetCurrentPowerup(PowerupPickupType type)
     player_state_.current_powerup = type;
 
     if (type != PowerupPickupType::kDefaultPowerup)
+    {
         audio_emitter_->PlaySource("pickup_get_01.ogg");
+    }
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
