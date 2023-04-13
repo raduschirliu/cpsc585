@@ -21,7 +21,8 @@ static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 0.1f;
-static constexpr float kHanldingMultiplier = 0.0f;
+static constexpr float kHandlingMultiplier = 0.0f;
+static float shoot_cooldown;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
@@ -33,6 +34,8 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     player_data_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
+
+    shoot_cooldown = 0.0f;
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -62,9 +65,9 @@ std::string_view PlayerController::GetName() const
 
 void PlayerController::CheckShoot(const Timestep& delta_time)
 {
-    if (shoot_cooldown_ > 0.0f)
+    if (shoot_cooldown > 0.0f)
     {
-        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
+        shoot_cooldown -= static_cast<float>(delta_time.GetSeconds());
         return;
     }
 
@@ -73,7 +76,7 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
                                                GLFW_GAMEPAD_BUTTON_B))
     {
         shooter_->Shoot();
-        shoot_cooldown_ = shooter_->GetCooldownTime();
+        shoot_cooldown = shooter_->GetCooldownTime();
     }
 }
 
@@ -168,7 +171,7 @@ float PlayerController::GetSteerDirection()
     if (input_service_->IsKeyDown(GLFW_KEY_A))
     {
         if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
-            return 1.0f * kHanldingMultiplier;
+            return 1.0f * kHandlingMultiplier;
         else
         {
             return 1.0f;
@@ -177,7 +180,7 @@ float PlayerController::GetSteerDirection()
     else if (input_service_->IsKeyDown(GLFW_KEY_D))
     {
         if (pickup_service_->IsVehicleDisableHandling(&GetEntity()))
-            return -1.0f * kHanldingMultiplier;
+            return -1.0f * kHandlingMultiplier;
         else
             return -1.0f;
     }
