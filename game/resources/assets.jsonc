@@ -85,6 +85,12 @@
     ],
 
     "textures": [
+        /* Generic */
+        {
+            "path": "resources/textures/blank.jpg",
+            "name": "blank"
+        },
+
         /* UI */
         {
             "path": "resources/textures/ui/main.png",

@@ -546,7 +546,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("coin"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -558,7 +558,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("energy"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -571,7 +571,8 @@ void GameStateService::SetupPowerups()
                 //     mesh_renderer.SetMesh({
                 //         &asset_service_->GetMesh("defence"),
                 //         MaterialProperties{
-                //             .albedo_texture = nullptr,
+                //             .albedo_texture =
+                //             &asset_service_->GetTexture("blank"),
                 //             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                 //             .specular = vec3(1.0f, 1.0f, 1.0f),
                 //             .shininess = 64.0f,
@@ -584,7 +585,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("defence_shield"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -647,7 +648,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("buckshot"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -659,7 +660,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("damage"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -672,7 +673,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("exploding"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -685,7 +686,7 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("increase"),
                     MaterialProperties{
-                        .albedo_texture = nullptr,
+                        .albedo_texture = &asset_service_->GetTexture("blank"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,

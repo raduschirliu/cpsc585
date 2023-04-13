@@ -5,6 +5,9 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/RenderService.h"
+
+using glm::vec3;
 
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
@@ -12,13 +15,16 @@ static constexpr float kBaseDamage = 10.0f;
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
 static constexpr double kMaxTimer = 4.0f;
+static constexpr float kLaserLifetime = 1.0f;
+static constexpr float kLaserSize = 1.0f;
+static constexpr float kLaserRange = 1000.0f;
 
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    glm::vec3 fwd_direction = transform_->GetForwardDirection();
-    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
-    glm::vec3 origin = transform_->GetPosition() + offset;
+    vec3 fwd_direction = transform_->GetForwardDirection();
+    vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
+    vec3 origin = transform_->GetPosition() + offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
@@ -61,36 +67,30 @@ void Shooter::Shoot()
     }
 }
 
-void Shooter::ShootDefault(const glm::vec3& origin,
-                           const glm::vec3& fwd_direction)
+void Shooter::ShootDefault(const vec3& origin, const vec3& fwd_direction)
 {
     // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    if (target_data_ && !target_data_.has_value())
-    {
-        uint32_t entity_id = GetEntity().GetId();
-        return;
-    }
-    else
-    {
-    }
+    vec3 laser_target = origin + fwd_direction * kLaserRange;
 
     // get the entity that was hit
     if (target_data_)
     {
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
+        laser_target = target_data_value.position;
 
         UpdateOnHit();
     }
+
+    CreateLaser(origin, laser_target);
 }
 
-void Shooter::ShootBuckshot(const glm::vec3& origin,
-                            const glm::vec3& fwd_direction)
+void Shooter::ShootBuckshot(const vec3& origin, const vec3& fwd_direction)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0, 1);
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
     std::vector<std::optional<RaycastData>> target_datas;
     // as we want the shots to scatter
@@ -99,8 +99,8 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
         std::array<float, 3> spread = {dis(gen) / 4.0f, dis(gen) / 4.0f,
                                        dis(gen) / 4.0f};
         target_data_ = physics_service_->RaycastDynamic(
-            origin, glm::normalize(fwd_direction +
-                                   glm::vec3(spread[0], 0.0f, spread[2])));
+            origin,
+            glm::normalize(fwd_direction + vec3(spread[0], 0.0f, spread[2])));
         if (!target_data_ && !target_data_.has_value())
         {
             // do nothing as this raycast failed...
@@ -133,8 +133,7 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
 }
 
 /// @brief handles the vampire bullets
-void Shooter::ShootVampire(const glm::vec3& origin,
-                           const glm::vec3& fwd_direction)
+void Shooter::ShootVampire(const vec3& origin, const vec3& fwd_direction)
 {
     // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
@@ -148,8 +147,7 @@ void Shooter::ShootVampire(const glm::vec3& origin,
 }
 
 /// @brief handles the double damage bullets
-void Shooter::ShootDoubleDamage(const glm::vec3& origin,
-                                const glm::vec3& fwd_direction)
+void Shooter::ShootDoubleDamage(const vec3& origin, const vec3& fwd_direction)
 {
     // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
@@ -164,8 +162,7 @@ void Shooter::ShootDoubleDamage(const glm::vec3& origin,
 }
 
 /// @brief handles the exploading damage bullets
-void Shooter::ShootExploading(const glm::vec3& origin,
-                              const glm::vec3& fwd_direction)
+void Shooter::ShootExploading(const vec3& origin, const vec3& fwd_direction)
 {
     // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
@@ -284,6 +281,31 @@ float Shooter::GetAmmoDamage()
     return damage_multiplier * kBaseDamage;
 }
 
+void Shooter::CreateLaser(const vec3& origin, const vec3& target)
+{
+    laser_.lifetime = kLaserLifetime;
+    laser_.origin = origin;
+    laser_.target = target;
+
+    // Create new mesh
+    const vec3 fwd_dir = glm::normalize(target - origin);
+    const vec3 up_dir = transform_->GetUpDirection();
+    const vec3 right_dir = glm::normalize(glm::cross(fwd_dir, up_dir));
+
+    const vec3 horiz_offset = right_dir * (kLaserSize / 2.0f);
+    const vec3 vert_offset = up_dir * (kLaserSize / 2.0f);
+
+    laser_.mesh.front.top_left = origin - horiz_offset + vert_offset;
+    laser_.mesh.front.top_right = origin + horiz_offset + vert_offset;
+    laser_.mesh.front.bot_left = origin - horiz_offset - vert_offset;
+    laser_.mesh.front.bot_right = origin + horiz_offset - vert_offset;
+
+    laser_.mesh.back.top_left = target - horiz_offset + vert_offset;
+    laser_.mesh.back.top_right = target + horiz_offset + vert_offset;
+    laser_.mesh.back.bot_left = target - horiz_offset - vert_offset;
+    laser_.mesh.back.bot_right = target + horiz_offset - vert_offset;
+}
+
 float RandomPitchValue()
 {
     std::random_device seed;
@@ -302,6 +324,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     debug::LogInfo("{} Component - Init", GetName());
 
     // service dependencies
+    render_service_ = &service_provider.GetService<RenderService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
     audio_service_ = &service_provider.GetService<AudioService>();
 
@@ -355,5 +378,13 @@ void Shooter::OnUpdate(const Timestep& delta_time)
                 player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
             }
         }
+    }
+
+    // Draw lasers
+    if (laser_.lifetime > 0.0f)
+    {
+        laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
+        render_service_->GetDebugDrawList().AddCuboid(laser_.mesh,
+                                                      Color4u(255, 0, 0, 255));
     }
 }

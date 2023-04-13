@@ -58,7 +58,7 @@ class PhysicsService final : public Service,
 
     bool show_debug_menu_ = false;
     bool debug_draw_scene_ = false;
-    bool debug_draw_raycast_ = true;
+    bool debug_draw_raycast_ = false;
     bool display_pause_ = false;
     double prev_time_;
     int tick_rate_;
