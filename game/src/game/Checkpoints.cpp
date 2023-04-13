@@ -7,8 +7,11 @@
 #include <unordered_set>
 #include <utility>
 
+#include "engine/core/debug/Log.h"
+
 std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
 {
+    debug::LogInfo("loaded checkpoints from file");
     // import the checkpoints from the navmesh points.
     std::fstream file;
     file.open("resources/checkpoints/checkpoints.obj", std::ios::in);
