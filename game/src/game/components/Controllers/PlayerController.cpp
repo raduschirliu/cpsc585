@@ -27,7 +27,6 @@ static constexpr float kSpeedMultiplier = 0.1f;
 static constexpr float kHandlingMultiplier = 0.0f;
 static const std::string kPickupActivateSFX = "pickup_get_02.ogg";
 
-static float shoot_cooldown;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
@@ -39,10 +38,6 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
-    audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
-
-    shoot_cooldown = 0.0f;
-    audio_emitter_->AddSource(kPickupActivateSFX);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -73,10 +68,11 @@ std::string_view PlayerController::GetName() const
 }
 
 void PlayerController::CheckShoot(const Timestep& delta_time)
+
 {
-    if (shoot_cooldown > 0.0f)
+    if (shoot_cooldown_ > 0.0f)
     {
-        shoot_cooldown -= static_cast<float>(delta_time.GetSeconds());
+        shoot_cooldown_-= static_cast<float>(delta_time.GetSeconds());
         return;
     }
 
@@ -85,7 +81,7 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
                                                GLFW_GAMEPAD_BUTTON_B))
     {
         shooter_->Shoot();
-        shoot_cooldown = shooter_->GetCooldownTime();
+        shoot_cooldown_ = shooter_->GetCooldownTime();
     }
 }
 
@@ -101,7 +97,7 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 
         audio_emitter_->PlaySource("pickup_get_01.ogg");
 
-        // handle executing the powerup
+        // handle execting the powerup
         switch (player_state_->GetCurrentPowerup())
         {
             case kDisableHandling:
