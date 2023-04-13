@@ -162,9 +162,6 @@ void AIController::FixRespawnOrientation(const glm::vec3& next_checkpoint,
 
 void AIController::HandleRespawn(const Timestep& delta_time)
 {
-    // if the velocity of car is less than some amount then respawn the car.
-    HandleMinSpeedThresholdRespawn(delta_time);
-
     // if the car falls off the map
     HandleFreefallRespawn(delta_time);
 
@@ -201,50 +198,6 @@ void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
             return;
 
         vehicle_->Respawn();
-
-        // transform_->SetPosition(checkpoint_location);
-        // FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // // add this car's id to respawn, which will be handled by the
-        // // gamestateservice
-        // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
-    }
-}
-
-void AIController::HandleMinSpeedThresholdRespawn(const Timestep& delta_time)
-{
-    if (vehicle_->GetSpeed() < kMinRespawnSpeed)
-    {
-        respawn_timer_min_speed += delta_time.GetSeconds();
-        if (respawn_timer_min_speed >= kMaxRespawnTimer)
-        {
-            // reset the transform to that of the checkpoint
-            glm::vec3 checkpoint_location;
-            glm::vec3 next_checkpoint_location;
-
-            int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
-                this->GetEntity().GetId(), checkpoint_location,
-                next_checkpoint_location);
-
-            if (current_checkpoint == -1)
-                return;
-
-            vehicle_->Respawn();
-
-            // transform_->SetPosition(checkpoint_location);
-            // FixRespawnOrientation(next_checkpoint_location,
-            //                       checkpoint_location);
-            // // add this car's id to respawn, which will be handled by the
-            // // gamestateservice
-            // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
-
-            // as now we do not want the AI to get in an infinite respawn loop.
-            respawn_tracker_ = true;
-        }
-    }
-    else
-    {
-        // reset the timer back
-        respawn_timer_min_speed = 0.0f;
     }
 }
 
@@ -266,13 +219,6 @@ void AIController::HandleFreefallRespawn(const Timestep& delta_time)
             return;
 
         vehicle_->Respawn();
-
-        // transform_->SetPosition(checkpoint_location);
-        // FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // // as this indicates that the car has fallen off the map, respawn it
-        // to
-        // // the previous checkpoint
-        // game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
     }
 }
 
@@ -300,13 +246,9 @@ void AIController::CheckShoot(const Timestep& delta_time)
 // Decision for Powerup.
 void AIController::PowerupDecision()
 {
-    // srand(time(0));
-    // as this is happening every loop, we need to make sure that the
+        // as this is happening every loop, we need to make sure that the
     // probability to execute the powerup is really low
     int probability_powerup_execution = (rand() % 100);
-
-    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(),
-    // probability_powerup_execution);
 
     if (probability_powerup_execution == 99)
     {

@@ -94,7 +94,6 @@ class AIController final : public Component,
 
     double respawn_timer_min_speed = 0.f;
     void HandleRespawn(const Timestep& delta_time);
-    void HandleMinSpeedThresholdRespawn(const Timestep& delta_time);
     void HandleFreefallRespawn(const Timestep& delta_time);
     void HandleMissedCheckpointRespawn(const Timestep& delta_time);
     void FixRespawnOrientation(const glm::vec3& next_checkpoint_location,
