@@ -571,7 +571,7 @@ void GameStateService::SetupPowerups()
                     },
                 });
                 break;
-                
+
             case PowerupPickupType::kEveryoneSlower:
                 entity.AddComponent<EveryoneSlowerPickup>();
                 mesh_renderer.SetMesh({
