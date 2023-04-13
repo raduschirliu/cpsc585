@@ -33,39 +33,39 @@
 
         /* Pickups */
         {
-            "path": "resources/models/pickups/ability.obj",
+            "path": "resources/models/pickups/ability.gltf",
             "name": "ability"
         },
         {
-            "path": "resources/models/pickups/aimBox.obj",
+            "path": "resources/models/pickups/aimBox.gltf",
             "name": "aimBox"
         },
         {
-            "path": "resources/models/pickups/handling.obj",
+            "path": "resources/models/pickups/handling.gltf",
             "name": "handling"
         },
         {
-            "path": "resources/models/pickups/slow.obj",
+            "path": "resources/models/pickups/slow.gltf",
             "name": "slow"
         },
         {
-            "path": "resources/models/pickups/buckshot.obj",
+            "path": "resources/models/pickups/buckshot.gltf",
             "name": "buckshot"
         },
         {
-            "path": "resources/models/pickups/damage.obj",
+            "path": "resources/models/pickups/damage.gltf",
             "name": "damage"
         },
         {
-            "path": "resources/models/pickups/exploding.obj",
+            "path": "resources/models/pickups/exploding.gltf",
             "name": "exploding"
         },
         {
-            "path": "resources/models/pickups/increase.obj",
+            "path": "resources/models/pickups/increase.gltf",
             "name": "increase"
         },
         {
-            "path": "resources/models/pickups/vampire.obj",
+            "path": "resources/models/pickups/vampire.gltf",
             "name": "vampire"
         },
 

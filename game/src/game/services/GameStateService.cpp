@@ -235,7 +235,8 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 160, 22));
+        ImGui::SetNextWindowPos(
+            ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 160, 22));
         ImGui::Begin("Penalty", nullptr, flags);
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.0f, 1.0f));
@@ -570,6 +571,7 @@ void GameStateService::SetupPowerups()
                     },
                 });
                 break;
+                
             case PowerupPickupType::kEveryoneSlower:
                 entity.AddComponent<EveryoneSlowerPickup>();
                 mesh_renderer.SetMesh({
