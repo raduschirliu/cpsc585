@@ -293,52 +293,6 @@ void GameApp::LoadTestScene(Scene& scene)
             },
         });
     }
-
-    // Disable Handling pickup
-    {
-        Entity& entity = scene.AddEntity("Disable Handling");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 5.0f, -100.0f));
-        auto& pickup = entity.AddComponent<DisableHandlingPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("defence"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
-
-    // Increase the size of aimbox
-    {
-        Entity& entity = scene.AddEntity("Aimbox increase");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
-        auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("coin"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
 }
 
 void GameApp::LoadTrack1Scene(Scene& scene)
@@ -455,29 +409,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
                 },
             },
         });
-    }
-
-    {
-        Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 2.0f, 80.0f));
-
-        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("energy"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 
     {

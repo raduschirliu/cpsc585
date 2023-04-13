@@ -54,9 +54,11 @@ void PlayerHud::OnGui()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollbar;
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
-                                   ImGui::GetIO().DisplaySize.y - 690));
+        ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollWithMouse |
+        ImGuiWindowFlags_NoDecoration;
+    // ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
+    //                                ImGui::GetIO().DisplaySize.y - 690));
+    ImGui::SetNextWindowPos(ImVec2(30, 30));
     ImGui::Begin("Vehicle", nullptr, flags);
 
     ImVec2 pos = ImGui::GetCursorPos();
@@ -129,7 +131,7 @@ void PlayerHud::OnGui()
         }
     }
 
-    ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 600));
+    ImGui::SetCursorPos(ImVec2(pos.x, ImGui::GetIO().DisplaySize.y - 120));
     ImGui::PushFont(font_);
     ImGui::Text("LAP: %d/%lu", player_state_->GetLapsCompleted(),
                 game_state_service_->GetRaceConfig().num_laps);

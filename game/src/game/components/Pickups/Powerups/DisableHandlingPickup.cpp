@@ -54,7 +54,7 @@ void DisableHandlingPickup::OnUpdate(const Timestep& delta_time)
         start_timer_ = false;
         timer_ = 0.0f;
 
-        transform_->SetScale(glm::vec3(0.12f, 0.12f, 0.12f));
+        transform_->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
         SetPowerVisibility(true);
     }
 }
