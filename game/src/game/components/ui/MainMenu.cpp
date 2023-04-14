@@ -10,6 +10,8 @@
 #include "engine/scene/SceneDebugService.h"
 #include "game/services/GameStateService.h"
 
+static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
+
 using std::make_unique;
 using std::string;
 using std::string_view;
@@ -50,10 +52,27 @@ string_view MainMenu::GetName() const
     Documentation here: https://github.com/ocornut/imgui/wiki
  */
 
+void MainMenu::UpdateJoystickInput()
+{
+    int count;
+    const float* axes;
+    const unsigned char* buttons;
+    GLFWgamepadstate state;
+
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        //
+    }
+}
+
 void MainMenu::OnGui()
 {
-    // Configure where the window will be placed first, since we'll make it
-    // non-movable
+    // UpdateJoystickInput();
+    //  Configure where the window will be placed first, since we'll make it
+    //  non-movable
+
+    ImGuiIO& io = ImGui::GetIO();
+
     ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
@@ -170,5 +189,22 @@ void MainMenu::OnGui()
     // ImGui::PopStyleColor(1);
 
     ImGui::StyleColorsDark();
+
+    if (input_service_->IsGamepadActive(kGamepadId))
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io.NavInputs[ImGuiNavInput_Activate] = GLFW_GAMEPAD_BUTTON_A;
+        io.NavInputs[ImGuiNavInput_Cancel] = GLFW_GAMEPAD_BUTTON_B;
+        io.NavInputs[ImGuiNavInput_Menu] = GLFW_GAMEPAD_BUTTON_START;
+        io.NavInputs[ImGuiNavInput_DpadLeft] = GLFW_GAMEPAD_BUTTON_DPAD_LEFT;
+        io.NavInputs[ImGuiNavInput_DpadRight] = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT;
+        io.NavInputs[ImGuiNavInput_DpadUp] = GLFW_GAMEPAD_BUTTON_DPAD_UP;
+        io.NavInputs[ImGuiNavInput_DpadDown] = GLFW_GAMEPAD_BUTTON_DPAD_DOWN;
+        io.NavInputs[ImGuiNavInput_LStickLeft] = -GLFW_GAMEPAD_AXIS_LEFT_X;
+        io.NavInputs[ImGuiNavInput_LStickRight] = GLFW_GAMEPAD_AXIS_LEFT_X;
+        io.NavInputs[ImGuiNavInput_LStickUp] = -GLFW_GAMEPAD_AXIS_LEFT_Y;
+        io.NavInputs[ImGuiNavInput_LStickDown] = GLFW_GAMEPAD_AXIS_LEFT_Y;
+    }
+
     ImGui::End();
 }

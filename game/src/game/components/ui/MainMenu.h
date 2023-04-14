@@ -19,6 +19,7 @@ class MainMenu final : public Component, public IEventSubscriber<OnGuiEvent>
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
     std::string_view GetName() const override;
+    void UpdateJoystickInput();
 
     // From IEventSubscriber<OnGuiEvent>
     void OnGui() override;
