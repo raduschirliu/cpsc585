@@ -1,6 +1,8 @@
 #include "AudioService.h"
 
 #include "engine/core/debug/Log.h"
+#include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 #include "engine/service/ServiceProvider.h"
 #include "stb/stb_vorbis.h"
 
@@ -38,19 +40,23 @@ void AudioService::AddSource(std::string file_name)
 
     // create and initialise source
     ALuint source;
+
+    // set default properties
     alGenSources(1, &source);
     alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+    alSourcei(source, AL_BUFFER, buffer);
 
-    SourceBufferPair source_buffer_pair = {source, buffer};
+    alSourcei(source, AL_SOURCE_RELATIVE, 0);  // set the position relative to
+                                               // and on the listener
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't create audio source for {}", file_name);
-        debug::LogError("Couldn't create audio source for {}", file_name);
         return;
     }
 
+    // add to source map
+    SourceBufferPair source_buffer_pair = {source, buffer};
     non_diegetic_sources_.insert({file_name, source_buffer_pair});
 }
 
@@ -70,26 +76,26 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     {
         debug::LogError("Couldn't buffer audio data for {}.", file_name);
         return;
-        return;
     }
 
     // create and initialise source
     ALuint source;
+
+    // set default properties
     alGenSources(1, &source);
     alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+    alSourcei(source, AL_BUFFER, buffer);
 
-    // set properties for spatial audio
-    alSourcef(source, AL_MAX_DISTANCE, 500.0f);  // distance until silent
-    alSourcef(source, AL_REFERENCE_DISTANCE, 150.0f);
-    alSourcef(source, AL_ROLLOFF_FACTOR, 0.6f);
+    // spatial properties
+    alSourcef(source, AL_MAX_DISTANCE, 500.0f);        // distance until silent
+    alSourcef(source, AL_REFERENCE_DISTANCE, 150.0f);  // ... until gain halfed
+    alSourcef(source, AL_ROLLOFF_FACTOR, 0.6f);        // rolloff rate
 
     SourceBufferPair source_buffer_pair = {source, buffer};
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't create source for {}", file_name);
-        return;
         return;
     }
 
@@ -130,8 +136,9 @@ void AudioService::SetMusic(std::string file_name)
     // create and initialise source
     ALuint source;
     alGenSources(1, &source);
-    // don't want to loop just one buffer
-    alSourcei(source, AL_LOOPING, AL_FALSE);
+
+    alSourcei(source, AL_LOOPING, AL_FALSE);  // don't want to only loop
+                                              // the first buffer
 
     if (CheckAlError())
     {
@@ -161,7 +168,7 @@ void AudioService::PlaySource(std::string file_name)
         AddSource(file_name);  // we'll set it here just to be nice
     }
 
-    // find the source
+    // get the source
     ALuint source;
     source = non_diegetic_sources_[file_name].first;
 
@@ -184,7 +191,7 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
         return;
     }
 
-    // find the source
+    // get the source
     ALuint source;
     source = diegetic_sources_[entity_id][file_name].first;
 
@@ -203,7 +210,7 @@ void AudioService::PlayMusic()
     //  music wasn't set yet
     if (music_source_.first == "")
     {
-        debug::LogWarn("Source wasn't set yet");
+        debug::LogWarn("Music wasn't set yet");
         return;
     }
 
@@ -432,20 +439,36 @@ void AudioService::SetSourcePosition(uint32_t entity_id, glm::vec3 position)
     }
 }
 
-void AudioService::SetListenerPosition(glm::vec3 position)
+void AudioService::SetListener(Entity& listener)
 {
+    listener_ = &listener;
+}
+
+void AudioService::UpdateListener()
+{
+    if (!listener_ || !listener_->HasComponent<Transform>())
+    {
+        // leave listener properties as default (probably at origin)
+        return;
+    }
+
+    auto& transform = listener_->GetComponent<Transform>();
+
+    glm::vec3 position = transform.GetPosition();
+
+    glm::vec3 forward = transform.GetForwardDirection();
+    glm::vec3 up = transform.GetUpDirection();
+
+    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
+                             up.x,      up.y,      up.z};      //
+
     alListener3f(AL_POSITION, position.x, position.y, position.z);
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't set listener position.");
     }
-}
 
-void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
-{
-    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
-                             up.x,      up.y,      up.z};      //
     alListenerfv(AL_ORIENTATION, orientation);
 
     if (CheckAlError())
@@ -503,7 +526,6 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
     return audio_file;
 }
 
-// TODO (but low priority): cull diegetic sources too
 void AudioService::CullSources()
 {
     // iterate through active sources
@@ -750,8 +772,8 @@ void AudioService::OnUpdate()
         UpdateStreamBuffer();
     }
 
-    // clear sources not playing
-    CullSources();
+    CullSources();     // clear sources not playing
+    UpdateListener();  // the listener's position and orientation
 }
 
 void AudioService::OnCleanup()

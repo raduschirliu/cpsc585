@@ -6,6 +6,7 @@
 #include <map>
 
 #include "AudioFile.h"
+#include "engine/fwd/FwdServices.h"
 #include "engine/service/Service.h"
 
 class AudioService final : public Service
@@ -14,26 +15,20 @@ class AudioService final : public Service
     /* ----- sfx playback ----- */
 
     /**
-     *  add a source to play an audio file from.
-     *
-     *  @param file_name name of the audio file to set a source to.
-     */
-    void AddSource(std::string file_name);
-
-    /**
-     *  add a 3D source to play an audio file from, identified by an entity's
-     * id.
+     *  add a 3D source to play an audio file from, identified by
+     *  an entity's id.
      *
      *  @param entity_id the id of the entity to track its position from.
-     *
-     *  @overload
      */
     void AddSource(uint32_t entity_id, std::string file_name);
 
     /**
-     *  play an audio file through its source.
+     *  play an audio file through a 2D source.
      *
      *  @param file_name name of the audio file to play from.
+     *
+     *  @note automatically adds the source to play from,
+     *    just specify the audio file
      */
     void PlaySource(std::string file_name);
 
@@ -46,14 +41,14 @@ class AudioService final : public Service
     void PlaySource(uint32_t entity_id, std::string file_name);
 
     /**
-     *  stop a sources playback of an audio file.
+     *  stop a 2D sources playback of an audio file.
      *
      *  @param file_name name of the audio file to stop playback of.
      */
     void StopSource(std::string file_name);
 
     /**
-     *  stop a sources playback of an audio file, identified by
+     *  stop a 3D sources playback of an audio file, identified by
      *  its associated entity id.
      *
      *  @overload
@@ -172,24 +167,7 @@ class AudioService final : public Service
      */
     void SetSourcePosition(uint32_t entity_id, glm::vec3 position);
 
-    /* ----- listener properties ------ */
-
-    /**
-     *  set the position of the listener.
-     *
-     *  @param position the position to set the listener at.
-     */
-    void SetListenerPosition(glm::vec3 position);
-
-    /**
-     *  set the orientation of the listener.
-     *
-     *  @param forward the forward vector of the listener.
-     *  @param up the up vector of the listener.
-     *
-     *  @see SetListenerPosition
-     */
-    void SetListenerOrientation(glm::vec3 forward, glm::vec3 up);
+    void SetListener(Entity& listener);
 
     /* ----- from service ----- */
 
@@ -201,6 +179,25 @@ class AudioService final : public Service
     std::string_view GetName() const override;
 
   private:
+    /* ----- on update ----- */
+
+    /// @brief (if currently streaming music) checks if any stream buffers have
+    ///   been used and updates them accordingly.
+    void UpdateStreamBuffer();
+
+    /// update the position and orientation of the listener.
+    void UpdateListener();
+
+    /// deletes all currently inactive sources and buffers
+    void CullSources();
+
+    /* ----- backend ----- */
+
+    ///  @brief add a 2D source to play an audio file from.
+    ///  @param entity_id the id of the entity to track its position from.
+    ///  @see   AddSource(uint32_t, std::string)
+    void AddSource(std::string file_name);
+
     /**
      *  load an audiofile's data into memory from the appropriate directory.
      *
@@ -215,16 +212,6 @@ class AudioService final : public Service
      */
     AudioFile LoadAudioFile(std::string file_name, bool is_music);
 
-    /**
-     *  if currently streaming music checks if any stream buffers have been used
-     *  and updates them accordingly.
-     *
-     *  @note ideally called every timestep.
-     */
-    void UpdateStreamBuffer();
-
-    /// deletes all inactive sources and buffers
-    void CullSources();
     /// OpenAl error handling
     bool CheckAlError(std::string error_message = "");
 
@@ -255,14 +242,16 @@ class AudioService final : public Service
     ALCdevice* audio_device_;    // the sound device to output audio to.
     ALCcontext* audio_context_;  // like an openGL context.
 
-    /// all of the active 2D sound sources.
+    Entity* listener_;  // the entity that can "hear" all positional audio
+
     using SourceBufferPair = std::pair<ALuint, ALuint>;
     using FileName = std::string;
     using EntityID = uint32_t;
+    /// all of the active 2D sound sources.
     std::map<FileName, SourceBufferPair> non_diegetic_sources_;
 
-    /// all of the active 3D/spatial sound sources and their entity's id.
     using NameSourceMap = std::map<FileName, SourceBufferPair>;
+    /// all of the active 3D/spatial sound sources and their entity's id.
     std::map<EntityID, NameSourceMap> diegetic_sources_;
 
     /// the current music file to stream from

@@ -753,7 +753,6 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
-            audio_service_->AddSource("game_yay.ogg");
             audio_service_->PlaySource("game_yay.ogg");
 
             debug::LogInfo("Game over!");
