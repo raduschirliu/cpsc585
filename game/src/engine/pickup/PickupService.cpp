@@ -52,6 +52,7 @@ void PickupService::OnCleanup()
 
 void PickupService::OnSceneLoaded(Scene& scene)
 {
+    active_powerup_ = "";
 }
 
 std::string_view PickupService::GetName() const
@@ -75,6 +76,23 @@ void PickupService::HandleDisablingPowerup()
     // time.
     for (const auto& time : entity_timer_powerups_)
     {
+        if (entity_holding_powerups_[time.first] == "DisableHandling")
+        {
+            active_powerup_ = "DisableHandling";
+        }
+        else if (entity_holding_powerups_[time.first] == "EveryoneSlower")
+        {
+            active_powerup_ = "EveryoneSlower";
+        }
+        else if (entity_holding_powerups_[time.first] == "IncreaseAimBox")
+        {
+            active_powerup_ = "IncreaseAimBox";
+        }
+        else if (entity_holding_powerups_[time.first] == "KillAbilities")
+        {
+            active_powerup_ = "KillAbilities";
+        }
+
         if (!time.first)
         {
             continue;
@@ -379,4 +397,14 @@ bool PickupService::IsVehicleDisableHandling(Entity* entity)
     }
     // as this vehicle did not execute the powerup.
     return true;
+}
+
+std::string PickupService::GetActivePowerup()
+{
+    return active_powerup_;
+}
+
+void PickupService::SetActivePowerup(std::string powerup)
+{
+    active_powerup_ = powerup;
 }
