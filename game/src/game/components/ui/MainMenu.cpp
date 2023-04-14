@@ -52,22 +52,8 @@ string_view MainMenu::GetName() const
     Documentation here: https://github.com/ocornut/imgui/wiki
  */
 
-void MainMenu::UpdateJoystickInput()
-{
-    int count;
-    const float* axes;
-    const unsigned char* buttons;
-    GLFWgamepadstate state;
-
-    if (input_service_->IsGamepadActive(kGamepadId))
-    {
-        //
-    }
-}
-
 void MainMenu::OnGui()
 {
-    // UpdateJoystickInput();
     //  Configure where the window will be placed first, since we'll make it
     //  non-movable
 
