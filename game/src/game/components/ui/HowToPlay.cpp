@@ -25,7 +25,7 @@ void HowToPlay::OnInit(const ServiceProvider& service_provider)
     audio_service_ = &service_provider.GetService<AudioService>();
 
     instruction_ = &asset_service_->GetTexture("how_to_play");
-    home_button_ = &asset_service_->GetTexture("home_button");
+    next_button_ = &asset_service_->GetTexture("next_button");
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -68,10 +68,10 @@ void HowToPlay::OnGui()
                           ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
                           ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    if (ImGui::ImageButton("home button", home_button_->GetGuiHandle(),
+    if (ImGui::ImageButton("next button", next_button_->GetGuiHandle(),
                            ImVec2(40, 37)))
     {
-        scene_service_->SetActiveScene("MainMenu");
+        scene_service_->SetActiveScene("Powerups");
         audio_service_->AddSource("ui_pick_01.ogg");
         audio_service_->PlaySource("ui_pick_01.ogg");
     }

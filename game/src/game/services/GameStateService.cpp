@@ -126,6 +126,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
     pause_ = &asset_service_->GetTexture("pause");
+    minimap_ = &asset_service_->GetTexture("minimap");
 }
 
 void GameStateService::OnUpdate()
@@ -268,6 +269,12 @@ void GameStateService::OnGui()
         ImGui::PopFont();
         ImGui::PopStyleColor();
 
+        ImGui::End();
+
+        ImGui::SetNextWindowPos(
+            ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
+        ImGui::Begin("Minimap", nullptr, flags);
+        ImGui::Image(minimap_->GetGuiHandle(), ImVec2(200, 250));
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(220, ImGui::GetIO().DisplaySize.y - 95));

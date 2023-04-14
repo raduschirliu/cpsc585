@@ -147,8 +147,16 @@
             "name": "home_button"
         },
         {
+            "path": "resources/textures/ui/next_button.png",
+            "name": "next_button"
+        },
+        {
             "path": "resources/textures/ui/howToPlay.png",
             "name": "how_to_play"
+        },
+        {
+            "path": "resources/textures/ui/powerups.png",
+            "name": "powerups"
         },
         {
             "path": "resources/textures/ui/kill.png",
@@ -173,6 +181,10 @@
         {
             "path": "resources/textures/ui/pause.png",
             "name": "pause"
+        },
+        {
+            "path": "resources/textures/ui/minimap.png",
+            "name": "minimap"
         },
 
         /* Track Materials */

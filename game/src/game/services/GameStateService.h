@@ -167,6 +167,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     const Texture* increaseAimBox_;
     const Texture* killAbilities_;
     const Texture* pause_;
+    const Texture* minimap_;
 
     ImFont* font_beya_;
     ImFont* font_pado_;

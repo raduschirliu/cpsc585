@@ -19,5 +19,6 @@ class GameApp : public App
     void LoadTrack1Scene(Scene& scene);
     void LoadMainMenuScene(Scene& scene);
     void LoadHowToPlayScene(Scene& scene);
+    void LoadPowerupsScene(Scene& scene);
     void LoadSettingScene(Scene& scene);
 };
