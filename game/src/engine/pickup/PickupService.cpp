@@ -79,11 +79,14 @@ void PickupService::HandleDisablingPowerup()
         {
             continue;
         }
+
         auto& entity = time.first;
+
         if (!entity)
         {
             continue;
         }
+
         if (time.second >
             powerup_information_[entity_holding_powerups_[time.first]].time)
         {
@@ -96,6 +99,9 @@ void PickupService::HandleDisablingPowerup()
                     auto& player_state = entity->GetComponent<PlayerState>();
                     player_state.SetCurrentPowerup(
                         PowerupPickupType::kDefaultPowerup);
+
+                    auto& audio_emitter = entity->GetComponent<AudioEmitter>();
+                    audio_emitter.PlaySource("pickup_get_02.ogg");
                 }
                 not_disabled_entities_.erase(entity);
 
@@ -113,6 +119,9 @@ void PickupService::HandleDisablingPowerup()
                     auto& player_state = entity->GetComponent<PlayerState>();
                     player_state.SetCurrentPowerup(
                         PowerupPickupType::kDefaultPowerup);
+
+                    auto& audio_emitter = entity->GetComponent<AudioEmitter>();
+                    audio_emitter.PlaySource("pickup_get_02.ogg");
                 }
                 not_slow_entities_.erase(entity);
 
@@ -129,7 +138,11 @@ void PickupService::HandleDisablingPowerup()
                     auto& player_state = entity->GetComponent<PlayerState>();
                     player_state.SetCurrentPowerup(
                         PowerupPickupType::kDefaultPowerup);
+
+                    auto& audio_emitter = entity->GetComponent<AudioEmitter>();
+                    audio_emitter.PlaySource("pickup_get_02.ogg");
                 }
+
                 not_slow_entities_.clear();
                 not_disabled_entities_.clear();
 
@@ -328,6 +341,11 @@ float PickupService::GetPowerupRespawnTime(std::string powerup_type)
         return powerup_information_[powerup_type].respawn;
     }
     return 0.0;
+}
+
+float PickupService::GetEntityPowerupTimer(Entity* entity)
+{
+    return entity_timer_powerups_[entity];
 }
 
 void PickupService::AddEntityWithPowerup(Entity* entity,

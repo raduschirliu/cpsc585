@@ -83,6 +83,7 @@ class PickupService final : public Service,
     float GetAmmoRespawnTime(std::string ammo_type);
     float GetAmmoSpread(std::string ammo_type);
     float GetAmmoPellets(std::string ammo_type);
+    float GetEntityPowerupTimer(Entity* entity);
 
     std::array<std::string, 5> GetPowerupPickupNames();
     float GetPowerupDuration(std::string powerup_type);
