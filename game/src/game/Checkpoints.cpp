@@ -1,163 +1,117 @@
 #include "Checkpoints.h"
 
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+
 #include <fstream>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 #include <unordered_set>
 #include <utility>
 
+#include "engine/core/debug/Assert.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/json/deserialize_utils.h"
 
 using glm::vec3;
+using rapidjson::Document;
+using rapidjson::IStreamWrapper;
+using rapidjson::StringBuffer;
+using rapidjson::Value;
+using rapidjson::Writer;
 using std::pair;
+using std::string;
 using std::vector;
 
-static vector<pair<vec3, vec3>> kCheckpoints;
-static vector<pair<vec3, vec3>> kSortedCheckpoints;
+static vector<CheckpointEntry> kCheckpoints;
+static const string kCheckpointFilePath = "resources/scene/checkpoints.jsonc";
+
+bool CheckpointEntry::Deserialize(const Value& node)
+{
+    bool status = true;
+    status &= json::GetVec3(node, "position", position);
+    status &= json::GetVec3(node, "orientation", orientation);
+
+    // Size is optional
+    size = vec3(70.0f, 10.0f, 10.0f);
+    json::GetVec3(node, "size", size);
+
+    return status;
+}
 
 void Checkpoints::LoadCheckpointFile()
 {
-    debug::LogInfo("loaded checkpoints from file");
-    // import the checkpoints from the navmesh points.
-    std::fstream file;
-    file.open("resources/checkpoints/checkpoints.obj", std::ios::in);
-    if (!file)
+    /*
+    // Used for converting obj checkpoint format to JSON
+    
+    StringBuffer strbuf;
+    Writer<StringBuffer> writer(strbuf);
+
+    writer.StartArray();
+
+    for (auto& checkpoint : kSortedCheckpoints)
     {
-        return;
-    }
-    else
-    {
-        // perform the file thing we want here.
-        std::string s;
-        while (std::getline(file, s))
-        {
-            if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' ||
-                s[0] == 'u' || s[0] == 'l')
-                continue;
-            vector<float>
-                temp_vertex;  // so that after all the points are read, we
-                              // can add it to the main vertex
-            std::stringstream ss(s);
-            std::string word;
-            while (ss >> word)
-            {
-                if (word == "v")
-                {
-                    continue;
-                }
-                else
-                {
-                    temp_vertex.push_back(std::stof(word));
-                }
-            }
-            kCheckpoints.push_back(
-                {vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
-                 vec3(0, 0, 0)});
-        }
+        writer.StartObject();
+
+        writer.Key("position");
+        writer.StartArray();
+        writer.Double(checkpoint.first.x);
+        writer.Double(checkpoint.first.y);
+        writer.Double(checkpoint.first.z);
+        writer.EndArray();
+
+        writer.Key("orientation");
+        writer.StartArray();
+        writer.Double(checkpoint.second.x);
+        writer.Double(checkpoint.second.y);
+        writer.Double(checkpoint.second.z);
+        writer.EndArray();
+
+        writer.EndObject();
     }
 
-    // sort the checkpoints based on the distance between them, as they are
-    // random right now. using the same ai approach.
-    int starting_index = 82;
-    kSortedCheckpoints.push_back(kCheckpoints[starting_index]);
-    std::unordered_set<int> traced_index;
-    traced_index.insert(starting_index);
+    writer.EndArray();
 
-    while (kCheckpoints.size() != traced_index.size())
+    std::ofstream ofile("resources/checkpoints.jsonc");
+    ofile << strbuf.GetString();
+    ofile.close();
+    */
+
+    std::ifstream file_stream(kCheckpointFilePath);
+    ASSERT_MSG(file_stream.is_open(), "Failed to open checkpoint file");
+
+    IStreamWrapper stream(file_stream);
+    Document doc;
+    doc.ParseStream(stream);
+
+    if (doc.HasParseError())
     {
-        int min_index = 0;
-        float min_distance = std::numeric_limits<float>::max();
-        // find the smallest path which not has been traversed yet.
-        for (int i = 0; i < kCheckpoints.size(); i++)
-        {
-            if (traced_index.find(i) == traced_index.end())
-            {
-                float dist = distance(kCheckpoints[i].first,
-                                      kCheckpoints[starting_index].first);
-                if (min_distance > dist)
-                {
-                    min_index = i;
-                    min_distance = dist;
-                }
-            }
-        }
-        // now as we found the closest to it, removing the previous index from
-        // kCheckpoint and iterating again
-        traced_index.insert(min_index);
-        starting_index = min_index;
-        kSortedCheckpoints.push_back(kCheckpoints[starting_index]);
+        debug::LogError("JSON parsing error: {}", doc.GetParseError());
+        ASSERT(false);
     }
 
-    // fixing the orientation manually
-    for (int i = 5; i <= 9; i++)
+    ASSERT_MSG(doc.IsArray(), "Asset file must be an object");
+
+    auto doc_array = doc.GetArray();
+    for (Value* value = doc_array.Begin(); value != doc_array.End(); value++)
     {
-        kSortedCheckpoints[i].second = vec3(0, -90, 0);
+        ASSERT(value);
+
+        CheckpointEntry entry;
+        bool status = entry.Deserialize(*value);
+        ASSERT(status);
+
+        kCheckpoints.push_back(entry);
     }
 
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 12);
-
-    for (int i = 12; i <= 14; i++)
-    {
-        kSortedCheckpoints[i].second = vec3(0, 90, 0);
-    }
-
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 15);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 16);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 20);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 53);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 24);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 25);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 29);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 31);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 26);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 30);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 27);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 33);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 34);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 40);
-
-    for (int i = 20; i <= 30; i++)
-    {
-        kSortedCheckpoints[i].second = vec3(0, -90, 0);
-    }
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 35);
-    for (int i = 40; i <= 42; i++)
-    {
-        kSortedCheckpoints[i].second = vec3(0, -90, 0);
-    }
-
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 46);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 47);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 48);
-
-    for (int i = 46; i <= 49; i++)
-    {
-        kSortedCheckpoints[i].second = vec3(0, -90, 0);
-    }
-
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 52);
-
-    for (int i = 50; i <= 56; i++)
-    {
-        kSortedCheckpoints[i].second = vec3(0, -90, 0);
-    }
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 56);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 55);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
-    kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 58);
-
-    // for (int i = 35; i <= 37; i++)
-    // {
-    //     kSortedCheckpoints[i].second = (vec3(130, 0, 0));
-    // }
+    debug::LogInfo("Loaded {} checkpoints from file", kCheckpoints.size());
 }
 
-vector<pair<vec3, vec3>>& Checkpoints::GetCheckpoints()
+const vector<CheckpointEntry>& Checkpoints::GetCheckpoints()
 {
-    return kSortedCheckpoints;
+    return kCheckpoints;
 }

@@ -863,15 +863,13 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
     const int next_checkpoint =
         (last_checkpoint + 1) % track_config_.checkpoints.size();
 
-    // TODO(radu): fix the crash issue due to this out of bounds stuff
-
-    auto& checkpoints = Checkpoints::GetCheckpoints();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
     ASSERT(last_checkpoint >= 0 && last_checkpoint < checkpoints.size());
     ASSERT(next_checkpoint >= 0 && next_checkpoint < checkpoints.size());
 
-    out_checkpoint_location1 = checkpoints[last_checkpoint].first;
-    out_checkpoint_location2 = checkpoints[next_checkpoint].first;
+    out_checkpoint_location1 = checkpoints[last_checkpoint].position;
+    out_checkpoint_location2 = checkpoints[next_checkpoint].position;
 
     // return the checkpoint the player/AI who calls this function is at right
     // now
@@ -1146,14 +1144,9 @@ void GameStateService::UpdatePowerupInfo()
 {
     // assigning powerup info here.
 
-    // extract the information from obj file about every powerup location.
-    Checkpoints checkpoints;
-    auto locations = checkpoints.GetCheckpoints();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
-    // locations.second = orientation, we do not care about that, ignore that
-    // for now
-
-    for (const auto& l : locations)
+    for (const auto& checkpoint : checkpoints)
     {
         // adding a random statement which will select to spawn ammo type or
         // powerup at the lcoation randomly generating what kind of powerup
@@ -1165,23 +1158,24 @@ void GameStateService::UpdatePowerupInfo()
             switch (random_ammo)
             {
                 case 1:
-                    ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kBuckshot, checkpoint.position});
                     break;
                 case 2:
                     ammo_info_.push_back(
-                        {AmmoPickupType::kDoubleDamage, l.first});
+                        {AmmoPickupType::kDoubleDamage, checkpoint.position});
                     break;
                 case 3:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kExploadingBullet, l.first});
+                    ammo_info_.push_back({AmmoPickupType::kExploadingBullet,
+                                          checkpoint.position});
                     break;
                 case 4:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kIncreaseFireRate, l.first});
+                    ammo_info_.push_back({AmmoPickupType::kIncreaseFireRate,
+                                          checkpoint.position});
                     break;
                 case 5:
                     ammo_info_.push_back(
-                        {AmmoPickupType::kVampireBullet, l.first});
+                        {AmmoPickupType::kVampireBullet, checkpoint.position});
                     break;
             }
         }
@@ -1193,20 +1187,21 @@ void GameStateService::UpdatePowerupInfo()
             switch (random_powerup)
             {
                 case 1:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kDisableHandling, l.first});
+                    powerup_info.push_back({PowerupPickupType::kDisableHandling,
+                                            checkpoint.position});
                     break;
                 case 2:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kEveryoneSlower, l.first});
+                    powerup_info.push_back({PowerupPickupType::kEveryoneSlower,
+                                            checkpoint.position});
                     break;
                 // case 3:
                 //     powerup_info.push_back(
-                //         {PowerupPickupType::kIncreaseAimBox, l.first});
+                //         {PowerupPickupType::kIncreaseAimBox,
+                //         checkpoint.position});
                 //     break;
                 case 4:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kKillAbilities, l.first});
+                    powerup_info.push_back({PowerupPickupType::kKillAbilities,
+                                            checkpoint.position});
                     break;
             }
         }
@@ -1243,7 +1238,8 @@ void GameStateService::DisplayScoreboard()
         ImGui::TableSetupColumn("Deaths");
         ImGui::TableSetupColumn("Laps Completed");
         ImGui::TableSetupColumn(
-            "Last Checkpoint | Accumulator");  // TODO(radu): remove this after debug
+            "Last Checkpoint | Accumulator");  // TODO(radu): remove this after
+                                               // debug
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 

@@ -507,19 +507,18 @@ void GameApp::LoadTrack1Scene(Scene& scene)
     }
 
     Checkpoints::LoadCheckpointFile();
-    auto& checkpoints = Checkpoints::GetCheckpoints();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
     for (int i = 0; i < checkpoints.size(); i++)
     {
         Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
-        glm::quat(glm::vec3(0.0f));
         auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(checkpoints[i].first);
-        transform.SetOrientation(glm::quat(checkpoints[i].second));
+        transform.SetPosition(checkpoints[i].position);
+        transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+        transform.SetScale(checkpoints[i].size);
 
-        transform.SetScale(vec3(70.0f, 10.0f, 10.0f));
         auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
+        trigger.SetSize(checkpoints[i].size);
 
         auto& checkpoint = entity.AddComponent<Checkpoint>();
         checkpoint.SetCheckpointIndex(i + 1);

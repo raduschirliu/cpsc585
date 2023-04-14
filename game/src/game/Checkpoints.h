@@ -1,8 +1,20 @@
-#include "GameApp.h"
+#include <rapidjson/fwd.h>
+
+#include <glm/glm.hpp>
+#include <vector>
+
+struct CheckpointEntry
+{
+    glm::vec3 position;
+    glm::vec3 orientation;
+    glm::vec3 size;
+
+    bool Deserialize(const rapidjson::Value& node);
+};
 
 class Checkpoints
 {
   public:
     static void LoadCheckpointFile();
-    static std::vector<std::pair<glm::vec3, glm::vec3>>& GetCheckpoints();
+    static const std::vector<CheckpointEntry>& GetCheckpoints();
 };
