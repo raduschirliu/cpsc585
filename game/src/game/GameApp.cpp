@@ -40,9 +40,9 @@
 #include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/components/ui/HowToPlay.h"
-#include "game/components/ui/Powerups.h"
 #include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
+#include "game/components/ui/Powerups.h"
 #include "game/components/ui/Setting.h"
 #include "game/services/GameStateService.h"
 

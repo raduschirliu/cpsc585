@@ -119,8 +119,8 @@ void MainMenu::OnGui()
 
     // ImVec2 pos = ImGui::GetCursorPos();
 
-    ImGui::SetCursorPos(
-        ImVec2(ImGui::GetIO().DisplaySize.x - 390, ImGui::GetIO().DisplaySize.y - 160));
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x - 390,
+                               ImGui::GetIO().DisplaySize.y - 160));
 
     if (ImGui::ImageButton("single button", single_button_->GetGuiHandle(),
                            ImVec2(308, 93)))

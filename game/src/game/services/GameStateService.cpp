@@ -271,8 +271,7 @@ void GameStateService::OnGui()
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(
-            ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
         ImGui::Begin("Minimap", nullptr, flags);
         ImGui::Image(minimap_->GetGuiHandle(), ImVec2(200, 250));
         ImGui::End();

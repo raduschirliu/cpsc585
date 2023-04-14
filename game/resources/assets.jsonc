@@ -24,13 +24,11 @@
             "path": "resources/models/plane.obj",
             "name": "plane"
         },
-
         /* Kart */
         {
             "path": "resources/models/kart/kart2-5.gltf",
             "name": "kart"
         },
-
         /* Pickups */
         {
             "path": "resources/models/pickups/ability.gltf",
@@ -68,7 +66,6 @@
             "path": "resources/models/pickups/vampire.gltf",
             "name": "vampire"
         },
-
         /* Track */
         {
             "path": "resources/models/track3/track3-7collision.obj",
@@ -79,7 +76,6 @@
             "name": "track3"
         }
     ],
-
     "textures": [
         /* UI */
         {
@@ -186,7 +182,6 @@
             "path": "resources/textures/ui/minimap.png",
             "name": "minimap"
         },
-
         /* Track Materials */
         {
             "path": "resources/textures/track3/orangeTrack.png",
@@ -212,7 +207,6 @@
             "path": "resources/textures/track3/rings.png",
             "name": "track3@Rings"
         },
-
         /* Kart Materials */
         {
             "path": "resources/textures/kart/body_top.png",
@@ -246,7 +240,6 @@
             "path": "resources/textures/kart/body_main_yellow.png",
             "name": "kart@BodyMain-P4"
         },
-
         /* Pick Up Materials */
         {
             "path": "resources/textures/pickup/bullets.png",
