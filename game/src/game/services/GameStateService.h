@@ -123,6 +123,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<PickupService> pickup_service_;
 
     std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
 
@@ -138,7 +139,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // players requesting to respawn will be handled by this.
     std::unordered_set<uint32_t> players_respawn_;
 
-    std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
     // To store the powerup's information along with where it should be spawned
