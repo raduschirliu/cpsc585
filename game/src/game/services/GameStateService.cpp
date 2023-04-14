@@ -859,23 +859,23 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
     PlayerRecord* player = FindPlayerByEntityId(entity_id);
     ASSERT(player);
 
-    int checkpoint_index = player->checkpoint_count_accumulator - 1;
+    const int last_checkpoint = player->state_component->GetLastCheckpoint();
+    const int next_checkpoint =
+        (last_checkpoint + 1) % track_config_.checkpoints.size();
 
     // TODO(radu): fix the crash issue due to this out of bounds stuff
 
-    Checkpoints temp_checkpoint_obj;
-    out_checkpoint_location1 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
-            .first;
-    out_checkpoint_location2 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
-            .first;
+    auto& checkpoints = Checkpoints::GetCheckpoints();
+
+    ASSERT(last_checkpoint >= 0 && last_checkpoint < checkpoints.size());
+    ASSERT(next_checkpoint >= 0 && next_checkpoint < checkpoints.size());
+
+    out_checkpoint_location1 = checkpoints[last_checkpoint].first;
+    out_checkpoint_location2 = checkpoints[next_checkpoint].first;
 
     // return the checkpoint the player/AI who calls this function is at right
     // now
-    return checkpoint_index;
+    return last_checkpoint;
 }
 
 void GameStateService::SetRespawnEntity(uint32_t entity_id)
@@ -1233,46 +1233,36 @@ void GameStateService::AddRespawnPlayers(uint32_t entity_id)
 void GameStateService::DisplayScoreboard()
 {
     ImGui::SetNextWindowPos(ImVec2(80, 40));
-    ImGui::SetNextWindowSize(ImVec2(130, 100));
 
-    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+    auto flags = ImGuiTableFlags_Borders | ImGuiWindowFlags_AlwaysAutoResize;
 
-    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    if (ImGui::BeginTable("Scoreboard", 5, flags))
     {
         ImGui::TableSetupColumn("Player");
         ImGui::TableSetupColumn("Kills");
         ImGui::TableSetupColumn("Deaths");
         ImGui::TableSetupColumn("Laps Completed");
+        ImGui::TableSetupColumn(
+            "Last Checkpoint | Accumulator");  // TODO(radu): remove this after debug
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 
         for (auto& player : players_)
         {
             auto& state = player->state_component;
-            if (player->is_human)
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("Player %u", player->index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
-            else
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("CPU %u", player->index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", player->entity->GetName().c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetKills());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetDeaths());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetLapsCompleted());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d | %u", state->GetLastCheckpoint(),
+                        player->checkpoint_count_accumulator);
+            ImGui::TableNextRow();
         }
         ImGui::EndTable();
     }

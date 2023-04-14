@@ -9,7 +9,14 @@
 
 #include "engine/core/debug/Log.h"
 
-std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
+using glm::vec3;
+using std::pair;
+using std::vector;
+
+static vector<pair<vec3, vec3>> kCheckpoints;
+static vector<pair<vec3, vec3>> kSortedCheckpoints;
+
+void Checkpoints::LoadCheckpointFile()
 {
     debug::LogInfo("loaded checkpoints from file");
     // import the checkpoints from the navmesh points.
@@ -17,7 +24,7 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
     file.open("resources/checkpoints/checkpoints.obj", std::ios::in);
     if (!file)
     {
-        return {};
+        return;
     }
     else
     {
@@ -28,7 +35,7 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
             if (s[0] == '#' || s[0] == 's' || s[0] == 'o' || s[0] == 'm' ||
                 s[0] == 'u' || s[0] == 'l')
                 continue;
-            std::vector<float>
+            vector<float>
                 temp_vertex;  // so that after all the points are read, we
                               // can add it to the main vertex
             std::stringstream ss(s);
@@ -45,8 +52,8 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
                 }
             }
             kCheckpoints.push_back(
-                {glm::vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
-                 glm::vec3(0, 0, 0)});
+                {vec3(temp_vertex[0], temp_vertex[1], temp_vertex[2]),
+                 vec3(0, 0, 0)});
         }
     }
 
@@ -66,8 +73,8 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
         {
             if (traced_index.find(i) == traced_index.end())
             {
-                float dist = glm::distance(kCheckpoints[i].first,
-                                           kCheckpoints[starting_index].first);
+                float dist = distance(kCheckpoints[i].first,
+                                      kCheckpoints[starting_index].first);
                 if (min_distance > dist)
                 {
                     min_index = i;
@@ -85,14 +92,14 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
     // fixing the orientation manually
     for (int i = 5; i <= 9; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+        kSortedCheckpoints[i].second = vec3(0, -90, 0);
     }
 
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 12);
 
     for (int i = 12; i <= 14; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, 90, 0);
+        kSortedCheckpoints[i].second = vec3(0, 90, 0);
     }
 
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 15);
@@ -115,12 +122,12 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
 
     for (int i = 20; i <= 30; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+        kSortedCheckpoints[i].second = vec3(0, -90, 0);
     }
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 35);
     for (int i = 40; i <= 42; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+        kSortedCheckpoints[i].second = vec3(0, -90, 0);
     }
 
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 46);
@@ -129,7 +136,7 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
 
     for (int i = 46; i <= 49; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+        kSortedCheckpoints[i].second = vec3(0, -90, 0);
     }
 
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 51);
@@ -137,7 +144,7 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
 
     for (int i = 50; i <= 56; i++)
     {
-        kSortedCheckpoints[i].second = glm::vec3(0, -90, 0);
+        kSortedCheckpoints[i].second = vec3(0, -90, 0);
     }
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 56);
     kSortedCheckpoints.erase(kSortedCheckpoints.begin() + 55);
@@ -146,7 +153,11 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
 
     // for (int i = 35; i <= 37; i++)
     // {
-    //     kSortedCheckpoints[i].second = (glm::vec3(130, 0, 0));
+    //     kSortedCheckpoints[i].second = (vec3(130, 0, 0));
     // }
+}
+
+vector<pair<vec3, vec3>>& Checkpoints::GetCheckpoints()
+{
     return kSortedCheckpoints;
 }

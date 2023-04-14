@@ -506,9 +506,8 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         });
     }
 
-    // making the object for the checkpoint and getting checkpoints.
-    Checkpoints checkpoints_obj;
-    auto checkpoints = checkpoints_obj.GetCheckpoints();
+    Checkpoints::LoadCheckpointFile();
+    auto& checkpoints = Checkpoints::GetCheckpoints();
 
     for (int i = 0; i < checkpoints.size(); i++)
     {

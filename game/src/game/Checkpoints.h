@@ -2,10 +2,7 @@
 
 class Checkpoints
 {
-  private:
-    std::vector<std::pair<glm::vec3, glm::vec3>> kCheckpoints;
-    std::vector<std::pair<glm::vec3, glm::vec3>> kSortedCheckpoints;
-
   public:
-    std::vector<std::pair<glm::vec3, glm::vec3>> GetCheckpoints();
+    static void LoadCheckpointFile();
+    static std::vector<std::pair<glm::vec3, glm::vec3>>& GetCheckpoints();
 };
