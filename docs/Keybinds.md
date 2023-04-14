@@ -11,6 +11,7 @@
 | F (Hold 3 sec) | Respawn |
 | Tab | Toggle Scoreboard |
 | Esc | Pause Menu |
+| Space | Use Powerup |
 
 ## Controller
 | Key | Action |
@@ -20,6 +21,7 @@
 | Left Joystick | Steer |
 | B | Shoot |
 | A | Handbrake |
+| X | Use powerup |
 | View Button (Hold 3 sec) | Respawn |
 | L3 | Toggle Scoreboard |
 | Menu | Pause Menu |
@@ -31,4 +33,5 @@
 - `F3` - Physics debug menu
 - `F4` - Input debug menu
 - `F5` - Asset debug menu
+- `F6` - GameState debug menu
 - `F10` - Reload vehicle parameters (from json files)

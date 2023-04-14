@@ -479,50 +479,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
-
-    {
-        // Alleged finish line
-        Entity& entity = scene.AddEntity("Finish Line");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 2.0f, 50.0f));
-        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
-
-        auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(0);
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("cube"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(0.0f, 1.0f, 0.0f),
-                .specular = vec3(0.0f, 1.0f, 0.0f),
-                .shininess = 64.0f,
-            },
-        });
-    }
-
-    Checkpoints::LoadCheckpointFile();
-    const auto& checkpoints = Checkpoints::GetCheckpoints();
-
-    for (int i = 0; i < checkpoints.size(); i++)
-    {
-        Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(checkpoints[i].position);
-        transform.SetOrientation(glm::quat(checkpoints[i].orientation));
-        transform.SetScale(checkpoints[i].size);
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(checkpoints[i].size);
-
-        auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(i + 1);
-    }
 }
 
 void GameApp::LoadMainMenuScene(Scene& scene)

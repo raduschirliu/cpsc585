@@ -130,6 +130,11 @@ void GameStateService::OnUpdate()
 {
     const Timestep& delta_time = GetApp().GetDeltaTime();
 
+    if (input_service_->IsKeyPressed(GLFW_KEY_F6))
+    {
+        debug_menu_open_ = !debug_menu_open_;
+    }
+
     for (auto& t : timer_)
     {
         t.second += static_cast<float>(delta_time.GetSeconds());
@@ -146,6 +151,11 @@ void GameStateService::OnUpdate()
 
 void GameStateService::OnGui()
 {
+    if (debug_menu_open_)
+    {
+        DrawDebugMenu();
+    }
+
     if (race_state_.state == GameState::kNotRunning)
     {
         return;
@@ -423,6 +433,27 @@ void GameStateService::OnGui()
     }
 }
 
+void GameStateService::DrawDebugMenu()
+{
+    if (!ImGui::Begin("GameStateService Debug", &debug_menu_open_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Checkpoints: %zu", track_config_.checkpoints.size());
+
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
+    if (scene.GetName() == "Track1")
+        if (ImGui::Button("Reload checkpoints"))
+        {
+            LoadCheckpoints(scene);
+        }
+
+    ImGui::End();
+}
+
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
     race_state_.Reset();
@@ -470,6 +501,8 @@ void GameStateService::SetupRace()
 {
     race_state_.Reset();
 
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
     // Spawn players
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
@@ -491,7 +524,10 @@ void GameStateService::SetupRace()
     }
 
     race_state_.total_players = player_idx + 1;
+
+    // Spawn other objects that belong on the track
     SetupPowerups();
+    LoadCheckpoints(scene);
 }
 
 void GameStateService::SetupPowerups()
@@ -876,6 +912,55 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
     return last_checkpoint;
 }
 
+void GameStateService::LoadCheckpoints(Scene& scene)
+{
+    Checkpoints::LoadCheckpointFile();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
+
+    if (track_config_.checkpoints.size() != 0)
+    {
+        // Reloading the checkpoints at runtime
+
+        ASSERT_MSG(track_config_.checkpoints.size() == checkpoints.size(),
+                   "Cannot add/remove checkpoints at runtime, only modifying "
+                   "is supported");
+
+        for (size_t i = 0; i < checkpoints.size(); i++)
+        {
+            auto& entity = track_config_.checkpoints[i].entity;
+            auto& transform = entity->GetComponent<Transform>();
+            auto& trigger = entity->GetComponent<BoxTrigger>();
+
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            trigger.SyncTransform();
+        }
+
+        debug::LogDebug(
+            "Checkpoint positions updated - distances between checkpoints has "
+            "NOT been recalculated");
+    }
+    else
+    {
+        // Loading checkpoints fresh
+
+        for (int i = 0; i < checkpoints.size(); i++)
+        {
+            Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+            auto& transform = entity.AddComponent<Transform>();
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            transform.SetScale(checkpoints[i].size);
+
+            auto& trigger = entity.AddComponent<BoxTrigger>();
+            trigger.SetSize(checkpoints[i].size);
+
+            auto& checkpoint = entity.AddComponent<Checkpoint>();
+            checkpoint.SetCheckpointIndex(i);
+        }
+    }
+}
+
 void GameStateService::SetRespawnEntity(uint32_t entity_id)
 {
     players_respawn_.insert(entity_id);
@@ -1231,16 +1316,12 @@ void GameStateService::DisplayScoreboard()
 
     auto flags = ImGuiTableFlags_Borders | ImGuiWindowFlags_AlwaysAutoResize;
 
-    if (ImGui::BeginTable("Scoreboard", 5, flags))
+    if (ImGui::BeginTable("Scoreboard", 4, flags))
     {
         ImGui::TableSetupColumn("Player");
         ImGui::TableSetupColumn("Kills");
         ImGui::TableSetupColumn("Deaths");
         ImGui::TableSetupColumn("Laps Completed");
-        ImGui::TableSetupColumn(
-            "Last Checkpoint | Accumulator");  // TODO(radu): remove this after
-                                               // debug
-        ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 
         for (auto& player : players_)
@@ -1256,8 +1337,6 @@ void GameStateService::DisplayScoreboard()
             ImGui::TableNextColumn();
             ImGui::Text("%d", state->GetLapsCompleted());
             ImGui::TableNextColumn();
-            ImGui::Text("%d | %u", state->GetLastCheckpoint(),
-                        player->checkpoint_count_accumulator);
             ImGui::TableNextRow();
         }
         ImGui::EndTable();

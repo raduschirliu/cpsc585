@@ -28,6 +28,7 @@ using std::string;
 using std::vector;
 
 static vector<CheckpointEntry> kCheckpoints;
+static vec3 kDefaultCheckpointSize = vec3(70.0f, 10.0f, 10.0f);
 static const string kCheckpointFilePath = "resources/scene/checkpoints.jsonc";
 
 bool CheckpointEntry::Deserialize(const Value& node)
@@ -37,7 +38,7 @@ bool CheckpointEntry::Deserialize(const Value& node)
     status &= json::GetVec3(node, "orientation", orientation);
 
     // Size is optional
-    size = vec3(70.0f, 10.0f, 10.0f);
+    size = kDefaultCheckpointSize;
     json::GetVec3(node, "size", size);
 
     return status;
@@ -47,7 +48,7 @@ void Checkpoints::LoadCheckpointFile()
 {
     /*
     // Used for converting obj checkpoint format to JSON
-    
+
     StringBuffer strbuf;
     Writer<StringBuffer> writer(strbuf);
 
@@ -81,6 +82,8 @@ void Checkpoints::LoadCheckpointFile()
     ofile.close();
     */
 
+    kCheckpoints.clear();
+
     std::ifstream file_stream(kCheckpointFilePath);
     ASSERT_MSG(file_stream.is_open(), "Failed to open checkpoint file");
 
@@ -94,9 +97,22 @@ void Checkpoints::LoadCheckpointFile()
         ASSERT(false);
     }
 
-    ASSERT_MSG(doc.IsArray(), "Asset file must be an object");
+    ASSERT_MSG(doc.IsObject(), "Checkpoint JSON file must be an object");
 
-    auto doc_array = doc.GetArray();
+    {
+        bool status =
+            json::GetVec3(doc, "default_size", kDefaultCheckpointSize);
+        ASSERT_MSG(status,
+                   "Missing member 'checkpoint_size' in checkpoint JSON file");
+    }
+
+    if (!doc.HasMember("checkpoints"))
+    {
+        debug::LogError("Checkpoint file is missing member: 'checkpoints'");
+        ASSERT(false);
+    }
+
+    auto doc_array = doc["checkpoints"].GetArray();
     for (Value* value = doc_array.Begin(); value != doc_array.End(); value++)
     {
         ASSERT(value);

@@ -140,6 +140,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
 
     GameState stats_;
+    bool debug_menu_open_ = false;
 
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
@@ -149,11 +150,13 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void SetupRace();
     void StartRace();
     void SetupPowerups();
+    void LoadCheckpoints(Scene& scene);
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
     void DisplayScoreboard();
+    void DrawDebugMenu();
 
     bool display_pause_ = false;
 
