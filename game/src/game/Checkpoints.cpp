@@ -145,5 +145,6 @@ std::vector<std::pair<glm::vec3, glm::vec3>> Checkpoints::GetCheckpoints()
     // {
     //     kSortedCheckpoints[i].second = (glm::vec3(130, 0, 0));
     // }
+
     return kSortedCheckpoints;
 }

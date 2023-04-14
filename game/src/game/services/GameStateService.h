@@ -110,6 +110,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
+    std::vector<std::pair<glm::vec3, std::string>>
+    ReadCheckpointsFromJsonFile();
+
   protected:
     void KillFeed(const ImGuiWindowFlags& flags);
     void DisplayKillFeed();

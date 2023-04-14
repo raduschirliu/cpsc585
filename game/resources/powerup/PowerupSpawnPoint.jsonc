@@ -1,0 +1,234 @@
+[
+    {
+        "Location": "10.3378 -2.51922 -84.3348",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "29.9525 -2.5192 -119.637",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-8.44077 -2.51916 -187.857",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "30.0052 -2.51913 -224.673",
+        "Pickup_Type": "IncreaseFireRate"
+    },
+    {
+        "Location": "11.188 -2.51911 -251.182",
+        "Pickup_Type": "VampireBullet"
+    },
+    {
+        "Location": "-57.6437 -2.60515 -325.783",
+        "Pickup_Type": "EveryoneSlower"
+    },
+    {
+        "Location": "-106.51 -2.79142 -303.776",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-255.53 -3.30886 -328.525",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-374.254 -3.74024 -313.029",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-492.014 -4.07142 -332.779",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-517.943 -4.07134 -444.207",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-500.806 -4.07128 -537.941",
+        "Pickup_Type": "IncreaseFireRate"
+    },
+    {
+        "Location": "-492.552 -4.0712 -669.145",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-392.498 -4.07121 -658.313",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-303.512 -4.07119 -683.363",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-172.216 -4.8088 -647.975",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-180.341 -88.099 -491.915",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-155.224 -138.101 -402.149",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-183.153 -205.036 -283.946",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-172.261 -207.09 -260.879",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-329.592 -207.09 -227.893",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-442.739 -207.09 -247.563",
+        "Pickup_Type": "IncreaseFireRate"
+    },
+    {
+        "Location": "-569.834 -203.823 -238.173",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-618.793 -156.022 -277.092",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-665.12 -87.5389 -330.777",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-793.147 55.9619 -416.937",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-899.95 166.919 -475.13",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-992.353 230.491 -531.167",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-1042.3 234.03 -529.315",
+        "Pickup_Type": "EveryoneSlower"
+    },
+    {
+        "Location": "-871.485 126.298 -316.117",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-712.38 20.9657 -173.22",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-521.971 -84.2686 -49.1547",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-508.888 -86.1455 18.8018",
+        "Pickup_Type": "DoubleDamage"
+    },
+    {
+        "Location": "-541.177 -86.1456 123.012",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-536.034 -86.1457 312.992",
+        "Pickup_Type": "IncreaseFireRate"
+    },
+    {
+        "Location": "-518.328 -86.1457 410.853",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-530.155 -86.1458 447.32",
+        "Pickup_Type": "VampireBullet"
+    },
+    {
+        "Location": "-511.252 -86.1458 525.576",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-526.02 -86.1458 572.806",
+        "Pickup_Type": "DoubleDamage"
+    },
+    {
+        "Location": "-540.85 -84.6362 665.613",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-657.188 -57.5439 665.872",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-828.286 -5.17862 669.125",
+        "Pickup_Type": "VampireBullet"
+    },
+    {
+        "Location": "-835.057 -4.81255 642.027",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-868.069 -2.51969 630.508",
+        "Pickup_Type": "DoubleDamage"
+    },
+    {
+        "Location": "-871.703 -2.51963 545.741",
+        "Pickup_Type": "DisableHandling"
+    },
+    {
+        "Location": "-850.554 -2.51959 473.143",
+        "Pickup_Type": "VampireBullet"
+    },
+    {
+        "Location": "-824.808 -2.51951 352.463",
+        "Pickup_Type": "IncreaseFireRate"
+    },
+    {
+        "Location": "-697.365 -2.51954 398.435",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-597.775 -2.51955 410.243",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-528.663 -2.51953 385.517",
+        "Pickup_Type": "EveryoneSlower"
+    },
+    {
+        "Location": "-476.779 -2.5195 341.72",
+        "Pickup_Type": "KillAbilities"
+    },
+    {
+        "Location": "-392.736 -2.51948 315.269",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-257.522 -2.51952 369.341",
+        "Pickup_Type": "Buckshot"
+    },
+    {
+        "Location": "-150.964 -2.51952 377.843",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-108.837 -2.51951 350.193",
+        "Pickup_Type": "IncreaseAimBox"
+    },
+    {
+        "Location": "-30.1685 -2.51948 313.178",
+        "Pickup_Type": "EveryoneSlower"
+    },
+    {
+        "Location": "3.60691 -2.51947 298.259",
+        "Pickup_Type": "ExploadingBullet"
+    },
+    {
+        "Location": "-12.1385 -2.51944 247.826",
+        "Pickup_Type": "VampireBullet"
+    }
+]

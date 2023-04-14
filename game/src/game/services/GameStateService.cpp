@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <fstream>
 #include <string>
 
 #include "engine/App.h"
@@ -1259,73 +1260,113 @@ std::unordered_set<std::string> GameStateService::GetPlayerStaticNames()
     return names;
 }
 
+std::ofstream& operator<<(std::ofstream& file, const glm::vec3& vec)
+{
+    file << vec.x << ' ' << vec.y << ' ' << vec.z;
+    return file;
+}
+
+std::vector<std::pair<glm::vec3, std::string>>
+GameStateService::ReadCheckpointsFromJsonFile()
+{
+    std::vector<std::pair<glm::vec3, std::string>> data;
+
+    std::ifstream file("resources/powerup/PowerupSpawnPoint.jsonc");
+    if (!file.is_open())
+    {
+        debug::LogError("Powerup Spawn not happening");
+    }
+
+    std::string jsonStr((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
+    rapidjson::Document document;
+    document.Parse(jsonStr.c_str());
+
+    if (document.IsArray())
+    {
+        for (rapidjson::SizeType i = 0; i < document.Size(); i++)
+        {
+            const rapidjson::Value& object = document[i];
+
+            if (object.HasMember("Location") && object.HasMember("Pickup_Type"))
+            {
+                const rapidjson::Value& location = object["Location"];
+                const rapidjson::Value& pickup_type = object["Pickup_Type"];
+
+                if (location.IsString() && pickup_type.IsString())
+                {
+                    const char* location_str = location.GetString();
+                    const char* pickup_type_str = pickup_type.GetString();
+
+                    std::stringstream ss(location_str);
+                    float x, y, z;
+                    ss >> x >> y >> z;
+
+                    if (!ss.fail())
+                    {
+                        glm::vec3 location(x, y, z);
+                        data.push_back(std::make_pair<>(
+                            location, pickup_type.GetString()));
+                    }
+                }
+            }
+        }
+    }
+
+    return data;
+}
+
 void GameStateService::UpdatePowerupInfo()
 {
     // assigning powerup info here.
-
-    // extract the information from obj file about every powerup location.
-    Checkpoints checkpoints;
-    auto locations = checkpoints.GetCheckpoints();
-
-    // locations.second = orientation, we do not care about that, ignore that
-    // for now
+    std::vector<std::pair<glm::vec3, std::string>> locations =
+        ReadCheckpointsFromJsonFile();
 
     for (const auto& l : locations)
     {
-        // adding a random statement which will select to spawn ammo type or
-        // powerup at the lcoation randomly generating what kind of powerup
-        uint8_t selector = rand() % 2 + 1;
-        if (selector == 1)
+        // Convert const char* to std::string
+        std::string pickupType(l.second);
+
+        // Use std::string as expression in switch statement
+        if (pickupType == "Buckshot")
         {
-            // means ammo should spawn
-            uint8_t random_ammo = rand() % 5 + 1;
-            switch (random_ammo)
-            {
-                case 1:
-                    ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
-                    break;
-                case 2:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kDoubleDamage, l.first});
-                    break;
-                case 3:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kExploadingBullet, l.first});
-                    break;
-                case 4:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kIncreaseFireRate, l.first});
-                    break;
-                case 5:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kVampireBullet, l.first});
-                    break;
-            }
+            ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
         }
-        else
+        else if (pickupType == "DoubleDamage")
         {
-            // should spawn here.
-            uint8_t random_powerup =
-                rand() % 4 + 1;  // as 0 is default powerup.
-            switch (random_powerup)
-            {
-                case 1:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kDisableHandling, l.first});
-                    break;
-                case 2:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kEveryoneSlower, l.first});
-                    break;
-                case 3:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kIncreaseAimBox, l.first});
-                    break;
-                case 4:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kKillAbilities, l.first});
-                    break;
-            }
+            ammo_info_.push_back({AmmoPickupType::kDoubleDamage, l.first});
+        }
+        else if (pickupType == "ExploadingBullet")
+        {
+            ammo_info_.push_back({AmmoPickupType::kExploadingBullet, l.first});
+        }
+        else if (pickupType == "IncreaseFireRate")
+        {
+            ammo_info_.push_back({AmmoPickupType::kIncreaseFireRate, l.first});
+        }
+        else if (pickupType == "VampireBullet")
+        {
+            ammo_info_.push_back({AmmoPickupType::kVampireBullet, l.first});
+        }
+        else if (pickupType == "DisableHandling")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kDisableHandling, l.first});
+        }
+        else if (pickupType == "EveryoneSlower")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kEveryoneSlower, l.first});
+        }
+        else if (pickupType == "IncreaseAimBox")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kIncreaseAimBox, l.first});
+        }
+        else if (pickupType == "KillAbilities")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kKillAbilities, l.first});
         }
     }
 }
@@ -1394,4 +1435,8 @@ void GameStateService::DisplayScoreboard()
         }
         ImGui::EndTable();
     }
+}
+
+void PowerupInfo::ReadFromJson(std::string file_name)
+{
 }
