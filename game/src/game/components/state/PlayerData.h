@@ -36,7 +36,7 @@ struct PlayerStateData
         player_name = "";
         player_who_shot_me = "";
         handling_multiplier = 1.0f;
-        health = 10.0f;
+        health = 100.0f;
         speed_multiplier = 1.0f;
         number_deaths = 0;
         number_kills = 0;

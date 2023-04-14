@@ -49,7 +49,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         if (death_cooldown_ <= 0)
         {
             player_state_.is_dead = false;
-            player_state_.health = 10.0f;
+            player_state_.health = 100.0f;
             debug::LogDebug("Entity {} recovered!", GetEntity().GetId());
         }
         else
