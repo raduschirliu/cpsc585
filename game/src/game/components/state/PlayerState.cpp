@@ -29,6 +29,8 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     audio_emitter_->SetGain("kart_hit_01.ogg", 0.3f);
     audio_emitter_->AddSource("player_die_01.ogg");
     audio_emitter_->SetGain("player_die_01.ogg", 2.0f);
+    audio_emitter_->AddSource("wrong_buzz.ogg");
+    audio_emitter_->SetGain("wrong_buzz.ogg", 1.0f);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
     player_state_.Reset();
