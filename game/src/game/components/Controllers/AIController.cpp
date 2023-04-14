@@ -246,7 +246,7 @@ void AIController::CheckShoot(const Timestep& delta_time)
 // Decision for Powerup.
 void AIController::PowerupDecision()
 {
-        // as this is happening every loop, we need to make sure that the
+    // as this is happening every loop, we need to make sure that the
     // probability to execute the powerup is really low
     int probability_powerup_execution = (rand() % 100);
 

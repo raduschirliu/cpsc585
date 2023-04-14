@@ -234,7 +234,8 @@ void Shooter::UpdateOnHit()
         {
             player_state_->IncrementHealth(GetAmmoDamage());
         }
-        target_state->SetPlayerWhoShotMe(std::string(player_state_->GetPlayerName()));
+        target_state->SetPlayerWhoShotMe(
+            std::string(player_state_->GetPlayerName()));
     }
 }
 
