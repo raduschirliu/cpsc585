@@ -13,6 +13,7 @@
 #include "engine/gui/GuiService.h"
 #include "engine/physics/BoxTrigger.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -100,6 +101,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     scene_service_ = &service_provider.GetService<SceneDebugService>();
     input_service_ = &service_provider.GetService<InputService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
+    pickup_service_ = &service_provider.GetService<PickupService>();
 
     // Events
     GetEventBus().Subscribe<OnGuiEvent>(this);
@@ -130,14 +132,14 @@ void GameStateService::OnUpdate()
 {
     const Timestep& delta_time = GetApp().GetDeltaTime();
 
+    if (input_service_->IsKeyPressed(GLFW_KEY_F6))
+    {
+        debug_menu_open_ = !debug_menu_open_;
+    }
+
     for (auto& t : timer_)
     {
         t.second += static_cast<float>(delta_time.GetSeconds());
-    }
-
-    if (input_service_->IsKeyPressed(GLFW_KEY_ESCAPE))
-    {
-        display_pause_ = true;
     }
 
     UpdateRaceTimer(delta_time);
@@ -146,6 +148,11 @@ void GameStateService::OnUpdate()
 
 void GameStateService::OnGui()
 {
+    if (debug_menu_open_)
+    {
+        DrawDebugMenu();
+    }
+
     if (race_state_.state == GameState::kNotRunning)
     {
         return;
@@ -161,16 +168,19 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoInputs;
+        ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse;
 
     if (physics_service_->GetPaused())
     {
-        ImGui::SetNextWindowPos(ImVec2(385, 205));
+        // ImGui::SetNextWindowPos(ImVec2(385, 205));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 250,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 150));
         ImGui::Begin("pause", nullptr, flags);
         ImGui::Image(pause_->GetGuiHandle(), ImVec2(506, 306));
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(550, 320));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 80,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 30));
         ImGui::Begin("Pause Buttons", nullptr,
                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
                          ImGuiWindowFlags_NoTitleBar |
@@ -197,6 +207,8 @@ void GameStateService::OnGui()
         if (ImGui::Button("HOME"))
         {
             scene_service_->SetActiveScene("MainMenu");
+            audio_service_->AddSource("ui_pick_01.ogg");
+            audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopFont();
         ImGui::PopStyleColor(3);
@@ -208,7 +220,8 @@ void GameStateService::OnGui()
 
     if (race_state_.state == GameState::kCountdown)
     {
-        ImGui::SetNextWindowPos(ImVec2(425, 250));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 225,
+                                       ImGui::GetIO().DisplaySize.y / 2 - 110));
         ImGui::Begin("Game State", nullptr, flags);
         double count =
             (kCountdownTime - race_state_.countdown_elapsed_time).GetSeconds();
@@ -232,33 +245,42 @@ void GameStateService::OnGui()
     }
     else if (race_state_.state == GameState::kRaceInProgress)
     {
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 100, 30));
+        ImGui::SetNextWindowPos(
+            ImVec2(ImGui::GetIO().DisplaySize.x / 2 - 160, 22));
         ImGui::Begin("Penalty", nullptr, flags);
 
-        for (auto& a : active_powerups_)
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.3f, 0.0f, 1.0f));
+        ImGui::PushFont(font_koverwatch_);
+        if (pickup_service_->GetActivePowerup() ==
+            pickup_service_->GetPowerupPickupNames()[1])
         {
-            if (a.second == PowerupPickupType::kDisableHandling)
-            {
-                ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
-            }
-            else if (a.second == PowerupPickupType::kEveryoneSlower)
-            {
-                ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
-            }
-            // else if (a.second == PowerupPickupType::kIncreaseAimBox)
-            // {
-            //     ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70,
-            //     70));
-            // }
-            else if (a.second == PowerupPickupType::kKillAbilities)
-            {
-                ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
-            }
+            ImGui::Text("Enemy Handling Disabled!");
+            // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
         }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[2])
+        {
+            ImGui::Text("Enemy Speed Halved!");
+            // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[3])
+        {
+            ImGui::Text("Enemy Aimboxes Doubled!");
+            // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        else if (pickup_service_->GetActivePowerup() ==
+                 pickup_service_->GetPowerupPickupNames()[4])
+        {
+            ImGui::Text("Enemy Abilities Killed!");
+            // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+        }
+        ImGui::PopFont();
+        ImGui::PopStyleColor();
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(220, 625));
+        ImGui::SetNextWindowPos(ImVec2(220, ImGui::GetIO().DisplaySize.y - 95));
         ImGui::Begin("Timer", nullptr, flags);
 
         ImGui::PushFont(font_beya_);
@@ -271,7 +293,8 @@ void GameStateService::OnGui()
         ImGui::PopFont();
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(1090, 610));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 190,
+                                       ImGui::GetIO().DisplaySize.y - 110));
         ImGui::Begin("Ranking", nullptr, flags);
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
         {
@@ -319,7 +342,8 @@ void GameStateService::OnGui()
             ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y));
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(30, 200));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
+                                       ImGui::GetIO().DisplaySize.y - 520));
         ImGui::Begin("Record", nullptr, flags);
 
         for (uint32_t i = 0; i < players_.size(); ++i)
@@ -356,7 +380,8 @@ void GameStateService::OnGui()
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(635, 270));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 645,
+                                       ImGui::GetIO().DisplaySize.y - 450));
         ImGui::Begin("Result", nullptr, flags);
 
         for (size_t i = 0; i < race_state_.sorted_players.size(); i++)
@@ -415,12 +440,35 @@ void GameStateService::OnGui()
                                ImVec2(40, 37)))
         {
             scene_service_->SetActiveScene("MainMenu");
+            audio_service_->AddSource("ui_pick_01.ogg");
+            audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopStyleColor(3);
         ImGui::PopStyleVar(1);
 
         ImGui::End();
     }
+}
+
+void GameStateService::DrawDebugMenu()
+{
+    if (!ImGui::Begin("GameStateService Debug", &debug_menu_open_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Checkpoints: %zu", track_config_.checkpoints.size());
+
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
+    if (scene.GetName() == "Track1")
+        if (ImGui::Button("Reload checkpoints"))
+        {
+            LoadCheckpoints(scene);
+        }
+
+    ImGui::End();
 }
 
 void GameStateService::OnSceneLoaded(Scene& scene)
@@ -470,6 +518,8 @@ void GameStateService::SetupRace()
 {
     race_state_.Reset();
 
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
     // Spawn players
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
@@ -491,7 +541,10 @@ void GameStateService::SetupRace()
     }
 
     race_state_.total_players = player_idx + 1;
+
+    // Spawn other objects that belong on the track
     SetupPowerups();
+    LoadCheckpoints(scene);
 }
 
 void GameStateService::SetupPowerups()
@@ -518,9 +571,9 @@ void GameStateService::SetupPowerups()
                 powerup_to_int = 2;
                 break;
 
-                // case PowerupPickupType::kIncreaseAimBox:
-                //     powerup_to_int = 3;
-                //     break;
+            case PowerupPickupType::kIncreaseAimBox:
+                powerup_to_int = 3;
+                break;
 
             case PowerupPickupType::kKillAbilities:
                 powerup_to_int = 4;
@@ -530,7 +583,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kPowerups[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z);
+                             std::to_string(powerup.second.z + 20.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -544,21 +597,10 @@ void GameStateService::SetupPowerups()
             case PowerupPickupType::kDisableHandling:
                 entity.AddComponent<DisableHandlingPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("coin"),
+                    &asset_service_->GetMesh("handling"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
-                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                        .specular = vec3(1.0f, 1.0f, 1.0f),
-                        .shininess = 64.0f,
-                    },
-                });
-                break;
-            case PowerupPickupType::kEveryoneSlower:
-                entity.AddComponent<EveryoneSlowerPickup>();
-                mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("energy"),
-                    MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -566,26 +608,41 @@ void GameStateService::SetupPowerups()
                 });
                 break;
 
-                // case PowerupPickupType::kIncreaseAimBox:
-                //     entity.AddComponent<IncreaseAimBoxPickup>();
-                //     mesh_renderer.SetMesh({
-                //         &asset_service_->GetMesh("defence"),
-                //         MaterialProperties{
-                //             .albedo_texture =
-                //             &asset_service_->GetTexture("blank"),
-                //             .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                //             .specular = vec3(1.0f, 1.0f, 1.0f),
-                //             .shininess = 64.0f,
-                //         },
-                //     });
-                //     break;
+            case PowerupPickupType::kEveryoneSlower:
+                entity.AddComponent<EveryoneSlowerPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("slow"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
+
+            case PowerupPickupType::kIncreaseAimBox:
+                entity.AddComponent<IncreaseAimBoxPickup>();
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("aimBox"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
+                break;
 
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("defence_shield"),
+                    &asset_service_->GetMesh("killAbility"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@powerup"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -593,7 +650,7 @@ void GameStateService::SetupPowerups()
                 });
                 break;
         }
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
+        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
@@ -632,7 +689,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kAmmos[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z);
+                             std::to_string(powerup.second.z + 20.f);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -648,19 +705,22 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("buckshot"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
                     },
                 });
                 break;
+
             case AmmoPickupType::kDoubleDamage:
                 entity.AddComponent<DoubleDamagePickup>();
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("damage"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -673,7 +733,8 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("exploding"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -686,7 +747,8 @@ void GameStateService::SetupPowerups()
                 mesh_renderer.SetMesh({
                     &asset_service_->GetMesh("increase"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("blank"),
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
                         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
                         .specular = vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 64.0f,
@@ -696,18 +758,19 @@ void GameStateService::SetupPowerups()
 
             case AmmoPickupType::kVampireBullet:
                 entity.AddComponent<VampireBulletPickup>();
-                // mesh_renderer.SetMesh({
-                //     &asset_service_->GetMesh("vampire"),
-                //     MaterialProperties{
-                //         .albedo_texture = nullptr,
-                //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                //         .specular = vec3(1.0f, 1.0f, 1.0f),
-                //         .shininess = 64.0f,
-                //     },
-                // });
+                mesh_renderer.SetMesh({
+                    &asset_service_->GetMesh("vampire"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("pickup@bullets"),
+                        .albedo_color = vec3(1.0f, 1.0f, 1.0f),
+                        .specular = vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 64.0f,
+                    },
+                });
                 break;
         }
-        transform.SetScale(vec3(4.f, 4.f, 4.f));
+        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
@@ -722,7 +785,7 @@ void GameStateService::StartRace()
 
     for (auto& entry : players_)
     {
-        race_state_.sorted_players.push_back(entry.second.get());
+        race_state_.sorted_players.push_back(entry.get());
     }
 
     debug::LogInfo("Game started");
@@ -792,49 +855,27 @@ void GameStateService::RegisterCheckpoint(Entity& entity,
     track_config_.checkpoints.push_back(new_record);
 }
 
-void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
+void GameStateService::PlayerCrossedCheckpoint(Entity& entity,
+                                               uint32_t checkpoint_index)
 {
-    uint32_t entity_id = entity.GetId();
-    // to tackle the problem for not changing the entity.
-    if (entity_id >= 3 && entity_id <= 5)
-    {
-        entity_id = entity_id - 2;
-    }
-    // for player
-    else if (entity_id == 1)
-    {
-        entity_id = entity_id - 1;
-    }
-
-    auto iter = players_.find(entity_id);
-
-    if (iter == players_.end())
-    {
-        return;
-    }
-
-    // USE entity for FURTHER STUFF AS PLAYERS_ has wrong value for entty.
-
-    // debug::LogInfo("Player {} hit  checkpoint {})",
-    //                    iter->second->index, index);
+    PlayerRecord* player = FindPlayerByEntityId(entity.GetId());
+    ASSERT(player);
 
     const uint32_t last_checkpoint =
-        iter->second->state_component->GetLastCheckpoint();
+        player->state_component->GetLastCheckpoint();
     const uint32_t expected_checkpoint =
         (last_checkpoint + 1) % track_config_.checkpoints.size();
 
-    if (index != expected_checkpoint)
+    if (checkpoint_index != expected_checkpoint)
     {
         // if this is an AI Controller then activate the timer which helps us in
         // resetting the AI to the correct checkpoint
-        if (!iter->second->is_human)  // checking if the player is AI.
+        if (!player->is_human)  // checking if the player is AI.
         {
             if (entity.HasComponent<AIController>())
             {
-                auto& PlayerController = entity.GetComponent<AIController>();
-
-                // so that
-                PlayerController.SetRespawnLastCheckpointTimer(true);
+                auto& ai_controller = entity.GetComponent<AIController>();
+                ai_controller.SetRespawnLastCheckpointTimer(true);
             }
         }
         else
@@ -849,7 +890,7 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     {
         // this means that the AI are following the right way / started to
         // follow the right way, no need to respawn them
-        if (!iter->second->is_human)  // checking if the player is AI.
+        if (!player->is_human)  // checking if the player is AI.
         {
             if (entity.HasComponent<AIController>())
             {
@@ -860,17 +901,16 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
             }
         }
     }
-
-    iter->second->state_component->SetLastCheckpoint(index);
-    iter->second->checkpoint_count_accumulator++;
+    player->state_component->SetLastCheckpoint(checkpoint_index);
+    player->checkpoint_count_accumulator++;
 
     // debug::LogInfo("Player {} with id {} checkpoint accumulator #{}",
     //                iter->second->entity->GetName(), entity.GetName(),
     //                iter->second->checkpoint_count_accumulator);
 
-    if (index == 0)
+    if (checkpoint_index == 0)
     {
-        PlayerCompletedLap(*iter->second);
+        PlayerCompletedLap(*player);
     }
 }
 
@@ -880,40 +920,73 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
                                            glm::vec3& out_checkpoint_location1,
                                            glm::vec3& out_checkpoint_location2)
 {
-    if (entity_id >= 3 && entity_id <= 5)
-    {
-        entity_id = entity_id - 2;
-    }
-    // for player
-    else if (entity_id == 1)
-    {
-        entity_id = entity_id - 1;
-    }
-    auto iter = players_.find(entity_id);
-    if (iter == players_.end())
-    {
-        // so that player not found with the given entity_id
-        // return -1 to detect the error.
-        return -1;
-    }
+    PlayerRecord* player = FindPlayerByEntityId(entity_id);
+    ASSERT(player);
 
-    // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+    const int last_checkpoint = player->state_component->GetLastCheckpoint();
+    const int next_checkpoint =
+        (last_checkpoint + 1) % track_config_.checkpoints.size();
 
-    int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
-    Checkpoints temp_checkpoint_obj;
-    out_checkpoint_location1 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
-            .first;
-    out_checkpoint_location2 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
-            .first;
+    ASSERT(last_checkpoint >= 0 && last_checkpoint < checkpoints.size());
+    ASSERT(next_checkpoint >= 0 && next_checkpoint < checkpoints.size());
+
+    out_checkpoint_location1 = checkpoints[last_checkpoint].position;
+    out_checkpoint_location2 = checkpoints[next_checkpoint].position;
 
     // return the checkpoint the player/AI who calls this function is at right
     // now
-    return checkpoint_index;
+    return last_checkpoint;
+}
+
+void GameStateService::LoadCheckpoints(Scene& scene)
+{
+    Checkpoints::LoadCheckpointFile();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
+
+    if (track_config_.checkpoints.size() != 0)
+    {
+        // Reloading the checkpoints at runtime
+
+        ASSERT_MSG(track_config_.checkpoints.size() == checkpoints.size(),
+                   "Cannot add/remove checkpoints at runtime, only modifying "
+                   "is supported");
+
+        for (size_t i = 0; i < checkpoints.size(); i++)
+        {
+            auto& entity = track_config_.checkpoints[i].entity;
+            auto& transform = entity->GetComponent<Transform>();
+            auto& trigger = entity->GetComponent<BoxTrigger>();
+
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            trigger.SyncTransform();
+        }
+
+        debug::LogDebug(
+            "Checkpoint positions updated - distances between checkpoints has "
+            "NOT been recalculated");
+    }
+    else
+    {
+        // Loading checkpoints fresh
+
+        for (int i = 0; i < checkpoints.size(); i++)
+        {
+            Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+            auto& transform = entity.AddComponent<Transform>();
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            transform.SetScale(checkpoints[i].size);
+
+            auto& trigger = entity.AddComponent<BoxTrigger>();
+            trigger.SetSize(checkpoints[i].size);
+
+            auto& checkpoint = entity.AddComponent<Checkpoint>();
+            checkpoint.SetCheckpointIndex(i);
+        }
+    }
 }
 
 void GameStateService::SetRespawnEntity(uint32_t entity_id)
@@ -972,10 +1045,8 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
         return;
     }
 
-    for (auto& entry : players_)
+    for (auto& player : players_)
     {
-        auto player = entry.second.get();
-
         const float checkpoint_progress =
             static_cast<float>(player->checkpoint_count_accumulator) * 10000.0f;
 
@@ -1014,12 +1085,26 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
     }
 }
 
+PlayerRecord* GameStateService::FindPlayerByEntityId(uint32_t entity_id)
+{
+    for (auto& player : players_)
+    {
+        if (player->entity->GetId() == entity_id)
+        {
+            return player.get();
+        }
+    }
+
+    ASSERT_MSG(false, "Cannot find player with given entity ID");
+    return nullptr;
+}
+
 Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 {
     ASSERT_MSG(index <= kMaxPlayers, "Cannot have more players than max");
     ASSERT_MSG(index < track_config_.player_spawns.size(),
                "Cannot have more players than number of spawn locations");
-    ASSERT_MSG(players_.find(index) == players_.end(),
+    ASSERT_MSG(index >= players_.size(),
                "Cannot register multiple players with same index");
 
     Scene& scene = GetApp().GetSceneList().GetActiveScene();
@@ -1037,15 +1122,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
     renderer.SetMeshes({
-        // {
-        //     &asset_service_->GetMesh("kart-old@Cube"),
-        //     MaterialProperties{
-        //         .albedo_texture = nullptr,
-        //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-        //         .specular = vec3(1.0f, 1.0f, 1.0f),
-        //         .shininess = 64.0f,
-        //     },
-        // },
         {
             &asset_service_->GetMesh("kart@BodyMain"),
             MaterialProperties{
@@ -1097,11 +1173,9 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     kart_entity.AddComponent<AudioEmitter>();
 
-    auto& player_state = kart_entity.AddComponent<PlayerState>();
-
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
+    auto& player_state = kart_entity.AddComponent<PlayerState>();
     vehicle.SetVehicleName(entity_name);
-    vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
     hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
@@ -1129,14 +1203,14 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     }
 
     // Register the player
-    players_[index] = make_unique<PlayerRecord>(
+    players_.push_back(make_unique<PlayerRecord>(
         PlayerRecord{.index = index,
                      .is_human = is_human,
                      .entity = &kart_entity,
                      .transform = &transform,
                      .state_component = &player_state,
                      .checkpoint_count_accumulator = 0,
-                     .progress_score = 0.0f});
+                     .progress_score = 0.0f}));
 
     return kart_entity;
 }
@@ -1172,14 +1246,9 @@ void GameStateService::UpdatePowerupInfo()
 {
     // assigning powerup info here.
 
-    // extract the information from obj file about every powerup location.
-    Checkpoints checkpoints;
-    auto locations = checkpoints.GetCheckpoints();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
-    // locations.second = orientation, we do not care about that, ignore that
-    // for now
-
-    for (const auto& l : locations)
+    for (const auto& checkpoint : checkpoints)
     {
         // adding a random statement which will select to spawn ammo type or
         // powerup at the lcoation randomly generating what kind of powerup
@@ -1191,23 +1260,24 @@ void GameStateService::UpdatePowerupInfo()
             switch (random_ammo)
             {
                 case 1:
-                    ammo_info_.push_back({AmmoPickupType::kBuckshot, l.first});
+                    ammo_info_.push_back(
+                        {AmmoPickupType::kBuckshot, checkpoint.position});
                     break;
                 case 2:
                     ammo_info_.push_back(
-                        {AmmoPickupType::kDoubleDamage, l.first});
+                        {AmmoPickupType::kDoubleDamage, checkpoint.position});
                     break;
                 case 3:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kExploadingBullet, l.first});
+                    ammo_info_.push_back({AmmoPickupType::kExploadingBullet,
+                                          checkpoint.position});
                     break;
                 case 4:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kIncreaseFireRate, l.first});
+                    ammo_info_.push_back({AmmoPickupType::kIncreaseFireRate,
+                                          checkpoint.position});
                     break;
                 case 5:
                     ammo_info_.push_back(
-                        {AmmoPickupType::kVampireBullet, l.first});
+                        {AmmoPickupType::kVampireBullet, checkpoint.position});
                     break;
             }
         }
@@ -1219,20 +1289,20 @@ void GameStateService::UpdatePowerupInfo()
             switch (random_powerup)
             {
                 case 1:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kDisableHandling, l.first});
+                    powerup_info.push_back({PowerupPickupType::kDisableHandling,
+                                            checkpoint.position});
                     break;
                 case 2:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kEveryoneSlower, l.first});
+                    powerup_info.push_back({PowerupPickupType::kEveryoneSlower,
+                                            checkpoint.position});
                     break;
-                // case 3:
-                //     powerup_info.push_back(
-                //         {PowerupPickupType::kIncreaseAimBox, l.first});
-                //     break;
+                case 3:
+                    powerup_info.push_back({PowerupPickupType::kIncreaseAimBox,
+                                            checkpoint.position});
+                    break;
                 case 4:
-                    powerup_info.push_back(
-                        {PowerupPickupType::kKillAbilities, l.first});
+                    powerup_info.push_back({PowerupPickupType::kKillAbilities,
+                                            checkpoint.position});
                     break;
             }
         }
@@ -1259,47 +1329,31 @@ void GameStateService::AddRespawnPlayers(uint32_t entity_id)
 void GameStateService::DisplayScoreboard()
 {
     ImGui::SetNextWindowPos(ImVec2(80, 40));
-    ImGui::SetNextWindowSize(ImVec2(130, 100));
 
-    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+    auto flags = ImGuiTableFlags_Borders | ImGuiWindowFlags_AlwaysAutoResize;
 
-    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    if (ImGui::BeginTable("Scoreboard", 4, flags))
     {
         ImGui::TableSetupColumn("Player");
         ImGui::TableSetupColumn("Kills");
         ImGui::TableSetupColumn("Deaths");
         ImGui::TableSetupColumn("Laps Completed");
-        ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 
         for (auto& player : players_)
         {
-            auto index = player.first;
-            auto& state = player.second->state_component;
-            if (player.second->is_human)
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("Player %u", index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
-            else
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("CPU %u", index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
+            auto& state = player->state_component;
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", player->entity->GetName().c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetKills());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetDeaths());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetLapsCompleted());
+            ImGui::TableNextColumn();
+            ImGui::TableNextRow();
         }
         ImGui::EndTable();
     }

@@ -64,7 +64,7 @@ void DoubleDamagePickup::OnUpdate(const Timestep& delta_time)
         start_timer_ = false;
         timer_ = 0.0f;
 
-        transform_->SetScale(glm::vec3(4.f, 4.f, 4.f));
+        transform_->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
         SetPowerVisibility(true);
     }
 
@@ -78,7 +78,10 @@ void DoubleDamagePickup::OnUpdate(const Timestep& delta_time)
         start_deactivate_timer_ = false;
         deactivate_timer_ = 0.0f;
 
-        player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
+        if (player_state_->GetCurrentAmmoType() != AmmoPickupType::kDefaultAmmo)
+        {
+            player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
+        }
     }
 }
 

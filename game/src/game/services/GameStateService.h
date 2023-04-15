@@ -78,7 +78,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void RegisterCheckpoint(Entity& entity, Checkpoint* checkpoint);
 
     // Events
-    void PlayerCrossedCheckpoint(Entity& entity, uint32_t index);
+    void PlayerCrossedCheckpoint(Entity& entity, uint32_t checkpoint_index);
 
     // Accessors
     void SetRaceConfig(const RaceConfig& config);
@@ -116,8 +116,9 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<SceneDebugService> scene_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<PhysicsService> physics_service_;
+    jss::object_ptr<PickupService> pickup_service_;
 
-    std::unordered_map<uint32_t, std::unique_ptr<PlayerRecord>> players_;
+    std::vector<std::unique_ptr<PlayerRecord>> players_;
 
     GlobalRaceState race_state_;
     RaceConfig race_config_;
@@ -131,7 +132,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // players requesting to respawn will be handled by this.
     std::unordered_set<uint32_t> players_respawn_;
 
-    std::vector<std::pair<uint32_t, PowerupPickupType>> active_powerups_;
     std::map<std::pair<uint32_t, PowerupPickupType>, float> timer_;
 
     // To store the powerup's information along with where it should be spawned
@@ -140,19 +140,23 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
 
     GameState stats_;
+    bool debug_menu_open_ = false;
 
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
     void UpdatePowerupInfo();
+    PlayerRecord* FindPlayerByEntityId(uint32_t entity_id);
 
     void SetupRace();
     void StartRace();
     void SetupPowerups();
+    void LoadCheckpoints(Scene& scene);
     void PlayerCompletedLap(PlayerRecord& player);
     Entity& CreatePlayer(uint32_t index, bool is_human);
     CheckpointRecord& GetNextCheckpoint(uint32_t current_index);
     void StartCountdown();
     void DisplayScoreboard();
+    void DrawDebugMenu();
 
     bool display_pause_ = false;
 

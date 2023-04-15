@@ -159,12 +159,10 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0f, 5.0f, 10.0f));
 
+        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         auto& player_state = car_entity.AddComponent<PlayerState>();
 
-        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
-
-        vehicle.SetPlayerStateData(*player_state.GetStateData());
 
         auto& hitbox_component = car_entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
@@ -198,11 +196,10 @@ void GameApp::LoadTestScene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        auto& player_state = entity.AddComponent<PlayerState>();
         bunny_vehicle.SetVehicleName("AI1");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -224,11 +221,9 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(20.0f, 5.0f, 10.0f));
 
-        auto& player_state = entity.AddComponent<PlayerState>();
-
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        auto& player_state = entity.AddComponent<PlayerState>();
         bunny_vehicle.SetVehicleName("AI2");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
 
@@ -251,11 +246,11 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(30.0f, 5.0f, 10.0f));
 
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         auto& player_state = entity.AddComponent<PlayerState>();
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
+
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
 
@@ -292,52 +287,6 @@ void GameApp::LoadTestScene(Scene& scene)
                 .shininess = 64.0f,
             },
         });
-    }
-
-    // Disable Handling pickup
-    {
-        Entity& entity = scene.AddEntity("Disable Handling");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0f, 5.0f, -100.0f));
-        auto& pickup = entity.AddComponent<DisableHandlingPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("defence"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
-
-    // Increase the size of aimbox
-    {
-        Entity& entity = scene.AddEntity("Aimbox increase");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(-10.0f, 5.0f, -10.0f));
-        auto& pickup = entity.AddComponent<IncreaseAimBoxPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("coin"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12, 0.12, 0.12));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
     }
 }
 
@@ -455,75 +404,6 @@ void GameApp::LoadTrack1Scene(Scene& scene)
                 },
             },
         });
-    }
-
-    {
-        Entity& entity = scene.AddEntity("Powerup - Slow Down Enemies");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 2.0f, 80.0f));
-
-        auto& pickup = entity.AddComponent<EveryoneSlowerPickup>();
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("energy"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-                .specular = vec3(1.0f, 1.0f, 1.0f),
-                .shininess = 64.0f,
-            },
-        });
-        transform.SetScale(vec3(0.12f, 0.12f, 0.12f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
-    }
-
-    {
-        // Alleged finish line
-        Entity& entity = scene.AddEntity("Finish Line");
-
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(vec3(10.0, 2.0f, 50.0f));
-        transform.SetScale(vec3(40.0f, 5.0f, 4.0f));
-
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(40.0f, 4.0f, 10.0f));
-
-        auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(0);
-
-        auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
-        mesh_renderer.SetMesh({
-            &asset_service_.GetMesh("cube"),
-            MaterialProperties{
-                .albedo_texture = nullptr,
-                .albedo_color = vec3(0.0f, 1.0f, 0.0f),
-                .specular = vec3(0.0f, 1.0f, 0.0f),
-                .shininess = 64.0f,
-            },
-        });
-    }
-
-    // making the object for the checkpoint and getting checkpoints.
-    Checkpoints checkpoints_obj;
-    auto checkpoints = checkpoints_obj.GetCheckpoints();
-
-    for (int i = 0; i < checkpoints.size(); i++)
-    {
-        Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
-        glm::quat(glm::vec3(0.0f));
-        auto& transform = entity.AddComponent<Transform>();
-        transform.SetPosition(checkpoints[i].first);
-        transform.SetOrientation(glm::quat(checkpoints[i].second));
-
-        transform.SetScale(vec3(70.0f, 10.0f, 10.0f));
-        auto& trigger = entity.AddComponent<BoxTrigger>();
-        trigger.SetSize(vec3(70.0f, 10.0f, 10.0f));
-
-        auto& checkpoint = entity.AddComponent<Checkpoint>();
-        checkpoint.SetCheckpointIndex(i + 1);
     }
 }
 

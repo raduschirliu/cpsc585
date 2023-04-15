@@ -17,7 +17,8 @@ class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
 {
   public:
-    // From Component
+    /* ----- from component ----- */
+
     void OnInit(const ServiceProvider& service_provider) override;
     void OnUpdate(const Timestep& delta_time) override;
     void OnDebugGui() override;
@@ -28,12 +29,10 @@ class PlayerController final : public Component,
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
 
-    jss::object_ptr<PlayerState> player_data_;
+    jss::object_ptr<PlayerState> player_state_;
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<Shooter> shooter_;
     jss::object_ptr<PickupService> pickup_service_;
-
-    float shoot_cooldown_;
 
     bool execute_powerup_ = false;
     bool forward_gear_ = true;
@@ -43,6 +42,7 @@ class PlayerController final : public Component,
 
     // to respawn the car
     double respawn_timer_ = 0.0f;
+    float shoot_cooldown_ = 0.0f;
 
     void CheckShoot(const Timestep& delta_time);
     void UpdatePowerupControls(const Timestep& delta_time);

@@ -17,6 +17,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/audio/AudioEmitter.h"
+#include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
 
 using glm::vec3;
@@ -45,8 +46,9 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     // service and component dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
-    transform_ = &GetEntity().GetComponent<Transform>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+
+    transform_ = &GetEntity().GetComponent<Transform>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
     // reset cooldown
@@ -227,15 +229,13 @@ void VehicleComponent::HandleVehicleTransform()
                 transform_->GetPosition() + glm::vec3(0.0f, 16.5f, 0.0f),
                 transform_->GetOrientation()));
 
-        // float maxVelocity =
-        // vehicle_.mPhysXState.physxActor.rigidBody->getMaxLinearVelocity();
-
         // now remove this from the list in gameservice so that it doesnt
         // respawn again and again until requested again later.
         game_state_service_->RemoveRespawnPlayers(this->GetEntity().GetId());
-        // Log::debug("{}", maxVelocity);
-        // set the velocity of this car to be 0, as it just respawned
+
+        // set the velocity and wheel rotation  of this car to be 0
         vehicle_.mBaseState.rigidBodyState.linearVelocity = physx::PxVec3(0.f);
+        vehicle_.mBaseState.wheelRigidBody1dStates->rotationSpeed = 0.f;
     }
 
     else
@@ -317,6 +317,7 @@ void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
     {
         Respawn();
         respawn_timer_ = 0.0f;
+        return;
     }
 }
 
@@ -333,11 +334,6 @@ void VehicleComponent::SetMaxAchievableVelocity(float max_velocity)
 {
     vehicle_.mPhysXState.physxActor.rigidBody->setMaxLinearVelocity(
         max_velocity);
-}
-
-void VehicleComponent::SetPlayerStateData(PlayerStateData& data)
-{
-    player_data_ = &data;
 }
 
 void VehicleComponent::SetVehicleName(const string& vehicle_name)
@@ -399,15 +395,16 @@ DirectDriveVehicle& VehicleComponent::GetVehicle()
 
 VehicleGear VehicleComponent::GetGear() const
 {
+    using enum PxVehicleDirectDriveTransmissionCommandState::Enum;
     switch (vehicle_.mTransmissionCommandState.gear)
     {
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eREVERSE:
+        case eREVERSE:
             return VehicleGear::kReverse;
 
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eNEUTRAL:
+        case eNEUTRAL:
             return VehicleGear::kNeutral;
 
-        case PxVehicleDirectDriveTransmissionCommandState::Enum::eFORWARD:
+        case eFORWARD:
             return VehicleGear::kForward;
 
         default:
