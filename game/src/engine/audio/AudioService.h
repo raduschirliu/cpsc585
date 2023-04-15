@@ -210,7 +210,9 @@ class AudioService final : public Service
      *    AudioService streams from music files instead of playing them directly
      *    like SFX.
      */
-    AudioFile LoadAudioFile(std::string file_name, bool is_music);
+    AudioFile LoadAudioFile(std::string filename, bool is_music);
+    
+    void LoadAudioFiles();
 
     /// OpenAl error handling
     bool CheckAlError(std::string error_message = "");
@@ -239,23 +241,28 @@ class AudioService final : public Service
 
     /* ------ members ------ */
 
+    using SourceBufferPair = std::pair<ALuint, ALuint>;
+    using FileName = std::string;
+    using EntityID = uint32_t;
+    using NameSourceMap = std::map<FileName, SourceBufferPair>;
+
     ALCdevice* audio_device_;    // the sound device to output audio to.
     ALCcontext* audio_context_;  // like an openGL context.
 
     Entity* listener_;  // the entity that can "hear" all positional audio
 
-    using SourceBufferPair = std::pair<ALuint, ALuint>;
-    using FileName = std::string;
-    using EntityID = uint32_t;
+    /// all audio files for sfx 
+    std::map<FileName, AudioFile> sfx_files_;
+    /// all audio files for music 
+    std::map<FileName, AudioFile> music_files_;
+
     /// all of the active 2D sound sources.
     std::map<FileName, SourceBufferPair> non_diegetic_sources_;
-
-    using NameSourceMap = std::map<FileName, SourceBufferPair>;
     /// all of the active 3D/spatial sound sources and their entity's id.
     std::map<EntityID, NameSourceMap> diegetic_sources_;
 
     /// the current music file to stream from
-    AudioFile music_file_;
+    AudioFile* now_playing_;
     /// the current music source.
     std::pair<std::string, std::pair<ALuint, ALuint*>> music_source_;
     /// keep track of how much of the file was played

@@ -1,10 +1,14 @@
 #include "AudioService.h"
 
+#include <filesystem>
+
 #include "engine/core/debug/Log.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
 #include "engine/service/ServiceProvider.h"
 #include "stb/stb_vorbis.h"
+
+using std::filesystem::directory_iterator;
 
 // the system's default output device will be used
 static const ALCchar* kDefaultDevice = nullptr;
@@ -22,7 +26,13 @@ static constexpr ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
 void AudioService::AddSource(std::string file_name)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
+    if (!sfx_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    AudioFile& audio_file = sfx_files_[file_name];
 
     // create buffer in memory
     ALuint buffer;
@@ -62,7 +72,13 @@ void AudioService::AddSource(std::string file_name)
 
 void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
+    if (!sfx_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    AudioFile& audio_file = sfx_files_[file_name];
 
     // create buffer in memory
     ALuint buffer;
@@ -104,7 +120,13 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 
 void AudioService::SetMusic(std::string file_name)
 {
-    music_file_ = LoadAudioFile(file_name, true);
+    if (!music_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    now_playing_ = &music_files_[file_name];
 
     // reserve buffers in memory
     ALuint* buffers = new ALuint[kStreamBufferAmount];
@@ -117,13 +139,13 @@ void AudioService::SetMusic(std::string file_name)
     }
 
     // initialise buffers for audio data
-    auto audio_data = music_file_.data_.get();
+    auto audio_data = now_playing_->data_.get();
 
     for (std::size_t i = 0; i < kStreamBufferAmount; i++)
     {
-        alBufferData(buffers[i], music_file_.format_,
+        alBufferData(buffers[i], now_playing_->format_,
                      &audio_data[(i * kStreamBufferSize) / sizeof(short)],
-                     kStreamBufferSize, music_file_.sample_rate_);
+                     kStreamBufferSize, now_playing_->sample_rate_);
 
         if (CheckAlError())
         {
@@ -165,7 +187,7 @@ void AudioService::PlaySource(std::string file_name)
     // check if source already exists;
     if (!SourceExists(file_name))
     {
-        AddSource(file_name);  // we'll set it here just to be nice
+        AddSource(file_name);
     }
 
     // get the source
@@ -497,11 +519,10 @@ bool AudioService::IsPlayingMusic()
 
 /* ----- backend ----- */
 
-AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
+AudioFile AudioService::LoadAudioFile(std::string filename, bool is_music)
 {
-    // determine which folder to search from
     std::string file_path = (is_music) ? kMusicDirectory : kSfxDirectory;
-    file_path.append(file_name);
+    file_path.append(filename);
 
     // initialize AudioFile
     AudioFile audio_file;
@@ -524,6 +545,26 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
     }
 
     return audio_file;
+}
+
+void AudioService::LoadAudioFiles()
+{
+    // iterate through all audio files
+    for (const auto& entry : directory_iterator(kSfxDirectory))
+    {
+        std::string filename = entry.path().filename().string();
+        sfx_files_.emplace(filename, LoadAudioFile(filename, false));
+
+        debug::LogInfo("{}: Loaded {}", GetName(), filename);
+    }
+
+    for (const auto& entry : directory_iterator(kMusicDirectory))
+    {
+        std::string filename = entry.path().filename().string();
+        music_files_.emplace(filename, LoadAudioFile(filename, true));
+
+        debug::LogInfo("{}: Loaded {}", GetName(), filename);
+    }
 }
 
 void AudioService::CullSources()
@@ -568,8 +609,8 @@ void AudioService::UpdateStreamBuffer()
         return;
     }
 
-    auto audio_data = music_file_.data_.get();
-    ALsizei music_file_size = music_file_.GetSizeBytes();
+    auto audio_data = now_playing_->data_.get();
+    ALsizei music_file_size = now_playing_->GetSizeBytes();
 
     // for every buffer in queue that has been played
     while (buffers_processed > 0)
@@ -608,8 +649,8 @@ void AudioService::UpdateStreamBuffer()
         }
 
         // copy new data into buffer and queue it
-        alBufferData(buffer, music_file_.format_, new_data, kStreamBufferSize,
-                     music_file_.sample_rate_);
+        alBufferData(buffer, now_playing_->format_, new_data, kStreamBufferSize,
+                     now_playing_->sample_rate_);
         alSourceQueueBuffers(source, 1, &buffer);
         if (CheckAlError())
             debug::LogError("Couldn't stream audio.");
@@ -741,6 +782,8 @@ void AudioService::OnInit()
     // create audio context
     audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
+
+    LoadAudioFiles();
 
     if (CheckAlError())
     {
