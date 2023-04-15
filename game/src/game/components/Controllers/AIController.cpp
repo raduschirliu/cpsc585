@@ -130,10 +130,10 @@ void AIController::OnUpdate(const Timestep& delta_time)
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
 
-    if (!respawn_tracker_)
-    {
-        HandleRespawn(delta_time);
-    }
+    // if (!respawn_tracker_)
+    // {
+    //     HandleRespawn(delta_time);
+    // }
     PowerupDecision();
 
     // note: raycasting *may* be an expensive approach
