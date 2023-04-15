@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
@@ -165,6 +166,9 @@ void RenderService::OnUpdate()
         DrawCameraFrustums();
     }
 
+    const Timestep& delta = GetApp().GetDeltaTime();
+    render_data_->total_time += delta.GetSeconds();
+
     depth_pass_.Render();
     geometry_pass_.Render();
 }
@@ -235,6 +239,11 @@ void RenderService::OnGui()
 DebugDrawList& RenderService::GetDebugDrawList()
 {
     return debug_draw_list_;
+}
+
+LaserMaterial& RenderService::GetLaserMaterial()
+{
+    return geometry_pass_.GetLaserMaterial();
 }
 
 void RenderService::DrawCameraFrustums()

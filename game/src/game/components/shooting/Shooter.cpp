@@ -7,6 +7,7 @@
 #include "engine/physics/PhysicsService.h"
 #include "engine/render/RenderService.h"
 
+using glm::vec2;
 using glm::vec3;
 
 static float RandomPitchValue();  // TODO: move this to AudioService
@@ -15,8 +16,9 @@ static constexpr float kBaseDamage = 10.0f;
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
 static constexpr double kMaxTimer = 4.0f;
-static constexpr float kLaserLifetime = 1.0f;
-static constexpr float kLaserSize = 1.0f;
+static constexpr float kLaserLifetime =
+    4.0f;  // TODO(radu): Change this to 1.0 after debugging
+static constexpr float kLaserSize = 3.0f;
 static constexpr float kLaserRange = 1000.0f;
 
 void Shooter::Shoot()
@@ -288,22 +290,19 @@ void Shooter::CreateLaser(const vec3& origin, const vec3& target)
     laser_.target = target;
 
     // Create new mesh
-    const vec3 fwd_dir = glm::normalize(target - origin);
-    const vec3 up_dir = transform_->GetUpDirection();
+    const vec3& fwd_dir = glm::normalize(target - origin);
+    const vec3& up_dir = transform_->GetUpDirection();
     const vec3 right_dir = glm::normalize(glm::cross(fwd_dir, up_dir));
 
     const vec3 horiz_offset = right_dir * (kLaserSize / 2.0f);
-    const vec3 vert_offset = up_dir * (kLaserSize / 2.0f);
 
-    laser_.mesh.front.top_left = origin - horiz_offset + vert_offset;
-    laser_.mesh.front.top_right = origin + horiz_offset + vert_offset;
-    laser_.mesh.front.bot_left = origin - horiz_offset - vert_offset;
-    laser_.mesh.front.bot_right = origin + horiz_offset - vert_offset;
-
-    laser_.mesh.back.top_left = target - horiz_offset + vert_offset;
-    laser_.mesh.back.top_right = target + horiz_offset + vert_offset;
-    laser_.mesh.back.bot_left = target - horiz_offset - vert_offset;
-    laser_.mesh.back.bot_right = target + horiz_offset - vert_offset;
+    // "top" = far side at target, "bot" = close side at origin
+    laser_.quad = {
+        .top_left = LaserVertex(target - horiz_offset, vec2(1.0f, 1.0f)),
+        .bot_left = LaserVertex(origin - horiz_offset, vec2(0.0f, 1.0f)),
+        .bot_right = LaserVertex(origin + horiz_offset, vec2(0.0f, 0.0f)),
+        .top_right = LaserVertex(target + horiz_offset, vec2(1.0f, 0.0f)),
+    };
 }
 
 float RandomPitchValue()
@@ -384,7 +383,10 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     if (laser_.lifetime > 0.0f)
     {
         laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
-        render_service_->GetDebugDrawList().AddCuboid(laser_.mesh,
-                                                      Color4u(255, 0, 0, 255));
+        render_service_->GetLaserMaterial().AddQuad(laser_.quad);
+        // TODO(radu): Remove debug drawing
+        render_service_->GetDebugDrawList().AddLine(
+            DebugVertex(laser_.quad.top_left.pos, Color4u(0, 255, 0, 255)),
+            DebugVertex(laser_.quad.bot_left.pos, Color4u(0, 255, 0, 255)));
     }
 }

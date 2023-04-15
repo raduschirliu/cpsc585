@@ -12,6 +12,7 @@
 			<rendertexture />
 			<items>
 				<item name="RenderState" type="renderstate">
+					<cull>false</cull>
 					<blend>true</blend>
 					<alpha2coverage>false</alpha2coverage>
 					<colorsrcfactor>Source Alpha</colorsrcfactor>
@@ -46,7 +47,7 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<scaleX>10</scaleX>
+					<scaleX>1000</scaleX>
 					<topology>TriangleList</topology>
 				</item>
 			</items>
@@ -70,7 +71,9 @@
 		</pass>
 	</pipeline>
 	<objects>
-		<object type="texture" path="laser_mask.png" vflip="false" min_filter="Linear" mag_filter="Linear" wrap_s="Repeat" wrap_t="Repeat" />
+		<object type="texture" path="laser_mask.png" vflip="false" min_filter="Linear" mag_filter="Linear" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="0" name="Laser" />
+		</object>
 	</objects>
 	<cameras />
 	<settings>
@@ -79,9 +82,9 @@
 		<entry type="pinned" name="uExposure" owner="Laser" />
 		<entry type="pinned" name="uGamma" owner="Laser" />
 		<entry type="camera" fp="false">
-			<distance>30</distance>
-			<pitch>-31</pitch>
-			<yaw>355</yaw>
+			<distance>13</distance>
+			<pitch>15</pitch>
+			<yaw>182</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

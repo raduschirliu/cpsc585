@@ -6,6 +6,7 @@
 #include "engine/core/gfx/ShaderProgram.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/render/DebugDrawList.h"
+#include "engine/render/LaserMaterial.h"
 #include "engine/render/RenderBuffers.h"
 #include "engine/render/SceneRenderData.h"
 
@@ -30,12 +31,14 @@ class GeometryPass
     void ResetState();
 
     void SetWireframe(bool state);
+    LaserMaterial& GetLaserMaterial();
 
   private:
     SceneRenderData& render_data_;
     const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
     ShaderProgram shader_, debug_shader_, skybox_shader_;
+    LaserMaterial laser_material_;
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
     bool wireframe_;
@@ -48,5 +51,6 @@ class GeometryPass
     void RenderMeshes(const CameraView& camera);
     void RenderDebugDrawList(const CameraView& camera);
     void RenderSkybox(const CameraView& camera);
+    void RenderParticles(const Camera& camera);
     void CreateBuffers(const Entity& entity, const MeshRenderer& renderer);
 };

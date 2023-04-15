@@ -69,6 +69,7 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
                     "resources/shaders/debug.frag"),
       skybox_shader_("resources/shaders/skybox.vert",
                      "resources/shaders/skybox.frag"),
+      laser_material_(render_data),
       skybox_buffers_(),
       skybox_texture_(nullptr),
       wireframe_(false),
@@ -215,6 +216,9 @@ void GeometryPass::Init()
     skybox_texture_ = &render_data_.asset_service->GetCubemap("skybox");
 
     VertexArray::Unbind();
+
+    // Setup materials
+    laser_material_.LoadAssets(*render_data_.asset_service);
 }
 
 void GeometryPass::Render()
@@ -264,6 +268,7 @@ void GeometryPass::Render()
             RenderMeshes(view);
             RenderDebugDrawList(view);
             RenderSkybox(view);
+            RenderParticles(*main_camera);
         }
     }
 
@@ -271,6 +276,7 @@ void GeometryPass::Render()
 
     // Cleanup
     render_data_.debug_draw_list->Clear();
+    laser_material_.Clear();
 }
 
 void GeometryPass::RenderDebugGui()
@@ -282,6 +288,7 @@ void GeometryPass::RenderDebugGui()
     if (ImGui::Button("Recompile Lit Shader"))
     {
         shader_.Recompile();
+        laser_material_.RecompileShader();
     }
 
     ImGui::Text("Draw calls: %zu", debug_num_draw_calls_);
@@ -442,6 +449,12 @@ void GeometryPass::RenderSkybox(const CameraView& camera)
     debug_num_draw_calls_ += 1;
 }
 
+void GeometryPass::RenderParticles(const Camera& camera)
+{
+    laser_material_.Prepare();
+    laser_material_.Draw(camera);
+}
+
 void GeometryPass::ResetState()
 {
     meshes_.clear();
@@ -450,4 +463,9 @@ void GeometryPass::ResetState()
 void GeometryPass::SetWireframe(bool state)
 {
     wireframe_ = state;
+}
+
+LaserMaterial& GeometryPass::GetLaserMaterial()
+{
+    return laser_material_;
 }

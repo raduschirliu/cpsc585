@@ -41,6 +41,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 
     DebugDrawList& GetDebugDrawList();
+    LaserMaterial& GetLaserMaterial();
 
   private:
     jss::object_ptr<InputService> input_service_;

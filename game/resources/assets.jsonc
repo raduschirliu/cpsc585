@@ -87,6 +87,12 @@
             "name": "blank"
         },
 
+        /* Particles */
+        {
+            "path": "resources/textures/particle/laser_mask.png",
+            "name": "laser_mask"
+        },
+
         /* UI */
         {
             "path": "resources/textures/ui/main.png",

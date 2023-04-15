@@ -7,6 +7,7 @@
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/physics/RaycastData.h"
+#include "engine/render/LaserMaterial.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/audio/AudioEmitter.h"
@@ -21,7 +22,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
         float lifetime;
         glm::vec3 origin;
         glm::vec3 target;
-        Cuboid mesh;
+        Quad<LaserVertex> quad;
     };
 
     /**
