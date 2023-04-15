@@ -1383,11 +1383,13 @@ void GameStateService::UpdatePowerupInfo()
         }
         else if (pickupType == "ExploadingBullet")
         {
-            ammo_info_.push_back({AmmoPickupType::kExploadingBullet, l.location});
+            ammo_info_.push_back(
+                {AmmoPickupType::kExploadingBullet, l.location});
         }
         else if (pickupType == "IncreaseFireRate")
         {
-            ammo_info_.push_back({AmmoPickupType::kIncreaseFireRate, l.location});
+            ammo_info_.push_back(
+                {AmmoPickupType::kIncreaseFireRate, l.location});
         }
         else if (pickupType == "VampireBullet")
         {
