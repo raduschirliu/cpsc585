@@ -129,7 +129,10 @@ void Window::Create(int width, int height, const char* title)
 
     ConnectCallbacks();
     debug::LogInfo("Window created successfully");
+
+#ifndef NDEBUG
     GLDebug::enable();
+#endif
 }
 
 void Window::ConnectCallbacks()

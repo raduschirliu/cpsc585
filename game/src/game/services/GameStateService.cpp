@@ -135,6 +135,11 @@ void GameStateService::OnUpdate()
 {
     const Timestep& delta_time = GetApp().GetDeltaTime();
 
+    if (input_service_->IsKeyPressed(GLFW_KEY_F6))
+    {
+        debug_menu_open_ = !debug_menu_open_;
+    }
+
     for (auto& t : timer_)
     {
         t.second += static_cast<float>(delta_time.GetSeconds());
@@ -205,6 +210,11 @@ void GameStateService::KillFeed(const ImGuiWindowFlags& flags)
 
 void GameStateService::OnGui()
 {
+    if (debug_menu_open_)
+    {
+        DrawDebugMenu();
+    }
+
     if (race_state_.state == GameState::kNotRunning)
     {
         return;
@@ -505,6 +515,27 @@ void GameStateService::OnGui()
     }
 }
 
+void GameStateService::DrawDebugMenu()
+{
+    if (!ImGui::Begin("GameStateService Debug", &debug_menu_open_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Text("Checkpoints: %zu", track_config_.checkpoints.size());
+
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
+    if (scene.GetName() == "Track1")
+        if (ImGui::Button("Reload checkpoints"))
+        {
+            LoadCheckpoints(scene);
+        }
+
+    ImGui::End();
+}
+
 void GameStateService::OnSceneLoaded(Scene& scene)
 {
     race_state_.Reset();
@@ -552,6 +583,8 @@ void GameStateService::SetupRace()
 {
     race_state_.Reset();
 
+    Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
     // Spawn players
     ASSERT_MSG(race_config_.num_ai_players + race_config_.num_human_players <=
                    kMaxPlayers,
@@ -573,7 +606,10 @@ void GameStateService::SetupRace()
     }
 
     race_state_.total_players = player_idx + 1;
+
+    // Spawn other objects that belong on the track
     SetupPowerups();
+    LoadCheckpoints(scene);
 }
 
 void GameStateService::SetupPowerups()
@@ -668,7 +704,7 @@ void GameStateService::SetupPowerups()
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("ability"),
+                    &asset_service_->GetMesh("killAbility"),
                     MaterialProperties{
                         .albedo_texture =
                             &asset_service_->GetTexture("pickup@powerup"),
@@ -814,7 +850,7 @@ void GameStateService::StartRace()
 
     for (auto& entry : players_)
     {
-        race_state_.sorted_players.push_back(entry.second.get());
+        race_state_.sorted_players.push_back(entry.get());
     }
 
     debug::LogInfo("Game started");
@@ -884,49 +920,27 @@ void GameStateService::RegisterCheckpoint(Entity& entity,
     track_config_.checkpoints.push_back(new_record);
 }
 
-void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
+void GameStateService::PlayerCrossedCheckpoint(Entity& entity,
+                                               uint32_t checkpoint_index)
 {
-    uint32_t entity_id = entity.GetId();
-    // to tackle the problem for not changing the entity.
-    if (entity_id >= 3 && entity_id <= 5)
-    {
-        entity_id = entity_id - 2;
-    }
-    // for player
-    else if (entity_id == 1)
-    {
-        entity_id = entity_id - 1;
-    }
-
-    auto iter = players_.find(entity_id);
-
-    if (iter == players_.end())
-    {
-        return;
-    }
-
-    // USE entity for FURTHER STUFF AS PLAYERS_ has wrong value for entty.
-
-    // debug::LogInfo("Player {} hit  checkpoint {})",
-    //                    iter->second->index, index);
+    PlayerRecord* player = FindPlayerByEntityId(entity.GetId());
+    ASSERT(player);
 
     const uint32_t last_checkpoint =
-        iter->second->state_component->GetLastCheckpoint();
+        player->state_component->GetLastCheckpoint();
     const uint32_t expected_checkpoint =
         (last_checkpoint + 1) % track_config_.checkpoints.size();
 
-    if (index != expected_checkpoint)
+    if (checkpoint_index != expected_checkpoint)
     {
         // if this is an AI Controller then activate the timer which helps us in
         // resetting the AI to the correct checkpoint
-        if (!iter->second->is_human)  // checking if the player is AI.
+        if (!player->is_human)  // checking if the player is AI.
         {
             if (entity.HasComponent<AIController>())
             {
-                auto& PlayerController = entity.GetComponent<AIController>();
-
-                // so that
-                PlayerController.SetRespawnLastCheckpointTimer(true);
+                auto& ai_controller = entity.GetComponent<AIController>();
+                ai_controller.SetRespawnLastCheckpointTimer(true);
             }
         }
         else
@@ -941,7 +955,7 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
     {
         // this means that the AI are following the right way / started to
         // follow the right way, no need to respawn them
-        if (!iter->second->is_human)  // checking if the player is AI.
+        if (!player->is_human)  // checking if the player is AI.
         {
             if (entity.HasComponent<AIController>())
             {
@@ -952,17 +966,16 @@ void GameStateService::PlayerCrossedCheckpoint(Entity& entity, uint32_t index)
             }
         }
     }
-
-    iter->second->state_component->SetLastCheckpoint(index);
-    iter->second->checkpoint_count_accumulator++;
+    player->state_component->SetLastCheckpoint(checkpoint_index);
+    player->checkpoint_count_accumulator++;
 
     // debug::LogInfo("Player {} with id {} checkpoint accumulator #{}",
     //                iter->second->entity->GetName(), entity.GetName(),
     //                iter->second->checkpoint_count_accumulator);
 
-    if (index == 0)
+    if (checkpoint_index == 0)
     {
-        PlayerCompletedLap(*iter->second);
+        PlayerCompletedLap(*player);
     }
 }
 
@@ -972,40 +985,73 @@ int GameStateService::GetCurrentCheckpoint(uint32_t entity_id,
                                            glm::vec3& out_checkpoint_location1,
                                            glm::vec3& out_checkpoint_location2)
 {
-    if (entity_id >= 3 && entity_id <= 5)
-    {
-        entity_id = entity_id - 2;
-    }
-    // for player
-    else if (entity_id == 1)
-    {
-        entity_id = entity_id - 1;
-    }
-    auto iter = players_.find(entity_id);
-    if (iter == players_.end())
-    {
-        // so that player not found with the given entity_id
-        // return -1 to detect the error.
-        return -1;
-    }
+    PlayerRecord* player = FindPlayerByEntityId(entity_id);
+    ASSERT(player);
 
-    // std::cout << iter->second->checkpoint_count_accumulator << std::endl;
+    const int last_checkpoint = player->state_component->GetLastCheckpoint();
+    const int next_checkpoint =
+        (last_checkpoint + 1) % track_config_.checkpoints.size();
 
-    int checkpoint_index = iter->second->checkpoint_count_accumulator - 1;
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
 
-    Checkpoints temp_checkpoint_obj;
-    out_checkpoint_location1 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index]
-            .first;
-    out_checkpoint_location2 =
-        temp_checkpoint_obj
-            .GetCheckpoints()[checkpoint_index < 0 ? 0 : checkpoint_index + 1]
-            .first;
+    ASSERT(last_checkpoint >= 0 && last_checkpoint < checkpoints.size());
+    ASSERT(next_checkpoint >= 0 && next_checkpoint < checkpoints.size());
+
+    out_checkpoint_location1 = checkpoints[last_checkpoint].position;
+    out_checkpoint_location2 = checkpoints[next_checkpoint].position;
 
     // return the checkpoint the player/AI who calls this function is at right
     // now
-    return checkpoint_index;
+    return last_checkpoint;
+}
+
+void GameStateService::LoadCheckpoints(Scene& scene)
+{
+    Checkpoints::LoadCheckpointFile();
+    const auto& checkpoints = Checkpoints::GetCheckpoints();
+
+    if (track_config_.checkpoints.size() != 0)
+    {
+        // Reloading the checkpoints at runtime
+
+        ASSERT_MSG(track_config_.checkpoints.size() == checkpoints.size(),
+                   "Cannot add/remove checkpoints at runtime, only modifying "
+                   "is supported");
+
+        for (size_t i = 0; i < checkpoints.size(); i++)
+        {
+            auto& entity = track_config_.checkpoints[i].entity;
+            auto& transform = entity->GetComponent<Transform>();
+            auto& trigger = entity->GetComponent<BoxTrigger>();
+
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            trigger.SyncTransform();
+        }
+
+        debug::LogDebug(
+            "Checkpoint positions updated - distances between checkpoints has "
+            "NOT been recalculated");
+    }
+    else
+    {
+        // Loading checkpoints fresh
+
+        for (int i = 0; i < checkpoints.size(); i++)
+        {
+            Entity& entity = scene.AddEntity("Checkpoint " + std::to_string(i));
+            auto& transform = entity.AddComponent<Transform>();
+            transform.SetPosition(checkpoints[i].position);
+            transform.SetOrientation(glm::quat(checkpoints[i].orientation));
+            transform.SetScale(checkpoints[i].size);
+
+            auto& trigger = entity.AddComponent<BoxTrigger>();
+            trigger.SetSize(checkpoints[i].size);
+
+            auto& checkpoint = entity.AddComponent<Checkpoint>();
+            checkpoint.SetCheckpointIndex(i);
+        }
+    }
 }
 
 void GameStateService::SetRespawnEntity(uint32_t entity_id)
@@ -1064,10 +1110,8 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
         return;
     }
 
-    for (auto& entry : players_)
+    for (auto& player : players_)
     {
-        auto player = entry.second.get();
-
         const float checkpoint_progress =
             static_cast<float>(player->checkpoint_count_accumulator) * 10000.0f;
 
@@ -1106,12 +1150,26 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
     }
 }
 
+PlayerRecord* GameStateService::FindPlayerByEntityId(uint32_t entity_id)
+{
+    for (auto& player : players_)
+    {
+        if (player->entity->GetId() == entity_id)
+        {
+            return player.get();
+        }
+    }
+
+    ASSERT_MSG(false, "Cannot find player with given entity ID");
+    return nullptr;
+}
+
 Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 {
     ASSERT_MSG(index <= kMaxPlayers, "Cannot have more players than max");
     ASSERT_MSG(index < track_config_.player_spawns.size(),
                "Cannot have more players than number of spawn locations");
-    ASSERT_MSG(players_.find(index) == players_.end(),
+    ASSERT_MSG(index >= players_.size(),
                "Cannot register multiple players with same index");
 
     Scene& scene = GetApp().GetSceneList().GetActiveScene();
@@ -1129,15 +1187,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
     renderer.SetMeshes({
-        // {
-        //     &asset_service_->GetMesh("kart-old@Cube"),
-        //     MaterialProperties{
-        //         .albedo_texture = nullptr,
-        //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-        //         .specular = vec3(1.0f, 1.0f, 1.0f),
-        //         .shininess = 64.0f,
-        //     },
-        // },
         {
             &asset_service_->GetMesh("kart@BodyMain"),
             MaterialProperties{
@@ -1189,12 +1238,9 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     kart_entity.AddComponent<AudioEmitter>();
 
-    auto& player_state = kart_entity.AddComponent<PlayerState>();
-    player_state.SetPlayerName(entity_name);
-    player_states_.insert_or_assign(index, &player_state);
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
+    auto& player_state = kart_entity.AddComponent<PlayerState>();
     vehicle.SetVehicleName(entity_name);
-    vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
     hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
@@ -1222,14 +1268,14 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     }
 
     // Register the player
-    players_[index] = make_unique<PlayerRecord>(
+    players_.push_back(make_unique<PlayerRecord>(
         PlayerRecord{.index = index,
                      .is_human = is_human,
                      .entity = &kart_entity,
                      .transform = &transform,
                      .state_component = &player_state,
                      .checkpoint_count_accumulator = 0,
-                     .progress_score = 0.0f});
+                     .progress_score = 0.0f}));
 
     return kart_entity;
 }
@@ -1390,49 +1436,32 @@ void GameStateService::AddRespawnPlayers(uint32_t entity_id)
 void GameStateService::DisplayScoreboard()
 {
     ImGui::SetNextWindowPos(ImVec2(80, 40));
-    ImGui::SetNextWindowSize(ImVec2(130, 100));
 
-    auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders;
+    auto flags = ImGuiTableFlags_Borders | ImGuiWindowFlags_AlwaysAutoResize;
 
-    if (ImGui::BeginTable("Scoreboard", 4, flags, ImVec2(250, 80), 250))
+    if (ImGui::BeginTable("Scoreboard", 4, flags))
     {
         ImGui::TableSetupColumn("Player");
         ImGui::TableSetupColumn("Kills");
         ImGui::TableSetupColumn("Deaths");
         ImGui::TableSetupColumn("Laps Completed");
-        ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 
         for (auto& player : players_)
         {
-            auto index = player.first;
-            auto& state = player.second->state_component;
-            if (player.second->is_human)
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("Player %u", index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
-            else
-            {
-                ImGui::TableNextColumn();
-                ImGui::Text("CPU %u", index + 1);
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetKills());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetDeaths());
-                ImGui::TableNextColumn();
-                ImGui::Text("%d", state->GetLapsCompleted());
-                ImGui::TableNextRow();
-            }
+            auto& state = player->state_component;
+
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", player->entity->GetName().c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetKills());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetDeaths());
+            ImGui::TableNextColumn();
+            ImGui::Text("%d", state->GetLapsCompleted());
+            ImGui::TableNextColumn();
+            ImGui::TableNextRow();
         }
         ImGui::EndTable();
     }
 }
-

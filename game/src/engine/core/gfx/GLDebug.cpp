@@ -17,6 +17,12 @@ void GLDebug::debugOutputHandler(GLenum source, GLenum type, GLuint id,
         return;
     }
 
+    // Ignore "framebuffer already bound" notifications
+    if (id == 8)
+    {
+        return;
+    }
+
     std::string source_name, type_name;
 
     // clang-format off
