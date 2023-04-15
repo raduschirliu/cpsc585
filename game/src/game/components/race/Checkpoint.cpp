@@ -3,6 +3,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
+#include "game/components/state/PlayerState.h"
 
 void Checkpoint::OnInit(const ServiceProvider& service_provider)
 {
@@ -13,9 +14,12 @@ void Checkpoint::OnInit(const ServiceProvider& service_provider)
 
 void Checkpoint::OnTriggerEnter(const OnTriggerEvent& data)
 {
+    if (!data.other->HasComponent<PlayerState>())
+    {
+        return;
+    }
+
     game_service_->PlayerCrossedCheckpoint(*data.other, checkpoint_index_);
-    // debug::LogDebug("Checkpoint index : {} hit by entity: {}",
-    //                 checkpoint_index_ - 2, data.other->GetId());
 }
 
 std::string_view Checkpoint::GetName() const

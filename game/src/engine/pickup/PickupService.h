@@ -107,6 +107,9 @@ class PickupService final : public Service,
     // To tell if the car should have the slowing down multiplier to them or not
     bool IsVehicleDisableHandling(Entity* entity);
 
+    std::string GetActivePowerup();
+    void SetActivePowerup(std::string powerup);
+
   private:
     /******** AMMO ********/
     std::unordered_map<std::string, AmmoInformation> ammo_information_;
@@ -127,4 +130,6 @@ class PickupService final : public Service,
 
     // Slower the speed of those entities which are not in this list.
     std::unordered_set<Entity*> not_slow_entities_;
+
+    std::string active_powerup_;
 };

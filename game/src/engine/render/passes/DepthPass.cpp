@@ -152,7 +152,6 @@ void DepthPass::Render()
     // Reset framebuffer & culling settings
     glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void DepthPass::RenderDebugGui()

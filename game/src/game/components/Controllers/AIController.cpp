@@ -2,17 +2,24 @@
 
 #include <algorithm>
 #include <limits>
-#include <random>
 
+#include "engine/AI/AIService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/core/math/Physx.h"
+#include "engine/core/math/Random.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
 #include "engine/pickup/PickupService.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
+#include "game/components/VehicleComponent.h"
+#include "game/components/shooting/Shooter.h"
+#include "game/services/GameStateService.h"
+
+using glm::vec3;
 
 float kSpeedMultiplier(0.1f);
-static constexpr size_t kGamepadId = GLFW_JOYSTICK_1;
 float kHandlingMultiplier(0.0f);
 static constexpr float kMaxRespawnTimer(3.0f);
 static constexpr float kMaxFreeFallDifference(500.0f);
@@ -29,7 +36,7 @@ AIController::AIController()
     : input_service_(nullptr),
       transform_(nullptr),
       ai_service_(nullptr),
-      next_path_index_(79)
+      next_path_index_(81)
 {
 }
 
@@ -99,6 +106,17 @@ void AIController::UpdatePowerup()
 
 void AIController::OnUpdate(const Timestep& delta_time)
 {
+    if (respawn_tracker_)
+    {
+        minimum_threshold_respawn_timer_ += delta_time.GetSeconds();
+        if (minimum_threshold_respawn_timer_ >= kMaxRespawnTimer * 4)
+        {
+            respawn_tracker_ = false;
+            minimum_threshold_respawn_timer_ = 0.f;
+            respawn_timer_min_speed = 0.f;
+        }
+    }
+
     if (game_state_service_->GetRaceState()
             .countdown_elapsed_time.GetSeconds() <=
         game_state_service_->GetMaxCountdownSeconds())
@@ -112,23 +130,27 @@ void AIController::OnUpdate(const Timestep& delta_time)
         return;
     }
 
-    glm::vec3 current_car_position = transform_->GetPosition();
-    glm::vec3 next_waypoint = path_to_follow_[next_path_index_];
+    const vec3& current_car_position = transform_->GetPosition();
+    const vec3& next_waypoint = path_to_follow_[next_path_index_];
 
     UpdatePowerup();
     UpdateCarControls(current_car_position, next_waypoint, delta_time);
     NextWaypoint(current_car_position, next_waypoint);
 
-    HandleRespawn(delta_time);
+    // Disabled due to AIs respawning continuously at the ramp and causing huge
+    // frame drops if (!respawn_tracker_)
+    // {
+    //     HandleRespawn(delta_time);
+    // }
     PowerupDecision();
 
     // note: raycasting *may* be an expensive approach
-    glm::vec3 forward = transform_->GetForwardDirection();
-    glm::vec3 offset = 20.0f * forward;
-    glm::vec3 origin = transform_->GetPosition() + offset;
+    const vec3& forward = transform_->GetForwardDirection();
+    const vec3 offset = 20.0f * forward;
+    const vec3 origin = transform_->GetPosition() + offset;
 
     // if an entity is within view
-    bool saw_something =
+    const bool saw_something =
         physics_service_->RaycastDynamic(origin, forward, kViewDistance)
             .has_value();
     if (saw_something && WillShoot(0.75f))
@@ -137,27 +159,29 @@ void AIController::OnUpdate(const Timestep& delta_time)
     }
 }
 
-void AIController::FixRespawnOrientation(
-    const glm::vec3& next_checkpoint_location,
-    const glm::vec3& checkpoint_location)
+void AIController::FixRespawnOrientation(const vec3& next_checkpoint,
+                                         const vec3& last_checkpoint)
 {
-    transform_->SetOrientation(kIdentityQuat);
+    const auto& current_orientation = transform_->GetOrientation();
+
+    // assume car is initially oriented along the negative z-axis
+    vec3 forward = transform_->GetForwardDirection();
+    vec3 direction = glm::normalize(next_checkpoint - last_checkpoint);
+    vec3 axis = glm::normalize(glm::cross(forward, direction));
+    float angle = glm::acos(glm::dot(forward, direction));
+
+    transform_->SetOrientation(glm::angleAxis(angle, axis) *
+                               current_orientation);
 }
 
 void AIController::HandleRespawn(const Timestep& delta_time)
 {
-    // TODO: if the AI skips a checkpoint by mistake, then wait 5 seconds, if it
-    //          doesnt correct itself then respawn it.
-
-    // if the velocity of car is less than some amount then respawn the car.
-    // HandleMinSpeedThresholdRespawn(delta_time);
-
     // if the car falls off the map
     HandleFreefallRespawn(delta_time);
 
     // if the AI is following the wrong path for more than 6 seconds, missed a
     // checkpoint (reset it to the last checkpoint it crossed).
-    // HandleMissedCheckpointRespawn(delta_time);
+    HandleMissedCheckpointRespawn(delta_time);
 }
 
 void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
@@ -177,54 +201,19 @@ void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
     {
         // as the car should respawn to the previous checkpoint now,
         // applying that logic
-        glm::vec3 checkpoint_location;
-        glm::vec3 next_checkpoint_location;
+        vec3 checkpoint_location;
+        vec3 next_checkpoint_location;
 
         int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
             this->GetEntity().GetId(), checkpoint_location,
             next_checkpoint_location);
 
         if (current_checkpoint == -1)
-            return;
-
-        transform_->SetPosition(checkpoint_location);
-        FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // add this car's id to respawn, which will be handled by the
-        // gamestateservice
-        game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
-    }
-}
-
-void AIController::HandleMinSpeedThresholdRespawn(const Timestep& delta_time)
-{
-    if (vehicle_->GetSpeed() < kMinRespawnSpeed)
-    {
-        respawn_timer_min_speed += delta_time.GetSeconds();
-        if (respawn_timer_min_speed >= kMaxRespawnTimer)
         {
-            // reset the transform to that of the checkpoint
-            glm::vec3 checkpoint_location;
-            glm::vec3 next_checkpoint_location;
-
-            int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
-                this->GetEntity().GetId(), checkpoint_location,
-                next_checkpoint_location);
-
-            if (current_checkpoint == -1)
-                return;
-
-            transform_->SetPosition(checkpoint_location);
-            FixRespawnOrientation(next_checkpoint_location,
-                                  checkpoint_location);
-            // add this car's id to respawn, which will be handled by the
-            // gamestateservice
-            game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+            return;
         }
-    }
-    else
-    {
-        // reset the timer back
-        respawn_timer_min_speed = 0.0f;
+
+        vehicle_->Respawn();
     }
 }
 
@@ -235,8 +224,8 @@ void AIController::HandleFreefallRespawn(const Timestep& delta_time)
     {
         // reset the transform to that of the checkpoint
         // TODO: Set the orientation based on the next and current checkpoint.
-        glm::vec3 checkpoint_location;
-        glm::vec3 next_checkpoint_location;
+        vec3 checkpoint_location;
+        vec3 next_checkpoint_location;
 
         int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
             this->GetEntity().GetId(), checkpoint_location,
@@ -245,21 +234,13 @@ void AIController::HandleFreefallRespawn(const Timestep& delta_time)
         if (current_checkpoint == -1)
             return;
 
-        transform_->SetPosition(checkpoint_location);
-        FixRespawnOrientation(next_checkpoint_location, checkpoint_location);
-        // as this indicates that the car has fallen off the map, respawn it to
-        // the previous checkpoint
-        game_state_service_->AddRespawnPlayers(this->GetEntity().GetId());
+        vehicle_->Respawn();
     }
 }
 
 bool AIController::WillShoot(float chance)
 {
-    std::random_device seed;
-    std::mt19937 generator(seed());
-    std::uniform_int_distribution<int> value(0, 100);
-
-    return value(generator) < chance * 100;
+    return math::RandomInt(0, 100) < chance * 100;
 }
 
 void AIController::CheckShoot(const Timestep& delta_time)
@@ -277,13 +258,9 @@ void AIController::CheckShoot(const Timestep& delta_time)
 // Decision for Powerup.
 void AIController::PowerupDecision()
 {
-    // srand(time(0));
     // as this is happening every loop, we need to make sure that the
     // probability to execute the powerup is really low
     int probability_powerup_execution = (rand() % 100);
-
-    // debug::LogDebug("{}, {} with random number:", GetEntity().GetName(),
-    // probability_powerup_execution);
 
     if (probability_powerup_execution == 99)
     {
@@ -297,18 +274,18 @@ void AIController::ExecutePowerup()
     // TODO: handle executing the powerup
 }
 
-void AIController::DrawDebugLine(glm::vec3 from, glm::vec3 to)
+void AIController::DrawDebugLine(vec3 from, vec3 to)
 {
     render_service_->GetDebugDrawList().AddLine(DebugVertex(from),
                                                 DebugVertex(to));
 }
 
-void AIController::UpdateCarControls(glm::vec3& current_car_position,
-                                     glm::vec3& next_waypoint,
+void AIController::UpdateCarControls(const vec3& current_car_position,
+                                     const vec3& next_waypoint,
                                      const Timestep& delta_time)
 {
     // ----------------- put the code from here to updatecarcontrols
-    glm::vec3 current_car_right_direction = -transform_->GetRightDirection();
+    vec3 current_car_right_direction = -transform_->GetRightDirection();
 
     VehicleCommand temp_command;
 
@@ -316,7 +293,7 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     if (speed <= 99)
     {
         // debug::LogWarn("{}", speed_multiplier_);
-        if (speed > 30)
+        if (speed > 55)
         {
             temp_command.throttle =
                 1.0f * (vehicle_->GetAdjustedSpeedMultiplier() / 100) *
@@ -341,12 +318,12 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
         temp_command.rear_brake = 0.5f;
     }
 
-    glm::vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
+    vec3 waypoint_dir = normalize(next_waypoint - current_car_position);
     float projected = dot(waypoint_dir, current_car_right_direction);
 
     // DrawDebugLine(
     //     current_car_position,
-    //     glm::vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
+    //     vec3(next_waypoint.x, next_waypoint.y + 10, next_waypoint.z));
 
     if (projected <= 0.1f && projected >= -0.1f)
     {
@@ -378,8 +355,8 @@ void AIController::UpdateCarControls(glm::vec3& current_car_position,
     vehicle_->SetCommand(temp_command);
 }
 
-void AIController::NextWaypoint(glm::vec3& current_car_position,
-                                glm::vec3 next_waypoint)
+void AIController::NextWaypoint(const vec3& current_car_position,
+                                const vec3& next_waypoint)
 {
     float distance = glm::distance(current_car_position, next_waypoint);
 

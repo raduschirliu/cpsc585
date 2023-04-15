@@ -40,14 +40,14 @@ bool CubemapRecord::Deserialize(const Value& node)
         return false;
     }
 
-    bool status = false;
-    status |= json::GetString(node, "name", name);
-    status |= json::GetString(node, "path_xneg", path_xneg);
-    status |= json::GetString(node, "path_xpos", path_xpos);
-    status |= json::GetString(node, "path_yneg", path_yneg);
-    status |= json::GetString(node, "path_ypos", path_ypos);
-    status |= json::GetString(node, "path_zneg", path_zneg);
-    status |= json::GetString(node, "path_zpos", path_zpos);
+    bool status = true;
+    status &= json::GetString(node, "name", name);
+    status &= json::GetString(node, "path_xneg", path_xneg);
+    status &= json::GetString(node, "path_xpos", path_xpos);
+    status &= json::GetString(node, "path_yneg", path_yneg);
+    status &= json::GetString(node, "path_ypos", path_ypos);
+    status &= json::GetString(node, "path_zneg", path_zneg);
+    status &= json::GetString(node, "path_zpos", path_zpos);
 
     return status;
 }
