@@ -78,6 +78,8 @@ void Transform::Rotate(const quat& delta)
 
 void Transform::RotateEulerDegrees(const vec3& delta_euler_degrees)
 {
+    // TODO: Change to using quat() constructor that takes euler angles?
+
     // Apply in order: yaw (around y-axis), pitch (around x-axis), roll (around
     // z-axis)
     const quat yaw =
@@ -138,7 +140,7 @@ void Transform::OnDebugGui()
     ImGui::Spacing();
 
     const vec3& orientation = glm::degrees(glm::eulerAngles(orientation_));
-    gui::ViewProperty("Orientation (Euler, Degrees)", orientation);
+    gui::ViewProperty("Orientation (Euler Degrees)", orientation);
     ImGui::Spacing();
 
     ImGui::Text("Scale");

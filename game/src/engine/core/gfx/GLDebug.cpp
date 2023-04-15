@@ -17,7 +17,7 @@ void GLDebug::debugOutputHandler(GLenum source, GLenum type, GLuint id,
         return;
     }
 
-    // ignore message about default framebuffer being already bound
+    // Ignore "framebuffer already bound" notifications
     if (id == 8)
     {
         return;
