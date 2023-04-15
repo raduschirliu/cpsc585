@@ -41,6 +41,7 @@ class GeometryPass
     bool wireframe_;
     float min_shadow_bias_;
     float max_shadow_bias_;
+    size_t total_buffer_size_;
 
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);

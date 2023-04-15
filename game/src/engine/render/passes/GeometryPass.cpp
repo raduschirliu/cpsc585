@@ -32,6 +32,7 @@ struct MeshRenderData
     VertexArray vertex_array;
     VertexBuffer vertex_buffer;
     ElementArrayBuffer element_buffer;
+    size_t buffer_size;
 };
 
 struct CameraView
@@ -71,7 +72,8 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
       skybox_texture_(nullptr),
       wireframe_(false),
       min_shadow_bias_(0.005f),
-      max_shadow_bias_(0.05f)
+      max_shadow_bias_(0.05f),
+      total_buffer_size_(0)
 {
 }
 
@@ -86,6 +88,7 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
         .vertex_array = VertexArray(),
         .vertex_buffer = VertexBuffer(),
         .element_buffer = ElementArrayBuffer(),
+        .buffer_size = 0,
     });
 
     // Configure vertex array/buffer and upload data
@@ -129,6 +132,10 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
 
     data->vertex_buffer.Upload(vertices, GL_STATIC_DRAW);
     data->element_buffer.Upload(indices, GL_STATIC_DRAW);
+    data->buffer_size =
+        vertices.size() * sizeof(Vertex) + indices.size() * sizeof(uint32_t);
+
+    total_buffer_size_ += data->buffer_size;
 
     VertexArray::Unbind();
 
@@ -139,8 +146,19 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
 void GeometryPass::UnregisterRenderable(const Entity& entity)
 {
     const uint32_t target_id = entity.GetId();
-    std::erase_if(render_data_.entities, [target_id](const Entity* x)
-                  { return x->GetId() == target_id; });
+    auto iter = meshes_.begin();
+
+    while (iter != meshes_.end())
+    {
+        if (iter->get()->entity->GetId() == target_id)
+        {
+            meshes_.erase(iter);
+            total_buffer_size_ -= iter->get()->buffer_size;
+            return;
+        }
+
+        iter++;
+    }
 }
 
 void GeometryPass::Init()
@@ -221,6 +239,19 @@ void GeometryPass::RenderDebugGui()
     if (ImGui::Button("Recompile Lit Shader"))
     {
         shader_.Recompile();
+    }
+
+    ImGui::Text("Meshes: %zu", meshes_.size());
+    ImGui::Text("Total buffer size: %zu bytes", total_buffer_size_);
+
+    if (ImGui::CollapsingHeader("Buffers"))
+    {
+        for (size_t i = 0; i < meshes_.size(); i++)
+        {
+            const MeshRenderData* mesh = meshes_[i].get();
+            ImGui::BulletText("%s - %zu bytes", mesh->entity->GetName().c_str(),
+                              mesh->buffer_size);
+        }
     }
 }
 
