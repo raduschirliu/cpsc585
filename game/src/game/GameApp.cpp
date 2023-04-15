@@ -159,12 +159,10 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = car_entity.AddComponent<Transform>();
         transform.SetPosition(vec3(10.0f, 5.0f, 10.0f));
 
+        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         auto& player_state = car_entity.AddComponent<PlayerState>();
 
-        auto& vehicle = car_entity.AddComponent<VehicleComponent>();
         vehicle.SetVehicleName("PlayerVehicle");
-
-        vehicle.SetPlayerStateData(*player_state.GetStateData());
 
         auto& hitbox_component = car_entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
@@ -198,11 +196,10 @@ void GameApp::LoadTestScene(Scene& scene)
 
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(0.0, 5.0f, 10.0f));
-        auto& player_state = entity.AddComponent<PlayerState>();
 
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        auto& player_state = entity.AddComponent<PlayerState>();
         bunny_vehicle.SetVehicleName("AI1");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
         auto& mesh_renderer = entity.AddComponent<MeshRenderer>();
@@ -224,11 +221,9 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(20.0f, 5.0f, 10.0f));
 
-        auto& player_state = entity.AddComponent<PlayerState>();
-
         auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
+        auto& player_state = entity.AddComponent<PlayerState>();
         bunny_vehicle.SetVehicleName("AI2");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
 
@@ -251,11 +246,11 @@ void GameApp::LoadTestScene(Scene& scene)
         auto& transform = entity.AddComponent<Transform>();
         transform.SetPosition(vec3(30.0f, 5.0f, 10.0f));
 
+        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         auto& player_state = entity.AddComponent<PlayerState>();
 
-        auto& bunny_vehicle = entity.AddComponent<VehicleComponent>();
         bunny_vehicle.SetVehicleName("AI3");
-        bunny_vehicle.SetPlayerStateData(*player_state.GetStateData());
+
         auto& hitbox_component = entity.AddComponent<Hitbox>();
         hitbox_component.SetSize(vec3(10.f));
 

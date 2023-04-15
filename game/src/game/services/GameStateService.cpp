@@ -1122,15 +1122,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     auto& renderer = kart_entity.AddComponent<MeshRenderer>();
     renderer.SetMeshes({
-        // {
-        //     &asset_service_->GetMesh("kart-old@Cube"),
-        //     MaterialProperties{
-        //         .albedo_texture = nullptr,
-        //         .albedo_color = vec3(1.0f, 1.0f, 1.0f),
-        //         .specular = vec3(1.0f, 1.0f, 1.0f),
-        //         .shininess = 64.0f,
-        //     },
-        // },
         {
             &asset_service_->GetMesh("kart@BodyMain"),
             MaterialProperties{
@@ -1182,11 +1173,9 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
     kart_entity.AddComponent<AudioEmitter>();
 
-    auto& player_state = kart_entity.AddComponent<PlayerState>();
-
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
+    auto& player_state = kart_entity.AddComponent<PlayerState>();
     vehicle.SetVehicleName(entity_name);
-    vehicle.SetPlayerStateData(*player_state.GetStateData());
 
     auto& hitbox_component = kart_entity.AddComponent<Hitbox>();
     hitbox_component.SetSize(vec3(15.0f, 10.0f, 15.0f));
