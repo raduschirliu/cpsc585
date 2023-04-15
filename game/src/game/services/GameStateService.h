@@ -48,6 +48,12 @@ struct PlayerRecord
     double finished_time;
 };
 
+struct PickupData
+{
+    glm::vec3 location;
+    std::string name;
+};
+
 struct GlobalRaceState
 {
     GameState state;
@@ -110,8 +116,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
-    std::vector<std::pair<glm::vec3, std::string>>
-    ReadCheckpointsFromJsonFile();
+    std::vector<PickupData> ReadCheckpointsFromJsonFile();
 
   protected:
     void KillFeed(const ImGuiWindowFlags& flags);
