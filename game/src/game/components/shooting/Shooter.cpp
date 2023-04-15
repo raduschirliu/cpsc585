@@ -26,7 +26,7 @@ void Shooter::Shoot()
     // origin and direction of the raycast from this entity
     const vec3& fwd_direction = transform_->GetForwardDirection();
     const vec3& up_direction = transform_->GetUpDirection();
-    const vec3 fwd_offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
+    const vec3 fwd_offset = (hitbox_->GetSize() + 6.5f) * fwd_direction;
     const vec3 up_offset = up_direction * 1.0f;
     const vec3 origin = transform_->GetPosition() + fwd_offset + up_offset;
 
