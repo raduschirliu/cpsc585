@@ -2,6 +2,7 @@
 
 #include <object_ptr.hpp>
 
+#include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/scene/Component.h"
@@ -25,6 +26,7 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<GuiService> gui_service_;
     jss::object_ptr<AssetService> asset_service_;
 
+    jss::object_ptr<Transform> transform_;
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<PlayerState> player_state_;
 
@@ -38,6 +40,8 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     const Texture* exploadingBullet_;
     const Texture* increaseFireRate_;
     const Texture* vampireBullet_;
+
+    const Texture* minimap_;
 
     ImFont* font_;
 };
