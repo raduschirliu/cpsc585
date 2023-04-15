@@ -1339,7 +1339,7 @@ std::vector<PickupData> GameStateService::ReadCheckpointsFromJsonFile()
                 const rapidjson::Value& location = object["Location"];
                 const rapidjson::Value& pickup_type = object["Pickup_Type"];
 
-                if (location.IsString() && pickup_type.IsString())
+                if (location.IsArray() && pickup_type.IsString())
                 {
                     auto location_array = location.GetArray();
                     std::string pickup_type_str = pickup_type.GetString();
