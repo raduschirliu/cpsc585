@@ -48,7 +48,9 @@ class VehicleComponent final : public Component,
     snippetvehicle2::DirectDriveVehicle& GetVehicle();
     VehicleGear GetGear() const;
     float GetSpeed() const;
+    float GetWheelSpeed() const;
     float GetAdjustedSpeedMultiplier();
+    float GetDrivePitch() const;
     bool IsGrounded() const;
 
   private:

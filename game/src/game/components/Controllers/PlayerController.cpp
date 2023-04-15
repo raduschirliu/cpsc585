@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <string>
+
 #include "engine/App.h"
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
@@ -13,6 +15,7 @@
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
 #include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
@@ -28,6 +31,7 @@ void PlayerController::OnInit(const ServiceProvider& service_provider)
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     pickup_service_ = &service_provider.GetService<PickupService>();
+    audio_service_ = &service_provider.GetService<AudioService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
@@ -82,46 +86,34 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
 
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 {
-    if (input_service_->IsKeyDown(GLFW_KEY_SPACE))
+    using enum PowerupPickupType;
+    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
     {
-        if (player_state_->GetCurrentPowerup() ==
-            PowerupPickupType::kDefaultPowerup)
+        if (player_state_->GetCurrentPowerup() == kDefaultPowerup)
         {
             return;
         }
-        else
+
+        // handle execting the powerup
+        std::string powerup;
+        switch (player_state_->GetCurrentPowerup())
         {
-            switch (player_state_->GetCurrentPowerup())
-            {
-                case PowerupPickupType::kDisableHandling:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "DisableHandling");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kEveryoneSlower:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "EveryoneSlower");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kIncreaseAimBox:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "IncreaseAimBox");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kKillAbilities:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "KillAbilities");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-            }
+            case kDisableHandling:
+                powerup = "DisableHandling";
+                break;
+            case kEveryoneSlower:
+                powerup = "EveryoneSlower";
+                break;
+            case kIncreaseAimBox:
+                powerup = "IncreaseAimBox";
+                break;
+            case kKillAbilities:
+                powerup = "KillAbilities";
+                break;
         }
+
+        pickup_service_->AddEntityWithPowerup(&GetEntity(), powerup);
+        pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
     }
 }
 

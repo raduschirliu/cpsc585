@@ -1,8 +1,14 @@
 #include "AudioService.h"
 
+#include <filesystem>
+
 #include "engine/core/debug/Log.h"
+#include "engine/scene/Entity.h"
+#include "engine/scene/Transform.h"
 #include "engine/service/ServiceProvider.h"
 #include "stb/stb_vorbis.h"
+
+using std::filesystem::directory_iterator;
 
 // the system's default output device will be used
 static const ALCchar* kDefaultDevice = nullptr;
@@ -20,7 +26,13 @@ static constexpr ALsizei kStreamBufferSize = 65536;  // 32kb per buffer
 
 void AudioService::AddSource(std::string file_name)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
+    if (!sfx_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    AudioFile& audio_file = sfx_files_[file_name];
 
     // create buffer in memory
     ALuint buffer;
@@ -38,25 +50,35 @@ void AudioService::AddSource(std::string file_name)
 
     // create and initialise source
     ALuint source;
+
+    // set default properties
     alGenSources(1, &source);
     alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+    alSourcei(source, AL_BUFFER, buffer);
 
-    SourceBufferPair source_buffer_pair = {source, buffer};
+    alSourcei(source, AL_SOURCE_RELATIVE, 0);  // set the position relative to
+                                               // and on the listener
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't create audio source for {}", file_name);
-        debug::LogError("Couldn't create audio source for {}", file_name);
         return;
     }
 
+    // add to source map
+    SourceBufferPair source_buffer_pair = {source, buffer};
     non_diegetic_sources_.insert({file_name, source_buffer_pair});
 }
 
 void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 {
-    AudioFile audio_file = LoadAudioFile(file_name, false);
+    if (!sfx_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    AudioFile& audio_file = sfx_files_[file_name];
 
     // create buffer in memory
     ALuint buffer;
@@ -70,26 +92,26 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
     {
         debug::LogError("Couldn't buffer audio data for {}.", file_name);
         return;
-        return;
     }
 
     // create and initialise source
     ALuint source;
+
+    // set default properties
     alGenSources(1, &source);
     alSourcei(source, AL_LOOPING, AL_FALSE);
-    alSourcei(source, AL_BUFFER, buffer);  // GIVE SOURCE ITS BUFFER
+    alSourcei(source, AL_BUFFER, buffer);
 
-    // set properties for spatial audio
-    alSourcef(source, AL_MAX_DISTANCE, 500.0f);  // distance until silent
-    alSourcef(source, AL_REFERENCE_DISTANCE, 150.0f);
-    alSourcef(source, AL_ROLLOFF_FACTOR, 0.6f);
+    // spatial properties
+    alSourcef(source, AL_MAX_DISTANCE, 500.0f);        // distance until silent
+    alSourcef(source, AL_REFERENCE_DISTANCE, 150.0f);  // ... until gain halfed
+    alSourcef(source, AL_ROLLOFF_FACTOR, 0.6f);        // rolloff rate
 
     SourceBufferPair source_buffer_pair = {source, buffer};
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't create source for {}", file_name);
-        return;
         return;
     }
 
@@ -98,7 +120,13 @@ void AudioService::AddSource(uint32_t entity_id, std::string file_name)
 
 void AudioService::SetMusic(std::string file_name)
 {
-    music_file_ = LoadAudioFile(file_name, true);
+    if (!music_files_.count(file_name))
+    {
+        debug::LogError("{}: File '{}' doesn't exist.", GetName(), file_name);
+        return;
+    }
+
+    now_playing_ = &music_files_[file_name];
 
     // reserve buffers in memory
     ALuint* buffers = new ALuint[kStreamBufferAmount];
@@ -111,13 +139,13 @@ void AudioService::SetMusic(std::string file_name)
     }
 
     // initialise buffers for audio data
-    auto audio_data = music_file_.data_.get();
+    auto audio_data = now_playing_->data_.get();
 
     for (std::size_t i = 0; i < kStreamBufferAmount; i++)
     {
-        alBufferData(buffers[i], music_file_.format_,
+        alBufferData(buffers[i], now_playing_->format_,
                      &audio_data[(i * kStreamBufferSize) / sizeof(short)],
-                     kStreamBufferSize, music_file_.sample_rate_);
+                     kStreamBufferSize, now_playing_->sample_rate_);
 
         if (CheckAlError())
         {
@@ -130,8 +158,9 @@ void AudioService::SetMusic(std::string file_name)
     // create and initialise source
     ALuint source;
     alGenSources(1, &source);
-    // don't want to loop just one buffer
-    alSourcei(source, AL_LOOPING, AL_FALSE);
+
+    alSourcei(source, AL_LOOPING, AL_FALSE);  // don't want to only loop
+                                              // the first buffer
 
     if (CheckAlError())
     {
@@ -158,10 +187,10 @@ void AudioService::PlaySource(std::string file_name)
     // check if source already exists;
     if (!SourceExists(file_name))
     {
-        AddSource(file_name);  // we'll set it here just to be nice
+        AddSource(file_name);
     }
 
-    // find the source
+    // get the source
     ALuint source;
     source = non_diegetic_sources_[file_name].first;
 
@@ -184,7 +213,7 @@ void AudioService::PlaySource(uint32_t entity_id, std::string file_name)
         return;
     }
 
-    // find the source
+    // get the source
     ALuint source;
     source = diegetic_sources_[entity_id][file_name].first;
 
@@ -203,7 +232,7 @@ void AudioService::PlayMusic()
     //  music wasn't set yet
     if (music_source_.first == "")
     {
-        debug::LogWarn("Source wasn't set yet");
+        debug::LogWarn("Music wasn't set yet");
         return;
     }
 
@@ -225,6 +254,7 @@ void AudioService::StopSource(std::string file_name)
 {
     ALuint source = non_diegetic_sources_[file_name].first;
     alSourceStop(source);
+    alDeleteSources(1, &source);
 }
 
 void AudioService::StopSource(uint32_t entity_id, std::string file_name)
@@ -243,13 +273,6 @@ void AudioService::StopAllSources()
 
 void AudioService::StopMusic()
 {
-    std::string file_name = music_source_.first;
-    if (!SourceExists(file_name))
-    {
-        debug::LogError("Music wasn't set yet.");
-        return;
-    }
-
     ALuint source = music_source_.second.first;
     alSourceStop(source);
 }
@@ -438,20 +461,36 @@ void AudioService::SetSourcePosition(uint32_t entity_id, glm::vec3 position)
     }
 }
 
-void AudioService::SetListenerPosition(glm::vec3 position)
+void AudioService::SetListener(Entity& listener)
 {
+    listener_ = &listener;
+}
+
+void AudioService::UpdateListener()
+{
+    if (!listener_ || !listener_->HasComponent<Transform>())
+    {
+        // leave listener properties as default (probably at origin)
+        return;
+    }
+
+    auto& transform = listener_->GetComponent<Transform>();
+
+    glm::vec3 position = transform.GetPosition();
+
+    glm::vec3 forward = transform.GetForwardDirection();
+    glm::vec3 up = transform.GetUpDirection();
+
+    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
+                             up.x,      up.y,      up.z};      //
+
     alListener3f(AL_POSITION, position.x, position.y, position.z);
 
     if (CheckAlError())
     {
         debug::LogError("Couldn't set listener position.");
     }
-}
 
-void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
-{
-    ALfloat orientation[] = {forward.x, forward.y, forward.z,  //
-                             up.x,      up.y,      up.z};      //
     alListenerfv(AL_ORIENTATION, orientation);
 
     if (CheckAlError())
@@ -460,13 +499,30 @@ void AudioService::SetListenerOrientation(glm::vec3 forward, glm::vec3 up)
     }
 }
 
+bool AudioService::IsPlayingMusic()
+{
+    ALuint source = music_source_.second.first;
+    ALint state;
+
+    alGetSourcei(source, AL_SOURCE_STATE, &state);
+
+    switch (state)
+    {
+        case AL_PLAYING:
+            return true;
+        case AL_PAUSED:
+        case AL_STOPPED:
+        default:
+            return false;
+    }
+}
+
 /* ----- backend ----- */
 
-AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
+AudioFile AudioService::LoadAudioFile(std::string filename, bool is_music)
 {
-    // determine which folder to search from
     std::string file_path = (is_music) ? kMusicDirectory : kSfxDirectory;
-    file_path.append(file_name);
+    file_path.append(filename);
 
     // initialize AudioFile
     AudioFile audio_file;
@@ -491,7 +547,21 @@ AudioFile AudioService::LoadAudioFile(std::string file_name, bool is_music)
     return audio_file;
 }
 
-// TODO (but low priority): cull diegetic sources too
+void AudioService::LoadAudioFiles()
+{
+    for (const auto& entry : directory_iterator(kSfxDirectory))
+    {
+        std::string filename = entry.path().filename().string();
+        sfx_files_.emplace(filename, LoadAudioFile(filename, false));
+    }
+
+    for (const auto& entry : directory_iterator(kMusicDirectory))
+    {
+        std::string filename = entry.path().filename().string();
+        music_files_.emplace(filename, LoadAudioFile(filename, true));
+    }
+}
+
 void AudioService::CullSources()
 {
     // iterate through active sources
@@ -534,8 +604,8 @@ void AudioService::UpdateStreamBuffer()
         return;
     }
 
-    auto audio_data = music_file_.data_.get();
-    ALsizei music_file_size = music_file_.GetSizeBytes();
+    auto audio_data = now_playing_->data_.get();
+    ALsizei music_file_size = now_playing_->GetSizeBytes();
 
     // for every buffer in queue that has been played
     while (buffers_processed > 0)
@@ -574,8 +644,8 @@ void AudioService::UpdateStreamBuffer()
         }
 
         // copy new data into buffer and queue it
-        alBufferData(buffer, music_file_.format_, new_data, kStreamBufferSize,
-                     music_file_.sample_rate_);
+        alBufferData(buffer, now_playing_->format_, new_data, kStreamBufferSize,
+                     now_playing_->sample_rate_);
         alSourceQueueBuffers(source, 1, &buffer);
         if (CheckAlError())
             debug::LogError("Couldn't stream audio.");
@@ -708,6 +778,8 @@ void AudioService::OnInit()
     audio_context_ = alcCreateContext(audio_device_, nullptr);
     alcMakeContextCurrent(audio_context_);
 
+    LoadAudioFiles();
+
     if (CheckAlError())
     {
         // i.e no audio at all
@@ -738,13 +810,18 @@ void AudioService::OnUpdate()
         UpdateStreamBuffer();
     }
 
-    // clear sources not playing
-    CullSources();
+    CullSources();     // clear sources not playing
+    UpdateListener();  // the listener's position and orientation
 }
 
 void AudioService::OnCleanup()
 {
+    // stop playback of all sources
+    StopAllSources();
+    StopMusic();
+
     // clear music
+    alSourcei(music_source_.second.first, AL_BUFFER, 0);  // detach its buffer
     alDeleteSources(1, &music_source_.second.first);
     alDeleteBuffers(kStreamBufferAmount, music_source_.second.second);
     delete[] music_source_.second.second;
@@ -752,6 +829,7 @@ void AudioService::OnCleanup()
     // clear sfx
     for (auto& source : non_diegetic_sources_)
     {
+        alSourcei(source.second.first, AL_BUFFER, 0);
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
     }
@@ -760,6 +838,7 @@ void AudioService::OnCleanup()
     {
         for (auto& source : entity.second)
         {
+            alSourcei(source.second.first, AL_BUFFER, 0);
             alDeleteSources(1, &source.second.first);
             alDeleteBuffers(1, &source.second.second);
         }
