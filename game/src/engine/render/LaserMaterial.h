@@ -18,12 +18,16 @@ struct LaserVertex
 {
     glm::vec3 pos;
     glm::vec2 uv;
+    float alpha;
 
-    LaserVertex() : pos(0.0f, 0.0f, 0.0f), uv(0.0f, 0.0f)
+    LaserVertex() : pos(0.0f, 0.0f, 0.0f), uv(0.0f, 0.0f), alpha(0.0f)
     {
     }
 
-    LaserVertex(const glm::vec3& pos, const glm::vec2& uv) : pos(pos), uv(uv)
+    LaserVertex(const glm::vec3& pos, const glm::vec2& uv, const float& alpha)
+        : pos(pos),
+          uv(uv),
+          alpha(alpha)
     {
     }
 };

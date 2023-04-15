@@ -1,8 +1,8 @@
 #version 410 core
 
 in vec3 aPos;
-in vec4 aColor;
 in vec2 aTexCoord;
+in float aAlpha;
 
 out vec4 oColor;
 
@@ -40,6 +40,7 @@ void main()
 	//vec3 h2 = getHighlight(h2Color, 0.3, 15.0, 5.0, 20.0);
 	
 	vec4 color = base + h1;
+	color.a *= aAlpha;
 	
 	oColor = color;
 }

@@ -235,10 +235,10 @@ void Shooter::CreateLaser(const vec3& origin, const vec3& target)
 
     // "top" = far side at target, "bot" = close side at origin
     laser_.quad = {
-        .top_left = LaserVertex(target - horiz_offset, vec2(1.0f, 1.0f)),
-        .bot_left = LaserVertex(origin - horiz_offset, vec2(0.0f, 1.0f)),
-        .bot_right = LaserVertex(origin + horiz_offset, vec2(0.0f, 0.0f)),
-        .top_right = LaserVertex(target + horiz_offset, vec2(1.0f, 0.0f)),
+        .top_left = LaserVertex(target - horiz_offset, vec2(1.0f, 1.0f), 1.0f),
+        .bot_left = LaserVertex(origin - horiz_offset, vec2(0.0f, 1.0f), 1.0f),
+        .bot_right = LaserVertex(origin + horiz_offset, vec2(0.0f, 0.0f), 1.0f),
+        .top_right = LaserVertex(target + horiz_offset, vec2(1.0f, 0.0f), 1.0f),
     };
 }
 
@@ -319,7 +319,12 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     // Draw lasers
     if (laser_.lifetime > 0.0f)
     {
-        laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
+        laser_.quad.top_left.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.top_right.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.bot_left.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.bot_right.alpha = laser_.lifetime / kLaserLifetime;
         render_service_->GetLaserMaterial().AddQuad(laser_.quad);
+
+        laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
     }
 }

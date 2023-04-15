@@ -13,11 +13,13 @@ LaserMaterial::LaserMaterial(const SceneRenderData& render_data)
       vertex_buffer_(),
       element_buffer_(),
       shader_("resources/shaders/laser.vert", "resources/shaders/laser.frag"),
-      quads_{}
+      quads_{},
+      indices_{}
 {
     constexpr GLsizei stride = sizeof(LaserVertex);
     constexpr GLsizei pos_offset = offsetof(LaserVertex, pos);
     constexpr GLsizei uv_offset = offsetof(LaserVertex, uv);
+    constexpr GLsizei alpha_offset = offsetof(LaserVertex, alpha);
 
     vertex_array_.Bind();
     vertex_buffer_.Bind();
@@ -27,6 +29,8 @@ LaserMaterial::LaserMaterial(const SceneRenderData& render_data)
     vertex_buffer_.ConfigureAttribute(0, 3, GL_FLOAT, stride, pos_offset);
     // UV
     vertex_buffer_.ConfigureAttribute(1, 2, GL_FLOAT, stride, uv_offset);
+    // Alpha
+    vertex_buffer_.ConfigureAttribute(2, 1, GL_FLOAT, stride, alpha_offset);
 }
 
 void LaserMaterial::AddQuad(const Quad<LaserVertex>& quad)
