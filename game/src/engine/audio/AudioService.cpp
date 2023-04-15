@@ -549,21 +549,16 @@ AudioFile AudioService::LoadAudioFile(std::string filename, bool is_music)
 
 void AudioService::LoadAudioFiles()
 {
-    // iterate through all audio files
     for (const auto& entry : directory_iterator(kSfxDirectory))
     {
         std::string filename = entry.path().filename().string();
         sfx_files_.emplace(filename, LoadAudioFile(filename, false));
-
-        debug::LogInfo("{}: Loaded {}", GetName(), filename);
     }
 
     for (const auto& entry : directory_iterator(kMusicDirectory))
     {
         std::string filename = entry.path().filename().string();
         music_files_.emplace(filename, LoadAudioFile(filename, true));
-
-        debug::LogInfo("{}: Loaded {}", GetName(), filename);
     }
 }
 
@@ -821,7 +816,12 @@ void AudioService::OnUpdate()
 
 void AudioService::OnCleanup()
 {
+    // stop playback of all sources
+    StopAllSources();
+    StopMusic();
+
     // clear music
+    alSourcei(music_source_.second.first, AL_BUFFER, 0);  // detach its buffer
     alDeleteSources(1, &music_source_.second.first);
     alDeleteBuffers(kStreamBufferAmount, music_source_.second.second);
     delete[] music_source_.second.second;
@@ -829,6 +829,7 @@ void AudioService::OnCleanup()
     // clear sfx
     for (auto& source : non_diegetic_sources_)
     {
+        alSourcei(source.second.first, AL_BUFFER, 0);
         alDeleteSources(1, &source.second.first);
         alDeleteBuffers(1, &source.second.second);
     }
@@ -837,6 +838,7 @@ void AudioService::OnCleanup()
     {
         for (auto& source : entity.second)
         {
+            alSourcei(source.second.first, AL_BUFFER, 0);
             alDeleteSources(1, &source.second.first);
             alDeleteBuffers(1, &source.second.second);
         }
