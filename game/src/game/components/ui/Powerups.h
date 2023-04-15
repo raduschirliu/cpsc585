@@ -12,7 +12,7 @@ class Texture;
 class SceneDebugService;
 class AssetService;
 
-class HowToPlay final : public Component, public IEventSubscriber<OnGuiEvent>
+class Powerups final : public Component, public IEventSubscriber<OnGuiEvent>
 {
   public:
     // From Component
@@ -29,6 +29,6 @@ class HowToPlay final : public Component, public IEventSubscriber<OnGuiEvent>
     jss::object_ptr<AssetService> asset_service_;
     jss::object_ptr<AudioService> audio_service_;
 
-    const Texture* instruction_;
-    const Texture* next_button_;
+    const Texture* powerups_;
+    const Texture* home_button_;
 };

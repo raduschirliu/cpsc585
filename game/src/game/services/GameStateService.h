@@ -158,8 +158,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void DisplayScoreboard();
     void DrawDebugMenu();
 
-    bool display_pause_ = false;
-
     const Texture* countdown3_;
     const Texture* countdown2_;
     const Texture* countdown1_;
