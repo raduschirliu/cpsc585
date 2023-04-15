@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,22 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "exploding",
-            "rotation" : [
-                0.70710688829422,
+            "name" : "Exploding",
+            "scale" : [
+                3.6000001430511475,
+                3.6000001430511475,
+                3.6000001430511475
+            ],
+            "translation" : [
                 0,
-                0,
-                0.7071066498756409
+                4,
+                0
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "exploding",
+            "name" : "Icosphere",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,29 +47,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 14787,
+            "count" : 9194,
             "max" : [
-                3.4238080978393555,
-                8.57137680053711,
-                3.5999999046325684
+                0.9510578513145447,
+                1.1864935159683228,
+                0.9999999403953552
             ],
             "min" : [
-                -3.4238080978393555,
-                0.699999988079071,
-                -3.5999999046325684
+                -0.9510578513145447,
+                -1,
+                -0.9999999403953552
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 14787,
+            "count" : 9194,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 14787,
+            "count" : 9194,
             "type" : "VEC3"
         },
         {
@@ -78,32 +82,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 177444,
+            "byteLength" : 110328,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 118296,
-            "byteOffset" : 177444,
+            "byteLength" : 73552,
+            "byteOffset" : 110328,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 177444,
-            "byteOffset" : 295740,
+            "byteLength" : 110328,
+            "byteOffset" : 183880,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 29592,
-            "byteOffset" : 473184,
+            "byteOffset" : 294208,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 502776,
+            "byteLength" : 323800,
             "uri" : "exploding.bin"
         }
     ]

@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,23 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "slow",
+            "name" : "Slow",
             "rotation" : [
-                0.70710688829422,
+                0.7071068286895752,
                 0,
                 0,
-                0.7071066498756409
+                0.7071068286895752
+            ],
+            "translation" : [
+                0,
+                4,
+                0
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "slow",
+            "name" : "Torus.002",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,29 +48,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 5386,
+            "count" : 3624,
             "max" : [
                 4.800000190734863,
-                8.5,
-                0.6000000238418579
+                0.6000001430511475,
+                3.799999952316284
             ],
             "min" : [
-                -4.800000190734863,
-                1.2000000476837158,
-                -0.6000000238418579
+                -4.799999713897705,
+                -0.5999999046325684,
+                -3.500000476837158
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 5386,
+            "count" : 3624,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 5386,
+            "count" : 3624,
             "type" : "VEC3"
         },
         {
@@ -78,32 +83,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 64632,
+            "byteLength" : 43488,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 43088,
-            "byteOffset" : 64632,
+            "byteLength" : 28992,
+            "byteOffset" : 43488,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 64632,
-            "byteOffset" : 107720,
+            "byteLength" : 43488,
+            "byteOffset" : 72480,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 10896,
-            "byteOffset" : 172352,
+            "byteOffset" : 115968,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 183248,
+            "byteLength" : 126864,
             "uri" : "slow.bin"
         }
     ]
