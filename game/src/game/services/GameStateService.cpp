@@ -603,7 +603,7 @@ void GameStateService::SetupPowerups()
             case PowerupPickupType::kKillAbilities:
                 entity.AddComponent<KillAbilitiesPickup>();
                 mesh_renderer.SetMesh({
-                    &asset_service_->GetMesh("ability"),
+                    &asset_service_->GetMesh("killAbility"),
                     MaterialProperties{
                         .albedo_texture =
                             &asset_service_->GetTexture("pickup@powerup"),

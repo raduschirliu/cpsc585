@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,28 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "damage",
+            "name" : "Damage",
             "rotation" : [
-                0.70710688829422,
+                0.5,
+                0.5,
+                0.5,
+                0.5000000596046448
+            ],
+            "scale" : [
+                0.699999988079071,
+                0.699999988079071,
+                0.699999988079071
+            ],
+            "translation" : [
                 0,
-                0,
-                0.7071066498756409
+                4,
+                0
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "damage",
+            "name" : "Cylinder.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,29 +53,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 669,
+            "count" : 440,
             "max" : [
-                4.822092056274414,
-                10.281089782714844,
-                1.225000023841858
+                7.115841388702393,
+                1.7500001192092896,
+                6.888702392578125
             ],
             "min" : [
-                -5.980000019073486,
-                0.300911009311676,
-                -1.225000023841858
+                -7.1415557861328125,
+                -1.7500001192092896,
+                -8.54285717010498
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 669,
+            "count" : 440,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 669,
+            "count" : 440,
             "type" : "VEC3"
         },
         {
@@ -78,32 +88,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 8028,
+            "byteLength" : 5280,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 5352,
-            "byteOffset" : 8028,
+            "byteLength" : 3520,
+            "byteOffset" : 5280,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 8028,
-            "byteOffset" : 13380,
+            "byteLength" : 5280,
+            "byteOffset" : 8800,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 1416,
-            "byteOffset" : 21408,
+            "byteOffset" : 14080,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 22824,
+            "byteLength" : 15496,
             "uri" : "damage.bin"
         }
     ]

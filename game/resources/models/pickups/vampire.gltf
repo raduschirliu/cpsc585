@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,23 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "vampire",
+            "name" : "Vampire",
             "rotation" : [
-                0.70710688829422,
-                0,
-                0,
-                0.7071066498756409
+                0.5000000596046448,
+                0.5,
+                -0.5,
+                0.5
+            ],
+            "scale" : [
+                0.19999998807907104,
+                0.19999998807907104,
+                0.19999998807907104
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "vampire",
+            "name" : "pickup_health",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,67 +48,67 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 16212,
+            "count" : 12990,
             "max" : [
-                4.756000995635986,
-                11.179567337036133,
-                1.7608530521392822
+                8.804426193237305,
+                23.780000686645508,
+                -9.354005813598633
             ],
             "min" : [
-                -5.135039806365967,
-                0.8708009719848633,
-                -1.7608850002288818
+                -8.804266929626465,
+                -25.675207138061523,
+                -60.89784240722656
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 16212,
+            "count" : 12990,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 16212,
+            "count" : 12990,
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 16272,
+            "count" : 13086,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 194544,
+            "byteLength" : 155880,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 129696,
-            "byteOffset" : 194544,
+            "byteLength" : 103920,
+            "byteOffset" : 155880,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 194544,
-            "byteOffset" : 324240,
+            "byteLength" : 155880,
+            "byteOffset" : 259800,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 32544,
-            "byteOffset" : 518784,
+            "byteLength" : 26172,
+            "byteOffset" : 415680,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 551328,
+            "byteLength" : 441852,
             "uri" : "vampire.bin"
         }
     ]

@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,28 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "buckshot",
+            "name" : "Buckshot",
             "rotation" : [
-                0.70710688829422,
-                0,
-                0,
-                0.7071066498756409
+                0.5,
+                -0.4999999701976776,
+                -0.4999999701976776,
+                0.5
+            ],
+            "scale" : [
+                0.2357102632522583,
+                0.2357102632522583,
+                0.2357102632522583
+            ],
+            "translation" : [
+                -1.2971590757369995,
+                1.7281129360198975,
+                -1.6370717287063599
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "buckshot",
+            "name" : "Cylinder",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,67 +53,67 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 12906,
+            "count" : 999,
             "max" : [
-                3.782133102416992,
-                6.154561996459961,
-                1.9914380311965942
+                6.716578483581543,
+                15.465618133544922,
+                10.73468017578125
             ],
             "min" : [
-                -3.7724010944366455,
-                1.1999789476394653,
-                -2.85221004486084
+                -14.770174980163574,
+                -5.263383865356445,
+                -21.782352447509766
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 12906,
+            "count" : 999,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 12906,
+            "count" : 999,
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 72576,
+            "count" : 4680,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 154872,
+            "byteLength" : 11988,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 103248,
-            "byteOffset" : 154872,
+            "byteLength" : 7992,
+            "byteOffset" : 11988,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 154872,
-            "byteOffset" : 258120,
+            "byteLength" : 11988,
+            "byteOffset" : 19980,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 145152,
-            "byteOffset" : 412992,
+            "byteLength" : 9360,
+            "byteOffset" : 31968,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 558144,
+            "byteLength" : 41328,
             "uri" : "buckshot.bin"
         }
     ]

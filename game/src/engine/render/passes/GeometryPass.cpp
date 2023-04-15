@@ -27,11 +27,13 @@ struct BufferMeshLayout
 
 struct MeshRenderData
 {
-    const Entity* entity;
+    std::vector<const Entity*> entities;
     std::vector<BufferMeshLayout> layout;
     VertexArray vertex_array;
     VertexBuffer vertex_buffer;
     ElementArrayBuffer element_buffer;
+    size_t buffer_size;
+    std::string mesh_names;
 };
 
 struct CameraView
@@ -71,7 +73,9 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
       skybox_texture_(nullptr),
       wireframe_(false),
       min_shadow_bias_(0.005f),
-      max_shadow_bias_(0.05f)
+      max_shadow_bias_(0.05f),
+      debug_num_draw_calls_(0),
+      debug_total_buffer_size_(0)
 {
 }
 
@@ -80,12 +84,38 @@ GeometryPass::~GeometryPass() = default;
 void GeometryPass::RegisterRenderable(const Entity& entity,
                                       const MeshRenderer& renderer)
 {
+    string mesh_names = "";
+
+    for (const auto& mesh : renderer.GetMeshes())
+    {
+        mesh_names += fmt::format("@@{}", mesh.mesh->name);
+    }
+
+    // Check if this configuration of buffers/meshes exist
+    for (auto& mesh : meshes_)
+    {
+        if (mesh_names == mesh->mesh_names)
+        {
+            mesh->entities.push_back(&entity);
+            return;
+        }
+    }
+
+    // Create a new one otherwise
+    CreateBuffers(entity, renderer);
+}
+
+void GeometryPass::CreateBuffers(const Entity& entity,
+                                 const MeshRenderer& renderer)
+{
     auto data = make_unique<MeshRenderData>(MeshRenderData{
-        .entity = &entity,
+        .entities = {&entity},
         .layout = {},
         .vertex_array = VertexArray(),
         .vertex_buffer = VertexBuffer(),
         .element_buffer = ElementArrayBuffer(),
+        .buffer_size = 0,
+        .mesh_names = "",
     });
 
     // Configure vertex array/buffer and upload data
@@ -125,10 +155,15 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
         }
 
         data->layout.push_back(layout);
+        data->mesh_names += fmt::format("@@{}", mesh.mesh->name);
     }
 
     data->vertex_buffer.Upload(vertices, GL_STATIC_DRAW);
     data->element_buffer.Upload(indices, GL_STATIC_DRAW);
+    data->buffer_size =
+        vertices.size() * sizeof(Vertex) + indices.size() * sizeof(uint32_t);
+
+    debug_total_buffer_size_ += data->buffer_size;
 
     VertexArray::Unbind();
 
@@ -139,8 +174,32 @@ void GeometryPass::RegisterRenderable(const Entity& entity,
 void GeometryPass::UnregisterRenderable(const Entity& entity)
 {
     const uint32_t target_id = entity.GetId();
-    std::erase_if(render_data_.entities, [target_id](const Entity* x)
-                  { return x->GetId() == target_id; });
+    auto meshes_iter = meshes_.begin();
+
+    while (meshes_iter != meshes_.end())
+    {
+        MeshRenderData& mesh = *meshes_iter->get();
+        auto entity_iter = mesh.entities.begin();
+
+        while (entity_iter != mesh.entities.end())
+        {
+            if ((*entity_iter)->GetId() == target_id)
+            {
+                mesh.entities.erase(entity_iter);
+
+                if (mesh.entities.size() == 0)
+                {
+                    meshes_.erase(meshes_iter);
+                }
+
+                return;
+            }
+
+            entity_iter++;
+        }
+
+        meshes_iter++;
+    }
 }
 
 void GeometryPass::Init()
@@ -160,6 +219,8 @@ void GeometryPass::Init()
 
 void GeometryPass::Render()
 {
+    debug_num_draw_calls_ = 0;
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, render_data_.screen_size.x, render_data_.screen_size.y);
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -222,6 +283,20 @@ void GeometryPass::RenderDebugGui()
     {
         shader_.Recompile();
     }
+
+    ImGui::Text("Draw calls: %zu", debug_num_draw_calls_);
+    ImGui::Text("Mesh buffers: %zu", meshes_.size());
+    ImGui::Text("Sum of all buffer sizes: %zu bytes", debug_total_buffer_size_);
+
+    if (ImGui::CollapsingHeader("Buffers"))
+    {
+        for (size_t i = 0; i < meshes_.size(); i++)
+        {
+            const MeshRenderData* mesh = meshes_[i].get();
+            ImGui::BulletText("%zu entities - %zu bytes", mesh->entities.size(),
+                              mesh->buffer_size);
+        }
+    }
 }
 
 CameraView GeometryPass::PrepareCameraView(Camera& camera)
@@ -276,60 +351,63 @@ void GeometryPass::RenderMeshes(const CameraView& camera)
         shader_.SetUniform(light_view_uniform, map.GetTransformation());
     }
 
-    // Render each object
+    // Lighting information
+    shader_.SetUniform("uCameraPos", camera.pos);
+    shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
+    shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
+    shader_.SetUniform("uLight.diffuse", vec3(0.5f, 0.5f, 0.5f));
+
+    // Render each object for each entity
     for (const auto& obj : meshes_)
     {
-        const MeshRenderer& renderer =
-            obj->entity->GetComponent<MeshRenderer>();
-        const Transform& transform = obj->entity->GetComponent<Transform>();
-
-        const mat4& model_matrix = transform.GetModelMatrix();
-        // Since we're passing normals in world space, the view matrix =
-        // identity, so we don't need to multiply by it
-        const mat4 normal_matrix = transform.GetNormalMatrix();
-
-        // Vert shader vars
-        shader_.SetUniform("uModelMatrix", model_matrix);
-        shader_.SetUniform("uNormalMatrix", normal_matrix);
-
-        // Lighting information
-        shader_.SetUniform("uCameraPos", camera.pos);
-        shader_.SetUniform("uAmbientLight", vec3(0.1f, 0.1f, 0.1f));
-        shader_.SetUniform("uLight.pos", vec3(0.0f, 30.0f, 0.0f));
-        shader_.SetUniform("uLight.diffuse", vec3(0.5f, 0.5f, 0.5f));
-
         obj->vertex_array.Bind();
 
-        // Draw all meshes that are part of this object
-        const auto& meshes = renderer.GetMeshes();
-        ASSERT_MSG(meshes.size() == obj->layout.size(),
-                   "Mesh data out of sync with renderer");
-
-        for (size_t i = 0; i < meshes.size(); i++)
+        for (const auto entity : obj->entities)
         {
-            const MaterialProperties& material_properties =
-                meshes[i].material_properties;
+            const MeshRenderer& renderer = entity->GetComponent<MeshRenderer>();
+            const Transform& transform = entity->GetComponent<Transform>();
 
-            if (material_properties.albedo_texture)
+            const mat4& model_matrix = transform.GetModelMatrix();
+            // Since we're passing normals in world space, the view matrix =
+            // identity, so we don't need to multiply by it
+            const mat4 normal_matrix = transform.GetNormalMatrix();
+
+            // Vert shader vars
+            shader_.SetUniform("uModelMatrix", model_matrix);
+            shader_.SetUniform("uNormalMatrix", normal_matrix);
+
+            // Draw all meshes that are part of this object
+            const auto& meshes = renderer.GetMeshes();
+            ASSERT_MSG(meshes.size() == obj->layout.size(),
+                       "Mesh data out of sync with renderer");
+
+            for (size_t i = 0; i < meshes.size(); i++)
             {
-                material_properties.albedo_texture->Bind(0);
+                const MaterialProperties& material_properties =
+                    meshes[i].material_properties;
+
+                if (material_properties.albedo_texture)
+                {
+                    material_properties.albedo_texture->Bind(0);
+                }
+
+                shader_.SetUniform("uMaterial.specularColor",
+                                   material_properties.specular);
+                shader_.SetUniform("uMaterial.shininess",
+                                   material_properties.shininess);
+                shader_.SetUniform("uMaterial.albedoTexture", 0);
+                shader_.SetUniform("uMaterial.albedoColor",
+                                   material_properties.albedo_color);
+
+                GLsizei index_count =
+                    static_cast<GLsizei>(obj->layout[i].index_count);
+                void* index_offset = reinterpret_cast<void*>(
+                    static_cast<intptr_t>(obj->layout[i].index_offset));
+
+                glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,
+                               index_offset);
+                debug_num_draw_calls_ += 1;
             }
-
-            shader_.SetUniform("uMaterial.specularColor",
-                               material_properties.specular);
-            shader_.SetUniform("uMaterial.shininess",
-                               material_properties.shininess);
-            shader_.SetUniform("uMaterial.albedoTexture", 0);
-            shader_.SetUniform("uMaterial.albedoColor",
-                               material_properties.albedo_color);
-
-            GLsizei index_count =
-                static_cast<GLsizei>(obj->layout[i].index_count);
-            void* index_offset = reinterpret_cast<void*>(
-                static_cast<intptr_t>(obj->layout[i].index_offset));
-
-            glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT,
-                           index_offset);
         }
     }
 }
@@ -360,6 +438,8 @@ void GeometryPass::RenderSkybox(const CameraView& camera)
     glDepthFunc(GL_LEQUAL);
     glDrawArrays(GL_TRIANGLES, 0, kSkyboxVertices.size());
     glDepthFunc(GL_LESS);
+
+    debug_num_draw_calls_ += 1;
 }
 
 void GeometryPass::ResetState()

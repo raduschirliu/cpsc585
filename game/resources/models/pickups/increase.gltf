@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,28 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "increase",
+            "name" : "Increase",
             "rotation" : [
-                0.70710688829422,
+                0.7071068286895752,
                 0,
                 0,
-                0.7071066498756409
+                0.7071068286895752
+            ],
+            "scale" : [
+                0.9000000357627869,
+                0.9000000357627869,
+                0.9000000357627869
+            ],
+            "translation" : [
+                0,
+                4.300000190734863,
+                0
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "increase",
+            "name" : "Torus.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,29 +53,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 7016,
+            "count" : 4704,
             "max" : [
-                4.8528008460998535,
-                11.152802467346191,
-                0.7200000286102295
+                5.392000675201416,
+                0.800000011920929,
+                5.392000198364258
             ],
             "min" : [
-                -4.852799892425537,
-                1.4471999406814575,
-                -0.7200000286102295
+                -5.3919997215271,
+                -0.800000011920929,
+                -5.392000675201416
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 7016,
+            "count" : 4704,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 7016,
+            "count" : 4704,
             "type" : "VEC3"
         },
         {
@@ -78,32 +88,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 84192,
+            "byteLength" : 56448,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 56128,
-            "byteOffset" : 84192,
+            "byteLength" : 37632,
+            "byteOffset" : 56448,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 84192,
-            "byteOffset" : 140320,
+            "byteLength" : 56448,
+            "byteOffset" : 94080,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 14112,
-            "byteOffset" : 224512,
+            "byteOffset" : 150528,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 238624,
+            "byteLength" : 164640,
             "uri" : "increase.bin"
         }
     ]
