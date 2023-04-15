@@ -207,7 +207,6 @@ void GameStateService::OnGui()
         if (ImGui::Button("HOME"))
         {
             scene_service_->SetActiveScene("MainMenu");
-            audio_service_->AddSource("ui_pick_01.ogg");
             audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopFont();
@@ -440,7 +439,6 @@ void GameStateService::OnGui()
                                ImVec2(40, 37)))
         {
             scene_service_->SetActiveScene("MainMenu");
-            audio_service_->AddSource("ui_pick_01.ogg");
             audio_service_->PlaySource("ui_pick_01.ogg");
         }
         ImGui::PopStyleColor(3);
@@ -817,7 +815,6 @@ void GameStateService::PlayerCompletedLap(PlayerRecord& player)
         if (player.is_human)
         {
             debug::LogInfo("Player finished game!");
-            audio_service_->AddSource("game_yay.ogg");
             audio_service_->PlaySource("game_yay.ogg");
 
             debug::LogInfo("Game over!");

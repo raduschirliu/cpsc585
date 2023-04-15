@@ -72,7 +72,6 @@ void HowToPlay::OnGui()
                            ImVec2(40, 37)))
     {
         scene_service_->SetActiveScene("MainMenu");
-        audio_service_->AddSource("ui_pick_01.ogg");
         audio_service_->PlaySource("ui_pick_01.ogg");
     }
 

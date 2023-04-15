@@ -10,8 +10,8 @@
 #include "game/FwdGame.h"
 #include "game/components/shooting/Shooter.h"
 
-class PlayerState;
 class PickupService;
+class AudioService;
 
 class PlayerController final : public Component,
                                public IEventSubscriber<OnUpdateEvent>
@@ -28,6 +28,7 @@ class PlayerController final : public Component,
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<AudioService> audio_service_;
 
     jss::object_ptr<PlayerState> player_state_;
     jss::object_ptr<VehicleComponent> vehicle_;
