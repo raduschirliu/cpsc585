@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Scene",
+            "name" : "Pickups",
             "nodes" : [
                 0
             ]
@@ -15,18 +15,23 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "handle",
+            "name" : "Handling",
             "rotation" : [
-                0.70710688829422,
+                0.7071068286895752,
                 0,
                 0,
-                0.7071066498756409
+                0.7071068286895752
+            ],
+            "translation" : [
+                0,
+                3,
+                0
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "handle",
+            "name" : "Torus",
             "primitives" : [
                 {
                     "attributes" : {
@@ -43,67 +48,67 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 256950,
+            "count" : 10740,
             "max" : [
-                4.2521138191223145,
-                9.252113342285156,
-                0.764274001121521
+                4.300000190734863,
+                0.800000011920929,
+                4.300000190734863
             ],
             "min" : [
-                -4.2521138191223145,
-                0.7478870153427124,
-                -0.764274001121521
+                -4.300000190734863,
+                -0.800000011920929,
+                -4.300000190734863
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 256950,
+            "count" : 10740,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 256950,
+            "count" : 10740,
             "type" : "VEC3"
         },
         {
             "bufferView" : 3,
-            "componentType" : 5125,
-            "count" : 257760,
+            "componentType" : 5123,
+            "count" : 16116,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 3083400,
+            "byteLength" : 128880,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 2055600,
-            "byteOffset" : 3083400,
+            "byteLength" : 85920,
+            "byteOffset" : 128880,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 3083400,
-            "byteOffset" : 5139000,
+            "byteLength" : 128880,
+            "byteOffset" : 214800,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 1031040,
-            "byteOffset" : 8222400,
+            "byteLength" : 32232,
+            "byteOffset" : 343680,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 9253440,
+            "byteLength" : 375912,
             "uri" : "handling.bin"
         }
     ]

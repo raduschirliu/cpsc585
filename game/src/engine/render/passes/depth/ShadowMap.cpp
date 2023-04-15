@@ -47,7 +47,7 @@ void ShadowMap::Init()
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ShadowMap::UpdateBounds(LightParams& light_params,

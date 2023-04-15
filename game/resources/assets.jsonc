@@ -31,8 +31,8 @@
         },
         /* Pickups */
         {
-            "path": "resources/models/pickups/ability.gltf",
-            "name": "ability"
+            "path": "resources/models/pickups/killAbility.gltf",
+            "name": "killAbility"
         },
         {
             "path": "resources/models/pickups/aimBox.gltf",

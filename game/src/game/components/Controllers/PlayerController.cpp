@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+#include <string>
+
 #include "engine/App.h"
 #include "engine/core/Colors.h"
 #include "engine/core/debug/Log.h"
@@ -13,6 +15,7 @@
 #include "engine/scene/Entity.h"
 #include "engine/scene/Transform.h"
 #include "game/components/VehicleComponent.h"
+#include "game/components/audio/AudioEmitter.h"
 #include "game/components/shooting/Shooter.h"
 #include "game/components/state/PlayerState.h"
 #include "game/services/GameStateService.h"
@@ -22,20 +25,18 @@ static constexpr float kRespawnSeconds = 3.0f;
 static constexpr float kDefaultBrake = 0.0f;
 static constexpr float kSpeedMultiplier = 0.1f;
 static constexpr float kHandlingMultiplier = 0.0f;
-static float shoot_cooldown;
 
 void PlayerController::OnInit(const ServiceProvider& service_provider)
 {
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
     pickup_service_ = &service_provider.GetService<PickupService>();
+    audio_service_ = &service_provider.GetService<AudioService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
-    player_data_ = &GetEntity().GetComponent<PlayerState>();
+    player_state_ = &GetEntity().GetComponent<PlayerState>();
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     shooter_ = &GetEntity().GetComponent<Shooter>();
-
-    shoot_cooldown = 0.0f;
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
@@ -49,10 +50,12 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
         return;
     }
 
-    if (player_data_->IsDead())
+    // do nothing when dead
+    if (player_state_->IsDead())
     {
         return;
     }
+
     UpdatePowerupControls(delta_time);
     UpdateCarControls(delta_time);
     CheckShoot(delta_time);
@@ -64,10 +67,11 @@ std::string_view PlayerController::GetName() const
 }
 
 void PlayerController::CheckShoot(const Timestep& delta_time)
+
 {
-    if (shoot_cooldown > 0.0f)
+    if (shoot_cooldown_ > 0.0f)
     {
-        shoot_cooldown -= static_cast<float>(delta_time.GetSeconds());
+        shoot_cooldown_ -= static_cast<float>(delta_time.GetSeconds());
         return;
     }
 
@@ -76,52 +80,40 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
                                                GLFW_GAMEPAD_BUTTON_B))
     {
         shooter_->Shoot();
-        shoot_cooldown = shooter_->GetCooldownTime();
+        shoot_cooldown_ = shooter_->GetCooldownTime();
     }
 }
 
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 {
-    if (input_service_->IsKeyDown(GLFW_KEY_SPACE))
+    using enum PowerupPickupType;
+    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
     {
-        if (player_data_->GetCurrentPowerup() ==
-            PowerupPickupType::kDefaultPowerup)
+        if (player_state_->GetCurrentPowerup() == kDefaultPowerup)
         {
             return;
         }
-        else
+
+        // handle execting the powerup
+        std::string powerup;
+        switch (player_state_->GetCurrentPowerup())
         {
-            switch (player_data_->GetCurrentPowerup())
-            {
-                case PowerupPickupType::kDisableHandling:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "DisableHandling");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kEveryoneSlower:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "EveryoneSlower");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kIncreaseAimBox:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "IncreaseAimBox");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-
-                case PowerupPickupType::kKillAbilities:
-                    // handle executing the powerup
-                    pickup_service_->AddEntityWithPowerup(&GetEntity(),
-                                                          "KillAbilities");
-                    pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
-                    break;
-            }
+            case kDisableHandling:
+                powerup = "DisableHandling";
+                break;
+            case kEveryoneSlower:
+                powerup = "EveryoneSlower";
+                break;
+            case kIncreaseAimBox:
+                powerup = "IncreaseAimBox";
+                break;
+            case kKillAbilities:
+                powerup = "KillAbilities";
+                break;
         }
+
+        pickup_service_->AddEntityWithPowerup(&GetEntity(), powerup);
+        pickup_service_->AddEntityWithTimer(&GetEntity(), 0.0f);
     }
 }
 

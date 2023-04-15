@@ -13,6 +13,8 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     // service and component dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+
+    vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
     // reset cooldown
@@ -27,6 +29,8 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     audio_emitter_->SetGain("kart_hit_01.ogg", 0.3f);
     audio_emitter_->AddSource("player_die_01.ogg");
     audio_emitter_->SetGain("player_die_01.ogg", 2.0f);
+    audio_emitter_->AddSource("wrong_buzz.ogg");
+    audio_emitter_->SetGain("wrong_buzz.ogg", 1.0f);
 
     GetEventBus().Subscribe<OnUpdateEvent>(this);
     player_state_.Reset();
@@ -50,10 +54,16 @@ void PlayerState::CheckDead(const Timestep& delta_time)
         {
             player_state_.is_dead = false;
             player_state_.health = 100.0f;
+            vehicle_->Respawn();
             debug::LogDebug("Entity {} recovered!", GetEntity().GetId());
         }
         else
         {
+            // player can't move while deadge
+            auto& vehicle_state = vehicle_->GetVehicle().mBaseState;
+            auto& wheel_states = vehicle_state.wheelRigidBody1dStates;
+            float& wheel_speed = wheel_states->rotationSpeed = 0.0f;
+
             float delta_time_seconds =
                 static_cast<float>(delta_time.GetSeconds());
             death_cooldown_ -= delta_time_seconds;
@@ -83,6 +93,11 @@ std::string_view PlayerState::GetName() const
 bool PlayerState::IsDead() const
 {
     return player_state_.is_dead;
+}
+
+float PlayerState::GetDeathCooldown() const
+{
+    return death_cooldown_;
 }
 
 float PlayerState::GetSpeedMultiplier() const
@@ -171,18 +186,27 @@ void PlayerState::SetSpeedMultiplier(float value)
 
 void PlayerState::SetCurrentPowerup(PowerupPickupType type)
 {
-    if (!physics_service_->GetPaused())
+    if (physics_service_->GetPaused())
     {
-        player_state_.current_powerup = type;
+        return;
+    }
+
+    player_state_.current_powerup = type;
+
+    if (type != PowerupPickupType::kDefaultPowerup)
+    {
         audio_emitter_->PlaySource("pickup_get_01.ogg");
     }
 }
 
 void PlayerState::SetCurrentAmmoType(AmmoPickupType type)
 {
-    if (this)
-        player_state_.current_ammo_type = type;
-    /* audio_emitter_->PlaySource("pickup_get_02.ogg"); */
+    player_state_.current_ammo_type = type;
+
+    if (type != AmmoPickupType::kDefaultAmmo)
+    {
+        audio_emitter_->PlaySource("pickup_get_02.ogg");
+    }
 }
 
 void PlayerState::SetLapsCompleted(int laps)
