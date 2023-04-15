@@ -211,7 +211,7 @@ class AudioService final : public Service
      *    like SFX.
      */
     AudioFile LoadAudioFile(std::string filename, bool is_music);
-    
+
     void LoadAudioFiles();
 
     /// OpenAl error handling
@@ -251,9 +251,9 @@ class AudioService final : public Service
 
     Entity* listener_;  // the entity that can "hear" all positional audio
 
-    /// all audio files for sfx 
+    /// all audio files for sfx
     std::map<FileName, AudioFile> sfx_files_;
-    /// all audio files for music 
+    /// all audio files for music
     std::map<FileName, AudioFile> music_files_;
 
     /// all of the active 2D sound sources.
