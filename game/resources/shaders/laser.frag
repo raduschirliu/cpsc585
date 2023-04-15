@@ -7,10 +7,7 @@ in vec2 aTexCoord;
 out vec4 oColor;
 
 uniform sampler2D uMask;
-uniform float uTime;
-
-uniform float uGamma = 2.2;
-uniform float uExposure = 1.0;
+uniform float uTime = 0.0;
 
 const float sinSpeed = -35.0;
 
@@ -24,7 +21,7 @@ float distFromSin(vec2 uv, float a, float b, float c, float d)
 vec4 getHighlight(vec3 color, float a, float b, float c, float spread)
 {
 	const float d = 0.5; // Midline
-	vec2 uv = aTexCoord; // vec2(1.0 - aTexCoord.x, aTexCoord.y);
+	vec2 uv = aTexCoord;
 	float dist = distFromSin(uv, a, b, c, d) * spread;
 	float alpha = clamp(1.0 - dist, 0.0, 1.0);
 	return vec4(color, alpha);
@@ -44,11 +41,5 @@ void main()
 	
 	vec4 color = base + h1;
 	
-	// Map from HDR -> LDR
-	// vec3 mapped = vec3(1.0) - exp(-color * uExposure);
-	// mapped = pow(mapped, vec3(1.0 / uGamma));
-	
 	oColor = color;
-	
-	// oColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

@@ -16,17 +16,19 @@ static constexpr float kBaseDamage = 10.0f;
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
 static constexpr double kMaxTimer = 4.0f;
-static constexpr float kLaserLifetime =
-    4.0f;  // TODO(radu): Change this to 1.0 after debugging
-static constexpr float kLaserSize = 3.0f;
+static constexpr float kLaserLifetime = 0.25f;
+static constexpr float kLaserSize = 2.5f;
 static constexpr float kLaserRange = 1000.0f;
+static constexpr float kLaserOriginFwdOffset = -15.0f;
 
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    vec3 fwd_direction = transform_->GetForwardDirection();
-    vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
-    vec3 origin = transform_->GetPosition() + offset;
+    const vec3& fwd_direction = transform_->GetForwardDirection();
+    const vec3& up_direction = transform_->GetUpDirection();
+    const vec3 fwd_offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
+    const vec3 up_offset = up_direction * 1.0f;
+    const vec3 origin = transform_->GetPosition() + fwd_offset + up_offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
@@ -39,40 +41,23 @@ void Shooter::Shoot()
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
-        // shotgun type bullet, spread.
         ShootBuckshot(origin, fwd_direction);
-        return;
-    }
-    else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
-    {
-        ShootDoubleDamage(origin, fwd_direction);
-        return;
-    }
-    else if (current_ammo_type_ == AmmoPickupType::kExploadingBullet)
-    {
-        ShootExploading(origin, fwd_direction);
         return;
     }
     else if (current_ammo_type_ == AmmoPickupType::kIncreaseFireRate)
     {
-        IncreaseFireRate();
-        return;
+        // doubling the bullets speed which can be fired at a time.
+        increase_fire_speed_multiplier_ = 0.5f;
     }
-    else if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
-    {
-        ShootVampire(origin, fwd_direction);
-        return;
-    }
-    else
-    {
-        ShootDefault(origin, fwd_direction);
-    }
+
+    ShootDefault(origin, fwd_direction);
 }
 
 void Shooter::ShootDefault(const vec3& origin, const vec3& fwd_direction)
 {
-    // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
+
+    const vec3 laser_origin = origin + fwd_direction * kLaserOriginFwdOffset;
     vec3 laser_target = origin + fwd_direction * kLaserRange;
 
     // get the entity that was hit
@@ -85,7 +70,7 @@ void Shooter::ShootDefault(const vec3& origin, const vec3& fwd_direction)
         UpdateOnHit();
     }
 
-    CreateLaser(origin, laser_target);
+    CreateLaser(laser_origin, laser_target);
 }
 
 void Shooter::ShootBuckshot(const vec3& origin, const vec3& fwd_direction)
@@ -132,56 +117,8 @@ void Shooter::ShootBuckshot(const vec3& origin, const vec3& fwd_direction)
     // TODO: fix this, as the pellets spread, they can hit multiple car, rn we
     // apply the hit to only one car. FIX THIS as this many pellets hit the car.
     target_state->DecrementHealth(GetAmmoDamage() * target_datas.size());
-}
 
-/// @brief handles the vampire bullets
-void Shooter::ShootVampire(const vec3& origin, const vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the double damage bullets
-void Shooter::ShootDoubleDamage(const vec3& origin, const vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the exploading damage bullets
-void Shooter::ShootExploading(const vec3& origin, const vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the increase fire rate
-void Shooter::IncreaseFireRate()
-{
-    // doubling the bullets speed which can be fired at a time.
-    increase_fire_speed_multiplier_ = 0.5f;
+    // TODO(radu): Add multiple lasers
 }
 
 // The duration between which the 2 consecutive bullets will shoot.
@@ -384,9 +321,5 @@ void Shooter::OnUpdate(const Timestep& delta_time)
     {
         laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
         render_service_->GetLaserMaterial().AddQuad(laser_.quad);
-        // TODO(radu): Remove debug drawing
-        render_service_->GetDebugDrawList().AddLine(
-            DebugVertex(laser_.quad.top_left.pos, Color4u(0, 255, 0, 255)),
-            DebugVertex(laser_.quad.bot_left.pos, Color4u(0, 255, 0, 255)));
     }
 }
