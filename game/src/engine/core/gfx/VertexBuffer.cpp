@@ -26,3 +26,9 @@ void VertexBuffer::ConfigureAttribute(GLuint index, GLint size,
                           reinterpret_cast<GLvoid*>(offset));
     glEnableVertexAttribArray(index);
 }
+
+void VertexBuffer::AttributeDivisor(GLuint index, GLuint divisor)
+{
+    Bind();
+    glVertexAttribDivisor(index, divisor);
+}

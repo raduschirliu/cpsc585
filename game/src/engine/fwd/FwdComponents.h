@@ -11,6 +11,7 @@ class ServiceProvider;
 
 class Transform;
 class MeshRenderer;
+class ParticleSystem;
 class PointLight;
 class Camera;
 class BoxTrigger;

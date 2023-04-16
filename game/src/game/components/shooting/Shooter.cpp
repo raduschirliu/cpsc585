@@ -5,6 +5,7 @@
 
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/render/RenderService.h"
 
 using glm::vec2;
@@ -23,6 +24,8 @@ static constexpr float kLaserOriginFwdOffset = -15.0f;
 
 void Shooter::Shoot()
 {
+    particle_system_->Emit(vec3(0.0f, 5.0f, 0.0f));
+    
     // origin and direction of the raycast from this entity
     const vec3& fwd_direction = transform_->GetForwardDirection();
     const vec3& up_direction = transform_->GetUpDirection();
@@ -266,6 +269,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
 
     // component dependencies
     transform_ = &GetEntity().GetComponent<Transform>();
+    particle_system_ = &GetEntity().GetComponent<ParticleSystem>();
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();

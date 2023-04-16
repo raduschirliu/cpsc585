@@ -37,15 +37,6 @@ struct MeshRenderData
     std::string mesh_names;
 };
 
-struct CameraView
-{
-    Transform* camera_transform;
-    glm::vec3 pos;
-    glm::mat4 view_matrix;
-    glm::mat4 proj_matrix;
-    glm::mat4 view_proj_matrix;
-};
-
 static constexpr int kAntiAliasingSamples = 4;
 constexpr int kShadowMapTextureStart =
     5;  // Arbitrary choice, normal albedo texture is at idx=0
@@ -78,6 +69,7 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
       skybox_shader_("resources/shaders/skybox.vert",
                      "resources/shaders/skybox.frag"),
       laser_material_(render_data),
+      particle_draw_list_(),
       skybox_buffers_(),
       skybox_texture_(nullptr),
       wireframe_(false),
@@ -217,10 +209,10 @@ void GeometryPass::Init()
     InitMultisampleFbo();
     InitResolveFbo();
     InitSkybox();
+    particle_draw_list_.Init();
 
     last_screen_size_ = render_data_.screen_size;
 
-    // Setup materials
     laser_material_.LoadAssets(*render_data_.asset_service);
 }
 
@@ -356,7 +348,7 @@ void GeometryPass::Render()
             RenderMeshes(view);
             RenderDebugDrawList(view);
             RenderSkybox(view);
-            RenderParticles(*main_camera);
+            RenderParticles(view);
         }
     }
 
@@ -365,6 +357,7 @@ void GeometryPass::Render()
     // Cleanup
     render_data_.debug_draw_list->Clear();
     laser_material_.Clear();
+    particle_draw_list_.Clear();
 
     // MSAA resolving
     ResolveMultisampledTarget();
@@ -585,10 +578,13 @@ void GeometryPass::RenderSkybox(const CameraView& camera)
     debug_num_draw_calls_ += 1;
 }
 
-void GeometryPass::RenderParticles(const Camera& camera)
+void GeometryPass::RenderParticles(const CameraView& camera)
 {
     laser_material_.Prepare();
-    laser_material_.Draw(camera);
+    laser_material_.Render(camera);
+
+    particle_draw_list_.Prepare(camera);
+    particle_draw_list_.Render(camera);
 }
 
 void GeometryPass::ResetState()
@@ -609,4 +605,9 @@ LaserMaterial& GeometryPass::GetLaserMaterial()
 TextureHandle& GeometryPass::GetScreenTexture()
 {
     return screen_texture_;
+}
+
+ParticleDrawList& GeometryPass::GetParticleDrawList()
+{
+    return particle_draw_list_;
 }

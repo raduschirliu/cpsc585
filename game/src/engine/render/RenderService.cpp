@@ -265,3 +265,8 @@ void RenderService::DrawCameraFrustums()
         }
     }
 }
+
+ParticleDrawList& RenderService::GetParticleDrawList()
+{
+    return geometry_pass_.GetParticleDrawList();
+}

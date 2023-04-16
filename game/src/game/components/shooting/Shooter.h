@@ -81,6 +81,7 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<AudioService> audio_service_;
 
     jss::object_ptr<Transform> transform_;
+    jss::object_ptr<ParticleSystem> particle_system_;
     jss::object_ptr<Hitbox> hitbox_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<PlayerState> player_state_;

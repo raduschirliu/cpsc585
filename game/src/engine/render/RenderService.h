@@ -8,6 +8,7 @@
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
 #include "engine/render/DebugDrawList.h"
+#include "engine/render/ParticleDrawList.h"
 #include "engine/render/SceneRenderData.h"
 #include "engine/render/passes/DepthPass.h"
 #include "engine/render/passes/GeometryPass.h"
@@ -43,6 +44,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
 
     DebugDrawList& GetDebugDrawList();
     LaserMaterial& GetLaserMaterial();
+    ParticleDrawList& GetParticleDrawList();
 
   private:
     jss::object_ptr<InputService> input_service_;

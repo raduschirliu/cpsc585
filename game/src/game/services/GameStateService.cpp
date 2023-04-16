@@ -16,6 +16,7 @@
 #include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/Checkpoints.h"
@@ -1168,6 +1169,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     });
 
     kart_entity.AddComponent<AudioEmitter>();
+    kart_entity.AddComponent<ParticleSystem>();
 
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
     auto& player_state = kart_entity.AddComponent<PlayerState>();
