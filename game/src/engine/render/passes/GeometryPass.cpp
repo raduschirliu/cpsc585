@@ -13,6 +13,7 @@
 
 using glm::ivec2;
 using glm::mat4;
+using glm::uvec2;
 using glm::vec3;
 using std::make_unique;
 using std::string;
@@ -61,7 +62,10 @@ const static vector<float> kSkyboxVertices = {
 
 GeometryPass::GeometryPass(SceneRenderData& render_data,
                            const vector<unique_ptr<ShadowMap>>& shadow_maps)
-    : render_data_(render_data),
+    : fbo_(),
+      rbo_(),
+      screen_texture_(),
+      render_data_(render_data),
       shadow_maps_(shadow_maps),
       meshes_{},
       shader_("resources/shaders/lit.vert", "resources/shaders/lit.frag"),
@@ -76,7 +80,8 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
       min_shadow_bias_(0.005f),
       max_shadow_bias_(0.05f),
       debug_num_draw_calls_(0),
-      debug_total_buffer_size_(0)
+      debug_total_buffer_size_(0),
+      last_screen_size_(0, 0)
 {
 }
 
@@ -205,7 +210,17 @@ void GeometryPass::UnregisterRenderable(const Entity& entity)
 
 void GeometryPass::Init()
 {
-    // Setup skybox
+    InitFbo();
+    InitSkybox();
+
+    last_screen_size_ = render_data_.screen_size;
+
+    // Setup materials
+    laser_material_.LoadAssets(*render_data_.asset_service);
+}
+
+void GeometryPass::InitSkybox()
+{
     skybox_buffers_.vertex_array.Bind();
     skybox_buffers_.vertex_buffer.Bind();
     skybox_buffers_.element_buffer.Bind();
@@ -216,25 +231,59 @@ void GeometryPass::Init()
     skybox_texture_ = &render_data_.asset_service->GetCubemap("skybox");
 
     VertexArray::Unbind();
+}
 
-    // Setup materials
-    laser_material_.LoadAssets(*render_data_.asset_service);
+void GeometryPass::InitFbo()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+
+    // Create render target
+    glBindTexture(GL_TEXTURE_2D, screen_texture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, render_data_.screen_size.x,
+                 render_data_.screen_size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Color attachment (texture render target)
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           screen_texture_, 0);
+
+    // Create renderbuffer
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                          render_data_.screen_size.x,
+                          render_data_.screen_size.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // Attach as depth + stencil buffers
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                              GL_RENDERBUFFER, rbo_);
+
+    // Verify that FBO is complete
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    ASSERT_MSG(status == GL_FRAMEBUFFER_COMPLETE,
+               "Framebuffer should be valid");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void GeometryPass::Render()
 {
     debug_num_draw_calls_ = 0;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CheckScreenResize();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
     glViewport(0, 0, render_data_.screen_size.x, render_data_.screen_size.y);
     glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    // glEnable(GL_MULTISAMPLE);
 
     // Disabling back-face culling until we add more faces to the track
     // glEnable(GL_CULL_FACE);
     glDisable(GL_CULL_FACE);
 
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Determine which camera to render
@@ -318,6 +367,28 @@ CameraView GeometryPass::PrepareCameraView(Camera& camera)
     view.view_proj_matrix = view.proj_matrix * view.view_matrix;
 
     return view;
+}
+
+void GeometryPass::CheckScreenResize()
+{
+    if (last_screen_size_ == render_data_.screen_size)
+    {
+        return;
+    }
+
+    last_screen_size_ = render_data_.screen_size;
+
+    // Resize screen texture
+    glBindTexture(GL_TEXTURE_2D, screen_texture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, render_data_.screen_size.x,
+                 render_data_.screen_size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
+
+    // Resize renderbuffer
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
+                          render_data_.screen_size.x,
+                          render_data_.screen_size.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void GeometryPass::RenderMeshes(const CameraView& camera)
@@ -468,4 +539,9 @@ void GeometryPass::SetWireframe(bool state)
 LaserMaterial& GeometryPass::GetLaserMaterial()
 {
     return laser_material_;
+}
+
+TextureHandle& GeometryPass::GetScreenTexture()
+{
+    return screen_texture_;
 }
