@@ -33,6 +33,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetCurrentPlace(int place);
     void SetPlayerWhoShotMe(std::string player);
     void SetPlayerName(std::string name);
+    void SetIsAccelerating(bool b_value);
 
     // getters
     float GetMaxCarSpeed();
@@ -53,6 +54,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     PlayerStateData* GetStateData();
     std::string GetPlayerWhoShotMe();
     std::string GetPlayerName();
+    bool GetIsAccelerating();
 
   private:
     void CheckDead(const Timestep& delta_time);

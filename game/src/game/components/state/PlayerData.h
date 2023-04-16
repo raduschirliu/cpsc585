@@ -25,6 +25,7 @@ struct PlayerStateData
                                         // for every powerup.
     AmmoPickupType current_ammo_type;
     double accuracy;
+    bool is_accelerating;
 
     PlayerStateData()
     {
@@ -33,6 +34,7 @@ struct PlayerStateData
 
     void Reset()
     {
+        is_accelerating = false;
         player_name = "";
         player_who_shot_me = "";
         handling_multiplier = 1.0f;

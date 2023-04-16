@@ -88,10 +88,20 @@ std::string_view PlayerState::GetName() const
     return "PlayerState";
 }
 
+void PlayerState::SetIsAccelerating(bool b_value)
+{
+    player_state_.is_accelerating = b_value;
+}
+
 // getters
 std::string PlayerState::GetPlayerName()
 {
     return player_state_.player_name;
+}
+
+bool PlayerState::GetIsAccelerating()
+{
+    return player_state_.is_accelerating;
 }
 
 bool PlayerState::IsDead() const

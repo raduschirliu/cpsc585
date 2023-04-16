@@ -10,6 +10,7 @@
 class RenderService;
 class InputService;
 class VehicleComponent;
+class PlayerState;
 
 class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
 {
@@ -28,11 +29,17 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetFollowingTransform(Entity& entity);
     void SetCameraOffset(glm::vec3 offset);
 
+    void SetPlayerState(PlayerState& player_state);
+
   private:
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<Transform> target_transform_;
     jss::object_ptr<VehicleComponent> target_vehicle_;
 
+    // to get the player controller attached to the entity on which follow camera is attached
+    jss::object_ptr<PlayerState> player_state_;
+
+    float acceleration_factor_;
     glm::vec3 offset_;
     float distance_;
     float orientation_lerp_factor_;
