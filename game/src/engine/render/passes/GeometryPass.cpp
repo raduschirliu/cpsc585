@@ -46,6 +46,7 @@ struct CameraView
     glm::mat4 view_proj_matrix;
 };
 
+static constexpr int kAntiAliasingSamples = 4;
 constexpr int kShadowMapTextureStart =
     5;  // Arbitrary choice, normal albedo texture is at idx=0
 const static vector<float> kSkyboxVertices = {
@@ -64,6 +65,9 @@ GeometryPass::GeometryPass(SceneRenderData& render_data,
                            const vector<unique_ptr<ShadowMap>>& shadow_maps)
     : fbo_(),
       rbo_(),
+      screen_texture_multisample_(),
+      fbo_resolve_(),
+      rbo_resolve_(),
       screen_texture_(),
       render_data_(render_data),
       shadow_maps_(shadow_maps),
@@ -210,7 +214,8 @@ void GeometryPass::UnregisterRenderable(const Entity& entity)
 
 void GeometryPass::Init()
 {
-    InitFbo();
+    InitMultisampleFbo();
+    InitResolveFbo();
     InitSkybox();
 
     last_screen_size_ = render_data_.screen_size;
@@ -233,11 +238,45 @@ void GeometryPass::InitSkybox()
     VertexArray::Unbind();
 }
 
-void GeometryPass::InitFbo()
+void GeometryPass::InitMultisampleFbo()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
 
-    // Create render target
+    // Create multisampled render target
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, screen_texture_multisample_);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, kAntiAliasingSamples,
+                            GL_RGBA16F, render_data_.screen_size.x,
+                            render_data_.screen_size.y, GL_TRUE);
+
+    // Color attachment (texture render target)
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                           GL_TEXTURE_2D_MULTISAMPLE,
+                           screen_texture_multisample_, 0);
+
+    // Create renderbuffer
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glRenderbufferStorageMultisample(
+        GL_RENDERBUFFER, kAntiAliasingSamples, GL_DEPTH24_STENCIL8,
+        render_data_.screen_size.x, render_data_.screen_size.y);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    // Attach as depth + stencil buffers
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
+                              GL_RENDERBUFFER, rbo_);
+
+    // Verify that FBO is complete
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    ASSERT_MSG(status == GL_FRAMEBUFFER_COMPLETE,
+               "Framebuffer should be valid");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void GeometryPass::InitResolveFbo()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_resolve_);
+
+    // Create multisampled render target
     glBindTexture(GL_TEXTURE_2D, screen_texture_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, render_data_.screen_size.x,
                  render_data_.screen_size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -249,7 +288,7 @@ void GeometryPass::InitFbo()
                            screen_texture_, 0);
 
     // Create renderbuffer
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_resolve_);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
                           render_data_.screen_size.x,
                           render_data_.screen_size.y);
@@ -257,7 +296,7 @@ void GeometryPass::InitFbo()
 
     // Attach as depth + stencil buffers
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                              GL_RENDERBUFFER, rbo_);
+                              GL_RENDERBUFFER, rbo_resolve_);
 
     // Verify that FBO is complete
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -275,9 +314,8 @@ void GeometryPass::Render()
 
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
     glViewport(0, 0, render_data_.screen_size.x, render_data_.screen_size.y);
-    glEnable(GL_FRAMEBUFFER_SRGB);
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_MULTISAMPLE);
+    glEnable(GL_MULTISAMPLE);
 
     // Disabling back-face culling until we add more faces to the track
     // glEnable(GL_CULL_FACE);
@@ -326,6 +364,9 @@ void GeometryPass::Render()
     // Cleanup
     render_data_.debug_draw_list->Clear();
     laser_material_.Clear();
+
+    // MSAA resolving
+    ResolveMultisampledTarget();
 }
 
 void GeometryPass::RenderDebugGui()
@@ -340,6 +381,7 @@ void GeometryPass::RenderDebugGui()
         laser_material_.RecompileShader();
     }
 
+    ImGui::Text("MSAA: %dx", kAntiAliasingSamples);
     ImGui::Text("Draw calls: %zu", debug_num_draw_calls_);
     ImGui::Text("Mesh buffers: %zu", meshes_.size());
     ImGui::Text("Sum of all buffer sizes: %zu bytes", debug_total_buffer_size_);
@@ -353,6 +395,19 @@ void GeometryPass::RenderDebugGui()
                               mesh->buffer_size);
         }
     }
+}
+
+void GeometryPass::ResolveMultisampledTarget()
+{
+    // Resolve by blitting result onto non-MSAA FBO
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo_);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo_resolve_);
+
+    const GLsizei width = static_cast<GLsizei>(render_data_.screen_size.x);
+    const GLsizei height = static_cast<GLsizei>(render_data_.screen_size.y);
+
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 CameraView GeometryPass::PrepareCameraView(Camera& camera)
@@ -379,16 +434,25 @@ void GeometryPass::CheckScreenResize()
     last_screen_size_ = render_data_.screen_size;
 
     // Resize screen texture
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, screen_texture_multisample_);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, kAntiAliasingSamples,
+                            GL_RGBA16F, render_data_.screen_size.x,
+                            render_data_.screen_size.y, GL_TRUE);
+
     glBindTexture(GL_TEXTURE_2D, screen_texture_);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, render_data_.screen_size.x,
                  render_data_.screen_size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
 
     // Resize renderbuffer
     glBindRenderbuffer(GL_RENDERBUFFER, rbo_);
+    glRenderbufferStorageMultisample(
+        GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, kAntiAliasingSamples,
+        render_data_.screen_size.x, render_data_.screen_size.y);
+
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_resolve_);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8,
                           render_data_.screen_size.x,
                           render_data_.screen_size.y);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 void GeometryPass::RenderMeshes(const CameraView& camera)

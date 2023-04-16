@@ -38,6 +38,9 @@ class GeometryPass
   private:
     FramebufferHandle fbo_;
     RenderbufferHandle rbo_;
+    TextureHandle screen_texture_multisample_;
+    FramebufferHandle fbo_resolve_;
+    RenderbufferHandle rbo_resolve_;
     TextureHandle screen_texture_;
     SceneRenderData& render_data_;
     const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps_;
@@ -54,7 +57,9 @@ class GeometryPass
     glm::ivec2 last_screen_size_;
 
     void InitSkybox();
-    void InitFbo();
+    void InitMultisampleFbo();
+    void InitResolveFbo();
+    void ResolveMultisampledTarget();
     void CheckScreenResize();
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);
