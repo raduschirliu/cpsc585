@@ -89,6 +89,10 @@ std::string_view PlayerState::GetName() const
 }
 
 // getters
+std::string PlayerState::GetPlayerName()
+{
+    return player_state_.player_name;
+}
 
 bool PlayerState::IsDead() const
 {
@@ -155,7 +159,22 @@ PlayerStateData* PlayerState::GetStateData()
     return &player_state_;
 }
 
+std::string PlayerState::GetPlayerWhoShotMe()
+{
+    return player_state_.player_who_shot_me;
+}
+
 // setters
+
+void PlayerState::SetPlayerName(std::string name)
+{
+    player_state_.player_name = name;
+}
+
+void PlayerState::SetPlayerWhoShotMe(std::string player)
+{
+    player_state_.player_who_shot_me = player;
+}
 
 void PlayerState::SetHealth(float health)
 {

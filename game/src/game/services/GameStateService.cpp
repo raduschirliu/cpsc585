@@ -4,12 +4,14 @@
 
 #include <algorithm>
 #include <array>
+#include <fstream>
 #include <string>
 
 #include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/audio/AudioService.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/json/deserialize_utils.h"
 #include "engine/gui/GuiService.h"
 #include "engine/physics/BoxTrigger.h"
 #include "engine/physics/PhysicsService.h"
@@ -50,6 +52,7 @@ using std::string;
 // powerup is disabled and removed.
 static constexpr float kSlowDownTimerLimit = 5.0f;
 static constexpr uint32_t kMaxPlayers = 4;
+static constexpr double kMaxKillFeedTimer = 5.0f;
 
 static const Timestep kCountdownTime = Timestep::Seconds(3.5);
 
@@ -147,6 +150,65 @@ void GameStateService::OnUpdate()
     UpdatePlayerProgressScore(delta_time);
 }
 
+void GameStateService::DisplayKillFeed()
+{
+    if (kill_feed_info_.size() == 0)
+    {
+        return;
+    }
+    auto now = std::chrono::system_clock::now();
+    for (auto it = timestamp_map.begin(); it != timestamp_map.end();)
+    {
+        if (std::chrono::duration_cast<std::chrono::seconds>(now - it->second)
+                .count() > kMaxKillFeedTimer)
+        {
+            kill_feed_info_.erase(it->first);
+            it = timestamp_map.erase(it);
+        }
+        else
+        {
+            auto iter = kill_feed_info_.find(it->first);
+            if (iter != kill_feed_info_.end())
+            {
+                ImGui::Text(iter->c_str());
+            }
+            ++it;
+        }
+    }
+    // debug::LogDebug("{}", kill_feed_info_.size());
+}
+
+void GameStateService::KillFeed(const ImGuiWindowFlags& flags)
+{
+    ImVec2 screenPos =
+        ImVec2(ImGui::GetIO().DisplaySize.x -
+                   ImGui::GetStyle().WindowPadding.x - ImGui::GetWindowWidth(),
+               ImGui::GetStyle().WindowPadding.y);
+    ImGui::SetNextWindowPos(screenPos);
+    ImGui::Begin("Kill Feed", nullptr, flags);
+
+    auto& states = player_states_;
+    for (const auto& player_state : states)
+    {
+        if (!player_state.second)
+        {
+            continue;
+        }
+        if (player_state.second->IsDead())
+        {
+            std::string kill_string =
+                player_state.second->GetPlayerWhoShotMe() + " killed " +
+                player_state.second->GetPlayerName();
+
+            kill_feed_info_.insert(kill_string);
+            timestamp_map[kill_string] = std::chrono::system_clock::now();
+        }
+    }
+
+    DisplayKillFeed();
+    ImGui::End();
+}
+
 void GameStateService::OnGui()
 {
     if (debug_menu_open_)
@@ -170,6 +232,9 @@ void GameStateService::OnGui()
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse;
+
+    // Kill Feed
+    KillFeed(flags);
 
     if (physics_service_->GetPaused())
     {
@@ -1240,69 +1305,113 @@ std::unordered_set<std::string> GameStateService::GetPlayerStaticNames()
     return names;
 }
 
+std::ofstream& operator<<(std::ofstream& file, const glm::vec3& vec)
+{
+    file << vec.x << ' ' << vec.y << ' ' << vec.z;
+    return file;
+}
+
+std::vector<PickupData> GameStateService::ReadCheckpointsFromJsonFile()
+{
+    std::vector<PickupData> data;
+
+    std::ifstream file("resources/powerup/PowerupSpawnPoint.jsonc");
+    if (!file.is_open())
+    {
+        debug::LogError("Powerup Spawn not happening");
+    }
+
+    std::string jsonStr((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
+    rapidjson::Document document;
+    document.Parse(jsonStr.c_str());
+
+    if (document.IsArray())
+    {
+        for (rapidjson::SizeType i = 0; i < document.Size(); i++)
+        {
+            const rapidjson::Value& object = document[i];
+
+            if (object.HasMember("Location") && object.HasMember("Pickup_Type"))
+            {
+                const rapidjson::Value& location = object["Location"];
+                const rapidjson::Value& pickup_type = object["Pickup_Type"];
+
+                if (location.IsArray() && pickup_type.IsString())
+                {
+                    auto location_array = location.GetArray();
+                    std::string pickup_type_str = pickup_type.GetString();
+
+                    glm::vec3 final_location =
+                        glm::vec3(location_array[0].GetFloat(),
+                                  location_array[1].GetFloat(),
+                                  location_array[2].GetFloat());
+
+                    PickupData temp;
+                    temp.location = final_location;
+                    temp.name = pickup_type_str;
+
+                    data.push_back(temp);
+                }
+            }
+        }
+    }
+
+    return data;
+}
+
 void GameStateService::UpdatePowerupInfo()
 {
     // assigning powerup info here.
+    std::vector<PickupData> locations = ReadCheckpointsFromJsonFile();
 
-    const auto& checkpoints = Checkpoints::GetCheckpoints();
-
-    for (const auto& checkpoint : checkpoints)
+    for (const auto& l : locations)
     {
-        // adding a random statement which will select to spawn ammo type or
-        // powerup at the lcoation randomly generating what kind of powerup
-        uint8_t selector = rand() % 2 + 1;
-        if (selector == 1)
+        // Convert const char* to std::string
+        std::string pickupType(l.name);
+
+        // Use std::string as expression in switch statement
+        if (pickupType == "Buckshot")
         {
-            // means ammo should spawn
-            uint8_t random_ammo = rand() % 5 + 1;
-            switch (random_ammo)
-            {
-                case 1:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kBuckshot, checkpoint.position});
-                    break;
-                case 2:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kDoubleDamage, checkpoint.position});
-                    break;
-                case 3:
-                    ammo_info_.push_back({AmmoPickupType::kExploadingBullet,
-                                          checkpoint.position});
-                    break;
-                case 4:
-                    ammo_info_.push_back({AmmoPickupType::kIncreaseFireRate,
-                                          checkpoint.position});
-                    break;
-                case 5:
-                    ammo_info_.push_back(
-                        {AmmoPickupType::kVampireBullet, checkpoint.position});
-                    break;
-            }
+            ammo_info_.push_back({AmmoPickupType::kBuckshot, l.location});
         }
-        else
+        else if (pickupType == "DoubleDamage")
         {
-            // should spawn here.
-            uint8_t random_powerup =
-                rand() % 4 + 1;  // as 0 is default powerup.
-            switch (random_powerup)
-            {
-                case 1:
-                    powerup_info.push_back({PowerupPickupType::kDisableHandling,
-                                            checkpoint.position});
-                    break;
-                case 2:
-                    powerup_info.push_back({PowerupPickupType::kEveryoneSlower,
-                                            checkpoint.position});
-                    break;
-                case 3:
-                    powerup_info.push_back({PowerupPickupType::kIncreaseAimBox,
-                                            checkpoint.position});
-                    break;
-                case 4:
-                    powerup_info.push_back({PowerupPickupType::kKillAbilities,
-                                            checkpoint.position});
-                    break;
-            }
+            ammo_info_.push_back({AmmoPickupType::kDoubleDamage, l.location});
+        }
+        else if (pickupType == "ExploadingBullet")
+        {
+            ammo_info_.push_back(
+                {AmmoPickupType::kExploadingBullet, l.location});
+        }
+        else if (pickupType == "IncreaseFireRate")
+        {
+            ammo_info_.push_back(
+                {AmmoPickupType::kIncreaseFireRate, l.location});
+        }
+        else if (pickupType == "VampireBullet")
+        {
+            ammo_info_.push_back({AmmoPickupType::kVampireBullet, l.location});
+        }
+        else if (pickupType == "DisableHandling")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kDisableHandling, l.location});
+        }
+        else if (pickupType == "EveryoneSlower")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kEveryoneSlower, l.location});
+        }
+        else if (pickupType == "IncreaseAimBox")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kIncreaseAimBox, l.location});
+        }
+        else if (pickupType == "KillAbilities")
+        {
+            powerup_info.push_back(
+                {PowerupPickupType::kKillAbilities, l.location});
         }
     }
 }

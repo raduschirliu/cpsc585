@@ -120,6 +120,7 @@ void Shooter::ShootBuckshot(const vec3& origin, const vec3& fwd_direction)
     // TODO: fix this, as the pellets spread, they can hit multiple car, rn we
     // apply the hit to only one car. FIX THIS as this many pellets hit the car.
     target_state->DecrementHealth(GetAmmoDamage() * target_datas.size());
+    target_state->SetPlayerWhoShotMe(std::string(player_state_->GetName()));
 
     // TODO(radu): Add multiple lasers
 }
@@ -172,6 +173,8 @@ void Shooter::UpdateOnHit()
         {
             player_state_->IncrementHealth(GetAmmoDamage());
         }
+        target_state->SetPlayerWhoShotMe(
+            std::string(player_state_->GetPlayerName()));
     }
 }
 
