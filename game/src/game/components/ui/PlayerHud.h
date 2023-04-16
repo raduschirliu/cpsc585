@@ -41,7 +41,5 @@ class PlayerHud final : public Component, public IEventSubscriber<OnGuiEvent>
     const Texture* increaseFireRate_;
     const Texture* vampireBullet_;
 
-    const Texture* minimap_;
-
     ImFont* font_;
 };

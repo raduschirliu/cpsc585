@@ -129,6 +129,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
     pause_ = &asset_service_->GetTexture("pause");
+    minimap_ = &asset_service_->GetTexture("minimap");
 }
 
 void GameStateService::OnUpdate()
@@ -234,6 +235,63 @@ void GameStateService::OnGui()
 
     // Kill Feed
     KillFeed(flags);
+
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
+    ImGui::Begin("Minimap", nullptr, flags);
+    ImGui::Image(minimap_->GetGuiHandle(), ImVec2(200, 250));
+    ImGui::End();
+
+    // ImGui::SetNextWindowPos(ImVec2(
+    //     transform_->GetPosition().x / 7 + (ImGui::GetIO().DisplaySize.x -
+    //     57), transform_->GetPosition().z / 7 + 98));
+    // ImGui::Begin("Position", nullptr, flags);
+    // ImGui::PushFont(font_);
+    // ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.f, 0.1f, 1.f));
+    // ImGui::Text(".");
+    // ImGui::PopStyleColor();
+    // ImGui::PopFont();
+    // ImGui::End();
+
+    for (uint32_t i = 0; i < players_.size(); ++i)
+    {
+        auto& entity = players_[i]->entity;
+        auto& transform = entity->GetComponent<Transform>();
+
+        ImGui::SetNextWindowPos(ImVec2(
+            transform.GetPosition().x / 7 + (ImGui::GetIO().DisplaySize.x - 57),
+            transform.GetPosition().z / 7 + 98));
+        if (players_[i]->is_human)
+        {
+            ImGui::Begin("red", nullptr, flags);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.f, 0.1f, 1.f));
+        }
+        else
+        {
+            if (i == 1)
+            {
+                ImGui::Begin("blue", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(0.1f, 0.f, 0.8f, 1.f));
+            }
+            else if (i == 2)
+            {
+                ImGui::Begin("green", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(0.f, 0.6f, 0.4f, 1.f));
+            }
+            else if (i == 3)
+            {
+                ImGui::Begin("yellow", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(1.f, 0.8f, 0.2f, 1.f));
+            }
+        }
+        ImGui::PushFont(font_impact_);
+        ImGui::Text(".");
+        ImGui::PopFont();
+        ImGui::PopStyleColor();
+        ImGui::End();
+    }
 
     if (physics_service_->GetPaused())
     {

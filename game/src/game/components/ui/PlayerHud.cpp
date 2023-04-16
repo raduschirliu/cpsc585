@@ -41,8 +41,6 @@ void PlayerHud::OnInit(const ServiceProvider& service_provider)
     increaseFireRate_ = &asset_service_->GetTexture("fire");
     vampireBullet_ = &asset_service_->GetTexture("vampire");
 
-    minimap_ = &asset_service_->GetTexture("minimap");
-
     font_ = gui_service_->GetFont("impact");
 }
 
@@ -59,22 +57,6 @@ void PlayerHud::OnGui()
         ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoScrollWithMouse |
         ImGuiWindowFlags_NoDecoration;
-
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
-    ImGui::Begin("Minimap", nullptr, flags);
-    ImGui::Image(minimap_->GetGuiHandle(), ImVec2(200, 250));
-    ImGui::End();
-
-    ImGui::SetNextWindowPos(ImVec2(
-        transform_->GetPosition().x / 7 + (ImGui::GetIO().DisplaySize.x - 57),
-        transform_->GetPosition().z / 7 + 98));
-    ImGui::Begin("Position", nullptr, flags);
-    ImGui::PushFont(font_);
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.f, 0.1f, 1.f));
-    ImGui::Text(".");
-    ImGui::PopStyleColor();
-    ImGui::PopFont();
-    ImGui::End();
 
     // ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 1250,
     //                                ImGui::GetIO().DisplaySize.y - 690));
