@@ -316,6 +316,7 @@ void GeometryPass::Render()
     glViewport(0, 0, render_data_.screen_size.x, render_data_.screen_size.y);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     // Disabling back-face culling until we add more faces to the track
     // glEnable(GL_CULL_FACE);

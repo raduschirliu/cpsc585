@@ -22,4 +22,6 @@ class PostProcessPass
     SceneRenderData& render_data_;
     VertexArray quad_vao_;
     VertexBuffer quad_vbo_;
+    float gamma_;
+    float exposure_;
 };

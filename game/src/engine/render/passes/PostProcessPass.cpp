@@ -1,5 +1,7 @@
 #include "engine/render/passes/PostProcessPass.h"
 
+#include <imgui.h>
+
 #include <vector>
 
 #include "engine/core/gfx/Texture.h"
@@ -30,7 +32,9 @@ PostProcessPass::PostProcessPass(SceneRenderData& render_data,
       screen_texture_(screen_texture),
       render_data_(render_data),
       quad_vao_(),
-      quad_vbo_()
+      quad_vbo_(),
+      gamma_(2.2f),
+      exposure_(1.0f)
 {
 }
 
@@ -56,6 +60,7 @@ void PostProcessPass::Render()
 
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
+    glDisable(GL_FRAMEBUFFER_SRGB);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -67,6 +72,8 @@ void PostProcessPass::Render()
 
     shader_.Use();
     shader_.SetUniform("uScreenTexture", 0);
+    shader_.SetUniform("uGamma", gamma_);
+    shader_.SetUniform("uExposure", exposure_);
 
     const GLsizei vertex_count =
         static_cast<GLsizei>(kScreenQuadVertices.size());
@@ -75,4 +82,6 @@ void PostProcessPass::Render()
 
 void PostProcessPass::RenderDebugGui()
 {
+    ImGui::DragFloat("Gamma", &gamma_, 0.1f, 0.0f, 10.0f);
+    ImGui::DragFloat("Exposure", &exposure_, 0.1f, 0.0f, 10.0f);
 }
