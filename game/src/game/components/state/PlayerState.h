@@ -31,6 +31,8 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetLapsCompleted(int laps);
     void SetLastCheckpoint(int checkpoint);
     void SetCurrentPlace(int place);
+    void SetPlayerWhoShotMe(std::string player);
+    void SetPlayerName(std::string name);
 
     // getters
     float GetMaxCarSpeed();
@@ -49,6 +51,8 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     AmmoPickupType GetCurrentAmmoType() const;
     int GetCurrentPlace() const;
     PlayerStateData* GetStateData();
+    std::string GetPlayerWhoShotMe();
+    std::string GetPlayerName();
 
   private:
     void CheckDead(const Timestep& delta_time);

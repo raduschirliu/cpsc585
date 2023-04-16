@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <object_ptr.hpp>
@@ -45,6 +46,12 @@ struct PlayerRecord
     uint32_t checkpoint_count_accumulator;
     float progress_score;
     double finished_time;
+};
+
+struct PickupData
+{
+    glm::vec3 location;
+    std::string name;
 };
 
 struct GlobalRaceState
@@ -109,6 +116,14 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     std::unordered_set<std::string> GetPlayerStaticNames();
 
+    std::vector<PickupData> ReadCheckpointsFromJsonFile();
+
+  protected:
+    void KillFeed(const ImGuiWindowFlags& flags);
+    void DisplayKillFeed();
+    double kill_feed_timer_ = 0.0f;
+    bool display_kill_details_ = false;
+
   private:
     jss::object_ptr<AudioService> audio_service_;
     jss::object_ptr<GuiService> gui_service_;
@@ -138,6 +153,11 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     // in the map.
     std::vector<std::pair<PowerupPickupType, glm::vec3>> powerup_info;
     std::vector<std::pair<AmmoPickupType, glm::vec3>> ammo_info_;
+
+    std::unordered_map<std::string,
+                       std::chrono::time_point<std::chrono::system_clock>>
+        timestamp_map;
+    std::unordered_set<std::string> kill_feed_info_;
 
     GameState stats_;
     bool debug_menu_open_ = false;
