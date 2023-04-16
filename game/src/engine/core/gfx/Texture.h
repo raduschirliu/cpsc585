@@ -19,7 +19,8 @@ class Texture
 
     Texture();
 
-    void LoadFromFile(std::string path, bool flip_vertically = false);
+    void LoadFromFile(std::string path, bool srgb = true,
+                      bool flip_vertically = false);
     void UpdateParams();
 
     glm::uvec2 GetDimensions() const;

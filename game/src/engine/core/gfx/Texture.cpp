@@ -14,7 +14,7 @@ Texture::Texture()
 {
 }
 
-void Texture::LoadFromFile(std::string path, bool flip_vertically)
+void Texture::LoadFromFile(std::string path, bool srgb, bool flip_vertically)
 {
     path_ = path;
 
@@ -37,28 +37,38 @@ void Texture::LoadFromFile(std::string path, bool flip_vertically)
     Bind();
 
     // Set number of components by format of the texture
-    GLuint format = GL_RGB;
+    GLuint data_format = GL_RGB;
+    GLuint internal_format = GL_SRGB;
+
     switch (num_components)
     {
         case 4:
-            format = GL_RGBA;
+            data_format = GL_RGBA;
+            internal_format = srgb ? GL_SRGB_ALPHA : GL_RGBA;
             break;
+
         case 3:
-            format = GL_RGB;
+            data_format = GL_RGB;
+            internal_format = srgb ? GL_SRGB : GL_RGB;
             break;
+
         case 2:
-            format = GL_RG;
+            data_format = GL_RG;
+            internal_format = GL_RG;
             break;
+
         case 1:
-            format = GL_RED;
+            data_format = GL_RED;
+            internal_format = GL_RG;
             break;
+
         default:
             ASSERT_ALWAYS("Invalid Texture Format");
             break;
     };
     // Loads texture data into bound texture
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0,
+                 data_format, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
 
     UpdateParams();

@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 
+#include "engine/core/gfx/GLHandles.h"
 #include "engine/core/gfx/ShaderProgram.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/render/DebugDrawList.h"
@@ -32,8 +33,15 @@ class GeometryPass
 
     void SetWireframe(bool state);
     LaserMaterial& GetLaserMaterial();
+    TextureHandle& GetScreenTexture();
 
   private:
+    FramebufferHandle fbo_;
+    RenderbufferHandle rbo_;
+    TextureHandle screen_texture_multisample_;
+    FramebufferHandle fbo_resolve_;
+    RenderbufferHandle rbo_resolve_;
+    TextureHandle screen_texture_;
     SceneRenderData& render_data_;
     const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
@@ -46,7 +54,13 @@ class GeometryPass
     float max_shadow_bias_;
     size_t debug_num_draw_calls_;
     size_t debug_total_buffer_size_;
+    glm::ivec2 last_screen_size_;
 
+    void InitSkybox();
+    void InitMultisampleFbo();
+    void InitResolveFbo();
+    void ResolveMultisampledTarget();
+    void CheckScreenResize();
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);
     void RenderDebugDrawList(const CameraView& camera);
