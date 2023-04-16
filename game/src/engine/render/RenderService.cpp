@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
 #include "engine/input/InputService.h"
@@ -26,6 +27,7 @@ RenderService::RenderService()
       render_data_(make_unique<SceneRenderData>()),
       depth_pass_(*render_data_),
       geometry_pass_(*render_data_, depth_pass_.GetShadowMaps()),
+      post_process_pass_(*render_data_, geometry_pass_.GetScreenTexture()),
       debug_draw_list_(),
       show_debug_menu_(false),
       debug_draw_camera_frustums_(false)
@@ -123,12 +125,12 @@ void RenderService::OnStart(ServiceProvider& service_provider)
 
     depth_pass_.Init();
     geometry_pass_.Init();
+    post_process_pass_.Init();
 }
 
 void RenderService::OnSceneLoaded(Scene& scene)
 {
     depth_pass_.ResetState();
-
     geometry_pass_.ResetState();
 
     render_data_->cameras.clear();
@@ -165,8 +167,12 @@ void RenderService::OnUpdate()
         DrawCameraFrustums();
     }
 
+    const Timestep& delta = GetApp().GetDeltaTime();
+    render_data_->total_time += delta.GetSeconds();
+
     depth_pass_.Render();
     geometry_pass_.Render();
+    post_process_pass_.Render();
 }
 
 void RenderService::OnCleanup()
@@ -228,6 +234,12 @@ void RenderService::OnGui()
         ImGui::EndTabItem();
     }
 
+    if (ImGui::BeginTabItem("Post Processing Pass"))
+    {
+        post_process_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
+    }
+
     ImGui::EndTabBar();
     ImGui::End();
 }
@@ -235,6 +247,11 @@ void RenderService::OnGui()
 DebugDrawList& RenderService::GetDebugDrawList()
 {
     return debug_draw_list_;
+}
+
+LaserMaterial& RenderService::GetLaserMaterial()
+{
+    return geometry_pass_.GetLaserMaterial();
 }
 
 void RenderService::DrawCameraFrustums()

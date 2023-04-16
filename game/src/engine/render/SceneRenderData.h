@@ -16,6 +16,7 @@ struct SceneRenderData
     std::vector<PointLight*> point_lights;
     AssetService* asset_service;
     DebugDrawList* debug_draw_list;
+    double total_time;
 
     SceneRenderData();
 };

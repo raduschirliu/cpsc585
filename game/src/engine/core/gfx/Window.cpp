@@ -108,7 +108,7 @@ void Window::Create(int width, int height, const char* title)
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     // 4x MSAA
-    glfwWindowHint(GLFW_SAMPLES, 4);
+    // glfwWindowHint(GLFW_SAMPLES, 4);
 
     // create window
     handle_ = std::unique_ptr<GLFWwindow, WindowDeleter>(

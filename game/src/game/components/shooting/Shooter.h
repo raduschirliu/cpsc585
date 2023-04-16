@@ -3,9 +3,11 @@
 #include <optional>
 
 #include "engine/audio/AudioService.h"
+#include "engine/core/math/Cuboid.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/physics/RaycastData.h"
+#include "engine/render/LaserMaterial.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "game/components/audio/AudioEmitter.h"
@@ -15,6 +17,14 @@
 class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
+    struct Laser
+    {
+        float lifetime;
+        glm::vec3 origin;
+        glm::vec3 target;
+        Quad<LaserVertex> quad;
+    };
+
     /**
      *  emits a raycast shot from the entity, updating the entity it hits
      *  (if it hits)
@@ -40,20 +50,6 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     /// hits multiple opponents in some range
     void ShootBuckshot(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
-    /// @brief handles the vampire bullets
-    void ShootVampire(const glm::vec3& origin, const glm::vec3& fwd_direction);
-
-    /// @brief handles the double damage bullets
-    void ShootDoubleDamage(const glm::vec3& origin,
-                           const glm::vec3& fwd_direction);
-
-    /// @brief handles the exploading damage bullets
-    void ShootExploading(const glm::vec3& origin,
-                         const glm::vec3& fwd_direction);
-
-    /// @brief handles the increase fire rate
-    void IncreaseFireRate();
-
     /// @brief handles shooting normal rounds.
     void ShootDefault(const glm::vec3& origin, const glm::vec3& fwd_direction);
 
@@ -65,16 +61,22 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     /// gets the appropriate damage for the current ammo type
     float GetAmmoDamage();
 
+    /// creates a laser mesh from the origin to the target
+    void CreateLaser(const glm::vec3& origin, const glm::vec3& target);
+
     AmmoPickupType current_ammo_type_;
     std::optional<RaycastData> target_data_;
     std::string shoot_sound_file_;
-    float increase_fire_speed_multiplier_ = 1.f;
+    float increase_fire_speed_multiplier_ = 1.0f;
+
+    Laser laser_;
 
     // as we can have multiple ammo powerups up at a time
     std::unordered_map<AmmoPickupType, double> timer_;
 
     /* ----- service and component dependencies ----- */
 
+    jss::object_ptr<RenderService> render_service_;
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<AudioService> audio_service_;
 

@@ -23,13 +23,9 @@ class MeshRenderer final : public Component
   public:
     MeshRenderer() = default;
 
-    void SetMaterial(const std::string& name);
-
     void SetMesh(const RenderableMesh& mesh);
     void SetMeshes(const std::vector<RenderableMesh>& meshes);
     const std::vector<RenderableMesh>& GetMeshes() const;
-
-    const Material& GetMaterial() const;
 
     // From Component
     void OnInit(const ServiceProvider& service_provider) override;
@@ -43,5 +39,4 @@ class MeshRenderer final : public Component
     jss::object_ptr<Transform> transform_;
 
     std::vector<RenderableMesh> meshes_;
-    jss::object_ptr<Material> material_;
 };

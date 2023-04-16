@@ -11,6 +11,7 @@
 #include "engine/render/SceneRenderData.h"
 #include "engine/render/passes/DepthPass.h"
 #include "engine/render/passes/GeometryPass.h"
+#include "engine/render/passes/PostProcessPass.h"
 #include "engine/scene/Entity.h"
 #include "engine/service/Service.h"
 
@@ -41,6 +42,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     void OnGui() override;
 
     DebugDrawList& GetDebugDrawList();
+    LaserMaterial& GetLaserMaterial();
 
   private:
     jss::object_ptr<InputService> input_service_;
@@ -49,6 +51,7 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     std::unique_ptr<SceneRenderData> render_data_;
     DepthPass depth_pass_;
     GeometryPass geometry_pass_;
+    PostProcessPass post_process_pass_;
     DebugDrawList debug_draw_list_;
     bool show_debug_menu_;
     bool debug_draw_camera_frustums_;

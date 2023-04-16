@@ -196,3 +196,28 @@ class FramebufferHandle
   private:
     GLuint id_;
 };
+
+class RenderbufferHandle
+{
+  public:
+    RenderbufferHandle();
+
+    // Disallow copying
+    RenderbufferHandle(const RenderbufferHandle&) = delete;
+    RenderbufferHandle operator=(const RenderbufferHandle&) = delete;
+
+    // Allow moving
+    RenderbufferHandle(RenderbufferHandle&& other) noexcept;
+    RenderbufferHandle& operator=(RenderbufferHandle&& other) noexcept;
+
+    // Clean up after ourselves.
+    ~RenderbufferHandle();
+
+    // Allow casting from this type into a GLuint
+    // This allows usage in situations where a function expects a GLuint
+    operator GLuint() const;
+    GLuint Value() const;
+
+  private:
+    GLuint id_;
+};
