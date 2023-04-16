@@ -276,7 +276,6 @@ void GameStateService::OnGui()
         }
         ImGui::PopFont();
         ImGui::PopStyleColor();
-
         ImGui::End();
 
         ImGui::SetNextWindowPos(ImVec2(220, ImGui::GetIO().DisplaySize.y - 95));

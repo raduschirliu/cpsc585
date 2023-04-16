@@ -94,44 +94,32 @@ void MainMenu::OnGui()
     ImGui::PushStyleColor(ImGuiCol_ButtonActive,
                           ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-                          ImVec4(0.0f, 0.0f, 0.8f, 0.5f));
+                          ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
     if (ImGui::ImageButton("how to play button", guide_button_->GetGuiHandle(),
                            ImVec2(222, 49)))
     {
         scene_service_->SetActiveScene("HowToPlay");
         audio_service_->PlaySource("ui_pick_01.ogg");
     }
-    ImGui::PopStyleColor(3);
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-                          ImVec4(1.0f, 1.0f, 1.0f, 0.3f));
     ImGui::SameLine(0.f, ImGui::GetIO().DisplaySize.x - 480.f);
+
     if (ImGui::ImageButton("setting button", setting_button_->GetGuiHandle(),
                            ImVec2(163, 49)))
     {
         scene_service_->SetActiveScene("Setting");
         audio_service_->PlaySource("ui_pick_01.ogg");
     }
-    ImGui::PopStyleColor(3);
-    ImGui::PopStyleVar(1);
 
-    ImGui::End();
+    // ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 370,
+    //                                ImGui::GetIO().DisplaySize.y - 145));
+    // ImGui::Begin("Play Buttons", nullptr, flags);
 
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 370,
-                                   ImGui::GetIO().DisplaySize.y - 280));
-    ImGui::Begin("Play Buttons", nullptr, flags);
+    // ImVec2 pos = ImGui::GetCursorPos();
 
-    ImVec2 pos = ImGui::GetCursorPos();
+    ImGui::SetCursorPos(ImVec2(ImGui::GetIO().DisplaySize.x - 390,
+                               ImGui::GetIO().DisplaySize.y - 160));
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 50.0f);
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-                          ImVec4(0.0f, 0.0f, 0.8f, 0.5f));
     if (ImGui::ImageButton("single button", single_button_->GetGuiHandle(),
                            ImVec2(308, 93)))
     {
@@ -141,21 +129,22 @@ void MainMenu::OnGui()
     }
     ImGui::PopStyleColor(3);
 
-    ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 135));
+    // ImGui::SetCursorPos(ImVec2(pos.x, pos.y + 135));
 
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-                          ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-                          ImVec4(0.8f, 0.0f, 0.0f, 0.5f));
-    if (ImGui::ImageButton("multi button", multi_button_->GetGuiHandle(),
-                           ImVec2(308, 93)))
-    {
-        // Has to be the name of a scene defined near the top of GameApp.cpp
-        // scene_service_->SetActiveScene("Track1");
-        audio_service_->PlaySource("ui_pick_01.ogg");
-    }
-    ImGui::PopStyleColor(3);
+    // ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    // ImGui::PushStyleColor(ImGuiCol_ButtonActive,
+    //                       ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+    // ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
+    //                       ImVec4(0.8f, 0.0f, 0.0f, 0.5f));
+    // if (ImGui::ImageButton("multi button", multi_button_->GetGuiHandle(),
+    //                        ImVec2(308, 93)))
+    // {
+    //     // Has to be the name of a scene defined near the top of GameApp.cpp
+    //     // scene_service_->SetActiveScene("Track1");
+    //     audio_service_->AddSource("ui_pick_01.ogg");
+    //     audio_service_->PlaySource("ui_pick_01.ogg");
+    // }
+    // ImGui::PopStyleColor(3);
     ImGui::PopStyleVar(1);
 
     // ImGui::Text("Button click counter: %d", counter);

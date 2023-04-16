@@ -42,6 +42,7 @@
 #include "game/components/ui/HowToPlay.h"
 #include "game/components/ui/MainMenu.h"
 #include "game/components/ui/PlayerHud.h"
+#include "game/components/ui/Powerups.h"
 #include "game/components/ui/Setting.h"
 #include "game/services/GameStateService.h"
 
@@ -88,6 +89,7 @@ void GameApp::OnStart()
     AddScene("Track1");
     AddScene("MainMenu");
     AddScene("HowToPlay");
+    AddScene("Powerups");
     AddScene("Setting");
 
     SetActiveScene("MainMenu");
@@ -116,6 +118,10 @@ void GameApp::OnSceneLoaded(Scene& scene)
     else if (scene_name == "HowToPlay")
     {
         LoadHowToPlayScene(scene);
+    }
+    else if (scene_name == "Powerups")
+    {
+        LoadPowerupsScene(scene);
     }
     else if (scene_name == "Setting")
     {
@@ -421,6 +427,14 @@ void GameApp::LoadHowToPlayScene(Scene& scene)
 
     Entity& entity = scene.AddEntity("HowToPlay");
     entity.AddComponent<HowToPlay>();
+}
+
+void GameApp::LoadPowerupsScene(Scene& scene)
+{
+    debug::LogInfo("Loading entities for Powerups scene...");
+
+    Entity& entity = scene.AddEntity("Powerups");
+    entity.AddComponent<Powerups>();
 }
 
 void GameApp::LoadSettingScene(Scene& scene)
