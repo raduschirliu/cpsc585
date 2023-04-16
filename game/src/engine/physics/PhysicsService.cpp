@@ -342,21 +342,6 @@ void PhysicsService::UnregisterVehicle(BaseVehicle* vehicle, Entity* entity)
             return;
         }
     }
-
-    /* auto iter = vehicles_.begin(); */
-    /*  */
-    /* while (iter != vehicles_.end()) */
-    /* { */
-    /*     // TODO: This may be an issue if the address of a BaseVehicle ever */
-    /*     // changes */
-    /*     if (*iter == vehicle) */
-    /*     { */
-    /*         vehicles_.erase(iter); */
-    /*         return; */
-    /*     } */
-    /*  */
-    /*     iter++; */
-    /* } */
 }
 
 PxShape* PhysicsService::CreateShape(const physx::PxGeometry& geometry)

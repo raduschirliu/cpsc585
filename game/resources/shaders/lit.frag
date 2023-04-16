@@ -25,13 +25,13 @@ struct Light
 uniform Material uMaterial;
 uniform Light uLight;
 
-uniform mat4 uViewMatrix;
-uniform sampler2D uShadowMaps[SHADOW_MAP_COUNT];
-uniform mat4 uLightSpaceMatrices[SHADOW_MAP_COUNT];
-
 uniform vec3 uAmbientLight;
 uniform vec3 uCameraPos;
 
+uniform mat4 uViewMatrix;
+
+uniform sampler2D uShadowMaps[SHADOW_MAP_COUNT];
+uniform mat4 uLightSpaceMatrices[SHADOW_MAP_COUNT];
 uniform float uMaxShadowBias = 0.05f;
 uniform float uMinShadowBias = 0.005f;
 
