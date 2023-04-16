@@ -101,7 +101,7 @@ void ParticleDrawList::Init()
         vertex_model_matrix_offset + vec4_size * 3);
 
     // Texture Index
-    vertex_buffer_.ConfigureAttribute(6, 4, GL_INT, vertex_size,
+    vertex_buffer_.ConfigureAttribute(7, 4, GL_INT, vertex_size,
                                       vertex_texture_index_offset);
 
     vertex_buffer_.AttributeDivisor(3, 1);

@@ -25,14 +25,19 @@ void ParticleSystem::OnInit(const ServiceProvider& service_provider)
 
     // Components
     transform_ = &GetEntity().GetComponent<Transform>();
+
+    // Events
+    GetEventBus().Subscribe<OnUpdateEvent>(this);
 }
 
 void ParticleSystem::OnUpdate(const Timestep& delta_time)
 {
+    const float sec_delta = static_cast<float>(delta_time.GetSeconds());
+
     for (auto& particle : particles_)
     {
         // Update particle transform
-        particle.pos += particle.velocity;
+        particle.pos += particle.velocity * sec_delta;
 
         // Submit to GPU
         render_service_->GetParticleDrawList().AddParticle(particle);
@@ -40,7 +45,6 @@ void ParticleSystem::OnUpdate(const Timestep& delta_time)
         // Update lifetime
         if (particle.lifetime > 0.0f)
         {
-            const float sec_delta = static_cast<float>(delta_time.GetSeconds());
             particle.lifetime -= sec_delta;
         }
     }
@@ -63,7 +67,7 @@ void ParticleSystem::Emit(const vec3& pos)
 {
     particles_.push_back(Particle{
         .pos = transform_->GetPosition() + pos,
-        .velocity = vec3(0.0f, -1.0f, 0.0f),
+        .velocity = vec3(0.0f, 0.0f, 0.0f),
         .color = vec4(1.0f, 0.0f, 0.0f, 1.0f),
         .texture = nullptr,
         .size = 5.0f,
