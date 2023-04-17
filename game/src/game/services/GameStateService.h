@@ -177,6 +177,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void StartCountdown();
     void DisplayScoreboard();
     void DrawDebugMenu();
+    void UpdatePlayerPostRace();
 
     const Texture* countdown3_;
     const Texture* countdown2_;

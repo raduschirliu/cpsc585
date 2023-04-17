@@ -294,12 +294,22 @@ void VehicleComponent::UpdateRespawnOrientation(
 
     // assume car is initially oriented along the negative z-axis
     glm::vec3 forward = transform_->GetForwardDirection();
+    glm::vec3 up = transform_->GetUpDirection();
+
     glm::vec3 direction = glm::normalize(next_checkpoint - last_checkpoint);
     glm::vec3 axis = glm::normalize(glm::cross(forward, direction));
     float angle = glm::acos(glm::dot(forward, direction));
 
+    // face towards next checkpoint
     transform_->SetOrientation(glm::angleAxis(angle, axis) *
                                current_orientation);
+
+    // flip via y axis if car is upside down
+    if (up.y < 0.0f)
+    {
+        transform_->SetOrientation(transform_->GetOrientation() *
+                                   -transform_->GetUpDirection());
+    }
 }
 
 void VehicleComponent::CheckAutoRespawn(const Timestep& delta_time)
