@@ -539,18 +539,25 @@ void GameStateService::OnGui()
             ImGui::PushFont(font_cookie_);
             if (place == 1 && race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+
             else if (place == 1 && !race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+
             else if (place == 2 && race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+
             else if (place == 2 && !race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+
             else if (place == 3 && race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+
             else if (place == 3 && !race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
+
             else if (place == 4 && race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t", place, entity->GetName().c_str());
+
             else if (place == 4 && !race_state_.sorted_players[i]->is_human)
                 ImGui::Text("%d\t%s\t\t", place, entity->GetName().c_str());
 
@@ -1168,12 +1175,11 @@ const uint32_t GameStateService::GetNumCheckpoints() const
 
 void GameStateService::UpdateRaceTimer(const Timestep& delta_time)
 {
-    if (race_state_.state == GameState::kRaceInProgress &&
-        !physics_service_->GetPaused())
+    if (!physics_service_->GetPaused())
     {
         race_state_.elapsed_time += delta_time;
     }
-    else if (race_state_.state == GameState::kCountdown)
+    if (race_state_.state == GameState::kCountdown)
     {
         race_state_.countdown_elapsed_time += delta_time;
 
@@ -1342,6 +1348,7 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
 
         auto& camera_follower = camera_entity.AddComponent<FollowCamera>();
         camera_follower.SetFollowingTransform(kart_entity);
+        camera_follower.SetPlayerState(player_state);
     }
     else
     {

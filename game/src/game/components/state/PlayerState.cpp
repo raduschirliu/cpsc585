@@ -88,10 +88,25 @@ std::string_view PlayerState::GetName() const
     return "PlayerState";
 }
 
+void PlayerState::SetIsAccelerating(bool b_value)
+{
+    player_state_.is_accelerating = b_value;
+}
+
 // getters
 std::string PlayerState::GetPlayerName()
 {
     return player_state_.player_name;
+}
+
+float PlayerState::GetCurrentSpeed() const
+{
+    return player_state_.current_car_speed;
+}
+
+bool PlayerState::GetIsAccelerating()
+{
+    return player_state_.is_accelerating;
 }
 
 bool PlayerState::IsDead() const
@@ -196,6 +211,11 @@ void PlayerState::IncrementHealth(float health)
     {
         player_state_.health += health;
     }
+}
+
+void PlayerState::SetCurrentSpeed(float speed)
+{
+    player_state_.current_car_speed = speed;
 }
 
 void PlayerState::SetSpeedMultiplier(float value)

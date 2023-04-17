@@ -26,7 +26,7 @@ static constexpr float kMaxFreeFallDifference(500.0f);
 
 // if the AI is below this speed then the car will respawn to the
 // last checkpoint as there is some problem with the AI.
-static constexpr float kMinRespawnSpeed(11.0f);
+static constexpr float kMinRespawnSpeed(8.0f);
 static constexpr double kMaxCheckpointMissedTimer(5.f);
 
 // distance that AI can "see"; shoots when a target is within view
@@ -138,10 +138,11 @@ void AIController::OnUpdate(const Timestep& delta_time)
     NextWaypoint(current_car_position, next_waypoint);
 
     // Disabled due to AIs respawning continuously at the ramp and causing huge
-    // frame drops if (!respawn_tracker_)
-    // {
-    //     HandleRespawn(delta_time);
-    // }
+    // frame drops
+    if (!respawn_tracker_)
+    {
+        HandleRespawn(delta_time);
+    }
     PowerupDecision();
 
     // note: raycasting *may* be an expensive approach
@@ -214,6 +215,7 @@ void AIController::HandleMissedCheckpointRespawn(const Timestep& delta_time)
         }
 
         vehicle_->Respawn();
+        respawn_timer_missed_checkpoint_ = 0.f;
     }
 }
 
