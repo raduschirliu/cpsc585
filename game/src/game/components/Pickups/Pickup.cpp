@@ -2,7 +2,8 @@
 
 #include "engine/physics/PhysicsService.h"
 #include "engine/scene/Entity.h"
-static constexpr float kRotationSpeed = 90.0f;
+
+static constexpr float kRotationSpeed = 45.0f;
 
 void Pickup::OnInit(const ServiceProvider& service_provider)
 {
@@ -33,12 +34,9 @@ void Pickup::OnTriggerEnter(const OnTriggerEvent& data)
 
 void Pickup::OnUpdate(const Timestep& delta_time)
 {
-    // rotate the powerup around its y axis.
-    // TODO: Ask Radu to help with rotating the powerups every frame.
-
-    // Rotate by 90 degrees/sec
+    // rotate the powerup around its y axis
     transform_->RotateEulerDegrees(
-        glm::vec3(kRotationSpeed * delta_time.GetSeconds(), 0.0f, 0.0f));
+        glm::vec3(0.0f, kRotationSpeed * delta_time.GetSeconds(), 0.0f));
 }
 
 std::string_view Pickup::GetName() const

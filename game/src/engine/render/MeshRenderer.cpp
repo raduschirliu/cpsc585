@@ -28,9 +28,6 @@ void MeshRenderer::OnInit(const ServiceProvider& service_provider)
 
     // Components
     transform_ = &GetEntity().GetComponent<Transform>();
-
-    // Set defaults
-    SetMaterial("default");
 }
 
 void MeshRenderer::OnDebugGui()
@@ -104,17 +101,6 @@ void MeshRenderer::SetMeshes(const vector<RenderableMesh>& meshes)
 
     meshes_ = meshes;
     render_service_->RegisterRenderable(GetEntity(), *this);
-}
-
-void MeshRenderer::SetMaterial(const string& name)
-{
-    // TODO(radu): get material by name from render service and set
-}
-
-const Material& MeshRenderer::GetMaterial() const
-{
-    ASSERT_MSG(material_, "Must have a valid material set");
-    return *material_;
 }
 
 const vector<RenderableMesh>& MeshRenderer::GetMeshes() const

@@ -13,9 +13,3 @@ struct MaterialProperties
     glm::vec3 specular;
     float shininess;
 };
-
-class Material
-{
-  public:
-    virtual void Draw();
-};

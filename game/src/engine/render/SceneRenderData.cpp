@@ -5,6 +5,7 @@ SceneRenderData::SceneRenderData()
       cameras{},
       entities{},
       point_lights{},
-      asset_service(nullptr)
+      asset_service(nullptr),
+      total_time(0)
 {
 }

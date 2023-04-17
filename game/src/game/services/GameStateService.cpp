@@ -18,6 +18,7 @@
 #include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/Checkpoints.h"
@@ -129,6 +130,7 @@ void GameStateService::OnStart(ServiceProvider& service_provider)
     increaseAimBox_ = &asset_service_->GetTexture("double");
     killAbilities_ = &asset_service_->GetTexture("kill");
     pause_ = &asset_service_->GetTexture("pause");
+    minimap_ = &asset_service_->GetTexture("minimap");
 }
 
 void GameStateService::OnUpdate()
@@ -147,6 +149,26 @@ void GameStateService::OnUpdate()
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
+    UpdatePlayerPostRace();
+}
+
+void GameStateService::UpdatePlayerPostRace()
+{
+    if (race_state_.state != GameState::kPostRace)
+    {
+        return;
+    }
+
+    for (auto& player : players_)
+    {
+        if (!player->is_human)
+            continue;
+
+        if (player->entity->HasComponent<AIController>())
+            continue;
+
+        player->entity->AddComponent<AIController>();
+    }
 }
 
 void GameStateService::DisplayKillFeed()
@@ -234,6 +256,63 @@ void GameStateService::OnGui()
 
     // Kill Feed
     KillFeed(flags);
+
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 230, 20));
+    ImGui::Begin("Minimap", nullptr, flags);
+    ImGui::Image(minimap_->GetGuiHandle(), ImVec2(200, 250));
+    ImGui::End();
+
+    // ImGui::SetNextWindowPos(ImVec2(
+    //     transform_->GetPosition().x / 7 + (ImGui::GetIO().DisplaySize.x -
+    //     57), transform_->GetPosition().z / 7 + 98));
+    // ImGui::Begin("Position", nullptr, flags);
+    // ImGui::PushFont(font_);
+    // ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.f, 0.1f, 1.f));
+    // ImGui::Text(".");
+    // ImGui::PopStyleColor();
+    // ImGui::PopFont();
+    // ImGui::End();
+
+    for (uint32_t i = 0; i < players_.size(); ++i)
+    {
+        auto& entity = players_[i]->entity;
+        auto& transform = entity->GetComponent<Transform>();
+
+        ImGui::SetNextWindowPos(ImVec2(
+            transform.GetPosition().x / 7 + (ImGui::GetIO().DisplaySize.x - 57),
+            transform.GetPosition().z / 7 + 98));
+        if (players_[i]->is_human)
+        {
+            ImGui::Begin("red", nullptr, flags);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.f, 0.1f, 1.f));
+        }
+        else
+        {
+            if (i == 1)
+            {
+                ImGui::Begin("blue", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(0.1f, 0.f, 0.8f, 1.f));
+            }
+            else if (i == 2)
+            {
+                ImGui::Begin("green", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(0.f, 0.6f, 0.4f, 1.f));
+            }
+            else if (i == 3)
+            {
+                ImGui::Begin("yellow", nullptr, flags);
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      ImVec4(1.f, 0.8f, 0.2f, 1.f));
+            }
+        }
+        ImGui::PushFont(font_impact_);
+        ImGui::Text(".");
+        ImGui::PopFont();
+        ImGui::PopStyleColor();
+        ImGui::End();
+    }
 
     if (physics_service_->GetPaused())
     {
@@ -652,7 +731,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kPowerups[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 20.f);
+                             std::to_string(powerup.second.z);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -703,6 +782,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(3.f, 3.f, 3.f));
                 break;
 
             case PowerupPickupType::kKillAbilities:
@@ -719,7 +799,6 @@ void GameStateService::SetupPowerups()
                 });
                 break;
         }
-        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
@@ -758,7 +837,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kAmmos[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 20.f);
+                             std::to_string(powerup.second.z);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -781,6 +860,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(0.2f, 0.2f, 0.2f));
                 break;
 
             case AmmoPickupType::kDoubleDamage:
@@ -809,6 +889,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(3.f, 3.f, 3.f));
                 break;
 
             case AmmoPickupType::kIncreaseFireRate:
@@ -837,9 +918,9 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(0.2f, 0.2f, 0.2f));
                 break;
         }
-        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
@@ -1347,10 +1428,21 @@ std::vector<PickupData> GameStateService::ReadCheckpointsFromJsonFile()
                     auto location_array = location.GetArray();
                     std::string pickup_type_str = pickup_type.GetString();
 
-                    glm::vec3 final_location =
-                        glm::vec3(location_array[0].GetFloat(),
-                                  location_array[1].GetFloat(),
-                                  location_array[2].GetFloat());
+                    glm::vec3 final_location;
+                    if (pickup_type == "VampireBullet")
+                    {
+                        final_location =
+                            glm::vec3(location_array[0].GetFloat(),
+                                      location_array[1].GetFloat(),
+                                      location_array[2].GetFloat());
+                    }
+                    else
+                    {
+                        final_location =
+                            glm::vec3(location_array[0].GetFloat(),
+                                      location_array[1].GetFloat() + 5.f,
+                                      location_array[2].GetFloat());
+                    }
 
                     PickupData temp;
                     temp.location = final_location;

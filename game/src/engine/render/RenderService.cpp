@@ -4,33 +4,47 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include <limits>
+#include <stdexcept>
+
+#include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/input/InputService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/Material.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/render/PointLight.h"
 #include "engine/service/ServiceProvider.h"
 
 using glm::ivec2;
 using glm::mat4;
 using glm::vec3;
+using glm::vec4;
 using std::make_unique;
+using std::string;
 using std::unique_ptr;
 using std::vector;
+
+static constexpr float kFloatMax = std::numeric_limits<float>::max();
 
 RenderService::RenderService()
     : input_service_(nullptr),
       asset_service_(nullptr),
       render_data_(make_unique<SceneRenderData>()),
+      particle_systems_{},
       depth_pass_(*render_data_),
       geometry_pass_(*render_data_, depth_pass_.GetShadowMaps()),
+      post_process_pass_(*render_data_, geometry_pass_.GetScreenTexture()),
       debug_draw_list_(),
       show_debug_menu_(false),
       debug_draw_camera_frustums_(false)
 {
 }
+
+RenderService::~RenderService() = default;
 
 void RenderService::RegisterRenderable(const Entity& entity,
                                        const MeshRenderer& renderer)
@@ -123,12 +137,14 @@ void RenderService::OnStart(ServiceProvider& service_provider)
 
     depth_pass_.Init();
     geometry_pass_.Init();
+    post_process_pass_.Init();
+
+    BuildParticleSystems();
 }
 
 void RenderService::OnSceneLoaded(Scene& scene)
 {
     depth_pass_.ResetState();
-
     geometry_pass_.ResetState();
 
     render_data_->cameras.clear();
@@ -139,10 +155,17 @@ void RenderService::OnSceneLoaded(Scene& scene)
 void RenderService::OnWindowSizeChanged(int width, int height)
 {
     debug::LogInfo("Window size changed: {}x{}", width, height);
-    render_data_->screen_size = ivec2(width, height);
 
-    const float aspect_ratio =
-        static_cast<float>(width) / static_cast<float>(height);
+    float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
+
+    if (width <= 0 || height <= 0)
+    {
+        // Apparently this happens when the windows closes or minimizes,
+        // ignore it cause it breaks everything otherwise...
+        return;
+    }
+
+    render_data_->screen_size = ivec2(width, height);
 
     for (auto& camera : render_data_->cameras)
     {
@@ -165,8 +188,14 @@ void RenderService::OnUpdate()
         DrawCameraFrustums();
     }
 
+    const Timestep& delta = GetApp().GetDeltaTime();
+    render_data_->total_time += delta.GetSeconds();
+
+    UpdateParticleSystems(delta);
+
     depth_pass_.Render();
     geometry_pass_.Render();
+    post_process_pass_.Render();
 }
 
 void RenderService::OnCleanup()
@@ -211,6 +240,49 @@ void RenderService::OnGui()
                           render_data_->point_lights.size());
         ImGui::BulletText("Entities: %zu", render_data_->entities.size());
 
+        if (ImGui::TreeNode("particle systems", "Particle Systems: %zu",
+                            particle_systems_.size()))
+        {
+            for (size_t i = 0; i < particle_systems_.size(); i++)
+            {
+                const auto& name = particle_systems_[i].name;
+                auto& props =
+                    particle_systems_[i].particle_system->GetProperties();
+
+                if (ImGui::TreeNode(reinterpret_cast<void*>(i), "%s",
+                                    name.c_str()))
+                {
+                    gui::EditColorProperty("Color Start", props.color_start);
+                    gui::EditColorProperty("Color End", props.color_end);
+
+                    gui::EditProperty("Acceleration", props.acceleration);
+
+                    ImGui::Checkbox("Random Velicty", &props.random_velocity);
+                    gui::EditProperty("Velocity", props.velocity);
+
+                    ImGui::DragFloat("Speed", &props.speed, 1.0f, 0.0f,
+                                     kFloatMax);
+                    ImGui::DragFloat("Size Start", &props.size_start, 1.0f,
+                                     0.0f, kFloatMax);
+                    ImGui::DragFloat("Size End", &props.size_end, 1.0f, 0.0f,
+                                     kFloatMax);
+                    ImGui::DragFloat("Lifetime", &props.lifetime, 1.0f, 0.0f,
+                                     kFloatMax);
+
+                    int amount = static_cast<int>(props.burst_amount);
+
+                    if (ImGui::DragInt("Burst Amount", &amount, 1.0f, 0, 250))
+                    {
+                        props.burst_amount = static_cast<uint32_t>(amount);
+                    }
+
+                    ImGui::TreePop();
+                }
+            }
+
+            ImGui::TreePop();
+        }
+
         ImGui::Checkbox("Draw Camera Frustums", &debug_draw_camera_frustums_);
 
         ImGui::EndTabItem();
@@ -228,6 +300,12 @@ void RenderService::OnGui()
         ImGui::EndTabItem();
     }
 
+    if (ImGui::BeginTabItem("Post Processing Pass"))
+    {
+        post_process_pass_.RenderDebugGui();
+        ImGui::EndTabItem();
+    }
+
     ImGui::EndTabBar();
     ImGui::End();
 }
@@ -235,6 +313,11 @@ void RenderService::OnGui()
 DebugDrawList& RenderService::GetDebugDrawList()
 {
     return debug_draw_list_;
+}
+
+LaserMaterial& RenderService::GetLaserMaterial()
+{
+    return geometry_pass_.GetLaserMaterial();
 }
 
 void RenderService::DrawCameraFrustums()
@@ -246,5 +329,71 @@ void RenderService::DrawCameraFrustums()
             debug_draw_list_.AddCuboid(camera->GetFrustumWorldVertices(),
                                        Color4u(0, 255, 0, 255));
         }
+    }
+}
+
+ParticleSystem& RenderService::GetParticleSystem(const string& name)
+{
+    for (auto& entry : particle_systems_)
+    {
+        if (entry.name == name)
+        {
+            return *entry.particle_system;
+        }
+    }
+
+    // I give up, throw an error to make compiler happy
+    throw std::runtime_error(
+        fmt::format("Must request valid particle system: {}", name));
+}
+
+void RenderService::BuildParticleSystems()
+{
+    ParticleDrawList& particle_draw_list = geometry_pass_.GetParticleDrawList();
+
+    particle_systems_.push_back({
+        .name = "sparks",
+        .particle_system = make_unique<ParticleSystem>(
+            particle_draw_list,
+            ParticleSystemProperties{
+                .acceleration = vec3(0.0f, -10.0f, 0.0f),
+                .color_start = vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
+                .random_velocity = true,
+                .velocity = vec3(0.0f, 0.0f, 0.0f),
+                .speed = 40.0f,
+                .size_start = 0.5f,
+                .size_end = 0.25f,
+                .lifetime = 0.25f,
+                .texture = &asset_service_->GetTexture("particle@spark"),
+                .burst_amount = 10,
+            }),
+    });
+
+    particle_systems_.push_back({
+        .name = "exhaust",
+        .particle_system = make_unique<ParticleSystem>(
+            particle_draw_list,
+            ParticleSystemProperties{
+                .acceleration = vec3(0.0f, 4.0f, 0.0f),
+                .color_start = vec4(1.0f, 1.0f, 1.0f, 0.19f),
+                .color_end = vec4(1.0f, 1.0f, 1.0f, 0.0f),
+                .random_velocity = false,
+                .velocity = vec3(0.0f, 0.0f, 0.0f),
+                .speed = 4.0f,
+                .size_start = 0.8f,
+                .size_end = 0.15f,
+                .lifetime = 1.75f,
+                .texture = &asset_service_->GetTexture("particle@smoke"),
+                .burst_amount = 1,
+            }),
+    });
+}
+
+void RenderService::UpdateParticleSystems(const Timestep& delta_time)
+{
+    for (auto& entry : particle_systems_)
+    {
+        entry.particle_system->Update(delta_time);
     }
 }

@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -17,15 +17,15 @@
             "mesh" : 0,
             "name" : "Handling",
             "rotation" : [
-                0.7071068286895752,
+                0.70710688829422,
                 0,
                 0,
-                0.7071068286895752
+                0.7071066498756409
             ],
             "translation" : [
                 0,
-                3,
-                0
+                0,
+                3
             ]
         }
     ],
@@ -48,29 +48,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 10740,
+            "count" : 15906,
             "max" : [
                 4.300000190734863,
-                0.800000011920929,
-                4.300000190734863
+                4.300000190734863,
+                0.800000011920929
             ],
             "min" : [
                 -4.300000190734863,
-                -0.800000011920929,
-                -4.300000190734863
+                -4.300000190734863,
+                -0.800000011920929
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 10740,
+            "count" : 15906,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 10740,
+            "count" : 15906,
             "type" : "VEC3"
         },
         {
@@ -83,32 +83,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 128880,
+            "byteLength" : 190872,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 85920,
-            "byteOffset" : 128880,
+            "byteLength" : 127248,
+            "byteOffset" : 190872,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 128880,
-            "byteOffset" : 214800,
+            "byteLength" : 190872,
+            "byteOffset" : 318120,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 32232,
-            "byteOffset" : 343680,
+            "byteOffset" : 508992,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 375912,
+            "byteLength" : 541224,
             "uri" : "handling.bin"
         }
     ]

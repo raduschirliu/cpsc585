@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -17,20 +17,20 @@
             "mesh" : 0,
             "name" : "Increase",
             "rotation" : [
-                0.7071068286895752,
+                0.70710688829422,
                 0,
                 0,
-                0.7071068286895752
+                0.7071066498756409
             ],
             "scale" : [
                 0.9000000357627869,
-                0.9000000357627869,
-                0.9000000357627869
+                0.9000001549720764,
+                0.9000001549720764
             ],
             "translation" : [
                 0,
-                4.300000190734863,
-                0
+                0,
+                4.300000190734863
             ]
         }
     ],
@@ -53,29 +53,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 4704,
+            "count" : 6900,
             "max" : [
                 5.392000675201416,
-                0.800000011920929,
-                5.392000198364258
+                5.392000675201416,
+                0.800000011920929
             ],
             "min" : [
                 -5.3919997215271,
-                -0.800000011920929,
-                -5.392000675201416
+                -5.392000198364258,
+                -0.800000011920929
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 4704,
+            "count" : 6900,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 4704,
+            "count" : 6900,
             "type" : "VEC3"
         },
         {
@@ -88,32 +88,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 56448,
+            "byteLength" : 82800,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 37632,
-            "byteOffset" : 56448,
+            "byteLength" : 55200,
+            "byteOffset" : 82800,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 56448,
-            "byteOffset" : 94080,
+            "byteLength" : 82800,
+            "byteOffset" : 138000,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 14112,
-            "byteOffset" : 150528,
+            "byteOffset" : 220800,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 164640,
+            "byteLength" : 234912,
             "uri" : "increase.bin"
         }
     ]

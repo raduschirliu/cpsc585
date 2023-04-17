@@ -216,3 +216,38 @@ GLuint FramebufferHandle::Value() const
 {
     return id_;
 }
+
+//------------------------------------------------------------------------------
+
+RenderbufferHandle::RenderbufferHandle() : id_(0)
+{
+    glGenRenderbuffers(1, &id_);
+}
+
+RenderbufferHandle::RenderbufferHandle(RenderbufferHandle&& other) noexcept
+    : id_(std::move(other.id_))
+{
+    other.id_ = 0;
+}
+
+RenderbufferHandle& RenderbufferHandle::operator=(
+    RenderbufferHandle&& other) noexcept
+{
+    std::swap(id_, other.id_);
+    return *this;
+}
+
+RenderbufferHandle::~RenderbufferHandle()
+{
+    glDeleteRenderbuffers(1, &id_);
+}
+
+RenderbufferHandle::operator GLuint() const
+{
+    return id_;
+}
+
+GLuint RenderbufferHandle::Value() const
+{
+    return id_;
+}
