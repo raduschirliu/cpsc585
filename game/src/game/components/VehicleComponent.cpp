@@ -32,7 +32,7 @@ using namespace snippetvehicle2;
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr float kRespawnSeconds = 3.0f;
 static float kExhaustParticleDelayMax = 0.25f;
-static float kExhaustParticleDelayMin = 0.10f;
+static float kExhaustParticleDelayMin = 0.05f;
 static vec3 kExhaustParticleOffset(2.0f, 2.5f, -4.0f);
 
 // filenames and paths
@@ -167,7 +167,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
 
     const float speed_t = GetWheelSpeed() / 400.0f;
     exhaust_delay_ =
-        glm::mix(kExhaustParticleDelayMin, kExhaustParticleDelayMax, speed_t);
+        glm::mix(kExhaustParticleDelayMax, kExhaustParticleDelayMin, speed_t);
 
     audio_emitter_->SetPitch(kDrivingAudio, GetDrivePitch());
 
