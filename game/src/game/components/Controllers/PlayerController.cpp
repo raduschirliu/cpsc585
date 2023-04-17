@@ -49,10 +49,14 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     {
         return;
     }
-
-    // do nothing when dead
-    if (player_state_->IsDead())
+    else if (game_state_service_->GetGlobalRaceState().state ==
+             GameState::kPostRace)
     {
+        return;
+    }
+    else if (player_state_->IsDead())
+    {
+        // do nothing when dead
         return;
     }
 

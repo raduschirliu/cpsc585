@@ -148,6 +148,26 @@ void GameStateService::OnUpdate()
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
+    UpdatePlayerPostRace();
+}
+
+void GameStateService::UpdatePlayerPostRace()
+{
+    if (race_state_.state != GameState::kPostRace)
+    {
+        return;
+    }
+
+    for (auto& player : players_)
+    {
+        if (!player->is_human)
+            continue;
+
+        if (player->entity->HasComponent<AIController>())
+            continue;
+
+        player->entity->AddComponent<AIController>();
+    }
 }
 
 void GameStateService::DisplayKillFeed()
