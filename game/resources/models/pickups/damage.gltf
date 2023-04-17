@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -18,9 +18,9 @@
             "name" : "Damage",
             "rotation" : [
                 0.5,
+                -0.5,
                 0.5,
-                0.5,
-                0.5000000596046448
+                0.5000001192092896
             ],
             "scale" : [
                 0.699999988079071,
@@ -29,14 +29,14 @@
             ],
             "translation" : [
                 0,
-                4,
-                0
+                0,
+                4
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "Cylinder.001",
+            "name" : "Cylinder.003",
             "primitives" : [
                 {
                     "attributes" : {
@@ -53,29 +53,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 440,
+            "count" : 690,
             "max" : [
                 7.115841388702393,
-                1.7500001192092896,
-                6.888702392578125
+                8.54285717010498,
+                1.7500001192092896
             ],
             "min" : [
                 -7.1415557861328125,
-                -1.7500001192092896,
-                -8.54285717010498
+                -6.888702392578125,
+                -1.7500001192092896
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 440,
+            "count" : 690,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 440,
+            "count" : 690,
             "type" : "VEC3"
         },
         {
@@ -88,32 +88,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 5280,
+            "byteLength" : 8280,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 3520,
-            "byteOffset" : 5280,
+            "byteLength" : 5520,
+            "byteOffset" : 8280,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 5280,
-            "byteOffset" : 8800,
+            "byteLength" : 8280,
+            "byteOffset" : 13800,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 1416,
-            "byteOffset" : 14080,
+            "byteOffset" : 22080,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 15496,
+            "byteLength" : 23496,
             "uri" : "damage.bin"
         }
     ]

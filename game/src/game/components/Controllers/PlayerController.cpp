@@ -91,7 +91,9 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 {
     using enum PowerupPickupType;
-    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
+    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE),
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_X))
     {
         if (player_state_->GetCurrentPowerup() == kDefaultPowerup)
         {
