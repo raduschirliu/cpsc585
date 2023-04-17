@@ -83,6 +83,7 @@ class VehicleComponent final : public Component,
     float speed_adjuster_;
     float max_velocity_ = 130.0f;
     float time_since_last_particle_ = 0.0f;
+    float exhaust_delay_ = 1.0f;
 
     /* ----- Service and Component dependencies ----- */
 

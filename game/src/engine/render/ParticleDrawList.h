@@ -23,6 +23,7 @@ struct Particle
     float size;
     float lifetime;
     float angle_rad;
+    float angular_velocity_rad;
     float camera_distance;
 };
 

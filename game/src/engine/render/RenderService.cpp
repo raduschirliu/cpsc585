@@ -155,15 +155,17 @@ void RenderService::OnSceneLoaded(Scene& scene)
 void RenderService::OnWindowSizeChanged(int width, int height)
 {
     debug::LogInfo("Window size changed: {}x{}", width, height);
-    render_data_->screen_size = ivec2(width, height);
 
     float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
 
     if (width <= 0 || height <= 0)
     {
-        // Apparently this happens when the windows closes...?
-        aspect_ratio = 16.0f / 9.0f;
+        // Apparently this happens when the windows closes or minimizes,
+        // ignore it cause it breaks everything otherwise...
+        return;
     }
+
+    render_data_->screen_size = ivec2(width, height);
 
     for (auto& camera : render_data_->cameras)
     {
@@ -359,10 +361,10 @@ void RenderService::BuildParticleSystems()
                 .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
                 .random_velocity = true,
                 .velocity = vec3(0.0f, 0.0f, 0.0f),
-                .speed = 30.0f,
+                .speed = 40.0f,
                 .size_start = 0.5f,
                 .size_end = 0.25f,
-                .lifetime = 0.5f,
+                .lifetime = 0.25f,
                 .texture = &asset_service_->GetTexture("particle@spark"),
                 .burst_amount = 10,
             }),
@@ -374,14 +376,14 @@ void RenderService::BuildParticleSystems()
             particle_draw_list,
             ParticleSystemProperties{
                 .acceleration = vec3(0.0f, 4.0f, 0.0f),
-                .color_start = vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                .color_start = vec4(1.0f, 1.0f, 1.0f, 0.19f),
                 .color_end = vec4(1.0f, 1.0f, 1.0f, 0.0f),
                 .random_velocity = false,
                 .velocity = vec3(0.0f, 0.0f, 0.0f),
                 .speed = 4.0f,
-                .size_start = 1.0f,
+                .size_start = 0.8f,
                 .size_end = 0.15f,
-                .lifetime = 2.5f,
+                .lifetime = 1.75f,
                 .texture = &asset_service_->GetTexture("particle@smoke"),
                 .burst_amount = 1,
             }),

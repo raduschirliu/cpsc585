@@ -43,6 +43,7 @@ void ParticleSystem::Update(const Timestep& delta_time)
 
         // Update particle state
         particle.pos += particle.velocity * sec_delta;
+        particle.angle_rad += particle.angular_velocity_rad;
         particle.color = glm::mix(properties_.color_start,
                                   properties_.color_end, lifetime_t);
         particle.size =
@@ -77,6 +78,7 @@ void ParticleSystem::Emit(const glm::vec3& pos)
             .size = properties_.size_start,
             .lifetime = properties_.lifetime,
             .angle_rad = 0.0f,
+            .angular_velocity_rad = 0.0f,
             .camera_distance = 0.0f,
         };
     }

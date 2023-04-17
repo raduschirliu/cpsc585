@@ -31,7 +31,8 @@ using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr float kRespawnSeconds = 3.0f;
-static float kExhaustParticleDelay = 0.25f;
+static float kExhaustParticleDelayMax = 0.25f;
+static float kExhaustParticleDelayMin = 0.10f;
 static vec3 kExhaustParticleOffset(2.0f, 2.5f, -4.0f);
 
 // filenames and paths
@@ -70,6 +71,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
 
     physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
     exhaust_particles_ = &render_service_->GetParticleSystem("exhaust");
+    exhaust_delay_ = kExhaustParticleDelayMax;
 
     // init sounds
     audio_emitter_->AddSource(kDrivingAudio);
@@ -91,8 +93,10 @@ std::string_view VehicleComponent::GetName() const
 void VehicleComponent::OnDebugGui()
 {
     gui::EditProperty("Exhaust Particle Offset", kExhaustParticleOffset);
-    ImGui::DragFloat("Exhaust Particle Delay", &kExhaustParticleDelay, 0.01f,
-                     0.0f, 5.0f);
+    ImGui::DragFloat("Exhaust Particle Delay Max", &kExhaustParticleDelayMax,
+                     0.01f, 0.0f, 5.0f);
+    ImGui::DragFloat("Exhaust Particle Delay Max", &kExhaustParticleDelayMin,
+                     0.01f, 0.0f, 5.0f);
 
     ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
     ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
@@ -137,7 +141,7 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         debug::LogInfo("Reloaded vehicle params from JSON files...");
     }
 
-    if (time_since_last_particle_ >= kExhaustParticleDelay)
+    if (time_since_last_particle_ >= exhaust_delay_)
     {
         const vec3 particle_pos_left =
             transform_->GetPosition() +
@@ -160,6 +164,10 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         time_since_last_particle_ +=
             static_cast<float>(delta_time.GetSeconds());
     }
+
+    const float speed_t = GetWheelSpeed() / 400.0f;
+    exhaust_delay_ =
+        glm::mix(kExhaustParticleDelayMin, kExhaustParticleDelayMax, speed_t);
 
     audio_emitter_->SetPitch(kDrivingAudio, GetDrivePitch());
 
