@@ -2,8 +2,10 @@
 
 #include <memory>
 #include <object_ptr.hpp>
+#include <unordered_map>
 #include <vector>
 
+#include "engine/core/math/Timestep.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/gui/OnGuiEvent.h"
@@ -17,11 +19,19 @@
 #include "engine/service/Service.h"
 
 class DebugDrawList;
+class ParticleSystem;
+
+struct ParticleSystemEntry
+{
+    std::string name;
+    std::unique_ptr<ParticleSystem> particle_system;
+};
 
 class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
 {
   public:
     RenderService();
+    ~RenderService() /* = default (in cpp) */;
 
     void RegisterRenderable(const Entity& entity, const MeshRenderer& renderer);
     void UnregisterRenderable(const Entity& entity);
@@ -44,13 +54,15 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
 
     DebugDrawList& GetDebugDrawList();
     LaserMaterial& GetLaserMaterial();
-    ParticleDrawList& GetParticleDrawList();
+
+    ParticleSystem& GetParticleSystem(const std::string& name);
 
   private:
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<AssetService> asset_service_;
 
     std::unique_ptr<SceneRenderData> render_data_;
+    std::vector<ParticleSystemEntry> particle_systems_;
     DepthPass depth_pass_;
     GeometryPass geometry_pass_;
     PostProcessPass post_process_pass_;
@@ -59,4 +71,6 @@ class RenderService final : public Service, public IEventSubscriber<OnGuiEvent>
     bool debug_draw_camera_frustums_;
 
     void DrawCameraFrustums();
+    void BuildParticleSystems();
+    void UpdateParticleSystems(const Timestep& delta_time);
 };

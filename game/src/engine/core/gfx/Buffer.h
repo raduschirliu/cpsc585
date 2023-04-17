@@ -62,7 +62,7 @@ class Buffer
         const GLsizeiptr data_size =
             static_cast<GLsizeiptr>(sizeof(T) * data.size());
 
-        ASSERT_MSG(data_offset >= 0 && data_offset + data_size < size_,
+        ASSERT_MSG(data_offset >= 0 && (data_offset + data_size) <= size_,
                    "Data subset must be within buffer bounds");
 
         Bind();

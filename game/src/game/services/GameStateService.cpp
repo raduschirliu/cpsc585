@@ -1234,7 +1234,6 @@ Entity& GameStateService::CreatePlayer(uint32_t index, bool is_human)
     });
 
     kart_entity.AddComponent<AudioEmitter>();
-    kart_entity.AddComponent<ParticleSystem>();
 
     auto& vehicle = kart_entity.AddComponent<VehicleComponent>();
     auto& player_state = kart_entity.AddComponent<PlayerState>();

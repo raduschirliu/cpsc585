@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include <stdexcept>
+
 #include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
@@ -11,13 +13,16 @@
 #include "engine/render/Camera.h"
 #include "engine/render/Material.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/render/PointLight.h"
 #include "engine/service/ServiceProvider.h"
 
 using glm::ivec2;
 using glm::mat4;
 using glm::vec3;
+using glm::vec4;
 using std::make_unique;
+using std::string;
 using std::unique_ptr;
 using std::vector;
 
@@ -25,6 +30,7 @@ RenderService::RenderService()
     : input_service_(nullptr),
       asset_service_(nullptr),
       render_data_(make_unique<SceneRenderData>()),
+      particle_systems_{},
       depth_pass_(*render_data_),
       geometry_pass_(*render_data_, depth_pass_.GetShadowMaps()),
       post_process_pass_(*render_data_, geometry_pass_.GetScreenTexture()),
@@ -33,6 +39,8 @@ RenderService::RenderService()
       debug_draw_camera_frustums_(false)
 {
 }
+
+RenderService::~RenderService() = default;
 
 void RenderService::RegisterRenderable(const Entity& entity,
                                        const MeshRenderer& renderer)
@@ -126,6 +134,8 @@ void RenderService::OnStart(ServiceProvider& service_provider)
     depth_pass_.Init();
     geometry_pass_.Init();
     post_process_pass_.Init();
+
+    BuildParticleSystems();
 }
 
 void RenderService::OnSceneLoaded(Scene& scene)
@@ -169,6 +179,8 @@ void RenderService::OnUpdate()
 
     const Timestep& delta = GetApp().GetDeltaTime();
     render_data_->total_time += delta.GetSeconds();
+
+    UpdateParticleSystems(delta);
 
     depth_pass_.Render();
     geometry_pass_.Render();
@@ -266,7 +278,47 @@ void RenderService::DrawCameraFrustums()
     }
 }
 
-ParticleDrawList& RenderService::GetParticleDrawList()
+ParticleSystem& RenderService::GetParticleSystem(const string& name)
 {
-    return geometry_pass_.GetParticleDrawList();
+    for (auto& entry : particle_systems_)
+    {
+        if (entry.name == name)
+        {
+            return *entry.particle_system;
+        }
+    }
+
+    // I give up, throw an error to make compiler happy
+    throw std::runtime_error(
+        fmt::format("Must request valid particle system: {}", name));
+}
+
+void RenderService::BuildParticleSystems()
+{
+    ParticleDrawList& particle_draw_list = geometry_pass_.GetParticleDrawList();
+
+    particle_systems_.push_back({
+        .name = "sparks",
+        .particle_system = make_unique<ParticleSystem>(
+            particle_draw_list,
+            ParticleSystemProperties{
+                .acceleration = vec3(0.0f, -10.0f, 0.0f),
+                .color_start = vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
+                .speed = 15.0f,
+                .size_start = 3.0f,
+                .size_end = 0.5f,
+                .lifetime = 2.0f,
+                .texture = nullptr,
+                .burst_amount = 12,
+            }),
+    });
+}
+
+void RenderService::UpdateParticleSystems(const Timestep& delta_time)
+{
+    for (auto& entry : particle_systems_)
+    {
+        entry.particle_system->Update(delta_time);
+    }
 }

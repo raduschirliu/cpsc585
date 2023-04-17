@@ -5,33 +5,39 @@
 #include <string>
 #include <vector>
 
+#include "engine/core/math/Timestep.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/fwd/FwdServices.h"
 #include "engine/render/ParticleDrawList.h"
-#include "engine/scene/Component.h"
-#include "engine/scene/OnUpdateEvent.h"
 
-class ParticleSystem final : public Component,
-                             public IEventSubscriber<OnUpdateEvent>
+struct ParticleSystemProperties
+{
+    glm::vec3 acceleration;
+    Color4 color_start;
+    Color4 color_end;
+    float speed;
+    float size_start;
+    float size_end;
+    float lifetime;
+    Texture* texture;
+    uint32_t burst_amount;
+};
+
+class ParticleSystem
 {
   public:
-    ParticleSystem() = default;
+    ParticleSystem(ParticleDrawList& draw_list,
+                   const ParticleSystemProperties& properties);
 
-    // From Component
-    void OnInit(const ServiceProvider& service_provider) override;
-    void OnDebugGui() override;
-    void OnDestroy() override;
-    std::string_view GetName() const override;
-
-    // From IEventSubscriber<OnUpdateEvent>
-    void OnUpdate(const Timestep& delta_time) override;
-
+    void Update(const Timestep& delta_time);
     void Emit(const glm::vec3& pos);
 
-  private:
-    jss::object_ptr<RenderService> render_service_;
-    jss::object_ptr<AssetService> asset_service_;
-    jss::object_ptr<Transform> transform_;
+    void SetProperties(const ParticleSystemProperties& properties);
 
+  private:
+    ParticleDrawList& draw_list_;
     std::vector<Particle> particles_;
+    ParticleSystemProperties properties_;
+
+    Particle& NextParticle();
 };

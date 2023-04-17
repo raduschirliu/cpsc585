@@ -34,8 +34,8 @@ ParticleDrawList::ParticleDrawList()
     : shader_("resources/shaders/particle.vert",
               "resources/shaders/particle.frag"),
       vertex_array_(),
-      quad_buffer_(),
       vertex_buffer_(),
+      quad_buffer_(),
       particles_(),
       gpu_particles_()
 {
@@ -55,62 +55,62 @@ void ParticleDrawList::Init()
 {
     vertex_array_.Bind();
 
-    // Quad buffer
-    quad_buffer_.Bind();
-
-    constexpr size_t quad_size = sizeof(BillboardVertex);
-    constexpr size_t quad_pos_offset = offsetof(BillboardVertex, pos);
-    constexpr size_t quad_uv_offset = offsetof(BillboardVertex, uv);
-
-    // Pos
-    quad_buffer_.ConfigureAttribute(0, 3, GL_FLOAT, quad_size, quad_pos_offset);
-    // Uv
-    quad_buffer_.ConfigureAttribute(1, 2, GL_FLOAT, quad_size, quad_uv_offset);
-
-    quad_buffer_.AttributeDivisor(0, 0);
-    quad_buffer_.AttributeDivisor(1, 0);
-
-    quad_buffer_.Upload(kQuadVertices, GL_STATIC_DRAW);
-
-    // Vertex data buffer
+    // Per-vertex attributes
     vertex_buffer_.Bind();
 
-    constexpr size_t vertex_size = sizeof(GpuParticle);
-    constexpr size_t vertex_color_offset = offsetof(GpuParticle, color);
-    constexpr size_t vertex_model_matrix_offset =
+    constexpr size_t vertex_size = sizeof(BillboardVertex);
+    constexpr size_t vertex_pos_offset = offsetof(BillboardVertex, pos);
+    constexpr size_t vertex_uv_offset = offsetof(BillboardVertex, uv);
+
+    // Pos
+    vertex_buffer_.ConfigureAttribute(0, 3, GL_FLOAT, vertex_size,
+                                      vertex_pos_offset);
+    // Uv
+    vertex_buffer_.ConfigureAttribute(1, 2, GL_FLOAT, vertex_size,
+                                      vertex_uv_offset);
+
+    glVertexAttribDivisor(0, 0);
+    glVertexAttribDivisor(1, 0);
+
+    vertex_buffer_.Upload(kQuadVertices, GL_STATIC_DRAW);
+
+    // Per-quad attributes
+    quad_buffer_.Bind();
+
+    constexpr size_t quad_size = sizeof(GpuParticle);
+    constexpr size_t quad_color_offset = offsetof(GpuParticle, color);
+    constexpr size_t quad_model_matrix_offset =
         offsetof(GpuParticle, model_matrix);
-    constexpr size_t vertex_texture_index_offset =
+    constexpr size_t quad_texture_index_offset =
         offsetof(GpuParticle, texture_index);
     constexpr size_t vec4_size = sizeof(vec4);
 
     // Color
-    vertex_buffer_.ConfigureAttribute(2, 4, GL_FLOAT, vertex_size,
-                                      vertex_color_offset);
+    quad_buffer_.ConfigureAttribute(2, 4, GL_FLOAT, quad_size,
+                                    quad_color_offset);
     // Model Matrix
-    vertex_buffer_.ConfigureAttribute(
-        3, 4, GL_FLOAT, vertex_size,
-        vertex_model_matrix_offset + vec4_size * 0);
-    vertex_buffer_.ConfigureAttribute(
-        4, 4, GL_FLOAT, vertex_size,
-        vertex_model_matrix_offset + vec4_size * 1);
-    vertex_buffer_.ConfigureAttribute(
-        5, 4, GL_FLOAT, vertex_size,
-        vertex_model_matrix_offset + vec4_size * 2);
-    vertex_buffer_.ConfigureAttribute(
-        6, 4, GL_FLOAT, vertex_size,
-        vertex_model_matrix_offset + vec4_size * 3);
+    quad_buffer_.ConfigureAttribute(3, 4, GL_FLOAT, quad_size,
+                                    quad_model_matrix_offset + vec4_size * 0);
+    quad_buffer_.ConfigureAttribute(4, 4, GL_FLOAT, quad_size,
+                                    quad_model_matrix_offset + vec4_size * 1);
+    quad_buffer_.ConfigureAttribute(5, 4, GL_FLOAT, quad_size,
+                                    quad_model_matrix_offset + vec4_size * 2);
+    quad_buffer_.ConfigureAttribute(6, 4, GL_FLOAT, quad_size,
+                                    quad_model_matrix_offset + vec4_size * 3);
 
     // Texture Index
-    vertex_buffer_.ConfigureAttribute(7, 4, GL_INT, vertex_size,
-                                      vertex_texture_index_offset);
+    quad_buffer_.ConfigureAttribute(7, 4, GL_INT, quad_size,
+                                    quad_texture_index_offset);
 
-    vertex_buffer_.AttributeDivisor(3, 1);
-    vertex_buffer_.AttributeDivisor(4, 1);
-    vertex_buffer_.AttributeDivisor(5, 1);
-    vertex_buffer_.AttributeDivisor(6, 1);
-    vertex_buffer_.AttributeDivisor(7, 1);
+    glVertexAttribDivisor(2, 1);
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
+    glVertexAttribDivisor(6, 1);
+    glVertexAttribDivisor(7, 1);
 
-    vertex_buffer_.Allocate(kDefaultBufferSize, GL_STATIC_DRAW);
+    quad_buffer_.Allocate(kDefaultBufferSize, GL_STATIC_DRAW);
 }
 
 void ParticleDrawList::Prepare(const CameraView& camera)
@@ -129,9 +129,27 @@ void ParticleDrawList::Prepare(const CameraView& camera)
     // Copy to GPU
     for (auto& particle : particles_)
     {
-        // TODO(radu): take rotation into account too
-        // TODO(radu): rotate particle to face camera
-        mat4 model_matrix = glm::translate(mat4(1.0f), particle.pos);
+        // TODO(radu): take particle's size into account...
+        // TODO(radu): take particle's own rotation into account too...
+        // rotate around the fwd (z) axis
+
+        const vec3 up_dir(0.0f, 1.0f, 0.0f);
+        const vec3 f_dir(glm::normalize(camera.pos - particle.pos));
+        const vec3 s_dir(glm::normalize(glm::cross(f_dir, up_dir)));
+        const vec3 u_dir(glm::cross(s_dir, f_dir));
+
+        mat4 model_matrix(1.0f);
+
+        // Setting the columns to the 3 basis vectors
+        model_matrix[0] = vec4(s_dir, 0.0f);
+        model_matrix[1] = vec4(u_dir, 0.0f);
+        model_matrix[2] = vec4(f_dir, 0.0f);
+
+        // Translation
+        model_matrix[3] = vec4(particle.pos, 1.0f);
+
+        // Scaling
+        model_matrix = glm::scale(model_matrix, vec3(particle.size));
 
         gpu_particles_.push_back(GpuParticle{
             .color = particle.color,
@@ -140,8 +158,8 @@ void ParticleDrawList::Prepare(const CameraView& camera)
         });
     }
 
-    vertex_buffer_.ResizeToFit(gpu_particles_);
-    vertex_buffer_.UploadSubset(gpu_particles_, 0);
+    quad_buffer_.ResizeToFit(gpu_particles_);
+    quad_buffer_.UploadSubset(gpu_particles_, 0);
 }
 
 void ParticleDrawList::Render(const CameraView& camera)
@@ -152,10 +170,14 @@ void ParticleDrawList::Render(const CameraView& camera)
     shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
 
     glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     const GLsizei vertex_count = static_cast<GLsizei>(kQuadVertices.size());
     const GLsizei particle_count = static_cast<GLsizei>(gpu_particles_.size());
     glDrawArraysInstanced(GL_TRIANGLES, 0, vertex_count, particle_count);
+
+    glDisable(GL_BLEND);
 }
 
 void ParticleDrawList::Clear()
