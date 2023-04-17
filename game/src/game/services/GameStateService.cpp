@@ -148,6 +148,7 @@ void GameStateService::OnUpdate()
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
+    UpdatePickup(delta_time);
 }
 
 void GameStateService::DisplayKillFeed()
@@ -703,7 +704,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kPowerups[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 20.f);
+                             std::to_string(powerup.second.z);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -754,6 +755,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(3.f, 3.f, 3.f));
                 break;
 
             case PowerupPickupType::kKillAbilities:
@@ -770,7 +772,6 @@ void GameStateService::SetupPowerups()
                 });
                 break;
         }
-        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(2.0f, 10.0f, 2.0f));
@@ -809,7 +810,7 @@ void GameStateService::SetupPowerups()
         string entity_name = kAmmos[powerup_to_int] + "  " +
                              std::to_string(powerup.second.x) + ", " +
                              std::to_string(powerup.second.y) + ", " +
-                             std::to_string(powerup.second.z + 20.f);
+                             std::to_string(powerup.second.z);
 
         Entity& entity = scene.AddEntity(entity_name);
 
@@ -832,6 +833,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(0.2f, 0.2f, 0.2f));
                 break;
 
             case AmmoPickupType::kDoubleDamage:
@@ -860,6 +862,7 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(3.f, 3.f, 3.f));
                 break;
 
             case AmmoPickupType::kIncreaseFireRate:
@@ -888,9 +891,9 @@ void GameStateService::SetupPowerups()
                         .shininess = 64.0f,
                     },
                 });
+                transform.SetScale(vec3(0.2f, 0.2f, 0.2f));
                 break;
         }
-        transform.SetScale(vec3(0.8f, 0.8f, 0.8f));
 
         auto& trigger = entity.AddComponent<BoxTrigger>();
         trigger.SetSize(vec3(4.0f, 10.0f, 4.0f));
@@ -1204,6 +1207,58 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
     }
 }
 
+void GameStateService::UpdatePickup(const Timestep& delta_time)
+{
+    if (GetApp().GetSceneList().HasActiveScene())
+    {
+        Scene& scene = GetApp().GetSceneList().GetActiveScene();
+
+        for (const auto& powerup : powerup_info)
+        {
+            int powerup_to_int = 0;
+            switch (powerup.first)
+            {
+                case PowerupPickupType::kDefaultPowerup:
+                    powerup_to_int = 0;
+                    break;
+
+                case PowerupPickupType::kDisableHandling:
+                    powerup_to_int = 1;
+                    break;
+
+                case PowerupPickupType::kEveryoneSlower:
+                    powerup_to_int = 2;
+                    break;
+
+                case PowerupPickupType::kIncreaseAimBox:
+                    powerup_to_int = 3;
+                    break;
+
+                case PowerupPickupType::kKillAbilities:
+                    powerup_to_int = 4;
+                    break;
+            }
+
+            string entity_name = kPowerups[powerup_to_int] + "  " +
+                                 std::to_string(powerup.second.x) + ", " +
+                                 std::to_string(powerup.second.y) + ", " +
+                                 std::to_string(powerup.second.z);
+
+            for (int i = 0; i < scene.GetEntities().size(); ++i)
+            {
+                if (scene.GetEntities()[i]->GetName() == entity_name)
+                {
+                    auto& entity = scene.GetEntities()[i];
+                    auto& transform = entity->GetComponent<Transform>();
+
+                    transform.RotateEulerDegrees(
+                        glm::vec3(0.f, 45.f * delta_time.GetSeconds(), 0.f));
+                }
+            }
+        }
+    }
+}
+
 PlayerRecord* GameStateService::FindPlayerByEntityId(uint32_t entity_id)
 {
     for (auto& player : players_)
@@ -1398,10 +1453,21 @@ std::vector<PickupData> GameStateService::ReadCheckpointsFromJsonFile()
                     auto location_array = location.GetArray();
                     std::string pickup_type_str = pickup_type.GetString();
 
-                    glm::vec3 final_location =
-                        glm::vec3(location_array[0].GetFloat(),
-                                  location_array[1].GetFloat(),
-                                  location_array[2].GetFloat());
+                    glm::vec3 final_location;
+                    if (pickup_type == "VampireBullet")
+                    {
+                        final_location =
+                            glm::vec3(location_array[0].GetFloat(),
+                                      location_array[1].GetFloat(),
+                                      location_array[2].GetFloat());
+                    }
+                    else
+                    {
+                        final_location =
+                            glm::vec3(location_array[0].GetFloat(),
+                                      location_array[1].GetFloat() + 5.f,
+                                      location_array[2].GetFloat());
+                    }
 
                     PickupData temp;
                     temp.location = final_location;

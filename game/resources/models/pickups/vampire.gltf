@@ -18,14 +18,19 @@
             "name" : "Vampire",
             "rotation" : [
                 0.5000001192092896,
-                0.5,
-                0.5,
-                0.5
+                0.4999999403953552,
+                0.4999999403953552,
+                0.4999999403953552
             ],
             "scale" : [
-                0.20000001788139343,
-                0.20000001788139343,
-                0.20000001788139343
+                0.20000004768371582,
+                0.20000004768371582,
+                0.20000004768371582
+            ],
+            "translation" : [
+                0,
+                0,
+                -6
             ]
         }
     ],
@@ -48,7 +53,7 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 13040,
+            "count" : 13054,
             "max" : [
                 8.804426193237305,
                 60.89784240722656,
@@ -64,13 +69,13 @@
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 13040,
+            "count" : 13054,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 13040,
+            "count" : 13054,
             "type" : "VEC3"
         },
         {
@@ -83,32 +88,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 156480,
+            "byteLength" : 156648,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 104320,
-            "byteOffset" : 156480,
+            "byteLength" : 104432,
+            "byteOffset" : 156648,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 156480,
-            "byteOffset" : 260800,
+            "byteLength" : 156648,
+            "byteOffset" : 261080,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 26172,
-            "byteOffset" : 417280,
+            "byteOffset" : 417728,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 443452,
+            "byteLength" : 443900,
             "uri" : "vampire.bin"
         }
     ]

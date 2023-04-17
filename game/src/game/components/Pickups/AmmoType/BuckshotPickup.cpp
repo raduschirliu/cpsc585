@@ -61,7 +61,7 @@ void BuckshotPickup::OnUpdate(const Timestep& delta_time)
         start_timer_ = false;
         timer_ = 0.0f;
 
-        transform_->SetScale(glm::vec3(0.8f, 0.8f, 0.8f));
+        transform_->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
         SetPowerVisibility(true);
     }
 

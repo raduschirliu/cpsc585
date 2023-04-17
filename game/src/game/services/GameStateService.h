@@ -164,6 +164,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
+    void UpdatePickup(const Timestep& delta_time);
     void UpdatePowerupInfo();
     PlayerRecord* FindPlayerByEntityId(uint32_t entity_id);
 
