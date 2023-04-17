@@ -13,7 +13,10 @@ struct ScreenVertex
 {
     vec2 pos;
     vec2 uv;
-    ScreenVertex(const vec2& pos, const vec2& uv): pos(pos), uv(uv) {}
+
+    ScreenVertex(const vec2& pos, const vec2& uv) : pos(pos), uv(uv)
+    {
+    }
 };
 
 const vector<ScreenVertex> kScreenQuadVertices = {
