@@ -52,6 +52,5 @@ struct PlayerStateData
         accuracy = 0.0f;
         max_car_speed = 100.f;
         current_car_speed = 0.f;
-
     }
 };

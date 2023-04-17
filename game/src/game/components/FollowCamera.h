@@ -36,7 +36,8 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<Transform> target_transform_;
     jss::object_ptr<VehicleComponent> target_vehicle_;
 
-    // to get the player controller attached to the entity on which follow camera is attached
+    // to get the player controller attached to the entity on which follow
+    // camera is attached
     jss::object_ptr<PlayerState> player_state_;
 
     float acceleration_factor_;

@@ -132,15 +132,14 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
     UpdateGrounded();
     CheckAutoRespawn(delta_time);
 
-
     // We need it for the follow camera
     // get the player state
-    if(GetEntity().HasComponent<PlayerState>())
+    if (GetEntity().HasComponent<PlayerState>())
     {
-        jss::object_ptr<PlayerState> player_state = &GetEntity().GetComponent<PlayerState>();
+        jss::object_ptr<PlayerState> player_state =
+            &GetEntity().GetComponent<PlayerState>();
         player_state->SetCurrentSpeed(GetSpeed());
     }
-    
 }
 
 void VehicleComponent::OnPhysicsUpdate(const Timestep& step)
