@@ -13,6 +13,7 @@
 #include "engine/render/SceneRenderData.h"
 
 class Texture;
+struct CameraView;
 
 struct LaserVertex
 {
@@ -41,7 +42,7 @@ class LaserMaterial
 
     void LoadAssets(AssetService& asset_service);
     void Prepare();
-    void Draw(const Camera& camera);
+    void Render(const CameraView& camera);
     void Clear();
     void RecompileShader();
 

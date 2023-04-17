@@ -4,11 +4,14 @@
 #include <random>
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Random.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/render/RenderService.h"
 
 using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
@@ -243,6 +246,9 @@ void Shooter::CreateLaser(const vec3& origin, const vec3& target)
         .bot_right = LaserVertex(origin + horiz_offset, vec2(0.0f, 0.0f), 1.0f),
         .top_right = LaserVertex(target + horiz_offset, vec2(1.0f, 0.0f), 1.0f),
     };
+
+    // Particle effects
+    spark_particles_->Emit(origin);
 }
 
 float RandomPitchValue()
@@ -272,6 +278,8 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+
+    spark_particles_ = &render_service_->GetParticleSystem("sparks");
 
     // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";

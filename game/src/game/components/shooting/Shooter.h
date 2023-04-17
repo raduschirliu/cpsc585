@@ -14,6 +14,8 @@
 #include "game/components/shooting/Hitbox.h"
 #include "game/components/state/PlayerState.h"
 
+class ParticleSystem;
+
 class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
@@ -84,4 +86,6 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<Hitbox> hitbox_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<PlayerState> player_state_;
+
+    jss::object_ptr<ParticleSystem> spark_particles_;
 };

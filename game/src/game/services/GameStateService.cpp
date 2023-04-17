@@ -18,6 +18,7 @@
 #include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/Checkpoints.h"

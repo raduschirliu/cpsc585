@@ -8,6 +8,7 @@
 #include "engine/fwd/FwdComponents.h"
 #include "engine/render/DebugDrawList.h"
 #include "engine/render/LaserMaterial.h"
+#include "engine/render/ParticleDrawList.h"
 #include "engine/render/RenderBuffers.h"
 #include "engine/render/SceneRenderData.h"
 
@@ -34,6 +35,7 @@ class GeometryPass
     void SetWireframe(bool state);
     LaserMaterial& GetLaserMaterial();
     TextureHandle& GetScreenTexture();
+    ParticleDrawList& GetParticleDrawList();
 
   private:
     FramebufferHandle fbo_;
@@ -47,6 +49,7 @@ class GeometryPass
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
     ShaderProgram shader_, debug_shader_, skybox_shader_;
     LaserMaterial laser_material_;
+    ParticleDrawList particle_draw_list_;
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
     bool wireframe_;
@@ -65,6 +68,6 @@ class GeometryPass
     void RenderMeshes(const CameraView& camera);
     void RenderDebugDrawList(const CameraView& camera);
     void RenderSkybox(const CameraView& camera);
-    void RenderParticles(const Camera& camera);
+    void RenderParticles(const CameraView& camera);
     void CreateBuffers(const Entity& entity, const MeshRenderer& renderer);
 };

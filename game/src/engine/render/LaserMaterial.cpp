@@ -59,7 +59,7 @@ void LaserMaterial::Prepare()
     element_buffer_.Upload(indices_, GL_DYNAMIC_DRAW);
 }
 
-void LaserMaterial::Draw(const Camera& camera)
+void LaserMaterial::Render(const CameraView& camera)
 {
     if (indices_.size() == 0)
     {
@@ -73,14 +73,12 @@ void LaserMaterial::Draw(const Camera& camera)
     vertex_array_.Bind();
     texture_->Bind(0);
 
-    const mat4 view_proj =
-        camera.GetProjectionMatrix() * camera.GetViewMatrix();
     const mat4 model = mat4(1.0f);
 
     shader_.Use();
     shader_.SetUniform("uMask", 0);
     shader_.SetUniform("uTime", static_cast<float>(render_data_.total_time));
-    shader_.SetUniform("uViewProjMatrix", view_proj);
+    shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
     shader_.SetUniform("uModelMatrix", model);
 
     const GLsizei index_count = static_cast<GLsizei>(indices_.size());

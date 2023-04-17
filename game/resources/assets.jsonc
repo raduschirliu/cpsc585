@@ -88,6 +88,14 @@
             "path": "resources/textures/particle/laser_mask.png",
             "name": "laser_mask"
         },
+        {
+            "path": "resources/textures/particle/smoke.png",
+            "name": "particle@smoke"
+        },
+        {
+            "path": "resources/textures/particle/spark.png",
+            "name": "particle@spark"
+        },
 
         /* UI */
         {
