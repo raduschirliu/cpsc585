@@ -29,6 +29,8 @@ void GuiService::OnInit()
                           "resources/fonts/impact.ttf", 60.f));
     AddFont("beya", ImGui::GetIO().Fonts->AddFontFromFileTTF(
                         "resources/fonts/beya.ttf", 72.f));
+    AddFont("beya_small", ImGui::GetIO().Fonts->AddFontFromFileTTF(
+                              "resources/fonts/beya.ttf", 48.0f));
     AddFont("pado", ImGui::GetIO().Fonts->AddFontFromFileTTF(
                         "resources/fonts/padosori.ttf", 72.f));
     AddFont("cookie", ImGui::GetIO().Fonts->AddFontFromFileTTF(
