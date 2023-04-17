@@ -1,5 +1,7 @@
 #include "engine/core/gfx/Window.h"
 
+#include <stb/stb_image.h>
+
 #include <iostream>
 
 #include "engine/core/debug/Assert.h"
@@ -163,6 +165,17 @@ void Window::SetSize(const glm::ivec2& size)
 void Window::SetTitle(const string& title)
 {
     glfwSetWindowTitle(handle_.get(), title.c_str());
+}
+
+void Window::SetIcon(const string& path)
+{
+    GLFWimage images[1];
+    images[0].pixels =
+        stbi_load(path.c_str(), &images[0].width, &images[0].height, 0, 4);
+
+    glfwSetWindowIcon(handle_.get(), 1, images);
+
+    stbi_image_free(images[0].pixels);
 }
 
 void Window::PollEvents()

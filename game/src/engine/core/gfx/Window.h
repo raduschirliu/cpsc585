@@ -50,6 +50,7 @@ class Window
     void SetCallbacks(std::shared_ptr<IWindowEventListener> callbacks);
     void SetSize(const glm::ivec2& size);
     void SetTitle(const std::string& title);
+    void SetIcon(const std::string& path);
 
     glm::ivec2 GetPos() const;
     const glm::ivec2& GetSize() const;
