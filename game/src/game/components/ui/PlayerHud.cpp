@@ -127,7 +127,7 @@ void PlayerHud::OnGui()
     ImGui::PushFont(font_);
     ImGui::Text("LAP: %d/%lu", player_state_->GetLapsCompleted(),
                 game_state_service_->GetRaceConfig().num_laps);
-    ImGui::SameLine(0.f, 700.f);
+    ImGui::SameLine(0.f, ImGui::GetIO().DisplaySize.x - 600.f);
     if (game_state_service_->GetGlobalRaceState().state ==
         GameState::kCountdown)
     {

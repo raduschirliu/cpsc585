@@ -397,26 +397,30 @@ void GameStateService::OnGui()
         if (pickup_service_->GetActivePowerup() ==
             pickup_service_->GetPowerupPickupNames()[1])
         {
-            ImGui::Text("Enemy Handling Disabled!");
-            // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70, 70));
+            ImGui::Text("Enemy Disabled Handling!");
+            // ImGui::Image(disableHandling_->GetGuiHandle(), ImVec2(70,
+            // 70));
         }
         else if (pickup_service_->GetActivePowerup() ==
                  pickup_service_->GetPowerupPickupNames()[2])
         {
-            ImGui::Text("Enemy Speed Halved!");
-            // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70, 70));
+            ImGui::Text("Enemy Halved Speed!");
+            // ImGui::Image(everyoneSlower_->GetGuiHandle(), ImVec2(70,
+            // 70));
         }
         else if (pickup_service_->GetActivePowerup() ==
                  pickup_service_->GetPowerupPickupNames()[3])
         {
-            ImGui::Text("Enemy Aimboxes Doubled!");
-            // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70, 70));
+            ImGui::Text("Enemy Doubled Aimboxes!");
+            // ImGui::Image(increaseAimBox_->GetGuiHandle(), ImVec2(70,
+            // 70));
         }
         else if (pickup_service_->GetActivePowerup() ==
                  pickup_service_->GetPowerupPickupNames()[4])
         {
-            ImGui::Text("Enemy Abilities Killed!");
-            // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70, 70));
+            ImGui::Text("Enemy Killed Abilities!");
+            // ImGui::Image(killAbilities_->GetGuiHandle(), ImVec2(70,
+            // 70));
         }
         ImGui::PopFont();
         ImGui::PopStyleColor();
