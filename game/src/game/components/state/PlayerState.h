@@ -70,8 +70,11 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<GameStateService> game_state_service_;
     jss::object_ptr<AssetService> asset_service_;
+    jss::object_ptr<RenderService> render_service_;
 
+    jss::object_ptr<Transform> transform_;
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
     jss::object_ptr<MeshRenderer> renderer_;
+    jss::object_ptr<ParticleSystem> explosion_particles_;
 };

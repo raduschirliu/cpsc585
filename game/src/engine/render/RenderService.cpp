@@ -376,7 +376,7 @@ void RenderService::BuildParticleSystems()
             particle_draw_list,
             ParticleSystemProperties{
                 .acceleration = vec3(0.0f, -10.0f, 0.0f),
-                .color_start = vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                .color_start = vec4(1.0f, 0.0f, 0.0f, 0.8f),
                 .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
                 .random_velocity = true,
                 .velocity = vec3(0.0f, 0.0f, 0.0f),
@@ -386,6 +386,25 @@ void RenderService::BuildParticleSystems()
                 .lifetime = 0.5f,
                 .texture = &asset_service_->GetTexture("particle@spark"),
                 .burst_amount = 20,
+            }),
+    });
+
+    particle_systems_.push_back({
+        .name = "explosion",
+        .particle_system = make_unique<ParticleSystem>(
+            particle_draw_list,
+            ParticleSystemProperties{
+                .acceleration = vec3(0.0f, -10.0f, 0.0f),
+                .color_start = vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
+                .random_velocity = true,
+                .velocity = vec3(0.0f, 0.0f, 0.0f),
+                .speed = 65.0f,
+                .size_start = 5.5f,
+                .size_end = 1.5f,
+                .lifetime = 1.5f,
+                .texture = &asset_service_->GetTexture("particle@spark"),
+                .burst_amount = 40,
             }),
     });
 

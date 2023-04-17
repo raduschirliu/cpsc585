@@ -67,6 +67,7 @@ void PlayerHud::OnGui()
 
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.8f, 0.f, 0.1f, 1.f));
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.f, 0.6f, 0.4f, 1.f));
+    ImGui::Text("Health");
     ImGui::ProgressBar(player_state_->GetHealth() / 100.0f, ImVec2(400, 30),
                        "");
     ImGui::PopStyleColor(2);
