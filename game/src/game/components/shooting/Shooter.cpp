@@ -249,6 +249,7 @@ void Shooter::CreateLaser(const vec3& origin, const vec3& target)
 
     // Particle effects
     spark_particles_->Emit(origin);
+    spark_hit_particles_->Emit(target);
 }
 
 float RandomPitchValue()
@@ -280,6 +281,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
 
     spark_particles_ = &render_service_->GetParticleSystem("sparks");
+    spark_hit_particles_ = &render_service_->GetParticleSystem("sparks_hit");
 
     // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";
