@@ -260,6 +260,10 @@
             "path": "resources/textures/kart/body_main_yellow.png",
             "name": "kart@BodyMain-P4"
         },
+        {
+            "path": "resources/textures/kart/deadge.png",
+            "name": "kart@Dead"
+        },
         /* Pick Up Materials */
         {
             "path": "resources/textures/pickup/bullets.png",
