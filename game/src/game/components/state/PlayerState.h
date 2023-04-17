@@ -3,6 +3,7 @@
 
 #include "PlayerData.h"
 #include "engine/fwd/FwdServices.h"
+#include "engine/render/MeshRenderer.h"
 #include "engine/scene/Component.h"
 #include "engine/scene/Entity.h"
 #include "engine/scene/OnUpdateEvent.h"
@@ -64,7 +65,9 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
 
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<AssetService> asset_service_;
 
     jss::object_ptr<VehicleComponent> vehicle_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
+    jss::object_ptr<MeshRenderer> renderer_;
 };

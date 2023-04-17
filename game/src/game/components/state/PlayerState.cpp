@@ -5,6 +5,7 @@
 #include "engine/core/debug/Log.h"
 #include "engine/physics/PhysicsService.h"
 #include "game/services/GameStateService.h"
+#include "engine/asset/AssetService.h"
 
 static constexpr float kDeathCooldownSeconds = 5.0f;
 
@@ -13,9 +14,11 @@ void PlayerState::OnInit(const ServiceProvider& service_provider)
     // service and component dependencies
     physics_service_ = &service_provider.GetService<PhysicsService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    asset_service_ = &service_provider.GetService<AssetService>();
 
     vehicle_ = &GetEntity().GetComponent<VehicleComponent>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+    renderer_ = &GetEntity().GetComponent<MeshRenderer>();
 
     // reset cooldown
     death_cooldown_ = 0.0f;
@@ -77,6 +80,56 @@ void PlayerState::CheckDead(const Timestep& delta_time)
             death_cooldown_ = kDeathCooldownSeconds;
             player_state_.is_dead = true;
             player_state_.number_deaths++;
+
+            renderer_->SetMeshes({
+                {
+                    &asset_service_->GetMesh("kart@BodyMain"),
+                    MaterialProperties{
+                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .specular = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 32.0f,
+                    },
+                },
+                {
+                    &asset_service_->GetMesh("kart@BodyTop"),
+                    MaterialProperties{
+                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .specular = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 32.0f,
+                    },
+                },
+                {
+                    &asset_service_->GetMesh("kart@BodyUnderside"),
+                    MaterialProperties{
+                        .albedo_texture =
+                            &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .specular = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 32.0f,
+                    },
+                },
+                {
+                    &asset_service_->GetMesh("kart@Muffler"),
+                    MaterialProperties{
+                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .specular = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 32.0f,
+                    },
+                },
+                {
+                    &asset_service_->GetMesh("kart@Wheels"),
+                    MaterialProperties{
+                        .albedo_texture = &asset_service_->GetTexture("kart@Wheels"),
+                        .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .specular = glm::vec3(1.0f, 1.0f, 1.0f),
+                        .shininess = 32.0f,
+                    },
+                },
+            });
+
             audio_emitter_->PlaySource("player_die_01.ogg");
             debug::LogDebug("Entity {} has died!", GetEntity().GetId());
         }
