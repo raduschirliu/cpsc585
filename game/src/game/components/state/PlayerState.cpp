@@ -138,12 +138,12 @@ void PlayerState::CheckDead(const Timestep& delta_time)
             player_state_.is_dead = true;
             player_state_.number_deaths++;
 
-            // set colour to black
+            // set color to deadge color
             renderer_->SetMeshes({
                 {
                     &asset_service_->GetMesh("kart@BodyMain"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_texture = &asset_service_->GetTexture("kart@Dead"),
                         .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
                         .specular = glm::vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 128.0f,
@@ -152,7 +152,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
                 {
                     &asset_service_->GetMesh("kart@BodyTop"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_texture = &asset_service_->GetTexture("kart@Dead"),
                         .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
                         .specular = glm::vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 128.0f,
@@ -161,8 +161,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
                 {
                     &asset_service_->GetMesh("kart@BodyUnderside"),
                     MaterialProperties{
-                        .albedo_texture =
-                            &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_texture = &asset_service_->GetTexture("kart@Dead"),
                         .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
                         .specular = glm::vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 128.0f,
@@ -171,7 +170,7 @@ void PlayerState::CheckDead(const Timestep& delta_time)
                 {
                     &asset_service_->GetMesh("kart@Muffler"),
                     MaterialProperties{
-                        .albedo_texture = &asset_service_->GetTexture("kart@BodyTop"),
+                        .albedo_texture = &asset_service_->GetTexture("kart@Dead"),
                         .albedo_color = glm::vec3(1.0f, 1.0f, 1.0f),
                         .specular = glm::vec3(1.0f, 1.0f, 1.0f),
                         .shininess = 128.0f,
