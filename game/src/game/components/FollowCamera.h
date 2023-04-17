@@ -42,6 +42,7 @@ class FollowCamera : public Component, public IEventSubscriber<OnUpdateEvent>
 
     float acceleration_factor_;
     glm::vec3 offset_;
+    glm::vec3 lookat_offset_;
     float distance_;
     float orientation_lerp_factor_;
     float position_lerp_factor_;
