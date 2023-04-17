@@ -164,7 +164,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
 
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
-    void UpdatePickup(const Timestep& delta_time);
     void UpdatePowerupInfo();
     PlayerRecord* FindPlayerByEntityId(uint32_t entity_id);
 
@@ -178,6 +177,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void StartCountdown();
     void DisplayScoreboard();
     void DrawDebugMenu();
+    void UpdatePlayerPostRace();
 
     const Texture* countdown3_;
     const Texture* countdown2_;

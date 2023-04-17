@@ -18,6 +18,7 @@
 #include "engine/pickup/PickupService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/MeshRenderer.h"
+#include "engine/render/ParticleSystem.h"
 #include "engine/scene/OnUpdateEvent.h"
 #include "engine/scene/SceneDebugService.h"
 #include "game/Checkpoints.h"
@@ -148,7 +149,26 @@ void GameStateService::OnUpdate()
 
     UpdateRaceTimer(delta_time);
     UpdatePlayerProgressScore(delta_time);
-    UpdatePickup(delta_time);
+    UpdatePlayerPostRace();
+}
+
+void GameStateService::UpdatePlayerPostRace()
+{
+    if (race_state_.state != GameState::kPostRace)
+    {
+        return;
+    }
+
+    for (auto& player : players_)
+    {
+        if (!player->is_human)
+            continue;
+
+        if (player->entity->HasComponent<AIController>())
+            continue;
+
+        player->entity->AddComponent<AIController>();
+    }
 }
 
 void GameStateService::DisplayKillFeed()
@@ -1204,58 +1224,6 @@ void GameStateService::UpdatePlayerProgressScore(const Timestep& delta_time)
     for (int i = 0; i < race_state_.sorted_players.size(); i++)
     {
         race_state_.sorted_players[i]->state_component->SetCurrentPlace(i);
-    }
-}
-
-void GameStateService::UpdatePickup(const Timestep& delta_time)
-{
-    if (GetApp().GetSceneList().HasActiveScene())
-    {
-        Scene& scene = GetApp().GetSceneList().GetActiveScene();
-
-        for (const auto& powerup : powerup_info)
-        {
-            int powerup_to_int = 0;
-            switch (powerup.first)
-            {
-                case PowerupPickupType::kDefaultPowerup:
-                    powerup_to_int = 0;
-                    break;
-
-                case PowerupPickupType::kDisableHandling:
-                    powerup_to_int = 1;
-                    break;
-
-                case PowerupPickupType::kEveryoneSlower:
-                    powerup_to_int = 2;
-                    break;
-
-                case PowerupPickupType::kIncreaseAimBox:
-                    powerup_to_int = 3;
-                    break;
-
-                case PowerupPickupType::kKillAbilities:
-                    powerup_to_int = 4;
-                    break;
-            }
-
-            string entity_name = kPowerups[powerup_to_int] + "  " +
-                                 std::to_string(powerup.second.x) + ", " +
-                                 std::to_string(powerup.second.y) + ", " +
-                                 std::to_string(powerup.second.z);
-
-            for (int i = 0; i < scene.GetEntities().size(); ++i)
-            {
-                if (scene.GetEntities()[i]->GetName() == entity_name)
-                {
-                    auto& entity = scene.GetEntities()[i];
-                    auto& transform = entity->GetComponent<Transform>();
-
-                    transform.RotateEulerDegrees(
-                        glm::vec3(0.f, 45.f * delta_time.GetSeconds(), 0.f));
-                }
-            }
-        }
     }
 }
 

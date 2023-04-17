@@ -3,6 +3,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <limits>
 
+#include "engine/core/debug/Assert.h"
+
 using glm::mat4;
 using glm::uvec2;
 using glm::vec3;
@@ -47,7 +49,11 @@ void ShadowMap::Init()
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
-    // glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    ASSERT_MSG(status == GL_FRAMEBUFFER_COMPLETE,
+               "Framebuffer should be valid");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ShadowMap::UpdateBounds(LightParams& light_params,
@@ -151,7 +157,9 @@ void ShadowMap::Prepare()
 {
     glViewport(0, 0, params_.texture_size.x, params_.texture_size.y);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+
     glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     if (params_.cull_face)
     {

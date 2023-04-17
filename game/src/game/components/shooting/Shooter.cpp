@@ -4,7 +4,14 @@
 #include <random>
 
 #include "engine/core/debug/Log.h"
+#include "engine/core/math/Random.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/ParticleSystem.h"
+#include "engine/render/RenderService.h"
+
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
 
 static float RandomPitchValue();  // TODO: move this to AudioService
 static constexpr float kBaseDamage = 10.0f;
@@ -12,13 +19,19 @@ static constexpr float kBaseDamage = 10.0f;
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
 static constexpr double kMaxTimer = 4.0f;
+static constexpr float kLaserLifetime = 0.25f;
+static constexpr float kLaserSize = 2.5f;
+static constexpr float kLaserRange = 1000.0f;
+static constexpr float kLaserOriginFwdOffset = -15.0f;
 
 void Shooter::Shoot()
 {
     // origin and direction of the raycast from this entity
-    glm::vec3 fwd_direction = transform_->GetForwardDirection();
-    glm::vec3 offset = (hitbox_->GetSize() + 5.0f) * fwd_direction;
-    glm::vec3 origin = transform_->GetPosition() + offset;
+    const vec3& fwd_direction = transform_->GetForwardDirection();
+    const vec3& up_direction = transform_->GetUpDirection();
+    const vec3 fwd_offset = (hitbox_->GetSize() + 6.5f) * fwd_direction;
+    const vec3 up_offset = up_direction * 1.0f;
+    const vec3 origin = transform_->GetPosition() + fwd_offset + up_offset;
 
     current_ammo_type_ = player_state_->GetCurrentAmmoType();
 
@@ -31,66 +44,43 @@ void Shooter::Shoot()
 
     if (current_ammo_type_ == AmmoPickupType::kBuckshot)
     {
-        // shotgun type bullet, spread.
         ShootBuckshot(origin, fwd_direction);
-        return;
-    }
-    else if (current_ammo_type_ == AmmoPickupType::kDoubleDamage)
-    {
-        ShootDoubleDamage(origin, fwd_direction);
-        return;
-    }
-    else if (current_ammo_type_ == AmmoPickupType::kExploadingBullet)
-    {
-        ShootExploading(origin, fwd_direction);
         return;
     }
     else if (current_ammo_type_ == AmmoPickupType::kIncreaseFireRate)
     {
-        IncreaseFireRate();
-        return;
+        // doubling the bullets speed which can be fired at a time.
+        increase_fire_speed_multiplier_ = 0.5f;
     }
-    else if (current_ammo_type_ == AmmoPickupType::kVampireBullet)
-    {
-        ShootVampire(origin, fwd_direction);
-        return;
-    }
-    else
-    {
-        ShootDefault(origin, fwd_direction);
-    }
+
+    ShootDefault(origin, fwd_direction);
 }
 
-void Shooter::ShootDefault(const glm::vec3& origin,
-                           const glm::vec3& fwd_direction)
+void Shooter::ShootDefault(const vec3& origin, const vec3& fwd_direction)
 {
-    // check if shot hit anything
     target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    if (target_data_ && !target_data_.has_value())
-    {
-        uint32_t entity_id = GetEntity().GetId();
-        return;
-    }
-    else
-    {
-    }
+
+    const vec3 laser_origin = origin + fwd_direction * kLaserOriginFwdOffset;
+    vec3 laser_target = origin + fwd_direction * kLaserRange;
 
     // get the entity that was hit
     if (target_data_)
     {
         RaycastData target_data_value = target_data_.value();
         Entity* target_entity = target_data_value.entity;
+        laser_target = target_data_value.position;
 
         UpdateOnHit();
     }
+
+    CreateLaser(laser_origin, laser_target);
 }
 
-void Shooter::ShootBuckshot(const glm::vec3& origin,
-                            const glm::vec3& fwd_direction)
+void Shooter::ShootBuckshot(const vec3& origin, const vec3& fwd_direction)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0, 1);
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
     std::vector<std::optional<RaycastData>> target_datas;
     // as we want the shots to scatter
@@ -99,8 +89,8 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
         std::array<float, 3> spread = {dis(gen) / 4.0f, dis(gen) / 4.0f,
                                        dis(gen) / 4.0f};
         target_data_ = physics_service_->RaycastDynamic(
-            origin, glm::normalize(fwd_direction +
-                                   glm::vec3(spread[0], 0.0f, spread[2])));
+            origin,
+            glm::normalize(fwd_direction + vec3(spread[0], 0.0f, spread[2])));
         if (!target_data_ && !target_data_.has_value())
         {
             // do nothing as this raycast failed...
@@ -131,59 +121,8 @@ void Shooter::ShootBuckshot(const glm::vec3& origin,
     // apply the hit to only one car. FIX THIS as this many pellets hit the car.
     target_state->DecrementHealth(GetAmmoDamage() * target_datas.size());
     target_state->SetPlayerWhoShotMe(std::string(player_state_->GetName()));
-}
 
-/// @brief handles the vampire bullets
-void Shooter::ShootVampire(const glm::vec3& origin,
-                           const glm::vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the double damage bullets
-void Shooter::ShootDoubleDamage(const glm::vec3& origin,
-                                const glm::vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the exploading damage bullets
-void Shooter::ShootExploading(const glm::vec3& origin,
-                              const glm::vec3& fwd_direction)
-{
-    // check if shot hit anything
-    target_data_ = physics_service_->RaycastDynamic(origin, fwd_direction);
-    // get the entity that was hit
-    if (target_data_.has_value())
-    {
-        RaycastData target_data_value = target_data_.value();
-        Entity* target_entity = target_data_value.entity;
-        UpdateOnHit();
-    }
-}
-
-/// @brief handles the increase fire rate
-void Shooter::IncreaseFireRate()
-{
-    // doubling the bullets speed which can be fired at a time.
-    increase_fire_speed_multiplier_ = 0.5f;
+    // TODO(radu): Add multiple lasers
 }
 
 // The duration between which the 2 consecutive bullets will shoot.
@@ -287,6 +226,31 @@ float Shooter::GetAmmoDamage()
     return damage_multiplier * kBaseDamage;
 }
 
+void Shooter::CreateLaser(const vec3& origin, const vec3& target)
+{
+    laser_.lifetime = kLaserLifetime;
+    laser_.origin = origin;
+    laser_.target = target;
+
+    // Create new mesh
+    const vec3& fwd_dir = glm::normalize(target - origin);
+    const vec3& up_dir = transform_->GetUpDirection();
+    const vec3 right_dir = glm::normalize(glm::cross(fwd_dir, up_dir));
+
+    const vec3 horiz_offset = right_dir * (kLaserSize / 2.0f);
+
+    // "top" = far side at target, "bot" = close side at origin
+    laser_.quad = {
+        .top_left = LaserVertex(target - horiz_offset, vec2(1.0f, 1.0f), 1.0f),
+        .bot_left = LaserVertex(origin - horiz_offset, vec2(0.0f, 1.0f), 1.0f),
+        .bot_right = LaserVertex(origin + horiz_offset, vec2(0.0f, 0.0f), 1.0f),
+        .top_right = LaserVertex(target + horiz_offset, vec2(1.0f, 0.0f), 1.0f),
+    };
+
+    // Particle effects
+    spark_particles_->Emit(origin);
+}
+
 float RandomPitchValue()
 {
     std::random_device seed;
@@ -305,6 +269,7 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     debug::LogInfo("{} Component - Init", GetName());
 
     // service dependencies
+    render_service_ = &service_provider.GetService<RenderService>();
     physics_service_ = &service_provider.GetService<PhysicsService>();
     audio_service_ = &service_provider.GetService<AudioService>();
 
@@ -313,6 +278,8 @@ void Shooter::OnInit(const ServiceProvider& service_provider)
     hitbox_ = &GetEntity().GetComponent<Hitbox>();
     player_state_ = &GetEntity().GetComponent<PlayerState>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
+
+    spark_particles_ = &render_service_->GetParticleSystem("sparks");
 
     // set initial shoot sound
     shoot_sound_file_ = "kart_shoot_01.ogg";
@@ -358,5 +325,17 @@ void Shooter::OnUpdate(const Timestep& delta_time)
                 player_state_->SetCurrentAmmoType(AmmoPickupType::kDefaultAmmo);
             }
         }
+    }
+
+    // Draw lasers
+    if (laser_.lifetime > 0.0f)
+    {
+        laser_.quad.top_left.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.top_right.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.bot_left.alpha = laser_.lifetime / kLaserLifetime;
+        laser_.quad.bot_right.alpha = laser_.lifetime / kLaserLifetime;
+        render_service_->GetLaserMaterial().AddQuad(laser_.quad);
+
+        laser_.lifetime -= static_cast<float>(delta_time.GetSeconds());
     }
 }

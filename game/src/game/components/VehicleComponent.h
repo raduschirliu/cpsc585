@@ -14,6 +14,8 @@
 #include "game/FwdGame.h"
 #include "game/components/audio/AudioEmitter.h"
 
+class ParticleSystem;
+
 class VehicleComponent final : public Component,
                                public IEventSubscriber<OnUpdateEvent>,
                                public IEventSubscriber<OnPhysicsUpdateEvent>
@@ -80,13 +82,17 @@ class VehicleComponent final : public Component,
     float respawn_timer_;
     float speed_adjuster_;
     float max_velocity_ = 130.0f;
+    float time_since_last_particle_ = 0.0f;
+    float exhaust_delay_ = 1.0f;
 
     /* ----- Service and Component dependencies ----- */
 
     jss::object_ptr<PhysicsService> physics_service_;
     jss::object_ptr<InputService> input_service_;
     jss::object_ptr<GameStateService> game_state_service_;
+    jss::object_ptr<RenderService> render_service_;
 
     jss::object_ptr<Transform> transform_;
     jss::object_ptr<AudioEmitter> audio_emitter_;
+    jss::object_ptr<ParticleSystem> exhaust_particles_;
 };
