@@ -14,7 +14,7 @@ using glm::vec3;
 using glm::vec4;
 
 static float RandomPitchValue();  // TODO: move this to AudioService
-static constexpr float kBaseDamage = 10.0f;
+static constexpr float kBaseDamage = 20.0f;
 
 // the buckshot will have 10 different pellets from the barrel
 static constexpr uint8_t kNumberPellets = 10;
