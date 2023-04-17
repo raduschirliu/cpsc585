@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -17,15 +17,15 @@
             "mesh" : 0,
             "name" : "Slow",
             "rotation" : [
-                0.7071068286895752,
+                0.70710688829422,
                 0,
                 0,
-                0.7071068286895752
+                0.7071066498756409
             ],
             "translation" : [
                 0,
-                4,
-                0
+                0,
+                4
             ]
         }
     ],
@@ -48,29 +48,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 3624,
+            "count" : 5367,
             "max" : [
                 4.800000190734863,
-                0.6000001430511475,
-                3.799999952316284
+                3.500000476837158,
+                0.6000001430511475
             ],
             "min" : [
                 -4.799999713897705,
-                -0.5999999046325684,
-                -3.500000476837158
+                -3.799999952316284,
+                -0.5999999046325684
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 3624,
+            "count" : 5367,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 3624,
+            "count" : 5367,
             "type" : "VEC3"
         },
         {
@@ -83,32 +83,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 43488,
+            "byteLength" : 64404,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 28992,
-            "byteOffset" : 43488,
+            "byteLength" : 42936,
+            "byteOffset" : 64404,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 43488,
-            "byteOffset" : 72480,
+            "byteLength" : 64404,
+            "byteOffset" : 107340,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 10896,
-            "byteOffset" : 115968,
+            "byteOffset" : 171744,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 126864,
+            "byteLength" : 182640,
             "uri" : "slow.bin"
         }
     ]

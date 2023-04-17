@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -23,14 +23,14 @@
             ],
             "translation" : [
                 0,
-                3,
-                0
+                0,
+                3
             ]
         }
     ],
     "meshes" : [
         {
-            "name" : "Cube",
+            "name" : "Cube.001",
             "primitives" : [
                 {
                     "attributes" : {
@@ -47,29 +47,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 2340,
+            "count" : 3232,
             "max" : [
                 1,
-                1,
-                0.6666666269302368
+                0.6666666269302368,
+                1
             ],
             "min" : [
                 -1,
-                -1,
-                -0.6666666269302368
+                -0.6666666269302368,
+                -1
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 2340,
+            "count" : 3232,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 2340,
+            "count" : 3232,
             "type" : "VEC3"
         },
         {
@@ -82,32 +82,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 28080,
+            "byteLength" : 38784,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 18720,
-            "byteOffset" : 28080,
+            "byteLength" : 25856,
+            "byteOffset" : 38784,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 28080,
-            "byteOffset" : 46800,
+            "byteLength" : 38784,
+            "byteOffset" : 64640,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 6816,
-            "byteOffset" : 74880,
+            "byteOffset" : 103424,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 81696,
+            "byteLength" : 110240,
             "uri" : "aimBox.bin"
         }
     ]

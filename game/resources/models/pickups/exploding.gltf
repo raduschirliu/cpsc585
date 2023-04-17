@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -23,8 +23,8 @@
             ],
             "translation" : [
                 0,
-                4,
-                0
+                0,
+                4
             ]
         }
     ],
@@ -47,29 +47,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 9194,
+            "count" : 14174,
             "max" : [
                 0.9510578513145447,
-                1.1864935159683228,
-                0.9999999403953552
+                0.9999999403953552,
+                1.1864935159683228
             ],
             "min" : [
                 -0.9510578513145447,
-                -1,
-                -0.9999999403953552
+                -0.9999999403953552,
+                -1
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 9194,
+            "count" : 14174,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 9194,
+            "count" : 14174,
             "type" : "VEC3"
         },
         {
@@ -82,32 +82,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 110328,
+            "byteLength" : 170088,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 73552,
-            "byteOffset" : 110328,
+            "byteLength" : 113392,
+            "byteOffset" : 170088,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 110328,
-            "byteOffset" : 183880,
+            "byteLength" : 170088,
+            "byteOffset" : 283480,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 29592,
-            "byteOffset" : 294208,
+            "byteOffset" : 453568,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 323800,
+            "byteLength" : 483160,
             "uri" : "exploding.bin"
         }
     ]

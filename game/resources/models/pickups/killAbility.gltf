@@ -6,7 +6,7 @@
     "scene" : 0,
     "scenes" : [
         {
-            "name" : "Pickups",
+            "name" : "Scene",
             "nodes" : [
                 0
             ]
@@ -17,15 +17,15 @@
             "mesh" : 0,
             "name" : "KillAbilities",
             "rotation" : [
-                0.7071068286895752,
+                0.70710688829422,
                 0,
                 0,
-                0.7071068286895752
+                0.7071066498756409
             ],
             "translation" : [
                 0,
-                4,
-                0
+                0,
+                4
             ]
         }
     ],
@@ -48,29 +48,29 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 4896,
+            "count" : 7218,
             "max" : [
                 5,
-                0.800000011920929,
-                4.730127334594727
+                4.730127334594727,
+                0.800000011920929
             ],
             "min" : [
                 -5,
-                -0.800000011920929,
-                -4.730127334594727
+                -4.730127334594727,
+                -0.800000011920929
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 4896,
+            "count" : 7218,
             "type" : "VEC2"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 4896,
+            "count" : 7218,
             "type" : "VEC3"
         },
         {
@@ -83,32 +83,32 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 58752,
+            "byteLength" : 86616,
             "byteOffset" : 0,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 39168,
-            "byteOffset" : 58752,
+            "byteLength" : 57744,
+            "byteOffset" : 86616,
             "target" : 34962
         },
         {
             "buffer" : 0,
-            "byteLength" : 58752,
-            "byteOffset" : 97920,
+            "byteLength" : 86616,
+            "byteOffset" : 144360,
             "target" : 34962
         },
         {
             "buffer" : 0,
             "byteLength" : 14688,
-            "byteOffset" : 156672,
+            "byteOffset" : 230976,
             "target" : 34963
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 171360,
+            "byteLength" : 245664,
             "uri" : "killAbility.bin"
         }
     ]
