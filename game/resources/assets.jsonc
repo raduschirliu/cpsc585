@@ -92,6 +92,10 @@
             "path": "resources/textures/particle/smoke.png",
             "name": "particle@smoke"
         },
+        {
+            "path": "resources/textures/particle/spark.png",
+            "name": "particle@spark"
+        },
 
         /* UI */
         {

@@ -15,6 +15,8 @@
 #include "engine/core/math/Physx.h"
 #include "engine/input/InputService.h"
 #include "engine/physics/PhysicsService.h"
+#include "engine/render/ParticleSystem.h"
+#include "engine/render/RenderService.h"
 #include "engine/scene/Entity.h"
 #include "game/components/audio/AudioEmitter.h"
 #include "game/components/state/PlayerState.h"
@@ -29,6 +31,8 @@ using namespace snippetvehicle2;
 
 static constexpr PxReal kDefaultMaterialFriction = 1.0f;
 static constexpr float kRespawnSeconds = 3.0f;
+static float kExhaustParticleDelay = 0.25f;
+static vec3 kExhaustParticleOffset(2.0f, 2.5f, -4.0f);
 
 // filenames and paths
 
@@ -47,6 +51,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     physics_service_ = &service_provider.GetService<PhysicsService>();
     input_service_ = &service_provider.GetService<InputService>();
     game_state_service_ = &service_provider.GetService<GameStateService>();
+    render_service_ = &service_provider.GetService<RenderService>();
 
     transform_ = &GetEntity().GetComponent<Transform>();
     audio_emitter_ = &GetEntity().GetComponent<AudioEmitter>();
@@ -64,6 +69,7 @@ void VehicleComponent::OnInit(const ServiceProvider& service_provider)
     InitVehicle();
 
     physics_service_->RegisterVehicle(&vehicle_, &GetEntity());
+    exhaust_particles_ = &render_service_->GetParticleSystem("exhaust");
 
     // init sounds
     audio_emitter_->AddSource(kDrivingAudio);
@@ -84,6 +90,10 @@ std::string_view VehicleComponent::GetName() const
 
 void VehicleComponent::OnDebugGui()
 {
+    gui::EditProperty("Exhaust Particle Offset", kExhaustParticleOffset);
+    ImGui::DragFloat("Exhaust Particle Delay", &kExhaustParticleDelay, 0.01f,
+                     0.0f, 5.0f);
+
     ImGui::Text("Gear: %d", vehicle_.mTransmissionCommandState.gear);
     ImGui::Text("Steer: %f", vehicle_.mCommandState.steer);
     ImGui::Text("Throttle: %f", vehicle_.mCommandState.throttle);
@@ -127,7 +137,32 @@ void VehicleComponent::OnUpdate(const Timestep& delta_time)
         debug::LogInfo("Reloaded vehicle params from JSON files...");
     }
 
+    if (time_since_last_particle_ >= kExhaustParticleDelay)
+    {
+        const vec3 particle_pos_left =
+            transform_->GetPosition() +
+            transform_->GetRightDirection() * kExhaustParticleOffset.x +
+            transform_->GetUpDirection() * kExhaustParticleOffset.y +
+            transform_->GetForwardDirection() * kExhaustParticleOffset.z;
+        const vec3 particle_pos_right =
+            transform_->GetPosition() +
+            -transform_->GetRightDirection() * kExhaustParticleOffset.x +
+            transform_->GetUpDirection() * kExhaustParticleOffset.y +
+            transform_->GetForwardDirection() * kExhaustParticleOffset.z;
+
+        exhaust_particles_->Emit(particle_pos_left);
+        exhaust_particles_->Emit(particle_pos_right);
+
+        time_since_last_particle_ = 0;
+    }
+    else
+    {
+        time_since_last_particle_ +=
+            static_cast<float>(delta_time.GetSeconds());
+    }
+
     audio_emitter_->SetPitch(kDrivingAudio, GetDrivePitch());
+
     HandleVehicleTransform();
     UpdateGrounded();
     CheckAutoRespawn(delta_time);

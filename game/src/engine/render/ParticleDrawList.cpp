@@ -1,5 +1,7 @@
 #include "engine/render/ParticleDrawList.h"
 
+#include <fmt/format.h>
+
 #include <algorithm>
 
 #include "engine/core/gfx/Texture.h"
@@ -19,6 +21,7 @@ struct BillboardVertex
 };
 
 static constexpr size_t kDefaultBufferSize = sizeof(GpuParticle) * 10;
+static int kNextTextureId = 0;
 
 const vector<BillboardVertex> kQuadVertices = {
     BillboardVertex(vec3(-0.5f, 0.5f, 0.0f), vec2(0.0f, 1.0f)),
@@ -99,8 +102,8 @@ void ParticleDrawList::Init()
                                     quad_model_matrix_offset + vec4_size * 3);
 
     // Texture Index
-    quad_buffer_.ConfigureAttribute(7, 4, GL_INT, quad_size,
-                                    quad_texture_index_offset);
+    quad_buffer_.ConfigureIntAttribute(7, 4, GL_INT, quad_size,
+                                       quad_texture_index_offset);
 
     glVertexAttribDivisor(2, 1);
     glVertexAttribDivisor(3, 1);
@@ -129,7 +132,6 @@ void ParticleDrawList::Prepare(const CameraView& camera)
     // Copy to GPU
     for (auto& particle : particles_)
     {
-        // TODO(radu): take particle's size into account...
         // TODO(radu): take particle's own rotation into account too...
         // rotate around the fwd (z) axis
 
@@ -154,7 +156,7 @@ void ParticleDrawList::Prepare(const CameraView& camera)
         gpu_particles_.push_back(GpuParticle{
             .color = particle.color,
             .model_matrix = model_matrix,
-            .texture_index = 0,
+            .texture_index = GetTextureIndex(particle.texture),
         });
     }
 
@@ -166,9 +168,18 @@ void ParticleDrawList::Render(const CameraView& camera)
 {
     vertex_array_.Bind();
 
+    // Bind textures and shader
     shader_.Use();
     shader_.SetUniform("uViewProjMatrix", camera.view_proj_matrix);
 
+    for (auto& entry : textures_)
+    {
+        entry.first->Bind(entry.second);
+        std::string uniform_name = fmt::format("uTextures[{}]", entry.second);
+        shader_.SetUniform(uniform_name, entry.second);
+    }
+
+    // Render
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -184,4 +195,23 @@ void ParticleDrawList::Clear()
 {
     particles_.clear();
     gpu_particles_.clear();
+}
+
+int ParticleDrawList::GetTextureIndex(const Texture* texture)
+{
+    int index = 0;
+    auto iter = textures_.find(texture);
+
+    if (iter == textures_.end())
+    {
+        index = kNextTextureId;
+        textures_.emplace(texture, kNextTextureId);
+        kNextTextureId += 1;
+    }
+    else
+    {
+        index = iter->second;
+    }
+
+    return index;
 }

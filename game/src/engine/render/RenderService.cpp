@@ -4,11 +4,13 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
+#include <limits>
 #include <stdexcept>
 
 #include "engine/App.h"
 #include "engine/asset/AssetService.h"
 #include "engine/core/debug/Log.h"
+#include "engine/core/gui/PropertyWidgets.h"
 #include "engine/input/InputService.h"
 #include "engine/render/Camera.h"
 #include "engine/render/Material.h"
@@ -25,6 +27,8 @@ using std::make_unique;
 using std::string;
 using std::unique_ptr;
 using std::vector;
+
+static constexpr float kFloatMax = std::numeric_limits<float>::max();
 
 RenderService::RenderService()
     : input_service_(nullptr),
@@ -153,8 +157,13 @@ void RenderService::OnWindowSizeChanged(int width, int height)
     debug::LogInfo("Window size changed: {}x{}", width, height);
     render_data_->screen_size = ivec2(width, height);
 
-    const float aspect_ratio =
-        static_cast<float>(width) / static_cast<float>(height);
+    float aspect_ratio = static_cast<float>(width) / static_cast<float>(height);
+
+    if (width <= 0 || height <= 0)
+    {
+        // Apparently this happens when the windows closes...?
+        aspect_ratio = 16.0f / 9.0f;
+    }
 
     for (auto& camera : render_data_->cameras)
     {
@@ -228,6 +237,49 @@ void RenderService::OnGui()
         ImGui::BulletText("Point Lights: %zu",
                           render_data_->point_lights.size());
         ImGui::BulletText("Entities: %zu", render_data_->entities.size());
+
+        if (ImGui::TreeNode("particle systems", "Particle Systems: %zu",
+                            particle_systems_.size()))
+        {
+            for (size_t i = 0; i < particle_systems_.size(); i++)
+            {
+                const auto& name = particle_systems_[i].name;
+                auto& props =
+                    particle_systems_[i].particle_system->GetProperties();
+
+                if (ImGui::TreeNode(reinterpret_cast<void*>(i), "%s",
+                                    name.c_str()))
+                {
+                    gui::EditColorProperty("Color Start", props.color_start);
+                    gui::EditColorProperty("Color End", props.color_end);
+
+                    gui::EditProperty("Acceleration", props.acceleration);
+
+                    ImGui::Checkbox("Random Velicty", &props.random_velocity);
+                    gui::EditProperty("Velocity", props.velocity);
+
+                    ImGui::DragFloat("Speed", &props.speed, 1.0f, 0.0f,
+                                     kFloatMax);
+                    ImGui::DragFloat("Size Start", &props.size_start, 1.0f,
+                                     0.0f, kFloatMax);
+                    ImGui::DragFloat("Size End", &props.size_end, 1.0f, 0.0f,
+                                     kFloatMax);
+                    ImGui::DragFloat("Lifetime", &props.lifetime, 1.0f, 0.0f,
+                                     kFloatMax);
+
+                    int amount = static_cast<int>(props.burst_amount);
+
+                    if (ImGui::DragInt("Burst Amount", &amount, 1.0f, 0, 250))
+                    {
+                        props.burst_amount = static_cast<uint32_t>(amount);
+                    }
+
+                    ImGui::TreePop();
+                }
+            }
+
+            ImGui::TreePop();
+        }
 
         ImGui::Checkbox("Draw Camera Frustums", &debug_draw_camera_frustums_);
 
@@ -305,12 +357,33 @@ void RenderService::BuildParticleSystems()
                 .acceleration = vec3(0.0f, -10.0f, 0.0f),
                 .color_start = vec4(1.0f, 0.0f, 0.0f, 1.0f),
                 .color_end = vec4(1.0f, 0.0f, 0.0f, 0.0f),
-                .speed = 15.0f,
-                .size_start = 3.0f,
-                .size_end = 0.5f,
-                .lifetime = 2.0f,
-                .texture = nullptr,
-                .burst_amount = 12,
+                .random_velocity = true,
+                .velocity = vec3(0.0f, 0.0f, 0.0f),
+                .speed = 30.0f,
+                .size_start = 0.5f,
+                .size_end = 0.25f,
+                .lifetime = 0.5f,
+                .texture = &asset_service_->GetTexture("particle@spark"),
+                .burst_amount = 10,
+            }),
+    });
+
+    particle_systems_.push_back({
+        .name = "exhaust",
+        .particle_system = make_unique<ParticleSystem>(
+            particle_draw_list,
+            ParticleSystemProperties{
+                .acceleration = vec3(0.0f, 4.0f, 0.0f),
+                .color_start = vec4(1.0f, 1.0f, 1.0f, 1.0f),
+                .color_end = vec4(1.0f, 1.0f, 1.0f, 0.0f),
+                .random_velocity = false,
+                .velocity = vec3(0.0f, 0.0f, 0.0f),
+                .speed = 4.0f,
+                .size_start = 1.0f,
+                .size_end = 0.15f,
+                .lifetime = 2.5f,
+                .texture = &asset_service_->GetTexture("particle@smoke"),
+                .burst_amount = 1,
             }),
     });
 }

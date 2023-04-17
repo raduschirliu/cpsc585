@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <unordered_map>
 #include <vector>
 
 #include "engine/core/Colors.h"
@@ -9,15 +10,16 @@
 #include "engine/core/gfx/VertexArray.h"
 #include "engine/core/gfx/VertexBuffer.h"
 
-class Texture;
 class Camera;
+class Texture;
+struct CameraView;
 
 struct Particle
 {
     glm::vec3 pos;
     glm::vec3 velocity;
     Color4 color;
-    Texture* texture;
+    const Texture* texture;
     float size;
     float lifetime;
     float angle_rad;
@@ -30,8 +32,6 @@ struct GpuParticle
     glm::mat4 model_matrix;
     int texture_index;
 };
-
-struct CameraView;
 
 class ParticleDrawList
 {
@@ -52,4 +52,7 @@ class ParticleDrawList
     VertexBuffer vertex_buffer_;
     std::vector<Particle> particles_;
     std::vector<GpuParticle> gpu_particles_;
+    std::unordered_map<const Texture*, int> textures_;
+
+    int GetTextureIndex(const Texture* texture);
 };

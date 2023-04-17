@@ -61,7 +61,12 @@ void ParticleSystem::Emit(const glm::vec3& pos)
 {
     for (uint32_t i = 0; i < properties_.burst_amount; i++)
     {
-        const vec3 velocity = glm::sphericalRand(1.0f) * properties_.speed;
+        vec3 velocity = properties_.velocity;
+
+        if (properties_.random_velocity)
+        {
+            velocity += glm::sphericalRand(1.0f) * properties_.speed;
+        }
 
         Particle& next_particle = NextParticle();
         next_particle = Particle{
@@ -94,4 +99,9 @@ Particle& ParticleSystem::NextParticle()
 void ParticleSystem::SetProperties(const ParticleSystemProperties& properties)
 {
     properties_ = properties;
+}
+
+ParticleSystemProperties& ParticleSystem::GetProperties()
+{
+    return properties_;
 }

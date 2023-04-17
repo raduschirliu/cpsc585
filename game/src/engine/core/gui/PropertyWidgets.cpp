@@ -5,6 +5,7 @@
 
 using glm::vec2;
 using glm::vec3;
+using glm::vec4;
 using std::string;
 
 static constexpr float kFloatMin = std::numeric_limits<float>::min();
@@ -119,6 +120,11 @@ bool EditProperty(const string& label, Rect2d& value)
 void EditColorProperty(const string& label, vec3& value)
 {
     ImGui::ColorEdit3(label.c_str(), glm::value_ptr(value));
+}
+
+void EditColorProperty(const string& label, vec4& value)
+{
+    ImGui::ColorEdit4(label.c_str(), glm::value_ptr(value));
 }
 
 };  // namespace gui

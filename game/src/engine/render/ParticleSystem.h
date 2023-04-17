@@ -15,11 +15,13 @@ struct ParticleSystemProperties
     glm::vec3 acceleration;
     Color4 color_start;
     Color4 color_end;
+    bool random_velocity;
+    glm::vec3 velocity;
     float speed;
     float size_start;
     float size_end;
     float lifetime;
-    Texture* texture;
+    const Texture* texture;
     uint32_t burst_amount;
 };
 
@@ -33,6 +35,7 @@ class ParticleSystem
     void Emit(const glm::vec3& pos);
 
     void SetProperties(const ParticleSystemProperties& properties);
+    ParticleSystemProperties& GetProperties();
 
   private:
     ParticleDrawList& draw_list_;

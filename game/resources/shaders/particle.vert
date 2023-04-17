@@ -10,7 +10,7 @@ layout (location = 7) in int inTextureIndex;
 out vec3 aPos;
 out vec4 aColor;
 out vec2 aTexCoord;
-out int aTextureIndex;
+flat out int aTextureIndex;
 
 uniform mat4 uViewProjMatrix;
 

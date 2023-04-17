@@ -6,6 +6,16 @@ VertexBuffer::VertexBuffer() : Buffer<BufferType::kVertexArray>()
 {
 }
 
+void VertexBuffer::ConfigureIntAttribute(GLuint index, GLint size,
+                                         GLenum data_type, GLsizei stride,
+                                         GLsizei offset)
+{
+    Bind();
+    glVertexAttribIPointer(index, size, data_type, stride,
+                           reinterpret_cast<GLvoid*>(offset));
+    glEnableVertexAttribArray(index);
+}
+
 void VertexBuffer::ConfigureAttribute(GLuint index, GLint size,
                                       GLenum data_type, GLsizei stride,
                                       GLsizei offset)
