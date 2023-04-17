@@ -10,18 +10,21 @@
       "name": "Debug",
       "configuration": "Debug",
       "configurePreset": "VS2019",
+      "jobs": 24,
       "targets": ["game"]
     },
     {
       "name": "Release",
       "configuration": "Release",
       "configurePreset": "VS2019",
+      "jobs": 24,
       "targets": ["game"]
     },
     {
       "name": "RelWithDebInfo",
       "configuration": "RelWithDebInfo",
       "configurePreset": "VS2019",
+      "jobs": 24,
       "targets": ["game"]
     }
   ],

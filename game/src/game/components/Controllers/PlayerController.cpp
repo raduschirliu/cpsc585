@@ -125,9 +125,10 @@ void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 
 void PlayerController::UpdateCarControls(const Timestep& delta_time)
 {
-    // TODO: Need to take multipliers into account again
-    // (or move them into VehicleComponent instead)
-
+    if (player_state_)
+    {
+        player_state_->SetIsAccelerating(false);
+    }
     UpdateGear();
     command_.steer = GetSteerDirection();
     command_.throttle = GetThrottle();
@@ -213,6 +214,7 @@ float PlayerController::GetThrottle()
     {
         if (input_service_->IsKeyDown(GLFW_KEY_W))
         {
+            player_state_->SetIsAccelerating(true);
             if (pickup_service_->IsVehicleSlowDown(&GetEntity()))
                 return 1.0f * kSpeedMultiplier;
             else
@@ -220,6 +222,7 @@ float PlayerController::GetThrottle()
         }
         else if (input_service_->IsKeyDown(GLFW_KEY_S))
         {
+            player_state_->SetIsAccelerating(false);
             return 0.0f;
         }
         return gamepad_trigger_right;

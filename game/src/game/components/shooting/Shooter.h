@@ -88,4 +88,5 @@ class Shooter final : public Component, public IEventSubscriber<OnUpdateEvent>
     jss::object_ptr<PlayerState> player_state_;
 
     jss::object_ptr<ParticleSystem> spark_particles_;
+    jss::object_ptr<ParticleSystem> spark_hit_particles_;
 };

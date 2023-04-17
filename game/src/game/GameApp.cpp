@@ -65,6 +65,7 @@ void GameApp::OnInit()
 {
     GetWindow().SetSize(ivec2(1600, 900));
     GetWindow().SetTitle("Angry Wheels");
+    GetWindow().SetIcon("resources/icon/icon.png");
 
     AddService<AssetService>();
     AddService<SceneDebugService>();

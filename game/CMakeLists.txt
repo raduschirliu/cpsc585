@@ -18,7 +18,10 @@ get_target_property(PHYSX_LINK_DEPS PhysX::PhysX INTERFACE_LINK_LIBRARIES)
 message(STATUS "====> PHYSX LINK DEPS: ${PHYSX_LINK_DEPS}")
 
 # Create target
-add_executable(game ${SOURCES})
+add_executable(game
+	${SOURCES}
+	${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc
+)
 
 target_include_directories(game PRIVATE src)
 target_link_libraries(game
