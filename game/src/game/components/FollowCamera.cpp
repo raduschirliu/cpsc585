@@ -45,33 +45,33 @@ std::string_view FollowCamera::GetName() const
     return "Follow Camera";
 }
 
-bool activate = true;
-
 void FollowCamera::OnUpdate(const Timestep& delta_time)
 {
-    const quat target_orientation = target_transform_->GetOrientation();
+    if (!player_state_)
+        return;
 
     // Calculate the target position with offset and distance
     vec3 target_position =
         target_transform_->GetPosition() +
         target_transform_->GetForwardDirection() * -distance_ + offset_;
 
+    auto target_orientation = target_transform_->GetOrientation();
+
     const float dt_sec = static_cast<float>(delta_time.GetSeconds());
 
-    if (activate && player_state_ && player_state_->GetIsAccelerating())
-    {
-        // Modify the target_position to tilt up/down
-        float tilt_angle = 10.0f;  // Adjust the tilt angle as needed
-        float tilt_amount = sin(glm::radians(tilt_angle)) * acceleration_factor_; // Adjust the acceleration factor as needed
-        target_position.y += tilt_amount;
-    }
+    // Modify the target_position to tilt up/down
+    float tilt_angle = 20.0f * (player_state_->GetCurrentSpeed() / 130.f);
+    float oscillation = sin(glm::radians(tilt_angle));
+    float tilt_amount = oscillation * acceleration_factor_;
 
-    // Apply the lerping with the modified target position and original target orientation
-    transform_->SlerpOrientation(target_orientation, orientation_lerp_factor_ * dt_sec);
+    target_position.y += tilt_amount;
+
+    // Apply the lerping with the modified target position and original target
+    // orientation
+    transform_->SlerpOrientation(target_orientation,
+                                 orientation_lerp_factor_ * dt_sec);
     transform_->LerpPosition(target_position, position_lerp_factor_ * dt_sec);
 }
-
-
 
 void FollowCamera::SetPlayerState(PlayerState& player_state)
 {
@@ -80,8 +80,10 @@ void FollowCamera::SetPlayerState(PlayerState& player_state)
 
 void FollowCamera::OnDebugGui()
 {
-    ImGui::Checkbox("Activate the interpolation", &activate);
-    ImGui::DragFloat("Acceleration Factor", &acceleration_factor_, 0.1f, -0.0f, 100.0f);
+    // ImGui::Checkbox("Activate the interpolation", &activate);
+    ImGui::Text("Speed = %f", player_state_->GetCurrentSpeed());
+    ImGui::DragFloat("Acceleration Factor", &acceleration_factor_, 0.1f, -0.0f,
+                     100.0f);
     gui::EditProperty("Offset", offset_);
     ImGui::DragFloat("Distance", &distance_, 1.0f, -100.0f, 100.0f);
     ImGui::DragFloat("Orientation Lerp Factor", &orientation_lerp_factor_,

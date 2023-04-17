@@ -12,6 +12,7 @@ struct PlayerStateData
     float speed_multiplier;
     float handling_multiplier;
     float max_car_speed;
+    float current_car_speed;
     int number_kills;
     int number_deaths;
     int laps_completed;
@@ -50,5 +51,7 @@ struct PlayerStateData
         bullied = nullptr;
         accuracy = 0.0f;
         max_car_speed = 100.f;
+        current_car_speed = 0.f;
+
     }
 };

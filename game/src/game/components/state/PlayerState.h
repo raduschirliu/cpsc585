@@ -34,6 +34,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     void SetPlayerWhoShotMe(std::string player);
     void SetPlayerName(std::string name);
     void SetIsAccelerating(bool b_value);
+    void SetCurrentSpeed(float value);
 
     // getters
     float GetMaxCarSpeed();
@@ -46,6 +47,7 @@ class PlayerState : public Component, public IEventSubscriber<OnUpdateEvent>
     int GetDeaths() const;
     int GetLapsCompleted() const;
     int GetLastCheckpoint() const;
+    float GetCurrentSpeed() const;
     Entity* GetNemesis();
     Entity* GetBullied();
     PowerupPickupType GetCurrentPowerup() const;
