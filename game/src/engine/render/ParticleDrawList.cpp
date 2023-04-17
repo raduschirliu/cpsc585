@@ -18,6 +18,10 @@ struct BillboardVertex
 {
     vec3 pos;
     vec2 uv;
+
+    BillboardVertex(const vec3& pos, const vec2& uv) : pos(pos), uv(uv)
+    {
+    }
 };
 
 static constexpr size_t kDefaultBufferSize = sizeof(GpuParticle) * 10;
