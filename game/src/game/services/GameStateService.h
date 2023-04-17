@@ -117,6 +117,7 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     std::unordered_set<std::string> GetPlayerStaticNames();
 
     std::vector<PickupData> ReadCheckpointsFromJsonFile();
+    PlayerRecord* FindPlayerByEntityId(uint32_t entity_id);
 
   protected:
     void KillFeed(const ImGuiWindowFlags& flags);
@@ -165,7 +166,6 @@ class GameStateService : public Service, public IEventSubscriber<OnGuiEvent>
     void UpdateRaceTimer(const Timestep& delta_time);
     void UpdatePlayerProgressScore(const Timestep& delta_time);
     void UpdatePowerupInfo();
-    PlayerRecord* FindPlayerByEntityId(uint32_t entity_id);
 
     void SetupRace();
     void StartRace();
