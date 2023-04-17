@@ -3,9 +3,12 @@
 #include <memory>
 #include <vector>
 
+#include "engine/core/gfx/GLHandles.h"
 #include "engine/core/gfx/ShaderProgram.h"
 #include "engine/fwd/FwdComponents.h"
 #include "engine/render/DebugDrawList.h"
+#include "engine/render/LaserMaterial.h"
+#include "engine/render/ParticleDrawList.h"
 #include "engine/render/RenderBuffers.h"
 #include "engine/render/SceneRenderData.h"
 
@@ -30,12 +33,23 @@ class GeometryPass
     void ResetState();
 
     void SetWireframe(bool state);
+    LaserMaterial& GetLaserMaterial();
+    TextureHandle& GetScreenTexture();
+    ParticleDrawList& GetParticleDrawList();
 
   private:
+    FramebufferHandle fbo_;
+    RenderbufferHandle rbo_;
+    TextureHandle screen_texture_multisample_;
+    FramebufferHandle fbo_resolve_;
+    RenderbufferHandle rbo_resolve_;
+    TextureHandle screen_texture_;
     SceneRenderData& render_data_;
     const std::vector<std::unique_ptr<ShadowMap>>& shadow_maps_;
     std::vector<std::unique_ptr<MeshRenderData>> meshes_;
     ShaderProgram shader_, debug_shader_, skybox_shader_;
+    LaserMaterial laser_material_;
+    ParticleDrawList particle_draw_list_;
     RenderBuffers skybox_buffers_;
     const Cubemap* skybox_texture_;
     bool wireframe_;
@@ -43,10 +57,17 @@ class GeometryPass
     float max_shadow_bias_;
     size_t debug_num_draw_calls_;
     size_t debug_total_buffer_size_;
+    glm::ivec2 last_screen_size_;
 
+    void InitSkybox();
+    void InitMultisampleFbo();
+    void InitResolveFbo();
+    void ResolveMultisampledTarget();
+    void CheckScreenResize();
     CameraView PrepareCameraView(Camera& camera);
     void RenderMeshes(const CameraView& camera);
     void RenderDebugDrawList(const CameraView& camera);
     void RenderSkybox(const CameraView& camera);
+    void RenderParticles(const CameraView& camera);
     void CreateBuffers(const Entity& entity, const MeshRenderer& renderer);
 };

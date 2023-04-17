@@ -49,10 +49,14 @@ void PlayerController::OnUpdate(const Timestep& delta_time)
     {
         return;
     }
-
-    // do nothing when dead
-    if (player_state_->IsDead())
+    else if (game_state_service_->GetGlobalRaceState().state ==
+             GameState::kPostRace)
     {
+        return;
+    }
+    else if (player_state_->IsDead())
+    {
+        // do nothing when dead
         return;
     }
 
@@ -87,7 +91,9 @@ void PlayerController::CheckShoot(const Timestep& delta_time)
 void PlayerController::UpdatePowerupControls(const Timestep& delta_time)
 {
     using enum PowerupPickupType;
-    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE))
+    if (input_service_->IsKeyPressed(GLFW_KEY_SPACE),
+        input_service_->IsGamepadButtonPressed(kGamepadId,
+                                               GLFW_GAMEPAD_BUTTON_X))
     {
         if (player_state_->GetCurrentPowerup() == kDefaultPowerup)
         {

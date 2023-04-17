@@ -63,7 +63,7 @@ GameApp::GameApp()
  */
 void GameApp::OnInit()
 {
-    GetWindow().SetSize(ivec2(1280, 720));
+    GetWindow().SetSize(ivec2(1600, 900));
     GetWindow().SetTitle("Angry Wheels");
 
     AddService<AssetService>();

@@ -18,6 +18,15 @@ enum class CameraType : uint8_t
     kDebug,
 };
 
+struct CameraView
+{
+    Transform* camera_transform;
+    glm::vec3 pos;
+    glm::mat4 view_matrix;
+    glm::mat4 proj_matrix;
+    glm::mat4 view_proj_matrix;
+};
+
 class Camera final : public Component, public IEventSubscriber<OnUpdateEvent>
 {
   public:
