@@ -311,8 +311,9 @@ void VehicleComponent::Respawn()
 {
     glm::vec3 last_checkpoint_pos;
     glm::vec3 next_checkpoint_pos;
-    
-    vehicle_.mBaseState.rigidBodyState.linearVelocity = PxVec3(0.0f, 0.0f, 0.0f);
+
+    vehicle_.mBaseState.rigidBodyState.linearVelocity =
+        PxVec3(0.0f, 0.0f, 0.0f);
 
     int current_checkpoint = game_state_service_->GetCurrentCheckpoint(
         GetEntity().GetId(), last_checkpoint_pos, next_checkpoint_pos);
